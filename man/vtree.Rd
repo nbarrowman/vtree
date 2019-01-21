@@ -11,11 +11,11 @@ vtree(z, vars, prune = list(), prunebelow = list(), keep = list(),
   palette = NULL, gradient = TRUE, revgradient = FALSE,
   singlecolor = 2, colorvarlabels = TRUE, title = "",
   sameline = FALSE, Venn = FALSE, check.is.na = FALSE, seq = FALSE,
-  text = list(), plain = FALSE, squeeze = 1, shownodelabels = TRUE,
-  showvarnames = TRUE, showlevels = TRUE, showpct = TRUE,
-  showlpct = TRUE, showcount = TRUE, showlegend = FALSE,
-  varnamepointsize = 20, HTMLtext = FALSE, digits = 0,
-  splitwidth = 20, lsplitwidth = 15, getscript = FALSE,
+  text = list(), ttext = list(), plain = FALSE, squeeze = 1,
+  shownodelabels = TRUE, showvarnames = TRUE, showlevels = TRUE,
+  showpct = TRUE, showlpct = TRUE, showcount = TRUE,
+  showlegend = FALSE, varnamepointsize = 20, HTMLtext = FALSE,
+  digits = 0, splitwidth = 20, lsplitwidth = 15, getscript = FALSE,
   nodesep = 0.5, ranksep = 0.5, margin = 0.2, vp = TRUE,
   horiz = TRUE, summary = "", width = NULL, height = NULL,
   graphattr = "", nodeattr = "", edgeattr = "", color = c("blue",
@@ -117,6 +117,8 @@ Each element is a vector of character strings.
 The names of the vector identify the nodes to which the text should be added.
 (See \strong{Formatting codes} below for information
 on how to format text.)}
+
+\item{ttext}{Targetted text.}
 
 \item{plain}{Use "plain" color settings?}
 

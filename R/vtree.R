@@ -85,6 +85,7 @@
 #'                         The names of the vector identify the nodes to which the text should be added.
 #'                         (See \strong{Formatting codes} below for information
 #'                         on how to format text.)
+#' @param ttext            Targetted text. 
 #' @param HTMLtext         Is the text formatted in HTML?
 #' @param splitwidth       The minimum number of characters before an automatic
 #'                         linebreak is inserted.
@@ -245,7 +246,7 @@ vtree <- function (z, vars,
   sameline=FALSE,
   Venn = FALSE, check.is.na = FALSE,
   seq=FALSE,
-  text = list(),
+  text = list(),ttext=list(),
   plain = FALSE, squeeze = 1,
   shownodelabels=TRUE,
   showvarnames = TRUE, showlevels = TRUE,
@@ -903,7 +904,7 @@ vtree <- function (z, vars,
     HTMLtext = HTMLtext, showvarnames = showvarnames,
     keep=keep[[vars[1]]],
     pruneNA=pruneNA,
-    text = ThisLevelText, TopText = TopText, digits = digits,
+    text = ThisLevelText, ttext=ttext,TopText = TopText, digits = digits,
     splitwidth = splitwidth, showempty = showempty, topcolor = color[1],
     color = color[2], topfillcolor = rootfillcolor, fillcolor = fillcolor[[vars[1]]],
     vp = vp, rounded = rounded)
@@ -920,6 +921,21 @@ vtree <- function (z, vars,
   }
   i <- 0
   for (varlevel in fc$levels) {
+    TTEXT <- ttext
+    j <- 1
+    while (j <= length(TTEXT)) {
+      if (!any(names(TTEXT[[j]])==CurrentVar)) {
+        TTEXT[[j]] <- NULL
+      } else {
+        #cat("RightThere\n")
+        if (TTEXT[[j]][CurrentVar]!=varlevel) {
+          TTEXT[[j]] <- NULL
+        }
+        #cat("TTEXT[[1]]",TTEXT[[1]],"\n")
+      }
+      j <-j + 1
+    }
+    #cat("TTEXT[[1]]",TTEXT[[1]],"\n")
     i <- i + 1
     if (!(varlevel %in% prunebelowlevels) & (is.null(followlevels) | (varlevel %in% followlevels))) {
       if (varlevel == "NA") {
@@ -945,7 +961,7 @@ vtree <- function (z, vars,
           keep=keep,
           follow=follow,
           pruneNA=pruneNA,
-          text = text,gradient=gradient,
+          text = text, ttext=TTEXT,gradient=gradient,
           colornodes = colornodes, color = color[-1], fillnodes = fillnodes,
           fillcolor = fillcolor, splitwidth = splitwidth,
           vp = vp, rounded = rounded)
@@ -1195,7 +1211,7 @@ shownodelabels=TRUE,sameline=FALSE,
 prunefull=NULL,
 prunelone=NULL,
 keep=NULL,
-text=NULL,TopText="",sepN="<BR/>",showempty=FALSE,digits=0,
+text=NULL,ttext=NULL,TopText="",sepN="<BR/>",showempty=FALSE,digits=0,
 showpct=TRUE,
 showcount=TRUE,
 showvarnames=FALSE,
@@ -1333,6 +1349,17 @@ vp=TRUE,rounded=FALSE) {
       #browser()
       if (text[names(text)==label]!="") {
         extraText[m] <- paste("<BR/>",text[names(text)==label])
+      }
+    }
+  }
+
+  #browser()
+  if (length(ttext)>0) {  
+    for (j in 1:length(ttext)) {
+      if (any(names(ttext[[j]])==var)) {
+        #cat("here\n")
+        TTEXTposition <- CAT[-1] == ttext[[j]][names(ttext[[j]])==var]
+        extraText[-1][TTEXTposition] <- paste0("<BR/>",ttext[[j]]["text"])
       }
     }
   }
