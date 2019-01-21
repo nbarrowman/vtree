@@ -927,15 +927,16 @@ vtree <- function (z, vars,
       if (!any(names(TTEXT[[j]])==CurrentVar)) {
         TTEXT[[j]] <- NULL
       } else {
-        #cat("RightThere\n")
-        if (TTEXT[[j]][CurrentVar]!=varlevel) {
-          TTEXT[[j]] <- NULL
+        if (TTEXT[[j]][CurrentVar]==varlevel) {
+          TTEXT[[j]] <- TTEXT[[j]][names(TTEXT[[j]])!=CurrentVar]
+        } else {
+          if (TTEXT[[j]][CurrentVar]!=varlevel) {
+            TTEXT[[j]] <- NULL
+          }
         }
-        #cat("TTEXT[[1]]",TTEXT[[1]],"\n")
       }
       j <-j + 1
     }
-    #cat("TTEXT[[1]]",TTEXT[[1]],"\n")
     i <- i + 1
     if (!(varlevel %in% prunebelowlevels) & (is.null(followlevels) | (varlevel %in% followlevels))) {
       if (varlevel == "NA") {
@@ -1356,8 +1357,7 @@ vp=TRUE,rounded=FALSE) {
   #browser()
   if (length(ttext)>0) {  
     for (j in 1:length(ttext)) {
-      if (any(names(ttext[[j]])==var)) {
-        #cat("here\n")
+      if (length(ttext[[j]])==2 && any(names(ttext[[j]])==var)) {
         TTEXTposition <- CAT[-1] == ttext[[j]][names(ttext[[j]])==var]
         extraText[-1][TTEXTposition] <- paste0("<BR/>",ttext[[j]]["text"])
       }
