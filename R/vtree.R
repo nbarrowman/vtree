@@ -1347,14 +1347,12 @@ vp=TRUE,rounded=FALSE) {
   for (label in names(text)) {
     if (label %in% names(categoryCounts)) {
       m <- match(label,names(categoryCounts))
-      #browser()
       if (text[names(text)==label]!="") {
         extraText[m] <- paste("<BR/>",text[names(text)==label])
       }
     }
   }
 
-  #browser()
   if (length(ttext)>0) {  
     for (j in 1:length(ttext)) {
       if (length(ttext[[j]])==2 && any(names(ttext[[j]])==var)) {
