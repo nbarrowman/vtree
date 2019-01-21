@@ -1232,7 +1232,7 @@ vp=TRUE,rounded=FALSE) {
 #
 # https://en.wikipedia.org/wiki/DOT_(graph_description_language)
 #
-
+  
   if (is.na(shownodelabels)) shownodelabels <- TRUE
 
   if (is.logical(z)) {
@@ -1336,13 +1336,6 @@ vp=TRUE,rounded=FALSE) {
 
   FILLCOLOR <- fillcolor[match(CAT[-1],names(fillcolor))]
 
-  if (HTMLtext) {
-    CAT[-1] <- splitlines(CAT[-1],width=splitwidth,sp="<BR/>")
-  } else {
-    CAT[-1] <- splitlines(CAT[-1],width=splitwidth,sp="\n")
-    CAT[-1] <- convertToHTML(CAT[-1])
-  }
-
   extraText <- rep("",length(CAT))
 
   # Match extra text to nodes
@@ -1365,6 +1358,13 @@ vp=TRUE,rounded=FALSE) {
     }
   }
 
+  if (HTMLtext) {
+    CAT[-1] <- splitlines(CAT[-1],width=splitwidth,sp="<BR/>")
+  } else {
+    CAT[-1] <- splitlines(CAT[-1],width=splitwidth,sp="\n")
+    CAT[-1] <- convertToHTML(CAT[-1])
+  }
+ 
   if (check.is.na) {
     for (i in 2:length(CAT)) {
       varname <- gsub("^MISSING_(.+)", "\\1", var)
@@ -1467,7 +1467,7 @@ joinflow <- function(...) {
 
 
 
-splitlines <- function (x, width = 10, sp = "\n", at = c(" ", "-", "+","_",".","="), same = FALSE) {
+splitlines <- function (x, width = 10, sp = "\n", at = c(" ", "-", "+","_",".","=","/"), same = FALSE) {
 
 # NOTE: I removed forward slash from the default at argument,
 # because it caused a problem with HTML where / is important.
