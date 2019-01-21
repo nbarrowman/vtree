@@ -110,7 +110,8 @@ whether or not each of its values is missing?}
 \item{seq}{Display the variable tree using "sequences"?
 Each unique sequence (i.e. pattern) of values will be shown separately.}
 
-\item{text}{A list of vectors containing extra text to add to specified nodes.
+\item{text}{A list of vectors containing extra text to add to 
+nodes corresponding to specified values of a specified variable.
 The name of each element of the list
 must be one of the variable names in \code{vars}.
 Each element is a vector of character strings.
@@ -118,7 +119,10 @@ The names of the vector identify the nodes to which the text should be added.
 (See \strong{Formatting codes} below for information
 on how to format text.)}
 
-\item{ttext}{Targetted text.}
+\item{ttext}{A list of vectors, each of which specifies a particular node,
+as well as text to add to that node ("targeted text").
+The names of each vector specify variable names,
+except for an element named \code{text}, which specifies the text to add.}
 
 \item{plain}{Use "plain" color settings?}
 
@@ -261,8 +265,8 @@ in which the subsetting is defined by the values of categorical variables.
 Node functions provide a mechanism for running a function within each subset
 representing a node of the tree. The \code{summary} parameter uses node functions.
 A node functions is a function takes as arguments a data frame subset,
- the name of the subsetting variable, the value of the subsetting variable, and
- a list of named arguments.
+the name of the subsetting variable, the value of the subsetting variable, and
+a list of named arguments.
 }
 
 \section{Formatting codes}{
@@ -316,6 +320,9 @@ vtree(FakeData,"Severity Sex Viral",sameline=TRUE,showlegend=TRUE)
 
 # Using the summary parameter to list ID numbers (truncated to 40 characters) in specified nodes
 vtree(FakeData,"Severity Sex",summary="id \\nid = \%list\% \%var=Severity\% \%trunc=40\%")
+
+# Adding text to specified nodes of a tree
+vtree(FakeData,"Severity Sex",ttext=list(c(Severity="Severe",Sex="M",text="see if this works"),c(Severity="NA",text="Nothing")))
 
 }
 \author{

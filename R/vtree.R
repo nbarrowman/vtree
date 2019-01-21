@@ -78,14 +78,18 @@
 #'                         If NULL, fill colors of missing value nodes will be consistent
 #'                         with the fill colors in the rest of the tree.
 #' @param rootfillcolor    Fill color for the root node.
-#' @param text             A list of vectors containing extra text to add to specified nodes.
+#' @param text             A list of vectors containing extra text to add to 
+#'                         nodes corresponding to specified values of a specified variable.
 #'                         The name of each element of the list
 #'                         must be one of the variable names in \code{vars}.
 #'                         Each element is a vector of character strings.
 #'                         The names of the vector identify the nodes to which the text should be added.
 #'                         (See \strong{Formatting codes} below for information
 #'                         on how to format text.)
-#' @param ttext            Targetted text. 
+#' @param ttext            A list of vectors, each of which specifies a particular node,
+#'                         as well as text to add to that node ("targeted text").
+#'                         The names of each vector specify variable names,
+#'                         except for an element named \code{text}, which specifies the text to add.
 #' @param HTMLtext         Is the text formatted in HTML?
 #' @param splitwidth       The minimum number of characters before an automatic
 #'                         linebreak is inserted.
@@ -174,8 +178,8 @@
 #' Node functions provide a mechanism for running a function within each subset
 #' representing a node of the tree. The \code{summary} parameter uses node functions.
 #' A node functions is a function takes as arguments a data frame subset,
-#'  the name of the subsetting variable, the value of the subsetting variable, and
-#'  a list of named arguments.
+#' the name of the subsetting variable, the value of the subsetting variable, and
+#' a list of named arguments.
 #'
 #' @section Formatting codes:
 #' Formatting codes for the \code{text} argument.
@@ -230,6 +234,9 @@
 #'
 #' # Using the summary parameter to list ID numbers (truncated to 40 characters) in specified nodes
 #' vtree(FakeData,"Severity Sex",summary="id \nid = %list% %var=Severity% %trunc=40%")
+#' 
+#' # Adding text to specified nodes of a tree
+#' vtree(FakeData,"Severity Sex",ttext=list(c(Severity="Severe",Sex="M",text="see if this works"),c(Severity="NA",text="Nothing")))
 #'
 #' @export
 
@@ -1278,8 +1285,6 @@ vp=TRUE,rounded=FALSE) {
     }
   }
 
-  #cat("showcount=",showcount," showpct=",showpct,"\n")
-
   npctString <- c(length(z),npctString)
   names(npctString)[1] <- title
 
@@ -1306,8 +1311,6 @@ vp=TRUE,rounded=FALSE) {
     m <- names(categoryCounts)[-1]!="NA"
     categoryCounts <- c(categoryCounts[1],categoryCounts[-1][m])
     npctString <- c(npctString[1],npctString[-1][m])
-    #print(categoryCounts)
-    #print(npctString)
   }
 
   if (!is.null(prunelone)) {
@@ -1388,10 +1391,6 @@ vp=TRUE,rounded=FALSE) {
 
   # Write DOT code for the edges
   edgeVector <- paste0(nodenames[1],"->",nodenames[-1])
-
-  #if (!is.null(showedgeindex)) {
-  #  edgeVector[showedgeindex] <- paste0(edgeVector[showedgeindex],"[penwidth=3]")
-  #}
 
   edges <- paste(edgeVector,collapse=" ")
 
