@@ -144,7 +144,7 @@ in particular Richard Iannone's
 [DiagrammeR](http://rich-iannone.github.io/DiagrammeR/) package,
 which provides an interface to the
 [Graphviz](https://www.graphviz.org/) software using the
-[htmlwidgets](https://www.htmlwidgets.org/)] framework.
+[htmlwidgets](https://www.htmlwidgets.org/) framework.
 A formal description of variable trees follows.
 
 The root node of the variable tree represents the entire data frame.
@@ -840,6 +840,34 @@ filepath <- grVizToPNG(v28,folder=PNGdir,width=1000)
 ![](`r filepath`){ height=7in }
 
 
+# Additional Graphviz customization
+
+`vtree` has three additional parameters to access GraphViz attributes: `graphattr` (for graph attributes), `nodeattr` (node attributes), and `edgeatttr` (edge attributes).
+A full list of Graphviz attributes is [available](https://www.graphviz.org/doc/info/attrs.html).
+
+For example, two edge attributes are `arrowhead`,
+which specifies the type of arrow,
+and `penwidth`, which specifies the thickness of the edge (in points).
+(Note that `penwidth` is also a node attribute.)
+To draw a variable tree without any arrows on the edges and with thick edges, use:
+```{r,eval=FALSE}
+vtree(FakeData,"Severity",edgeattr="arrowhead=none penwidth=4")
+```
+```{r,echo=FALSE}
+v29 <- vtree(FakeData,"Severity",edgeattr="arrowhead=none penwidth=2",width=250,height=250)
+filepath <- grVizToPNG(v29,folder=PNGdir,width=1000)
+```
+![](`r filepath`){ height=2.5in }
+
+The minimum width of nodes (in inches) can be specified using the node attribute `width`:
+```{r,eval=FALSE}
+vtree(FakeData,"Severity",nodeattr="width=2")
+```
+```{r,echo=FALSE}
+v30 <- vtree(FakeData,"Severity",nodeattr="width=2",width=250,height=250)
+filepath <- grVizToPNG(v30,folder=PNGdir,width=1000)
+```
+![](`r filepath`){ height=2.5in }
 
 
 # Saving to PNG files
