@@ -155,6 +155,7 @@
 #' @param parent           Parent node number (Internal use only.)
 #' @param last             Last node number (Internal use only.)
 #' @param root             Is this the root node of the tree? (Internal use only.)
+#' @param showroot         Should the root node be shown?
 #'
 #' @section Summary codes:
 #' \itemize{
@@ -271,7 +272,7 @@ vtree <- function (z, vars,
   color = c("blue", "forestgreen", "red", "orange", "pink"), colornodes = FALSE,
   showempty = FALSE, rounded = TRUE,
   nodefunc = NULL, nodeargs = NULL,
-  parent = 1, last = 1, root = TRUE)
+  parent = 1, last = 1, root = TRUE, showroot=TRUE)
 {
 
   makeHTML <- function(x) {
@@ -914,7 +915,7 @@ vtree <- function (z, vars,
     text = ThisLevelText, ttext=ttext,TopText = TopText, digits = digits,
     splitwidth = splitwidth, showempty = showempty, topcolor = color[1],
     color = color[2], topfillcolor = rootfillcolor, fillcolor = fillcolor[[vars[1]]],
-    vp = vp, rounded = rounded)
+    vp = vp, rounded = rounded, showroot=showroot)
   CurrentVar <- vars[1]
   if (CurrentVar %in% names(follow)) {
     followlevels <- follow[[CurrentVar]]
@@ -1104,15 +1105,22 @@ vtree <- function (z, vars,
             'label=<',
             colored_VARS,'<BR/>',marginalText,
             '>')
-          nodelevels <- 'Node_L0[style=invisible]\n'
+          if (showroot) {
+            nodelevels <- 'Node_L0[style=invisible]\n'
+          } else {
+            nodelevels <- ''
+          }
           nodelevels <- paste0(nodelevels, paste0('Node_L',
               1:numvars,
               '[',
               labels,
               ' shape=none margin=0]',collapse = '\n'))
+          nodelinks <- paste0('Node_L', 1:numvars, collapse = '->')
+          if (showroot) {
+            nodelinks <- paste0('Node_L0->',nodelinks)
+          }
           nodelevels <- paste0(nodelevels, paste0('\n\nedge[style=invis];\n',
-              paste0('Node_L', 0:numvars, collapse = '->')),
-              '\n')
+              nodelinks),'\n')
       }
       else {
           nodelevels <- ''
@@ -1225,7 +1233,7 @@ showcount=TRUE,
 showvarnames=FALSE,
 pruneNA=FALSE,
 splitwidth=Inf,topcolor="black",color="blue",topfillcolor="olivedrab3",fillcolor="olivedrab2",
-vp=TRUE,rounded=FALSE) {
+vp=TRUE,rounded=FALSE,showroot=TRUE) {
 #
 # Write DOT code for a single-level {flow}chart of {cat}egories using the
 # DiagrammeR framework.
@@ -1390,9 +1398,12 @@ vp=TRUE,rounded=FALSE) {
   }
 
   # Write DOT code for the edges
-  edgeVector <- paste0(nodenames[1],"->",nodenames[-1])
-
-  edges <- paste(edgeVector,collapse=" ")
+  if (showroot) {
+    edgeVector <- paste0(nodenames[1],"->",nodenames[-1])
+    edges <- paste(edgeVector,collapse=" ")
+  } else {
+    edges <- ""
+  }
 
   if (rounded) {
     styleString <- ' style="rounded,filled"'
@@ -1418,9 +1429,11 @@ vp=TRUE,rounded=FALSE) {
   # Write DOT code for assigning labels (using the DiagrammeR framework)
   labelassign <- c()
   if (root) {
-    labelassign <- paste(paste0(
-      nodenames[1],'[label=<',CAT[1],npctString[1],extraText[1],'> color=',topcolor,styleString,
-      ' fillcolor=<',topfillcolor,'>]'),collapse='\n')
+    if (showroot) {
+      labelassign <- paste(paste0(
+        nodenames[1],'[label=<',CAT[1],npctString[1],extraText[1],'> color=',topcolor,styleString,
+        ' fillcolor=<',topfillcolor,'>]'),collapse='\n')
+    }
     labelassign <- paste0(labelassign,'\n',paste(paste0(
       nodenames[-1],'[label=<',CAT[-1],npctString[-1],extraText[-1],'> color=',color,styleString,
       ' fillcolor=<',FILLCOLOR,'>]')),collapse='\n')

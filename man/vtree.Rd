@@ -21,7 +21,8 @@ vtree(z, vars, prune = list(), prunebelow = list(), keep = list(),
   graphattr = "", nodeattr = "", edgeattr = "", color = c("blue",
   "forestgreen", "red", "orange", "pink"), colornodes = FALSE,
   showempty = FALSE, rounded = TRUE, nodefunc = NULL,
-  nodeargs = NULL, parent = 1, last = 1, root = TRUE)
+  nodeargs = NULL, parent = 1, last = 1, root = TRUE,
+  showroot = TRUE)
 }
 \arguments{
 \item{z}{Required: Data frame, or a single vector.}
@@ -228,6 +229,8 @@ specified by \code{nodefunc}.}
 \item{last}{Last node number (Internal use only.)}
 
 \item{root}{Is this the root node of the tree? (Internal use only.)}
+
+\item{showroot}{Should the root node be shown?}
 }
 \value{
 If \code{getscript=TRUE}, returns a character string of DOT script that describes the variable tree.
