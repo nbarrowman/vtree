@@ -1606,7 +1606,11 @@ convertToHTML <- function(x) {
 
   x <- gsub("\\*\\*(.+?)\\*\\*","<B>\\1</B>",x)
   x <- gsub("\\*(.+?)\\*","<I>\\1</I>",x)
-  x <- gsub("_(.+?)_","<I>\\1</I>",x)
+  
+  # In markdown, _underscores_ can be used to format in italics.
+  # But I have disabled this because it caused problems with
+  # variable_names_likeThis 
+  # x <- gsub("_(.+?)_","<I>\\1</I>",x)
 
   # Special character sequence for color!
 
