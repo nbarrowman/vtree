@@ -17,12 +17,12 @@ vtree(z, vars, prune = list(), prunebelow = list(), keep = list(),
   showlegend = FALSE, varnamepointsize = 20, HTMLtext = FALSE,
   digits = 0, splitwidth = 20, lsplitwidth = 15, getscript = FALSE,
   nodesep = 0.5, ranksep = 0.5, margin = 0.2, vp = TRUE,
-  horiz = TRUE, summary = "", width = NULL, height = NULL,
-  graphattr = "", nodeattr = "", edgeattr = "", color = c("blue",
-  "forestgreen", "red", "orange", "pink"), colornodes = FALSE,
-  showempty = FALSE, rounded = TRUE, nodefunc = NULL,
-  nodeargs = NULL, parent = 1, last = 1, root = TRUE,
-  showroot = TRUE)
+  horiz = TRUE, summary = "", splitspaces = TRUE, width = NULL,
+  height = NULL, graphattr = "", nodeattr = "", edgeattr = "",
+  color = c("blue", "forestgreen", "red", "orange", "pink"),
+  colornodes = FALSE, showempty = FALSE, rounded = TRUE,
+  nodefunc = NULL, nodeargs = NULL, parent = 1, last = 1,
+  root = TRUE, showroot = TRUE)
 }
 \arguments{
 \item{z}{Required: Data frame, or a single vector.}
@@ -200,6 +200,11 @@ along with special codes specifying the information to display
 (see \strong{Summary codes} below).
 A vector of character strings can also be specified,
 so that more than one variable may be summarized.}
+
+\item{splitspaces}{When \code{vars} is a character string, should by it 
+be split by spaces to get variable names?
+This should only be FALSE when a single variable name
+that contains spaces is specified.}
 
 \item{width}{width (in pixels) to be passed to \code{grViz}.}
 

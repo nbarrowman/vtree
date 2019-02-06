@@ -152,6 +152,10 @@
 #'                         See \strong{Palettes} below for more information.
 #' @param singlecolor      When a variable has a single value,
 #'                         should its nodes can be colored light (1) medium (2) or dark (3)?
+#' @param splitspaces      When \code{vars} is a character string, should by it 
+#'                         be split by spaces to get variable names?
+#'                         This should only be FALSE when a single variable name
+#'                         that contains spaces is specified.
 #' @param parent           Parent node number (Internal use only.)
 #' @param last             Last node number (Internal use only.)
 #' @param root             Is this the root node of the tree? (Internal use only.)
@@ -266,7 +270,7 @@ vtree <- function (z, vars,
   splitwidth = 20, lsplitwidth=15,
   getscript = FALSE,
   nodesep = 0.5, ranksep = 0.5, margin=0.2, vp = TRUE,
-  horiz = TRUE, summary = "",
+  horiz = TRUE, summary = "",splitspaces=TRUE,
   width=NULL,height=NULL,
   graphattr="",nodeattr="",edgeattr="",
   color = c("blue", "forestgreen", "red", "orange", "pink"), colornodes = FALSE,
@@ -306,7 +310,7 @@ vtree <- function (z, vars,
 
     argname <- sapply(as.list(substitute({z})[-1]), deparse)
 
-    if (!missing(vars) && length(vars)==1) {
+    if (!missing(vars) && length(vars)==1 && splitspaces) {
       vars <- strsplit(vars,"\\s+")[[1]]
       # In case the first element is empty
       # (due to whitespace at the beginning of the string)
