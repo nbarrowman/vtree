@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 1.0.2"
+title: "Introduction to vtree 1.0.3"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -449,26 +449,54 @@ By default, the `vtree` package uses markdown-style codes for text formatting.
 
 ### Adding text to nodes using the `text` parameter
 
-Suppose you wish to add the italicized text "*Includes first-time visits*" to the Mild node.
+Suppose you wish to add the italicized text "*Excluding new diagnoses*"
+to any Mild nodes in the tree.
 The parameter `text` lets you add text to nodes.
 It is specified as a list with an element named for each variable.
 In the example below the list has one element, named `Severity`.
-That element in turn is a vector `c(Mild="*Includes first-time visits*")`
+That element in turn is a vector `c(Mild="*Excluding\nnew diagnoses*")`
 indicating that the Mild node should include additional text using Markdown-style formatting
-(i.e. the asterisks around the text indicate that it should be displayed in italics):
+(i.e. there is a linebreak and the asterisks around the text indicate that it should be displayed in italics):
 
 ```{r,eval=FALSE}
-vtree(FakeData,"Severity",horiz=FALSE,
-  text=list(Severity=c(Mild="*Includes first-time visits*")))
+vtree(FakeData,"Group Severity",horiz=FALSE,showvarnames=FALSE,
+  text=list(Severity=c(Mild="*Excluding\nnew diagnoses*")))
 ```
 ```{r,echo=FALSE}
-v9 <- vtree(FakeData,"Severity",horiz=FALSE,
-  text=list(Severity=c(Mild="*Includes first-time visits*")),
+v9 <- vtree(FakeData,"Group Severity",horiz=FALSE,showvarnames=FALSE,
+  text=list(Severity=c(Mild="*Excluding\nnew diagnoses*")),
   width=450,height=150)
 filepath <- grVizToPNG(v9,folder=PNGdir,width=1000)
 ```
-![](`r filepath`){ height=1.5in }
+![](`r filepath`){ height=2.5in }
 
+### Targetted text using the `ttext` parameter
+
+In the example above,
+suppose that new diagnoses are only excluded from Mild cases in `Group` B.
+But the `text` parameter is used to add text to *all* Mild nodes.
+Thus, in situations like this, the `text` parameter is not sufficient .
+Instead, you can use the `ttext` parameter to target
+exactly which nodes should have the specified text.
+
+The `ttext` parameter requires that you specify the full path from the root of the tree to the node in question,
+along with the text in question.
+The `ttext` parameter is specified as a list so that multiple targetted text strings can be specified at once.
+For example:
+
+```{r,eval=FALSE}
+vtree(FakeData,"Group Severity",horiz=FALSE,showvarnames=FALSE,
+  ttext=list(c(Group="B",Severity="Mild",text="*Excluding\nnew diagnoses*"),
+    c(Group="A",text="Sweden"),c(Group="A",text="Norway")))
+```
+```{r,echo=FALSE}
+v9_a <- vtree(FakeData,"Group Severity",horiz=FALSE,showvarnames=FALSE,
+  ttext=list(c(Group="B",Severity="Mild",text="*Excluding\nnew diagnoses*"),
+    c(Group="A",text="Sweden"),c(Group="B",text="Norway")),
+  width=450,height=150)
+filepath <- grVizToPNG(v9_a,folder=PNGdir,width=1000)
+```
+![](`r filepath`){ height=2.5in }
 
 
 ## Displaying summary statistics in nodes

@@ -515,6 +515,11 @@ vtree <- function (z, vars,
       labelnode <- makeHTMLnames(labelnode)
       title <- makeHTML(title)
       labelvar <- makeHTML(labelvar)
+      if (!missing(ttext)) {
+        for (i in 1:length(ttext)) {
+          ttext[[i]]["text"] <- convertToHTML(ttext[[i]]["text"])
+        }
+      }
     }
 
     if (check.is.na) {
