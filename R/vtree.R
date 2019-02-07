@@ -21,9 +21,9 @@
 #'                         representing the values of the variable.
 #'                         The names of the vector represent the labels to be used in place of the values.
 #' @param tlabelnode       A list of vectors, each of which specifies a particular node,
-#'                         as well as a label for that node ("targeted text").
+#'                         as well as a label for that node (a "targeted" label).
 #'                         The names of each vector specify variable names,
-#'                         except for an element named \code{label}, which specifies the label. 
+#'                         except for an element named \code{label}, which specifies the label to use. 
 #' @param labelvar         A named vector of labels for variables.
 #' @param title            Optional title for the root node of the tree.
 #' @param shownodelabels   Should node labels be shown?
@@ -91,7 +91,7 @@
 #'                         (See \strong{Formatting codes} below for information
 #'                         on how to format text.)
 #' @param ttext            A list of vectors, each of which specifies a particular node,
-#'                         as well as text to add to that node ("targeted text").
+#'                         as well as text to add to that node ("targeted" text).
 #'                         The names of each vector specify variable names,
 #'                         except for an element named \code{text}, which specifies the text to add.
 #' @param HTMLtext         Is the text formatted in HTML?
@@ -1402,7 +1402,7 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
   if (length(tlabelnode)>0) {  
     for (j in 1:length(tlabelnode)) {
       #cat("V--------------------------------V var=",var,"\n")
-      print(tlabelnode)
+      #print(tlabelnode)
       if (length(tlabelnode[[j]])==2 && any(names(tlabelnode[[j]])==var)) {
         #cat("here: var=",var," label=",tlabelnode[[j]][names(tlabelnode[[j]])==var],"\n")
         tlabelnode_position <- CAT[-1] == tlabelnode[[j]][names(tlabelnode[[j]])==var]

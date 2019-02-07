@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 1.0.3"
+title: "Introduction to vtree 1.0.4"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -371,17 +371,34 @@ The `follow` parameter is like the `keep` parameter except that no nodes at that
 Instead, those nodes that are not "followed" will be pruned at the next level.
 
 
-## Renaming nodes and variables
+## Changing how variables and nodes are labeled
 
-It's often useful to specify a more informative label in place of the variable name.
-For example, if `Severity` in fact represents severity on day 1,
+By default, `vtree` labels variables and nodes exactly as they are in the data frame.
+For presentation purposes it is often useful to change these labels.
+
+### Changing variable labels with the `labelvar` parameter
+
+If `Severity` in fact represents severity on day 1,
 you might want it to appear that way in the variable tree.
 To do this, use the `labelvar` parameter,
 which is specified as a vector whose element names are variable names.
 As an example, if `Severity` in fact represents severity on day 1,
 you can specify `labelvar=c(Severity="Severity on day 1")`.
 
-By default, `vtree` names nodes (except for the root node)
+```{r,eval=FALSE}
+vtree(FakeData,"Severity Sex",horiz=FALSE,
+  labelvar=c(Severity="Severity on day 1"))
+```
+```{r,echo=FALSE}
+v8 <- vtree(FakeData,"Severity Sex",horiz=FALSE,width=700,height=250,
+  labelvar=c(Severity="Severity on day 1"))
+filepath <- grVizToPNG(v8,folder=PNGdir,width=1000)
+```
+![](`r filepath`){ height=2.2in }
+
+### Changing node labels with the `labelnode` parameter
+
+By default, `vtree` labels nodes (except for the root node)
 using the values of the variable in question.
 (If the variable is a factor, the levels of the factor are used).
 Sometimes it is convenient to instead specify custom labels for nodes.
@@ -393,16 +410,44 @@ the syntax is: `"New label"="Old label"`.
 Thus the full specification is: `labelnode=list(Sex=c(Male="M",Female="F"))`.
 
 ```{r,eval=FALSE}
-vtree(FakeData,"Severity Sex",horiz=FALSE,
-  labelvar=c(Severity="Severity on day 1"),labelnode=list(Sex=c(Male="M",Female="F")))
+vtree(FakeData,"Group Sex",horiz=FALSE,labelnode=list(Sex=c(Male="M",Female="F")))
 ```
 ```{r,echo=FALSE}
-v8 <- vtree(FakeData,"Severity Sex",horiz=FALSE,width=700,height=250,
-  labelvar=c(Severity="Severity on day 1"),
-  labelnode=list(Sex=c(Male="M",Female="F")))
-filepath <- grVizToPNG(v8,folder=PNGdir,width=1000)
+v8a <- vtree(FakeData,"Group Sex",horiz=FALSE,labelnode=list(Sex=c(Male="M",Female="F")),
+  width=700,height=250)
+filepath <- grVizToPNG(v8a,folder=PNGdir,width=1000)
 ```
 ![](`r filepath`){ height=2.2in }
+
+### Targeted node labels using the `tlabelnode` parameter
+
+Suppose in the example above that `Group` A represents children and
+`Group` B represents adults.
+In `Group` A, we would like to use the labels "girl" and "boy",
+while in `Group` B we would like to use "woman" and "man".
+The `labelnode` parameter cannot handle this situation because the values of
+`Sex` need to labeled differently in different branches of the tree.
+The `tlabelnode` parameter allows "targeted" node labels.
+
+```{r,eval=FALSE}
+vtree(FakeData,"Group Sex",horiz=FALSE,
+  tlabelnode=list(
+    c(Group="A",Sex="F",label="girl"),
+    c(Group="A",Sex="M",label="boy"),
+    c(Group="B",Sex="F",label="woman"),
+    c(Group="B",Sex="M",label="man")))
+```
+```{r,echo=FALSE}
+v8b <- vtree(FakeData,"Group Sex",horiz=FALSE,width=700,height=250,
+  tlabelnode=list(
+    c(Group="A",Sex="F",label="girl"),
+    c(Group="A",Sex="M",label="boy"),
+    c(Group="B",Sex="F",label="woman"),
+    c(Group="B",Sex="M",label="man")))
+filepath <- grVizToPNG(v8b,folder=PNGdir,width=1000)
+```
+![](`r filepath`){ height=2.2in }
+
 
 ## Text and text formatting
 
@@ -470,7 +515,7 @@ filepath <- grVizToPNG(v9,folder=PNGdir,width=1000)
 ```
 ![](`r filepath`){ height=2.5in }
 
-### Targetted text using the `ttext` parameter
+### Targeted text using the `ttext` parameter
 
 In the example above,
 suppose that new diagnoses are only excluded from Mild cases in `Group` B.

@@ -61,9 +61,9 @@ representing the values of the variable.
 The names of the vector represent the labels to be used in place of the values.}
 
 \item{tlabelnode}{A list of vectors, each of which specifies a particular node,
-as well as a label for that node ("targeted text").
+as well as a label for that node (a "targeted" label).
 The names of each vector specify variable names,
-except for an element named \code{label}, which specifies the label.}
+except for an element named \code{label}, which specifies the label to use.}
 
 \item{labelvar}{A named vector of labels for variables.}
 
@@ -126,7 +126,7 @@ The names of the vector identify the nodes to which the text should be added.
 on how to format text.)}
 
 \item{ttext}{A list of vectors, each of which specifies a particular node,
-as well as text to add to that node ("targeted text").
+as well as text to add to that node ("targeted" text).
 The names of each vector specify variable names,
 except for an element named \code{text}, which specifies the text to add.}
 
