@@ -6,21 +6,21 @@
 \usage{
 vtree(z, vars, prune = list(), prunebelow = list(), keep = list(),
   follow = list(), prunelone = NULL, pruneNA = FALSE,
-  labelnode = list(), labelvar = NULL, fillcolor = NULL,
-  fillnodes = TRUE, NAfillcolor = "white", rootfillcolor = "#EFF3FF",
-  palette = NULL, gradient = TRUE, revgradient = FALSE,
-  singlecolor = 2, colorvarlabels = TRUE, title = "",
-  sameline = FALSE, Venn = FALSE, check.is.na = FALSE, seq = FALSE,
-  text = list(), ttext = list(), plain = FALSE, squeeze = 1,
-  shownodelabels = TRUE, showvarnames = TRUE, showlevels = TRUE,
-  showpct = TRUE, showlpct = TRUE, showcount = TRUE,
-  showlegend = FALSE, varnamepointsize = 20, HTMLtext = FALSE,
-  digits = 0, splitwidth = 20, lsplitwidth = 15, getscript = FALSE,
-  nodesep = 0.5, ranksep = 0.5, margin = 0.2, vp = TRUE,
-  horiz = TRUE, summary = "", splitspaces = TRUE, width = NULL,
-  height = NULL, graphattr = "", nodeattr = "", edgeattr = "",
-  color = c("blue", "forestgreen", "red", "orange", "pink"),
-  colornodes = FALSE, showempty = FALSE, rounded = TRUE,
+  labelnode = list(), tlabelnode = NULL, labelvar = NULL,
+  fillcolor = NULL, fillnodes = TRUE, NAfillcolor = "white",
+  rootfillcolor = "#EFF3FF", palette = NULL, gradient = TRUE,
+  revgradient = FALSE, singlecolor = 2, colorvarlabels = TRUE,
+  title = "", sameline = FALSE, Venn = FALSE, check.is.na = FALSE,
+  seq = FALSE, text = list(), ttext = list(), plain = FALSE,
+  squeeze = 1, shownodelabels = TRUE, showvarnames = TRUE,
+  showlevels = TRUE, showpct = TRUE, showlpct = TRUE,
+  showcount = TRUE, showlegend = FALSE, varnamepointsize = 20,
+  HTMLtext = FALSE, digits = 0, splitwidth = 20, lsplitwidth = 15,
+  getscript = FALSE, nodesep = 0.5, ranksep = 0.5, margin = 0.2,
+  vp = TRUE, horiz = TRUE, summary = "", splitspaces = TRUE,
+  width = NULL, height = NULL, graphattr = "", nodeattr = "",
+  edgeattr = "", color = c("blue", "forestgreen", "red", "orange",
+  "pink"), colornodes = FALSE, showempty = FALSE, rounded = TRUE,
   nodefunc = NULL, nodeargs = NULL, parent = 1, last = 1,
   root = TRUE, showroot = TRUE)
 }
@@ -59,6 +59,11 @@ list is one of the variable names in \code{vars}.
 Each element of the list is a vector of character strings,
 representing the values of the variable.
 The names of the vector represent the labels to be used in place of the values.}
+
+\item{tlabelnode}{A list of vectors, each of which specifies a particular node,
+as well as a label for that node ("targeted text").
+The names of each vector specify variable names,
+except for an element named \code{label}, which specifies the label.}
 
 \item{labelvar}{A named vector of labels for variables.}
 

@@ -20,6 +20,10 @@
 #'                         Each element of the list is a vector of character strings,
 #'                         representing the values of the variable.
 #'                         The names of the vector represent the labels to be used in place of the values.
+#' @param tlabelnode       A list of vectors, each of which specifies a particular node,
+#'                         as well as a label for that node ("targeted text").
+#'                         The names of each vector specify variable names,
+#'                         except for an element named \code{label}, which specifies the label. 
 #' @param labelvar         A named vector of labels for variables.
 #' @param title            Optional title for the root node of the tree.
 #' @param shownodelabels   Should node labels be shown?
@@ -247,7 +251,7 @@
 
 vtree <- function (z, vars,
   prune=list(), prunebelow = list(), keep=list(), follow=list(), prunelone=NULL,pruneNA=FALSE,
-  labelnode = list(),labelvar = NULL,
+  labelnode = list(),tlabelnode=NULL,labelvar = NULL,
   fillcolor = NULL, fillnodes = TRUE,
   NAfillcolor="white",rootfillcolor="#EFF3FF",
   palette=NULL,
@@ -910,7 +914,7 @@ vtree <- function (z, vars,
 
   fc <- flowcat(z[[vars[1]]], root = root, title = title, parent = parent,
     var=vars[[1]],
-    last = last, labels = labelnode[[vars[1]]], varheader = labelvar[vars[1]],
+    last = last, labels = labelnode[[vars[1]]], tlabelnode=tlabelnode, varheader = labelvar[vars[1]],
     check.is.na=check.is.na,
     sameline=sameline,
     shownodelabels=shownodelabels[vars[1]],
@@ -942,18 +946,37 @@ vtree <- function (z, vars,
     j <- 1
     while (j <= length(TTEXT)) {
       if (!any(names(TTEXT[[j]])==CurrentVar)) {
-        TTEXT[[j]] <- NULL
+        TTEXT[[j]] <- ""
       } else {
         if (TTEXT[[j]][CurrentVar]==varlevel) {
           TTEXT[[j]] <- TTEXT[[j]][names(TTEXT[[j]])!=CurrentVar]
         } else {
           if (TTEXT[[j]][CurrentVar]!=varlevel) {
-            TTEXT[[j]] <- NULL
+            TTEXT[[j]] <- ""
           }
         }
       }
       j <-j + 1
     }
+    
+    TLABELNODE <- tlabelnode
+    j <- 1
+    while (j <= length(TLABELNODE)) {
+      if (!any(names(TLABELNODE[[j]])==CurrentVar)) {
+        TLABELNODE[[j]] <- ""
+      } else {
+        if (TLABELNODE[[j]][CurrentVar]==varlevel) {
+          TLABELNODE[[j]] <- TLABELNODE[[j]][names(TLABELNODE[[j]])!=CurrentVar]
+        } else {
+          if (TLABELNODE[[j]][CurrentVar]!=varlevel) {
+            TLABELNODE[[j]] <- ""
+          }
+        }
+      }
+      j <-j + 1
+    }    
+    
+    
     i <- i + 1
     if (!(varlevel %in% prunebelowlevels) & (is.null(followlevels) | (varlevel %in% followlevels))) {
       if (varlevel == "NA") {
@@ -966,6 +989,7 @@ vtree <- function (z, vars,
         fcChild <- vtree(z[select, , drop = FALSE],
           vars[-1], parent = fc$nodenum[i], last = max(fc$nodenum),
           labelnode = labelnode,
+          tlabelnode = TLABELNODE,
           colorvarlabels=colorvarlabels,
           check.is.na=check.is.na,
           shownodelabels=shownodelabels,
@@ -1228,7 +1252,7 @@ around_func <- function (x, digits = 2, tooLong = 10) {
 
 
 
-flowcat <- function(z,root=TRUE,title="",parent=1,last=1,labels=NULL,HTMLtext=FALSE,
+flowcat <- function(z,root=TRUE,title="",parent=1,last=1,labels=NULL,tlabelnode=NULL,HTMLtext=FALSE,
 var,
 check.is.na=FALSE,
 varheader=NULL,
@@ -1374,7 +1398,20 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
       }
     }
   }
-
+  
+  if (length(tlabelnode)>0) {  
+    for (j in 1:length(tlabelnode)) {
+      #cat("V--------------------------------V var=",var,"\n")
+      print(tlabelnode)
+      if (length(tlabelnode[[j]])==2 && any(names(tlabelnode[[j]])==var)) {
+        #cat("here: var=",var," label=",tlabelnode[[j]][names(tlabelnode[[j]])==var],"\n")
+        tlabelnode_position <- CAT[-1] == tlabelnode[[j]][names(tlabelnode[[j]])==var]
+        CAT[-1][tlabelnode_position] <- tlabelnode[[j]]["label"]
+      }
+      #cat("^--------------------------------^ var=",var,"\n")
+    }
+  }  
+  
   if (HTMLtext) {
     CAT[-1] <- splitlines(CAT[-1],width=splitwidth,sp="<BR/>")
   } else {
