@@ -275,7 +275,7 @@ vtree <- function (z, vars,
   splitwidth = 20, lsplitwidth=15,
   getscript = FALSE,
   nodesep = 0.5, ranksep = 0.5, margin=0.2, vp = TRUE,
-  horiz = TRUE, summary = "",splitspaces=TRUE,
+  horiz = TRUE, summary = "", summaryf = NULL, splitspaces=TRUE,
   width=NULL,height=NULL,
   graphattr="",nodeattr="",edgeattr="",
   color = c("blue", "forestgreen", "red", "orange", "pink"), colornodes = FALSE,
@@ -342,7 +342,7 @@ vtree <- function (z, vars,
       }
       codecode <- gsub("^([^ ]+) (.+)$", "\\2", summary)
       nodefunc <- nn
-      nodeargs <- list(var = codevar, format = codecode)
+      nodeargs <- list(var = codevar, format = codecode, sf = summaryf)
       allvars <- c(allvars,codevar)
     }
 
@@ -1718,97 +1718,105 @@ nn <- function (u, varname, value, args) {
   for (i in 1:length(args$var)) {
 
     y <- u[[args$var[i]]]
-    format <- args$format[i]
-    digits <- args$digits
-    na.rm <- args$na.rm
-
-    missingNum <- sum(is.na(y))
-    if (na.rm) {
-      x <- y[!is.na(y)]
-      if (is.null(x)) x <- NA
-    } else {
-      x <- y
+    
+    show <- TRUE
+    if (!is.null(args$sf)) {
+      show <- args$sf[[i]](u)
     }
-
-    result <- format
-
-    ShowNodeText <- TRUE
-
-    if (!args$leaf) {
-      if (length(grep("%leafonly%",result))>0) {
-        ShowNodeText <- FALSE
-      }
-    }
-
-    if (args$root) {
-      if (length(grep("%noroot%",result))>0) {
-        ShowNodeText <- FALSE
-      }
-    }
-
-    if (length(grep("%var=([^%]+)%",result))>0) {
-      varspec <- sub("(.*)%var=([^%]+)%(.*)","\\2",result)
-      if (varspec==varname) {
-        ShowNodeText <- TRUE
+    
+    if (show) {
+      format <- args$format[i]
+      digits <- args$digits
+      na.rm <- args$na.rm
+  
+      missingNum <- sum(is.na(y))
+      if (na.rm) {
+        x <- y[!is.na(y)]
+        if (is.null(x)) x <- NA
       } else {
-        ShowNodeText <- FALSE
+        x <- y
       }
-    }
-
-    TruncNodeText <- FALSE
-    if (length(grep("%trunc=([^%]+)%",result))>0) {
-      truncval <- as.numeric(sub("(.*)%trunc=([^%]+)%(.*)","\\2",result))
-      TruncNodeText <- TRUE
-    }
-
-    # Format %list% output
-    tabval <- table(y,exclude=NULL)
-    countval <- paste0(" (n=",tabval,")")
-    countval[tabval==1] <- ""
-    listOutput <- paste0(paste0(names(tabval),countval),collapse=", ")
-
-    if (ShowNodeText) {
-      result <- gsub("%var=(.+)%","",result)
-      result <- gsub("%trunc=(.+)%","",result)
-      result <- gsub("%noroot%","",result)
-      result <- gsub("%leafonly%","",result)
-      result <- gsub("%v%",args$var[i],result)
-      result <- gsub("%list%",listOutput,result)
-      result <- gsub("%mv%",paste0(missingNum),result)
-      if (is.numeric(x) | is.logical(x)) {
-        # Note that y is used in the call to nAndpct
-        # so that missing values can be handled as desired
-        result <- gsub("%npct%",around(nAndpct(y),digits=digits),result)
-        result <- gsub("%mean%", around(mean(x), digits = digits),
-            result)
-        result <- gsub("%median%", around(stats::median(x), digits = digits),
-            result)
-        result <- gsub("%SD%", around(stats::sd(x), digits = digits), result)
-        result <- gsub("%min%", around(min(x), digits = digits), result)
-        result <- gsub("%max%", around(max(x), digits = digits), result)
-        result <- gsub("%IQR%",
-          paste0(
-            around(qntl(x,0.25), digits = digits),", ",
-            around(qntl(x,0.75), digits = digits)),
-          result)
-        repeat {
-            if (length(grep("%(p)([0-9]+)%", result)) == 0)
-                break
-            quant <- sub("(.*)%(p)([0-9]+)%(.*)", "\\3", result)
-            if (quant != "") {
-                qq <- around(qntl(x, as.numeric(quant)/100),
-                    digits = digits)
-                result <- sub(paste0("%p", quant,"%"), qq, result)
-            }
+  
+      result <- format
+  
+      ShowNodeText <- TRUE
+  
+      if (!args$leaf) {
+        if (length(grep("%leafonly%",result))>0) {
+          ShowNodeText <- FALSE
         }
       }
-    } else {
-      result <- ""
-    }
-    RESULT <- paste0(RESULT,result)
-    if (TruncNodeText) {
-      if (nchar(RESULT)>truncval) {
-        RESULT <- paste0(substr(RESULT,1,truncval),"...")
+  
+      if (args$root) {
+        if (length(grep("%noroot%",result))>0) {
+          ShowNodeText <- FALSE
+        }
+      }
+  
+      if (length(grep("%var=([^%]+)%",result))>0) {
+        varspec <- sub("(.*)%var=([^%]+)%(.*)","\\2",result)
+        if (varspec==varname) {
+          ShowNodeText <- TRUE
+        } else {
+          ShowNodeText <- FALSE
+        }
+      }
+  
+      TruncNodeText <- FALSE
+      if (length(grep("%trunc=([^%]+)%",result))>0) {
+        truncval <- as.numeric(sub("(.*)%trunc=([^%]+)%(.*)","\\2",result))
+        TruncNodeText <- TRUE
+      }
+  
+      # Format %list% output
+      tabval <- table(y,exclude=NULL)
+      countval <- paste0(" (n=",tabval,")")
+      countval[tabval==1] <- ""
+      listOutput <- paste0(paste0(names(tabval),countval),collapse=", ")
+  
+      if (ShowNodeText) {
+        result <- gsub("%var=(.+)%","",result)
+        result <- gsub("%trunc=(.+)%","",result)
+        result <- gsub("%noroot%","",result)
+        result <- gsub("%leafonly%","",result)
+        result <- gsub("%v%",args$var[i],result)
+        result <- gsub("%list%",listOutput,result)
+        result <- gsub("%mv%",paste0(missingNum),result)
+        if (is.numeric(x) | is.logical(x)) {
+          # Note that y is used in the call to nAndpct
+          # so that missing values can be handled as desired
+          result <- gsub("%npct%",around(nAndpct(y),digits=digits),result)
+          result <- gsub("%mean%", around(mean(x), digits = digits),
+              result)
+          result <- gsub("%median%", around(stats::median(x), digits = digits),
+              result)
+          result <- gsub("%SD%", around(stats::sd(x), digits = digits), result)
+          result <- gsub("%min%", around(min(x), digits = digits), result)
+          result <- gsub("%max%", around(max(x), digits = digits), result)
+          result <- gsub("%IQR%",
+            paste0(
+              around(qntl(x,0.25), digits = digits),", ",
+              around(qntl(x,0.75), digits = digits)),
+            result)
+          repeat {
+              if (length(grep("%(p)([0-9]+)%", result)) == 0)
+                  break
+              quant <- sub("(.*)%(p)([0-9]+)%(.*)", "\\3", result)
+              if (quant != "") {
+                  qq <- around(qntl(x, as.numeric(quant)/100),
+                      digits = digits)
+                  result <- sub(paste0("%p", quant,"%"), qq, result)
+              }
+          }
+        }
+      } else {
+        result <- ""
+      }
+      RESULT <- paste0(RESULT,result)
+      if (TruncNodeText) {
+        if (nchar(RESULT)>truncval) {
+          RESULT <- paste0(substr(RESULT,1,truncval),"...")
+        }
       }
     }
   }

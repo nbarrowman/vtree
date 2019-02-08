@@ -17,12 +17,12 @@ vtree(z, vars, prune = list(), prunebelow = list(), keep = list(),
   showcount = TRUE, showlegend = FALSE, varnamepointsize = 20,
   HTMLtext = FALSE, digits = 0, splitwidth = 20, lsplitwidth = 15,
   getscript = FALSE, nodesep = 0.5, ranksep = 0.5, margin = 0.2,
-  vp = TRUE, horiz = TRUE, summary = "", splitspaces = TRUE,
-  width = NULL, height = NULL, graphattr = "", nodeattr = "",
-  edgeattr = "", color = c("blue", "forestgreen", "red", "orange",
-  "pink"), colornodes = FALSE, showempty = FALSE, rounded = TRUE,
-  nodefunc = NULL, nodeargs = NULL, parent = 1, last = 1,
-  root = TRUE, showroot = TRUE)
+  vp = TRUE, horiz = TRUE, summary = "", summaryf = NULL,
+  splitspaces = TRUE, width = NULL, height = NULL, graphattr = "",
+  nodeattr = "", edgeattr = "", color = c("blue", "forestgreen",
+  "red", "orange", "pink"), colornodes = FALSE, showempty = FALSE,
+  rounded = TRUE, nodefunc = NULL, nodeargs = NULL, parent = 1,
+  last = 1, root = TRUE, showroot = TRUE)
 }
 \arguments{
 \item{z}{Required: Data frame, or a single vector.}
