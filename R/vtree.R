@@ -245,7 +245,8 @@
 #' vtree(FakeData,"Severity Sex",summary="id \nid = %list% %var=Severity% %trunc=40%")
 #' 
 #' # Adding text to specified nodes of a tree
-#' vtree(FakeData,"Severity Sex",ttext=list(c(Severity="Severe",Sex="M",text="see if this works"),c(Severity="NA",text="Nothing")))
+#' vtree(FakeData,"Severity Sex",ttext=list(
+#'   c(Severity="Severe",Sex="M",text="see if this works"),c(Severity="NA",text="Nothing")))
 #'
 #' @export
 
