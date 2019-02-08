@@ -74,6 +74,11 @@
 #'                         (see \strong{Summary codes} below).
 #'                         A vector of character strings can also be specified,
 #'                         so that more than one variable may be summarized.
+#' @param runsummary       A list of functions, with the same length as \code{summary}.
+#'                         Each function must take a data frame as its sole argument,
+#'                         and return a logical value.
+#'                         Each string in \code{summary} will only be run if the corresponding logical value is TRUE.
+#'                         the corresponding string in \code{summary} will be evaluated.
 #' @param fillnodes        Should the nodes be filled with color?
 #' @param fillcolor        A named vector of colors for filling the nodes of each variable.
 #'                         If an unnamed, scalar color is specified,
@@ -275,7 +280,7 @@ vtree <- function (z, vars,
   splitwidth = 20, lsplitwidth=15,
   getscript = FALSE,
   nodesep = 0.5, ranksep = 0.5, margin=0.2, vp = TRUE,
-  horiz = TRUE, summary = "", summaryf = NULL, splitspaces=TRUE,
+  horiz = TRUE, summary = "", runsummary = NULL, splitspaces=TRUE,
   width=NULL,height=NULL,
   graphattr="",nodeattr="",edgeattr="",
   color = c("blue", "forestgreen", "red", "orange", "pink"), colornodes = FALSE,
@@ -340,9 +345,14 @@ vtree <- function (z, vars,
         nomatch <- codevar[!(codevar %in% names(z))]
         stop("Variable(s) specified in summary argument not in data frame: ",paste(nomatch,collapse=", "))
       }
+      if (!is.null(runsummary)) {
+        if (length(runsummary) != length(summary)) {
+          stop("runsummary argument is not the same length as summary argument.")
+        }
+      }
       codecode <- gsub("^([^ ]+) (.+)$", "\\2", summary)
       nodefunc <- nn
-      nodeargs <- list(var = codevar, format = codecode, sf = summaryf)
+      nodeargs <- list(var = codevar, format = codecode, sf = runsummary)
       allvars <- c(allvars,codevar)
     }
 

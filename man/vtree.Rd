@@ -17,7 +17,7 @@ vtree(z, vars, prune = list(), prunebelow = list(), keep = list(),
   showcount = TRUE, showlegend = FALSE, varnamepointsize = 20,
   HTMLtext = FALSE, digits = 0, splitwidth = 20, lsplitwidth = 15,
   getscript = FALSE, nodesep = 0.5, ranksep = 0.5, margin = 0.2,
-  vp = TRUE, horiz = TRUE, summary = "", summaryf = NULL,
+  vp = TRUE, horiz = TRUE, summary = "", runsummary = NULL,
   splitspaces = TRUE, width = NULL, height = NULL, graphattr = "",
   nodeattr = "", edgeattr = "", color = c("blue", "forestgreen",
   "red", "orange", "pink"), colornodes = FALSE, showempty = FALSE,
@@ -205,6 +205,12 @@ along with special codes specifying the information to display
 (see \strong{Summary codes} below).
 A vector of character strings can also be specified,
 so that more than one variable may be summarized.}
+
+\item{runsummary}{A list of functions, with the same length as \code{summary}.
+Each function must take a data frame as its sole argument,
+and return a logical value.
+Each string in \code{summary} will only be run if the corresponding logical value is TRUE.
+the corresponding string in \code{summary} will be evaluated.}
 
 \item{splitspaces}{When \code{vars} is a character string, should by it 
 be split by spaces to get variable names?
