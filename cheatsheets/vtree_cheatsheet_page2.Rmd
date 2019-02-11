@@ -1,0 +1,79 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(vtree)
+```
+
+```{r}
+(t1 <- vtree(FakeData,"Ind1 Ind2 Ind3",Venn=TRUE))
+```
+
+```{r}
+grVizToPNG(t1,width=3000,folder="png")
+```
+
+```{r}
+(t2 <- vtree(FakeData,"Ind1 Ind2 Ind3",Venn=TRUE,
+  seq=TRUE,palette=c(Ind1=1,Ind2=2,Ind3=3)))
+```
+
+```{r}
+grVizToPNG(t2,width=3000,folder="png")
+```
+
+```{r}
+(t3 <- vtree(FakeData,"Severity Sex",plain=TRUE))
+```
+
+```{r}
+grVizToPNG(t3,width=3000,folder="png")
+```
+
+```{r}
+(t4 <- vtree(FakeData,"Group Severity",showvarnames=FALSE,
+  ttext=list(c(Group="B",Severity="Mild",text="*Excluding\nnew diagnoses*"),
+    c(Group="A",text="Sweden"),c(Group="B",text="Norway"))))
+```
+
+```{r}
+grVizToPNG(t4,width=3000,folder="png")
+```
+
+```{r}
+(t5 <- vtree(FakeData,"Group Sex",horiz=FALSE,
+  tlabelnode=list(
+    c(Group="A",Sex="F",label="girl"),
+    c(Group="A",Sex="M",label="boy"),
+    c(Group="B",Sex="F",label="woman"),
+    c(Group="B",Sex="M",label="man"))))
+```
+
+```{r}
+grVizToPNG(t5,width=3000,folder="png")
+```
+
+```{r}
+(t6 <- vtree(FakeData,"Severity",nodeattr="width=2"))
+```
+
+```{r}
+grVizToPNG(t6,width=3000,folder="png")
+```
+
+```{r}
+(t7 <- vtree(FakeRCT,"eligible randomized group followup analyzed",plain=TRUE,
+  keep=list(eligible="Eligible",randomized="Randomized",followup="Followed up"),
+  horiz=FALSE,showvarnames=FALSE,title="Assessed for eligibility"))
+```
+
+```{r}
+grVizToPNG(t7,width=3000,folder="png")
+```
+

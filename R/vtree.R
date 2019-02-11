@@ -79,6 +79,8 @@
 #'                         and return a logical value.
 #'                         Each string in \code{summary} will only be run if the corresponding logical value is TRUE.
 #'                         the corresponding string in \code{summary} will be evaluated.
+#' @param retain           Vector of names of additional variables in the data frame that need to be
+#'                         available to execute the functions in \code{runsummary}.
 #' @param fillnodes        Should the nodes be filled with color?
 #' @param fillcolor        A named vector of colors for filling the nodes of each variable.
 #'                         If an unnamed, scalar color is specified,
@@ -280,7 +282,7 @@ vtree <- function (z, vars,
   splitwidth = 20, lsplitwidth=15,
   getscript = FALSE,
   nodesep = 0.5, ranksep = 0.5, margin=0.2, vp = TRUE,
-  horiz = TRUE, summary = "", runsummary = NULL, splitspaces=TRUE,
+  horiz = TRUE, summary = "", runsummary = NULL, retain=NULL,splitspaces=TRUE,
   width=NULL,height=NULL,
   graphattr="",nodeattr="",edgeattr="",
   color = c("blue", "forestgreen", "red", "orange", "pink"), colornodes = FALSE,
@@ -355,6 +357,9 @@ vtree <- function (z, vars,
       nodeargs <- list(var = codevar, format = codecode, sf = runsummary)
       allvars <- c(allvars,codevar)
     }
+    
+    # Add any extra variables needed
+    allvars <- c(allvars,retain)
 
     numvars <- length(vars)
 
