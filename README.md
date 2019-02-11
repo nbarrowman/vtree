@@ -15,3 +15,4 @@ downloads](https://cranlogs.r-pkg.org/badges/grand-total/vtree)](https://cranlog
 
 [vtree CheatSheet](https://github.com/nbarrowman/vtree/blob/master/cheatsheets/vtree_cheatsheet_v0.0.7.pdf)
 
+[vtree CheatSheet page 2](https://github.com/nbarrowman/vtree/blob/master/cheatsheets/vtree_cheatsheet_page2.pdf)
