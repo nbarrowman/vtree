@@ -1062,8 +1062,7 @@ Notes:
 
 * The name of the graphics file (`example1.png`) is automatically derived from the name of the object (`example1`).
 
-* By default the PNG file will be 3000 pixels wide.
-(If you want it, say 1000 pixels wide, you can specify this argument: `width=1000`.)
+* The `width` or `height` arguments can be used to override the default resolution. For example, specifying `width=3000` results in a fairly high-resolution image.
 
 * Before creating the PNG file, `grVizToPNG` first creates an SVG file. But Microsoft Word cannot handle SVG files, which is why a PNG file must be created.
 
