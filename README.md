@@ -10,6 +10,20 @@ downloads](https://cranlogs.r-pkg.org/badges/grand-total/vtree)](https://cranlog
 
 <img src="https://github.com/nbarrowman/vtree/blob/master/cheatsheets/png/v1.png" width="250">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/nbarrowman/vtree/blob/master/cheatsheets/png/t7.png" width="200">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/nbarrowman/vtree/blob/master/cheatsheets/png/t1.png" width="300">
 
+# Installation
+
+You can install the current version of vtree (version 1.0.0) from CRAN
+
+```
+install.packages("vtree")
+```
+
+Or the get the latest release candidate from github (version 1.0.2)
+
+```
+remotes::install_github("nbarrowman/vtree@v1.0.2")
+```
+
 # More information
 
 * vtree is available on [CRAN](https://cran.r-project.org/package=vtree)
