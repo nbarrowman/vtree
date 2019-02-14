@@ -24,6 +24,12 @@ Or the get the latest release candidate from github (version 1.0.2)
 remotes::install_github("nbarrowman/vtree@v1.0.2")
 ```
 
+To get the vignette as well you need to use this longer command:
+
+```
+remotes::install_github("nbarrowman/vtree",build_opts = c("--no-resave-data", "--no-manual"))
+```
+
 # More information
 
 * vtree is available on [CRAN](https://cran.r-project.org/package=vtree)
