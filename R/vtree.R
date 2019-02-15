@@ -25,6 +25,8 @@
 #'                         The names of each vector specify variable names,
 #'                         except for an element named \code{label}, which specifies the label to use. 
 #' @param labelvar         A named vector of labels for variables.
+#' @param varminwidth      A named vector of minimum initial widths for nodes of each variable.
+#' @param varminheight     A named vector of minimum initial heights for nodes of each variable.
 #' @param title            Optional title for the root node of the tree.
 #' @param shownodelabels   Should node labels be shown?
 #'                         A single value (with no names) specifies the setting for all variables.
@@ -259,7 +261,7 @@
 
 vtree <- function (z, vars,
   prune=list(), prunebelow = list(), keep=list(), follow=list(), prunelone=NULL,pruneNA=FALSE,
-  labelnode = list(),tlabelnode=NULL,labelvar = NULL,
+  labelnode = list(),tlabelnode=NULL,labelvar = NULL,varminwidth=NULL,varminheight=NULL,
   fillcolor = NULL, fillnodes = TRUE,
   NAfillcolor="white",rootfillcolor="#EFF3FF",
   palette=NULL,
@@ -695,6 +697,18 @@ vtree <- function (z, vars,
           paste(names(shownodelabels)[!findvars], collapse = ", "))
     }
 
+    # If varminwidth is a single unnamed value, then apply it to all variables.
+    if (!missing(varminwidth) && (length(varminwidth)==1) && (is.null(names(varminwidth))) ) {
+      varminwidth <- rep(varminwidth,numvars)
+      names(varminwidth) <- vars
+    }
+    
+    # If varminheight is a single unnamed value, then apply it to all variables.
+    if (!missing(varminheight) && (length(varminheight)==1) && (is.null(names(varminheight))) ) {
+      varminheight <- rep(varminheight,numvars)
+      names(varminheight) <- vars
+    }    
+    
     if (plain) {
       fillcolor <- rep(c("#C6DBEF", "#9ECAE1", "#6BAED6", "#4292C6", "#2171B5","#084594"), 8)[1:numvars]
       autocolorvar <- FALSE
@@ -927,10 +941,11 @@ vtree <- function (z, vars,
       ThisLevelText <- makeHTML(ThisLevelText)
   if (!HTMLtext)
       TopText <- makeHTML(TopText)
-
+  
   fc <- flowcat(z[[vars[1]]], root = root, title = title, parent = parent,
     var=vars[[1]],
     last = last, labels = labelnode[[vars[1]]], tlabelnode=tlabelnode, varheader = labelvar[vars[1]],
+    varminwidth=varminwidth[vars[1]],varminheight=varminheight[vars[1]],
     check.is.na=check.is.na,
     sameline=sameline,
     shownodelabels=shownodelabels[vars[1]],
@@ -1013,6 +1028,7 @@ vtree <- function (z, vars,
           showcount=showcount,
           sameline=sameline, showempty = showempty,
           root = FALSE, prune=prune, prunebelow = prunebelow, labelvar = labelvar,
+          varminwidth = varminwidth, varminheight = varminheight,
           prunelone=prunelone,
           nodefunc = nodefunc, nodeargs = nodeargs, digits = digits,
           showvarnames = showvarnames,
@@ -1271,7 +1287,7 @@ around_func <- function (x, digits = 2, tooLong = 10) {
 flowcat <- function(z,root=TRUE,title="",parent=1,last=1,labels=NULL,tlabelnode=NULL,HTMLtext=FALSE,
 var,
 check.is.na=FALSE,
-varheader=NULL,
+varheader=NULL,varminwidth=NULL,varminheight=NULL,
 shownodelabels=TRUE,sameline=FALSE,
 prunefull=NULL,
 prunelone=NULL,
@@ -1489,6 +1505,10 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
   }
 
   # Write DOT code for assigning labels (using the DiagrammeR framework)
+  VARMINWIDTH <- ""
+  if (!is.null(varminwidth) && !is.na(varminwidth)) VARMINWIDTH <- paste0("width=",varminwidth)
+  VARMINHEIGHT <- ""
+  if (!is.null(varminheight) && !is.na(varminheight)) VARMINHEIGHT <- paste0("height=",varminheight)  
   labelassign <- c()
   if (root) {
     if (showroot) {
@@ -1498,11 +1518,11 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
     }
     labelassign <- paste0(labelassign,'\n',paste(paste0(
       nodenames[-1],'[label=<',CAT[-1],npctString[-1],extraText[-1],'> color=',color,styleString,
-      ' fillcolor=<',FILLCOLOR,'>]')),collapse='\n')
+      ' fillcolor=<',FILLCOLOR,'>',VARMINWIDTH,' ',VARMINHEIGHT,']')),collapse='\n')
   } else {
     labelassign <- paste(paste0(
       nodenames[-1],'[label=<',CAT[-1],npctString[-1],extraText[-1],'> color=',color,styleString,
-      ' fillcolor=<',FILLCOLOR,'>]'),collapse='\n')
+      ' fillcolor=<',FILLCOLOR,'>',VARMINWIDTH,' ',VARMINHEIGHT,']'),collapse='\n')
   }
 
   return(list(
