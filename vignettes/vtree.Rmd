@@ -678,48 +678,49 @@ filepath <- grVizToPNG(v13,folder=PNGdir,width=1000)
 ![](`r filepath`){ height=2in }
 
 
-### Showing summaries depending on the contents of each node using the `runsummary` parameter
+### Showing/hiding summaries on a node-by-node basis depending on the data in the node using the `runsummary` parameter
 
 Sometimes it is desirable to show summaries only in nodes with certain characteristics.
 Consider the following example:
 suppose that in patients with a viral infection,
 the presence or absence of two features of the virus
-(Feature 1 and Feature 2) can be recorded.
-Let's make up variables `FeatureI` and `FeatureII` but set them to NA if the `Viral` variable is FALSE or NA.
+(Feature I and Feature II) is recorded.
+To simulate this situation,
+let's make up variables `FeatureI` and `FeatureII` but set them to NA if the `Viral` variable is FALSE or NA.
 
 ```{r}
 set.seed(1234)
-FakeData$FeatureI <- rbinom(46,1,0.5)
+FakeData$FeatureI <- rbinom(nrow(FakeData),1,0.5)
 FakeData$FeatureI[!FakeData$Viral | is.na(FakeData$Viral)] <- NA
-FakeData$FeatureII <- rbinom(46,1,0.5)
+FakeData$FeatureII <- rbinom(nrow(FakeData),1,0.5)
 FakeData$FeatureII[!FakeData$Viral | is.na(FakeData$Viral)] <- NA
 ```
 
 Here is a tree for `Sex` and `Category` showing three summaries in each leaf node:
 the number and percent of patients with viral infections
-and number and percent of viruses with Feature 1 and with Feature 2.
+and number and percent of viruses with Feature I and with Feature II.
 
 ```{r,eval=FALSE}
 vtree(FakeData,"Sex Category",sameline=TRUE,splitwidth=50,
   summary=c(
     "Viral viral: %npct% %leafonly%",
-    "FeatureI \nFeature 1: %npct% %leafonly%",
-    "FeatureII \nFeature 2: %npct% %leafonly%"))
+    "FeatureI \nFeature I: %npct% %leafonly%",
+    "FeatureII \nFeature II: %npct% %leafonly%"))
 ```
 ```{r,echo=FALSE}
 options(warn=-1)
 v13a <- vtree(FakeData,"Sex Category",sameline=TRUE,splitwidth=50,width=950,height=900,
   summary=c(
     "Viral viral: %npct% %leafonly%",
-    "FeatureI \nFeature 1: %npct% %leafonly%",
-    "FeatureII \nFeature 2: %npct% %leafonly%"))
+    "FeatureI \nFeature I: %npct% %leafonly%",
+    "FeatureII \nFeature II: %npct% %leafonly%"))
 options(warn=0)
 filepath <- grVizToPNG(v13a,folder=PNGdir,width=1000)
 ```
 ![](`r filepath`){ height=5.5in }
 
 But note that in two of the nodes there are no viral infections,
-so it is not meaningful to describe the features of the viruses&mdash;since there aren't any.
+so in these nodes there are no virus features to describe.
 The tree would be improved if we could turn off the summaries in nodes where there are no viral infections.
 We can do this by specifying, for each of the three summaries,
 a function that returns TRUE or FALSE for each node.
