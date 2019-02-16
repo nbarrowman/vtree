@@ -1810,6 +1810,13 @@ nn <- function (u, varname, value, args) {
       listOutput <- paste0(paste0(names(tabval),countval),collapse=", ")
   
       if (ShowNodeText) {
+        if (length(x)==0) {
+          minx <- maxx <- NA
+        } else {
+          minx <- min(x)
+          maxx <- max(x)
+        }
+        
         result <- gsub("%var=(.+)%","",result)
         result <- gsub("%trunc=(.+)%","",result)
         result <- gsub("%noroot%","",result)
@@ -1826,8 +1833,8 @@ nn <- function (u, varname, value, args) {
           result <- gsub("%median%", around(stats::median(x), digits = digits),
               result)
           result <- gsub("%SD%", around(stats::sd(x), digits = digits), result)
-          result <- gsub("%min%", around(min(x), digits = digits), result)
-          result <- gsub("%max%", around(max(x), digits = digits), result)
+          result <- gsub("%min%", around(minx, digits = digits), result)
+          result <- gsub("%max%", around(maxx, digits = digits), result)
           result <- gsub("%IQR%",
             paste0(
               around(qntl(x,0.25), digits = digits),", ",
