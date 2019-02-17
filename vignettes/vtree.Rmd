@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 1.0.6"
+title: "Introduction to vtree 1.0.7"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -554,20 +554,24 @@ The `summary` argument can be used to flexibly specify additional information to
 
 ### A simple example
 
-The `summary` parameter is specified as a character string that starts with the variable in question.
+The `summary` parameter is specified as a character string
+that starts with the variable in question.
 This is followed by a space,
-and then the rest of the string specifies what kind of summary to display.
-Special codes are use to indicate the type of summary desired.
-For example, `%mean%` is used to specify that the mean of the variable should be displayed.
-
+and then the rest of the string specifies what to display.
+Special codes are use to indicate the type of summary desired,
+for example `%mean%` indicates that the mean of the specified variable should be shown.
 For example, to display the mean of the variable `Score`,
-specify `summary="Score %mean%"`:
+you could specify `summary="Score \nmean score: %mean%"`.
+Note that the part of the string following the first space is
+`"\nmean score: %mean%"`. 
+This specifies that in each node, after the usual frequency and percentage,
+the summary should start on a new line with the words "mean score: " followed by the mean.
 
 ```{r,eval=FALSE}
-vtree(FakeData,"Severity",summary="Score %mean%",horiz=FALSE)
+vtree(FakeData,"Severity",summary="Score \nmean score: %mean%",horiz=FALSE)
 ```
 ```{r,echo=FALSE}
-v10 <- vtree(FakeData,"Severity",summary="Score %mean%",horiz=FALSE,
+v10 <- vtree(FakeData,"Severity",summary="Score \nmean score: %mean%",horiz=FALSE,
   width=450,height=150)
 filepath <- grVizToPNG(v10,folder=PNGdir,width=1000)
 ```
@@ -589,8 +593,8 @@ Any missing values are also reported.
 * `%v%` the name of the variable
 * `%noroot%` flag: Do not show summary in the root node.
 * `%leafonly%` flag: Only show summary in leaf nodes, i.e. nodes that have no children.
-* `%node=`n`%` flag: Only show summary in the specified node.
-* `%trunc=`n`%` flag: Truncate the summary to the first n characters.
+* `%var=`*v*`%` flag: Only show summary in nodes of the specified variable *v*.
+* `%trunc=`*n*`%` flag: Truncate the summary to the first *n* characters.
 
 The `summary` argument can use any number of these codes,
 mixed with text and formatting codes.
@@ -604,13 +608,13 @@ To do this, specify `summary` as a vector of character strings:
 ```{r,eval=FALSE}
 vtree(FakeData,"Severity",horiz=FALSE,showvarnames=FALSE,
   summary=c(
-    "Score \nScore: mean (SD)\n %mean% (%SD%)",
+    "Score \n\nScore: mean (SD)\n %mean% (%SD%)",
     "Pre \n\nPre: range\n %min%, %max%"))
 ```
 ```{r,echo=FALSE}
 v11 <- vtree(FakeData,"Severity",horiz=FALSE,showvarnames=FALSE,
   summary=c(
-    "Score \nScore: mean (SD)\n %mean% (%SD%)",
+    "Score \n\nScore: mean (SD)\n %mean% (%SD%)",
     "Pre \n\nPre: range\n %min%, %max%"),
   width=650,height=350)
 filepath <- grVizToPNG(v11,folder=PNGdir,width=1000)
@@ -658,7 +662,7 @@ In this simple case the following codes are equivalent:
 
 * `%leafonly%`
 
-* `%node=Severity%`
+* `%var=Severity%`
 
 When there are many IDs, it often convenience to truncate the output.
 The `%trunc=N%` code specifies that, after N characters, summary information
@@ -667,11 +671,11 @@ should be truncated with "...".
 For example,
 
 ```{r,eval=FALSE}
-vtree(FakeData,"Severity",summary="id \nid = %list% %node=Severity% %trunc=40%",
+vtree(FakeData,"Severity",summary="id \nid = %list%%var=Severity%%trunc=40%",
   horiz=FALSE,showvarnames=FALSE)
 ```
 ```{r,echo=FALSE}
-v13 <- vtree(FakeData,"Severity",summary="id \nid = %list% %node=Severity% %trunc=40%",
+v13 <- vtree(FakeData,"Severity",summary="id \nid = %list%%var=Severity%%trunc=40%",
   horiz=FALSE,showvarnames=FALSE,width=650,height=200)
 filepath <- grVizToPNG(v13,folder=PNGdir,width=1000)
 ```
@@ -701,22 +705,22 @@ the number and percent of patients with viral infections
 and number and percent of viruses with Feature 1 and with Feature 2.
 
 ```{r,eval=FALSE}
-vtree(FakeData,"Sex Category",sameline=TRUE,splitwidth=150,varminwidth=c(Category=7),
+vtree(FakeData,"Sex Category",sameline=TRUE,splitwidth=150,varminwidth=c(Category=6),
   summary=c(
-    "Viral viral: %npct% %leafonly%",
-    "Feature1 F1: %npct% %leafonly%",
-    "Feature2 F2: %npct% %leafonly%"))
+    "Viral \nviral: %npct%%leafonly%",
+    "Feature1 , F1: %npct%%leafonly%",
+    "Feature2 , F2: %npct%%leafonly%"))
 ```
 ```{r,echo=FALSE}
 v13a <- 
-  vtree(FakeData,"Sex Category",sameline=TRUE,splitwidth=150,varminwidth=c(Category=7),
+  vtree(FakeData,"Sex Category",sameline=TRUE,splitwidth=150,varminwidth=c(Category=6),
   summary=c(
-    "Viral viral: %npct% %leafonly%",
-    "Feature1 F1: %npct% %leafonly%",
-    "Feature2 F2: %npct% %leafonly%"))
+    "Viral \nviral: %npct%%leafonly%",
+    "Feature1 , F1: %npct%%leafonly%",
+    "Feature2 , F2: %npct%%leafonly%"))
 filepath <- grVizToPNG(v13a,folder=PNGdir,width=1000)
 ```
-![](`r filepath`){ height=3.5in }
+![](`r filepath`){ height=4in }
 
 But note that in two of the nodes there are no viral infections,
 so in these nodes there are no virus features to describe.
@@ -738,30 +742,30 @@ function(x) any(x$Viral,na.rm=TRUE)
 These three functions are specified (in a list) using the `runsummary` parameter:
 
 ```{r,eval=FALSE}
-vtree(FakeData,"Sex Category",sameline=TRUE,splitwidth=150,varminwidth=c(Category=7),
+vtree(FakeData,"Sex Category",sameline=TRUE,splitwidth=150,varminwidth=c(Category=6),
   summary=c(
-    "Viral viral: %npct% %leafonly%",
-    "Feature1 F1: %npct% %leafonly%",
-    "Feature2 F2: %npct% %leafonly%"),
+    "Viral \nviral: %npct%%leafonly%",
+    "Feature1 , F1: %npct%%leafonly%",
+    "Feature2 , F2: %npct%%leafonly%"),
   runsummary=list(
     function(x) TRUE,
     function(x) any(x$Viral,na.rm=TRUE),
     function(x) any(x$Viral,na.rm=TRUE)))
 ```
 ```{r,echo=FALSE}
-v13b <- vtree(FakeData,"Sex Category",sameline=TRUE,splitwidth=150,varminwidth=c(Category=7),
+v13b <- vtree(FakeData,"Sex Category",sameline=TRUE,splitwidth=150,varminwidth=c(Category=6),
   width=950,height=900,
   summary=c(
-    "Viral viral: %npct% %leafonly%",
-    "Feature1 F1: %npct% %leafonly%",
-    "Feature2 F2: %npct% %leafonly%"),
+    "Viral \nviral: %npct%%leafonly%",
+    "Feature1 , F1: %npct%%leafonly%",
+    "Feature2 , F2: %npct%%leafonly%"),
   runsummary=list(
     function(x) TRUE,
     function(x) any(x$Viral,na.rm=TRUE),
     function(x) any(x$Viral,na.rm=TRUE)))
 filepath <- grVizToPNG(v13b,folder=PNGdir,width=1000)
 ```
-![](`r filepath`){ height=3.5in }
+![](`r filepath`){ height=4in }
 
 
 ## Examining the DOT script generated by `vtree`
