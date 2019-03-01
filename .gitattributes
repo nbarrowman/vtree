@@ -1,1 +1,2 @@
 vignettes/vtree.Rmd linguist-language=R
+R/*.R linguist-language=R
