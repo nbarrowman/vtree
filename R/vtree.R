@@ -25,10 +25,10 @@
 #'                         The names of each vector specify variable names,
 #'                         except for an element named \code{label}, which specifies the label to use. 
 #' @param labelvar         A named vector of labels for variables.
-#' @param varminwidth      A named vector of minimum initial widths for nodes of each variable.
-#' @param varminheight     A named vector of minimum initial heights for nodes of each variable.
-#' @param varlabelloc      A named vector of label locations ("t", "c", or "b")
-#'                         for nodes of each variable.
+#' @param varminwidth      A named vector of minimum initial widths for nodes of each variable. (Sets the Graphviz \code{width} attribute.)
+#' @param varminheight     A named vector of minimum initial heights for nodes of each variable. (Sets the Graphviz \code{height} attribute.)
+#' @param varlabelloc      A named vector of vertical label locations ("t", "c", or "b" for top, center, or bottom, respectively)
+#'                         for nodes of each variable. (Sets the Graphviz \code{labelloc} attribute.)
 #' @param title            Optional title for the root node of the tree.
 #' @param shownodelabels   Should node labels be shown?
 #'                         A single value (with no names) specifies the setting for all variables.
@@ -185,6 +185,7 @@
 #'  \item{\code{\%pX\%} }{Xth percentile, e.g. p50 means the 50th percentile}
 #'  \item{\code{\%median\%} }{median, i.e. p50}
 #'  \item{\code{\%IQR\%} }{interquartile range, i.e. p25, p75}
+#'  \item{\code{\%npct\%} {number and percentage of TRUE values}
 #'  \item{\code{\%list\%} }{list of the individual values}
 #'  \item{\code{\%mv\%} }{the number of missing values}
 #'  \item{\code{\%v\%} }{the name of the variable}
