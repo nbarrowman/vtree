@@ -7,23 +7,24 @@
 vtree(z, vars, prune = list(), prunebelow = list(), keep = list(),
   follow = list(), prunelone = NULL, pruneNA = FALSE,
   labelnode = list(), tlabelnode = NULL, labelvar = NULL,
-  varminwidth = NULL, varminheight = NULL, fillcolor = NULL,
-  fillnodes = TRUE, NAfillcolor = "white", rootfillcolor = "#EFF3FF",
-  palette = NULL, gradient = TRUE, revgradient = FALSE,
-  singlecolor = 2, colorvarlabels = TRUE, title = "",
-  sameline = FALSE, Venn = FALSE, check.is.na = FALSE, seq = FALSE,
-  text = list(), ttext = list(), plain = FALSE, squeeze = 1,
-  shownodelabels = TRUE, showvarnames = TRUE, showlevels = TRUE,
-  showpct = TRUE, showlpct = TRUE, showcount = TRUE,
-  showlegend = FALSE, varnamepointsize = 20, HTMLtext = FALSE,
-  digits = 0, splitwidth = 20, lsplitwidth = 15, getscript = FALSE,
-  nodesep = 0.5, ranksep = 0.5, margin = 0.2, vp = TRUE,
-  horiz = TRUE, summary = "", runsummary = NULL, retain = NULL,
-  splitspaces = TRUE, width = NULL, height = NULL, graphattr = "",
-  nodeattr = "", edgeattr = "", color = c("blue", "forestgreen",
-  "red", "orange", "pink"), colornodes = FALSE, showempty = FALSE,
-  rounded = TRUE, nodefunc = NULL, nodeargs = NULL, parent = 1,
-  last = 1, root = TRUE, showroot = TRUE)
+  varminwidth = NULL, varminheight = NULL, varlabelloc = NULL,
+  fillcolor = NULL, fillnodes = TRUE, NAfillcolor = "white",
+  rootfillcolor = "#EFF3FF", palette = NULL, gradient = TRUE,
+  revgradient = FALSE, singlecolor = 2, colorvarlabels = TRUE,
+  title = "", sameline = FALSE, Venn = FALSE, check.is.na = FALSE,
+  seq = FALSE, text = list(), ttext = list(), plain = FALSE,
+  squeeze = 1, shownodelabels = TRUE, showvarnames = TRUE,
+  showlevels = TRUE, showpct = TRUE, showlpct = TRUE,
+  showcount = TRUE, showlegend = FALSE, varnamepointsize = 20,
+  HTMLtext = FALSE, digits = 0, splitwidth = 20, lsplitwidth = 15,
+  getscript = FALSE, nodesep = 0.5, ranksep = 0.5, margin = 0.2,
+  vp = TRUE, horiz = TRUE, summary = "", runsummary = NULL,
+  retain = NULL, splitspaces = TRUE, width = NULL, height = NULL,
+  graphattr = "", nodeattr = "", edgeattr = "", color = c("blue",
+  "forestgreen", "red", "orange", "pink"), colornodes = FALSE,
+  showempty = FALSE, rounded = TRUE, nodefunc = NULL,
+  nodeargs = NULL, parent = 1, last = 1, root = TRUE,
+  showroot = TRUE)
 }
 \arguments{
 \item{z}{Required: Data frame, or a single vector.}
@@ -71,6 +72,9 @@ except for an element named \code{label}, which specifies the label to use.}
 \item{varminwidth}{A named vector of minimum initial widths for nodes of each variable.}
 
 \item{varminheight}{A named vector of minimum initial heights for nodes of each variable.}
+
+\item{varlabelloc}{A named vector of label locations ("t", "c", or "b")
+for nodes of each variable.}
 
 \item{fillcolor}{A named vector of colors for filling the nodes of each variable.
 If an unnamed, scalar color is specified,
