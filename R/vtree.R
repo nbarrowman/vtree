@@ -185,7 +185,7 @@
 #'  \item{\code{\%pX\%} }{Xth percentile, e.g. p50 means the 50th percentile}
 #'  \item{\code{\%median\%} }{median, i.e. p50}
 #'  \item{\code{\%IQR\%} }{interquartile range, i.e. p25, p75}
-#'  \item{\code{\%npct\%} {number and percentage of TRUE values}
+#'  \item{\code{\%npct\%} }{number and percentage of TRUE values}
 #'  \item{\code{\%list\%} }{list of the individual values}
 #'  \item{\code{\%mv\%} }{the number of missing values}
 #'  \item{\code{\%v\%} }{the name of the variable}
