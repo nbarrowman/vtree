@@ -358,7 +358,7 @@ vtree <- function (z, vars,
         }
       }
       codecode <- gsub("^([^ ]+) (.+)$", "\\2", summary)
-      nodefunc <- nn
+      nodefunc <- summaryNodeFunction
       nodeargs <- list(var = codevar, format = codecode, sf = runsummary)
       allvars <- c(allvars,codevar)
     }
@@ -1111,7 +1111,7 @@ vtree <- function (z, vars,
                 if (length(cc)>0) {
                   if (showlpct) {
                     npctString <- paste0(cc," (",
-                      around_func(100*cc/sum(cc),digits),"%)")
+                      around(100*cc/sum(cc),digits),"%)")
                   } else {
                     npctString <- cc
                   }
@@ -1122,7 +1122,7 @@ vtree <- function (z, vars,
               } else {
                 if (showlpct) {
                   npctString <- paste0(categoryCounts," (",
-                    around_func(100*categoryCounts/length(thisvar),digits),"%)")
+                    around(100*categoryCounts/length(thisvar),digits),"%)")
                 } else {
                   npctString <- categoryCounts
                 }
@@ -1257,42 +1257,6 @@ graphattr="",nodeattr="",edgeattr="") {
 
 
 
-around_func <- function (x, digits = 2, tooLong = 10) {
-    if (is.data.frame(x)) {
-        for (i in 1:ncol(x)) {
-            x[[i]] <- around(x[[i]], digits = digits)
-        }
-        x
-    }
-    else if (!is.numeric(x)) {
-        x
-    }
-    else {
-        if (digits == 0) {
-            result <- formatC(x, digits = digits, drop0trailing = TRUE,
-                format = "f", flag = "#")
-            result[nchar(result) > tooLong] <- formatC(x[nchar(result) >
-                tooLong], digits = digits, drop0trailing = TRUE,
-                format = "g", flag = "#")
-        }
-        else {
-            result <- formatC(x, digits = digits, drop0trailing = FALSE,
-                format = "f", flag = "#")
-            result[nchar(result) > tooLong] <- formatC(x[nchar(result) >
-                tooLong], digits = digits, drop0trailing = FALSE,
-                format = "g", flag = "#")
-        }
-        result[result == "-0"] <- "0"
-        result[result == "-0.0"] <- "0.0"
-        result[result == "-0.00"] <- "0.00"
-        result[result == "-0.000"] <- "0.000"
-        result
-    }
-}
-
-
-
-
 flowcat <- function(z,root=TRUE,title="",parent=1,last=1,labels=NULL,tlabelnode=NULL,HTMLtext=FALSE,
 var,
 check.is.na=FALSE,
@@ -1346,7 +1310,7 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
       }
       if (showpct) {
         npctString <- paste0(npctString,"(",
-          around_func(100*cc/sum(cc),digits),"%)")
+          around(100*cc/sum(cc),digits),"%)")
       }
     } else {
       npctString <- NULL
@@ -1364,7 +1328,7 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
     }
     if (showpct) {
       npctString <- paste0(npctString,"(",
-        around_func(100*categoryCounts[-1]/length(z),digits),"%)")
+        around(100*categoryCounts[-1]/length(z),digits),"%)")
     }
   }
 
@@ -1427,7 +1391,7 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
     if (label %in% names(categoryCounts)) {
       m <- match(label,names(categoryCounts))
       if (text[names(text)==label]!="") {
-        extraText[m] <- paste("<BR/>",text[names(text)==label])
+        extraText[m] <- paste0("",text[names(text)==label])
       }
     }
   }
@@ -1443,14 +1407,11 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
   
   if (length(tlabelnode)>0) {  
     for (j in 1:length(tlabelnode)) {
-      #cat("V--------------------------------V var=",var,"\n")
-      #print(tlabelnode)
       if (length(tlabelnode[[j]])==2 && any(names(tlabelnode[[j]])==var)) {
         #cat("here: var=",var," label=",tlabelnode[[j]][names(tlabelnode[[j]])==var],"\n")
         tlabelnode_position <- CAT[-1] == tlabelnode[[j]][names(tlabelnode[[j]])==var]
         CAT[-1][tlabelnode_position] <- tlabelnode[[j]]["label"]
       }
-      #cat("^--------------------------------^ var=",var,"\n")
     }
   }  
   
@@ -1723,7 +1684,7 @@ convertToHTML <- function(x) {
 
 #' @importFrom stats median quantile sd
 
-nn <- function (u, varname, value, args) {
+summaryNodeFunction <- function (u, varname, value, args) {
 
   nAndpct <- function(w,vp=TRUE) {
     if (vp) {
@@ -1734,7 +1695,7 @@ nn <- function (u, varname, value, args) {
       den <- length(w)
     }
     npctString <- paste0(num," (",
-      around_func(100*num/den,digits),"%)")
+      around(100*num/den,digits),"%)")
     if (any(is.na(w)))
       npctString <- paste0(npctString," mv=",sum(is.na(w)))
     npctString
@@ -1822,6 +1783,13 @@ nn <- function (u, varname, value, args) {
       listOutput <- paste0(paste0(names(tabval),countval),collapse=", ")
   
       if (ShowNodeText) {
+        if (length(x)==0) {
+          minx <- maxx <- NA
+        } else {
+          minx <- min(x)
+          maxx <- max(x)
+        }
+        
         result <- gsub("%var=(.+)%","",result)
         result <- gsub("%trunc=(.+)%","",result)
         result <- gsub("%noroot%","",result)
@@ -1838,8 +1806,8 @@ nn <- function (u, varname, value, args) {
           result <- gsub("%median%", around(stats::median(x), digits = digits),
               result)
           result <- gsub("%SD%", around(stats::sd(x), digits = digits), result)
-          result <- gsub("%min%", around(min(x), digits = digits), result)
-          result <- gsub("%max%", around(max(x), digits = digits), result)
+          result <- gsub("%min%", around(minx, digits = digits), result)
+          result <- gsub("%max%", around(maxx, digits = digits), result)
           result <- gsub("%IQR%",
             paste0(
               around(qntl(x,0.25), digits = digits),", ",

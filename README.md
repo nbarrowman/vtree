@@ -18,16 +18,16 @@ You can install the current version of vtree (version 1.0.0) from CRAN
 install.packages("vtree")
 ```
 
-Or the get the latest release candidate from github (version 1.0.2)
+Or the get the latest release candidate from github (version 1.0.7)
 
 ```
-remotes::install_github("nbarrowman/vtree@v1.0.2")
+remotes::install_github("nbarrowman/vtree@v1.0.7")
 ```
 
 To get the vignette as well you need to use this longer command:
 
 ```
-remotes::install_github("nbarrowman/vtree@v1.0.2",build_opts = c("--no-resave-data", "--no-manual"))
+remotes::install_github("nbarrowman/vtree@v1.0.7",build_opts = c("--no-resave-data", "--no-manual"))
 ```
 
 # More information
@@ -36,4 +36,4 @@ remotes::install_github("nbarrowman/vtree@v1.0.2",build_opts = c("--no-resave-da
 
 * A comprehensive introduction to vtree is available in the [vignette](https://cran.r-project.org/web/packages/vtree/vignettes/vtree.html)
 
-* Two cheats sheets (pdf) are available: [page 1](https://github.com/nbarrowman/vtree/blob/master/cheatsheets/vtree_cheatsheet_v0.0.7.pdf), [page 2](https://github.com/nbarrowman/vtree/blob/master/cheatsheets/vtree_cheatsheet_page2.pdf)
+* Two cheats sheets (pdf) are available: [page 1](https://github.com/nbarrowman/vtree/blob/master/cheatsheets/vtree_cheatsheet_v0.0.8.pdf), [page 2](https://github.com/nbarrowman/vtree/blob/master/cheatsheets/vtree_cheatsheet_page2.pdf)
