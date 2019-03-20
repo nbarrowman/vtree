@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 1.0.8"
+title: "Introduction to vtree 1.0.9"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -563,7 +563,7 @@ for example `%mean%` indicates that the mean of the specified variable should be
 For example, to display the mean of the variable `Score`,
 you could specify `summary="Score \nmean score: %mean%"`.
 Note that the part of the string following the first space is
-`"\nmean score: %mean%"`. 
+`"\nmean score: %mean%"`.
 This specifies that in each node, after the usual frequency and percentage,
 the summary should start on a new line with the words "mean score: " followed by the mean.
 
@@ -712,7 +712,7 @@ vtree(FakeData,"Sex Category",sameline=TRUE,splitwidth=150,varminwidth=c(Categor
     "Feature2 , F2: %npct%%leafonly%"))
 ```
 ```{r,echo=FALSE}
-v13a <- 
+v13a <-
   vtree(FakeData,"Sex Category",sameline=TRUE,splitwidth=150,varminwidth=c(Category=6),
   summary=c(
     "Viral \nviral: %npct%%leafonly%",

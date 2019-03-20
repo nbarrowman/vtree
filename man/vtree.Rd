@@ -16,15 +16,15 @@ vtree(z, vars, prune = list(), prunebelow = list(), keep = list(),
   squeeze = 1, shownodelabels = TRUE, showvarnames = TRUE,
   showlevels = TRUE, showpct = TRUE, showlpct = TRUE,
   showcount = TRUE, showlegend = FALSE, varnamepointsize = 20,
-  HTMLtext = FALSE, digits = 0, splitwidth = 20, lsplitwidth = 15,
-  getscript = FALSE, nodesep = 0.5, ranksep = 0.5, margin = 0.2,
-  vp = TRUE, horiz = TRUE, summary = "", runsummary = NULL,
-  retain = NULL, splitspaces = TRUE, width = NULL, height = NULL,
-  graphattr = "", nodeattr = "", edgeattr = "", color = c("blue",
-  "forestgreen", "red", "orange", "pink"), colornodes = FALSE,
-  showempty = FALSE, rounded = TRUE, nodefunc = NULL,
-  nodeargs = NULL, parent = 1, last = 1, root = TRUE,
-  showroot = TRUE)
+  HTMLtext = FALSE, digits = 0, cdigits = 2, splitwidth = 20,
+  lsplitwidth = 15, getscript = FALSE, nodesep = 0.5,
+  ranksep = 0.5, margin = 0.2, vp = TRUE, horiz = TRUE,
+  summary = "", runsummary = NULL, retain = NULL,
+  splitspaces = TRUE, width = NULL, height = NULL, graphattr = "",
+  nodeattr = "", edgeattr = "", color = c("blue", "forestgreen",
+  "red", "orange", "pink"), colornodes = FALSE, showempty = FALSE,
+  rounded = TRUE, nodefunc = NULL, nodeargs = NULL, parent = 1,
+  last = 1, root = TRUE, showroot = TRUE)
 }
 \arguments{
 \item{z}{Required: Data frame, or a single vector.}
@@ -125,7 +125,7 @@ whether or not each of its values is missing?}
 \item{seq}{Display the variable tree using "sequences"?
 Each unique sequence (i.e. pattern) of values will be shown separately.}
 
-\item{text}{A list of vectors containing extra text to add to 
+\item{text}{A list of vectors containing extra text to add to
 nodes corresponding to specified values of a specified variable.
 The name of each element of the list
 must be one of the variable names in \code{vars}.
@@ -179,6 +179,8 @@ FALSE for those variables and TRUE for all others.}
 
 \item{digits}{Number of decimal digits to show in percentages.}
 
+\item{cdigits}{Number of decimal digits to show in continuous values displayed via the summary parameter.}
+
 \item{splitwidth}{The minimum number of characters before an automatic
 linebreak is inserted.}
 
@@ -224,7 +226,7 @@ the corresponding string in \code{summary} will be evaluated.}
 \item{retain}{Vector of names of additional variables in the data frame that need to be
 available to execute the functions in \code{runsummary}.}
 
-\item{splitspaces}{When \code{vars} is a character string, should by it 
+\item{splitspaces}{When \code{vars} is a character string, should by it
 be split by spaces to get variable names?
 This should only be FALSE when a single variable name
 that contains spaces is specified.}
