@@ -12,6 +12,11 @@
 #' @param vars             Required (unless \code{z} is a vector):
 #'                         Either a character string of whitespace-separated variable names
 #'                         or a vector of variable names.
+#' @param splitspaces      When \code{vars} is a character string,
+#'                         split it by spaces to get variable names?
+#'                         It is only rarely necessary to use this parameter.
+#'                         This should only be \code{FALSE} when a single variable name
+#'                         that contains spaces is specified.
 #' @param horiz            Should the tree be drawn horizontally?
 #'                         (i.e. parent node on the left, with the tree growing to the right)
 #' @param labelnode        List of vectors used to change how values of variables are displayed.
@@ -25,50 +30,54 @@
 #'                         The names of each vector specify variable names,
 #'                         except for an element named \code{label}, which specifies the label to use.
 #' @param labelvar         A named vector of labels for variables.
-#' @param varminwidth      A named vector of minimum initial widths for nodes of each variable. (Sets the Graphviz \code{width} attribute.)
-#' @param varminheight     A named vector of minimum initial heights for nodes of each variable. (Sets the Graphviz \code{height} attribute.)
-#' @param varlabelloc      A named vector of vertical label locations ("t", "c", or "b" for top, center, or bottom, respectively)
-#'                         for nodes of each variable. (Sets the Graphviz \code{labelloc} attribute.)
+#' @param varminwidth      A named vector of minimum initial widths for nodes of each variable.
+#'                         (Sets the Graphviz \code{width} attribute.)
+#' @param varminheight     A named vector of minimum initial heights for nodes of each variable.
+#'                         (Sets the Graphviz \code{height} attribute.)
+#' @param varlabelloc      A named vector of vertical label locations
+#'                         ("t", "c", or "b" for top, center, or bottom, respectively)
+#'                         for nodes of each variable.
+#'                         (Sets the Graphviz \code{labelloc} attribute.)
 #' @param title            Optional title for the root node of the tree.
-#' @param shownodelabels   Should node labels be shown?
+#' @param shownodelabels   Show node labels?
 #'                         A single value (with no names) specifies the setting for all variables.
-#'                         A logical vector of TRUE values for named variables is interpreted as
-#'                         TRUE for those variables and FALSE for all others.
-#'                         A logical vector of FALSE values for named variables is interpreted as
-#'                         FALSE for those variables and TRUE for all others.
+#'                         A logical vector of \code{TRUE} values for named variables is interpreted as
+#'                         \code{TRUE} for those variables and \code{FALSE} for all others.
+#'                         A logical vector of \code{FALSE} values for named variables is interpreted as
+#'                         \code{FALSE} for those variables and \code{TRUE} for all others.
 #' @param showvarnames     Show the name of the variable next to each level of the tree?
 #' @param showlevels       (Deprecated) Same as showvarnames.
 #' @param varnamepointsize Font size (in points) to use when displaying variable names.
-#' @param prune            List of vectors that identifies nodes to prune.
+#' @param prune            List of vectors that specifies nodes to prune.
 #'                         The name of each element of the
 #'                         list must be one of the variable names in \code{vars}.
 #'                         Each element is a vector of character strings that
 #'                         identifies the values of the variable (i.e. the nodes) to prune.
-#' @param prunebelow       Like \code{prune} but the nodes themselves are not pruned,
-#'                         just their descendants.
-#' @param keep             Like \code{prune} but specifies which nodes should be kept (i.e. not pruned).
-#' @param follow           Like \code{prune} but specifies which nodes should be "followed".
-#'                         For the variables named,
-#'                         only the descendants of nodes that are followed will be shown.
-#' @param prunelone        A vector of values specifying \emph{lone nodes} (of any variable) to prune.
+#' @param prunebelow       Like \code{prune} but instead of pruning the specified nodes,
+#'                         their descendants are pruned.
+#' @param keep             Like \code{prune} but specifies which nodes to \emph{keep}.
+#'                         The other nodes will be pruned.
+#' @param follow           Like \code{keep} but specifies which nodes to "follow",
+#'                         i.e. which nodes' \emph{descendants} to keep.
+#' @param prunelone        A vector of values specifying "lone nodes" (of \emph{any} variable) to prune.
 #'                         A lone node is a node that has no siblings.
 #' @param pruneNA          Prune all missing values?
 #'                         This should be used carefully because "valid" percentages
 #'                         are hard to interpret when NAs are pruned.
-#' @param sameline         Should node labels be on the same line as node percentages?
-#' @param gradient         Should gradients of fill color be used across the values of each variable?
+#' @param sameline         Display node labels on the same line as node percentages?
+#' @param gradient         Use gradients of fill color across the values of each variable?
 #'                         A single value (with no names) specifies the setting for all variables.
-#'                         A logical vector of TRUE values for named variables is interpreted as
-#'                         TRUE for those variables and FALSE for all others.
-#'                         A logical vector of FALSE values for named variables is interpreted as
-#'                         FALSE for those variables and TRUE for all others.
+#'                         A logical vector of \code{TRUE} values for named variables is interpreted as
+#'                         \code{TRUE} for those variables and \code{FALSE} for all others.
+#'                         A logical vector of \code{FALSE} values for named variables is interpreted as
+#'                         \code{FALSE} for those variables and \code{TRUE} for all others.
 #' @param revgradient      Should the gradient be reversed (i.e. dark to light instead of light to dark)?
 #'                         A single value (with no names) specifies the setting for all variables.
-#'                         A logical vector of TRUE values for named variables is interpreted as
-#`                         TRUE for those variables and FALSE for all others.
-#'                         A logical vector of FALSE values for named variables is interpreted as
-#'                         FALSE for those variables and TRUE for all others.
-#' @param colorvarlabels   Should the variable labels be colored?
+#'                         A logical vector of \code{TRUE} values for named variables is interpreted as
+#`                         \code{TRUE} for those variables and \code{FALSE} for all others.
+#'                         A logical vector of \code{FALSE} values for named variables is interpreted as
+#'                         \code{FALSE} for those variables and \code{TRUE} for all others.
+#' @param colorvarlabels   Color the variable labels?
 #' @param check.is.na      Replace each variable named in \code{vars} with a logical vector indicating
 #'                         whether or not each of its values is missing?
 #' @param summary          A character string used to specify summary statistics to display in the nodes.
@@ -77,22 +86,23 @@
 #'                         along with special codes specifying the information to display
 #'                         (see \strong{Summary codes} below).
 #'                         A vector of character strings can also be specified,
-#'                         so that more than one variable may be summarized.
+#'                         if more than one variable needs to be summarized.
 #' @param runsummary       A list of functions, with the same length as \code{summary}.
 #'                         Each function must take a data frame as its sole argument,
 #'                         and return a logical value.
-#'                         Each string in \code{summary} will only be run if the corresponding logical value is TRUE.
+#'                         Each string in \code{summary} will only be run if
+#'                         the corresponding logical value is \code{TRUE}.
 #'                         the corresponding string in \code{summary} will be evaluated.
 #' @param retain           Vector of names of additional variables in the data frame that need to be
 #'                         available to execute the functions in \code{runsummary}.
-#' @param fillnodes        Should the nodes be filled with color?
+#' @param fillnodes        Fill the nodes with color?
 #' @param fillcolor        A named vector of colors for filling the nodes of each variable.
 #'                         If an unnamed, scalar color is specified,
 #'                         all nodes will have this color.
-#' @param NAfillcolor      Fill color for missing value nodes.
-#'                         If NULL, fill colors of missing value nodes will be consistent
+#' @param NAfillcolor      Fill-color for missing-value nodes.
+#'                         If \code{NULL}, fill colors of missing value nodes will be consistent
 #'                         with the fill colors in the rest of the tree.
-#' @param rootfillcolor    Fill color for the root node.
+#' @param rootfillcolor    Fill-color for the root node.
 #' @param text             A list of vectors containing extra text to add to
 #'                         nodes corresponding to specified values of a specified variable.
 #'                         The name of each element of the list
@@ -108,8 +118,8 @@
 #' @param HTMLtext         Is the text formatted in HTML?
 #' @param splitwidth       The minimum number of characters before an automatic
 #'                         linebreak is inserted.
-#' @param lsplitwidth      The minimum number of characters before an automatic
-#'                         linebreak is inserted for legends.
+#' @param lsplitwidth      In legends, the minimum number of characters before an automatic
+#'                         linebreak is inserted.
 #' @param nodesep          Graphviz attribute: Node separation amount.
 #' @param ranksep          Graphviz attribute: Rank separation amount.
 #' @param margin           Graphviz attribute: node margin.
@@ -125,35 +135,36 @@
 #' @param nodefunc         A node function (see \strong{Node functions} below).
 #' @param nodeargs         A list containing named arguments for the node function
 #'                         specified by \code{nodefunc}.
-#' @param rounded          Should the nodes have rounded boxes?
+#' @param rounded          Use rounded boxes for nodes?
 #' @param getscript        Instead of displaying the variable tree,
 #'                         return the DOT script as a character string?
 #' @param showempty        Show nodes that do not contain any observations?
 #' @param digits           Number of decimal digits to show in percentages.
 #' @param cdigits          Number of decimal digits to show in continuous values displayed via the summary parameter.
 #' @param color            A vector of color names for the \emph{outline} of the nodes at each level.
-#' @param colornodes       Should the node outlines be colored?
-#' @param width            width (in pixels) to be passed to \code{grViz}.
-#' @param height           height (in pixels) to be passed to \code{grViz}.
-#' @param plain            Use "plain" color settings?
-#' @param squeeze          How much should the tree be "squeezed"?
-#'                         A value between 0 and 1.
+#' @param colornodes       Color the node outlines?
+#' @param width            Width (in pixels) to be passed to \code{DiagrammeR::grViz}.
+#' @param height           Height (in pixels) to be passed to \code{DiagrammeR::grViz}.
+#' @param squeeze          The degree (between 0 and 1) to which the tree will be "squeezed".
 #'                         This controls two Graphviz parameters: \code{margin} and \code{nodesep}.
+#' @param plain            Use "plain" settings?
+#'                         These settings are as follows: for each variable all nodes are the same color,
+#'                         namely a shade of blue (each successive variable uses a darker shade);
+#'                         all variable labels are black; and the \code{squeeze} parameter is set to 0.6.
 #' @param showpct          Show percentage in each node?
 #'                         A single value (with no names) specifies the setting for all variables.
-#'                         A logical vector of TRUE for named variables is interpreted as
-#`                         TRUE for those variables and FALSE for all others.
-#'                         A logical vector of FALSE for named variables is interpreted as
-#'                         FALSE for those variables and TRUE for all others.
+#'                         A logical vector of \code{TRUE} for named variables is interpreted as
+#`                         \code{TRUE} for those variables and \code{FALSE} for all others.
+#'                         A logical vector of \code{FALSE} for named variables is interpreted as
+#'                         \code{FALSE} for those variables and TRUE for all others.
 #' @param showcount        Show count in each node?
 #'                         A single value (with no names) specifies the setting for all variables.
-#'                         A logical vector of TRUE for named variables is interpreted as
-#`                         TRUE for those variables and FALSE for all others.
-#'                         A logical vector of FALSE for named variables is interpreted as
-#'                         FALSE for those variables and TRUE for all others.
+#'                         A logical vector of \code{TRUE} for named variables is interpreted as
+#`                         \code{TRUE} for those variables and \code{FALSE} for all others.
+#'                         A logical vector of \code{FALSE} for named variables is interpreted as
+#'                         \code{FALSE} for those variables and \code{TRUE} for all others.
 #' @param showlegend       Show legend (including marginal frequencies) for each variable?
-#' @param showlpct         Show the (marginal) percentages for values of
-#'                         each variable in the legend?
+#' @param showlpct         Show percentages (for the marginal frequencies) in the legend?
 #' @param graphattr        Character string: Additional attributes for the Graphviz graph.
 #' @param nodeattr         Character string: Additional attributes for Graphviz nodes.
 #' @param edgeattr         Character string: Additional attributes for Graphviz edges.
@@ -161,18 +172,14 @@
 #'                         Each unique sequence (i.e. pattern) of values will be shown separately.
 #' @param Venn             Display multi-way set membership information?
 #'                         This provides an alternative to a Venn diagram.
-#'                         This sets \code{showpct=FALSE}, \code{shownodelabels=FALSE}.
+#'                         This sets \code{showpct=FALSE} and \code{shownodelabels=FALSE}.
 #'                         Assumption: all of the specified variables are logicals or 0/1 numeric variables.
 #' @param palette          A vector of palette numbers (which can range between 1 and 9).
 #'                         The names of the vector indicate the corresponding variable.
 #'                         See \strong{Palettes} below for more information.
 #' @param singlecolor      When a variable has a single value,
-#'                         should its nodes can be colored light (1) medium (2) or dark (3)?
-#' @param splitspaces      When \code{vars} is a character string, should by it
-#'                         be split by spaces to get variable names?
-#'                         This should only be FALSE when a single variable name
-#'                         that contains spaces is specified.
-#' @param showroot         Should the root node be shown?
+#'                         color its nodes light (1) medium (2) or dark (3)?
+#' @param showroot         Show the root node?
 #' @param parent           Parent node number (Internal use only.)
 #' @param last             Last node number (Internal use only.)
 #' @param root             Is this the root node of the tree? (Internal use only.)
@@ -186,7 +193,7 @@
 #'  \item{\code{\%pX\%} }{Xth percentile, e.g. p50 means the 50th percentile}
 #'  \item{\code{\%median\%} }{median, i.e. p50}
 #'  \item{\code{\%IQR\%} }{interquartile range, i.e. p25, p75}
-#'  \item{\code{\%npct\%} }{number and percentage of TRUE values}
+#'  \item{\code{\%npct\%} }{number and percentage of \code{TRUE} values}
 #'  \item{\code{\%list\%} }{list of the individual values}
 #'  \item{\code{\%mv\%} }{the number of missing values}
 #'  \item{\code{\%v\%} }{the name of the variable}
@@ -259,7 +266,8 @@
 #'
 #' # Adding text to specified nodes of a tree
 #' vtree(FakeData,"Severity Sex",ttext=list(
-#'   c(Severity="Severe",Sex="M",text="see if this works"),c(Severity="NA",text="Nothing")))
+#'   c(Severity="Severe",Sex="M",text="Males with Severe disease"),
+#'   c(Severity="NA",text="Unknown severity")))
 #'
 #' @export
 
@@ -348,6 +356,8 @@ vtree <- function (z, vars,
     if (!missing(showlevels)) showvarnames <- showlevels
 
     allvars <- vars
+
+    # Set up summaries if requested
     if (!all(summary=="")) {
       codevar <- gsub("^([^ ]+) (.+)$", "\\1", summary)
       if (!all(codevar %in% names(z))) {
