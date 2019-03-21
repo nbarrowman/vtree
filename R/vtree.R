@@ -552,17 +552,6 @@ vtree <- function (z, vars, splitspaces=TRUE,
         names(labelnode[[i]]) <- splitlines(names(labelnode[[i]]),splitwidth,sp ="\n", at=" ")
       }
     }
-    if (!HTMLtext) {
-      labelnode <- makeHTMLnames(labelnode)
-      title <- makeHTML(title)
-      labelvar <- makeHTML(labelvar)
-      if (!missing(ttext)) {
-        for (i in 1:length(ttext)) {
-          ttext[[i]]["text"] <- splitlines(ttext[[i]]["text"],splitwidth,sp ="\n", at=" ")
-          ttext[[i]]["text"] <- convertToHTML(ttext[[i]]["text"])
-        }
-      }
-    }
 
     if (check.is.na) {
       OLDVARS <- vars
@@ -970,14 +959,14 @@ vtree <- function (z, vars, splitspaces=TRUE,
   else {
     ThisLevelText <- text[[vars[1]]]
   }
-  if (!HTMLtext)
-      ThisLevelText <- makeHTML(ThisLevelText)
-  if (!HTMLtext)
-      TopText <- makeHTML(TopText)
+  #if (!HTMLtext)
+  #    ThisLevelText <- makeHTML(ThisLevelText)
+  #if (!HTMLtext)
+  #    TopText <- makeHTML(TopText)
 
   fc <- flowcat(z[[vars[1]]], root = root, title = title, parent = parent,
     var=vars[[1]],
-    last = last, labels = labelnode[[vars[1]]], tlabelnode=tlabelnode, varheader = labelvar[vars[1]],
+    last = last, labels = labelnode[[vars[1]]], tlabelnode=tlabelnode, labelvar = labelvar[vars[1]],
     varminwidth=varminwidth[vars[1]],varminheight=varminheight[vars[1]],varlabelloc=varlabelloc[vars[1]],
     check.is.na=check.is.na,
     sameline=sameline,
@@ -1283,13 +1272,13 @@ graphattr="",nodeattr="",edgeattr="") {
 flowcat <- function(z,root=TRUE,title="",parent=1,last=1,labels=NULL,tlabelnode=NULL,HTMLtext=FALSE,
 var,
 check.is.na=FALSE,
-varheader=NULL,
+labelvar=NULL,
 varminwidth=NULL,varminheight=NULL,varlabelloc=NULL,
 shownodelabels=TRUE,sameline=FALSE,
 prunefull=NULL,
 prunelone=NULL,
 keep=NULL,
-text=NULL,ttext=NULL,TopText="",sepN="<BR/>",showempty=FALSE,digits=0,cdigits=2,
+text=NULL,ttext=NULL,TopText="",showempty=FALSE,digits=0,cdigits=2,
 showpct=TRUE,
 showcount=TRUE,
 showvarnames=FALSE,
@@ -1302,6 +1291,12 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
 #
 # https://en.wikipedia.org/wiki/DOT_(graph_description_language)
 #
+
+  if (HTMLtext) {
+    sepN <- "<BR/>"
+  } else {
+    sepN <- "\n"
+  }
 
   if (is.na(shownodelabels)) shownodelabels <- TRUE
 
@@ -1442,7 +1437,6 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
     CAT[-1] <- splitlines(CAT[-1],width=splitwidth,sp="<BR/>",at=" ")
   } else {
     CAT[-1] <- splitlines(CAT[-1],width=splitwidth,sp="\n",at = c(" ", ".", "-", "+", "_", "=", "/"))
-    CAT[-1] <- convertToHTML(CAT[-1])
   }
 
   if (check.is.na) {
@@ -1460,11 +1454,15 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
     }
   }
 
-  # Relabel the nodes if a varheader has been specified
+  # Relabel the nodes if labelvar has been specified
   if (!showvarnames) {
-    if (!is.null(varheader)) {
-      if (!is.na(varheader)) {
-        CAT[-1] <- paste0(varheader,"<BR/>",CAT[-1])
+    if (!is.null(labelvar)) {
+      if (!is.na(labelvar)) {
+        if (HTMLtext) {
+          CAT[-1] <- paste0(labelvar,"<BR/>",CAT[-1])
+        } else {
+          CAT[-1] <- paste0(labelvar,"\n",CAT[-1])        
+        }
       }
     }
   }
@@ -1498,6 +1496,11 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
     for (i in 2:length(CAT)) CAT[i] <- ""
   }
 
+  if (!HTMLtext) {
+    CAT[-1] <- convertToHTML(CAT[-1])
+    extraText[-1] <- convertToHTML(extraText[-1])
+  }
+  
   # Write DOT code for assigning labels (using the DiagrammeR framework)
   VARLABELLOC <- ""
   if (!is.null(varlabelloc) && !is.na(varlabelloc)) VARLABELLOC <- paste0("labelloc=",varlabelloc)

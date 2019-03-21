@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 1.1.0"
+title: "Introduction to vtree 1.1.1"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -905,14 +905,16 @@ filepath <- grVizToPNG(v24,folder=PNGdir,width=1000)
 ```
 ![](`r filepath`){ height=5in }
 
-To visualize the "sequences" of missing values, `seq=TRUE` can be specified:
+To visualize the "sequences" of missing values, `seq=TRUE` can be specified.
+Note that `showroot=FALSE` has also been specified to illustrate how removing the root
+node can simplify the display:
 
 ```{r,eval=FALSE}
-vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,seq=TRUE,
+vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,seq=TRUE,showroot=FALSE,
   palette=c(Severity=1,Age=2,Pre=3,Post=4))
 ```
 ```{r,echo=FALSE}
-v25 <- vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,seq=TRUE,
+v25 <- vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,seq=TRUE,showroot=FALSE,
   palette=c(Severity=1,Age=2,Pre=3,Post=4))
 filepath <- grVizToPNG(v25,folder=PNGdir,width=1000)
 ```
