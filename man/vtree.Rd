@@ -4,27 +4,28 @@
 \alias{vtree}
 \title{vtree: Draw a variable tree}
 \usage{
-vtree(z, vars, prune = list(), prunebelow = list(), keep = list(),
-  follow = list(), prunelone = NULL, pruneNA = FALSE,
-  labelnode = list(), tlabelnode = NULL, labelvar = NULL,
-  varminwidth = NULL, varminheight = NULL, varlabelloc = NULL,
-  fillcolor = NULL, fillnodes = TRUE, NAfillcolor = "white",
-  rootfillcolor = "#EFF3FF", palette = NULL, gradient = TRUE,
-  revgradient = FALSE, singlecolor = 2, colorvarlabels = TRUE,
-  title = "", sameline = FALSE, Venn = FALSE, check.is.na = FALSE,
-  seq = FALSE, text = list(), ttext = list(), plain = FALSE,
+vtree(z, vars, splitspaces = TRUE, prune = list(),
+  prunebelow = list(), keep = list(), follow = list(),
+  prunelone = NULL, pruneNA = FALSE, labelnode = list(),
+  tlabelnode = NULL, labelvar = NULL, varminwidth = NULL,
+  varminheight = NULL, varlabelloc = NULL, fillcolor = NULL,
+  fillnodes = TRUE, NAfillcolor = "white", rootfillcolor = "#EFF3FF",
+  palette = NULL, gradient = TRUE, revgradient = FALSE,
+  singlecolor = 2, colorvarlabels = TRUE, title = "",
+  sameline = FALSE, Venn = FALSE, check.is.na = FALSE, seq = FALSE,
+  showroot = TRUE, text = list(), ttext = list(), plain = FALSE,
   squeeze = 1, shownodelabels = TRUE, showvarnames = TRUE,
   showlevels = TRUE, showpct = TRUE, showlpct = TRUE,
-  showcount = TRUE, showlegend = FALSE, varnamepointsize = 20,
-  HTMLtext = FALSE, digits = 0, cdigits = 2, splitwidth = 20,
+  showcount = TRUE, showlegend = FALSE, varnamepointsize = 18,
+  HTMLtext = FALSE, digits = 0, cdigits = 1, splitwidth = 20,
   lsplitwidth = 15, getscript = FALSE, nodesep = 0.5,
   ranksep = 0.5, margin = 0.2, vp = TRUE, horiz = TRUE,
-  summary = "", runsummary = NULL, retain = NULL,
-  splitspaces = TRUE, width = NULL, height = NULL, graphattr = "",
-  nodeattr = "", edgeattr = "", color = c("blue", "forestgreen",
-  "red", "orange", "pink"), colornodes = FALSE, showempty = FALSE,
-  rounded = TRUE, nodefunc = NULL, nodeargs = NULL, parent = 1,
-  last = 1, root = TRUE, showroot = TRUE)
+  summary = "", runsummary = NULL, retain = NULL, width = NULL,
+  height = NULL, graphattr = "", nodeattr = "", edgeattr = "",
+  color = c("blue", "forestgreen", "red", "orange", "pink"),
+  colornodes = FALSE, showempty = FALSE, rounded = TRUE,
+  nodefunc = NULL, nodeargs = NULL, parent = 1, last = 1,
+  root = TRUE)
 }
 \arguments{
 \item{z}{Required: Data frame, or a single vector.}
@@ -32,6 +33,12 @@ vtree(z, vars, prune = list(), prunebelow = list(), keep = list(),
 \item{vars}{Required (unless \code{z} is a vector):
 Either a character string of whitespace-separated variable names
 or a vector of variable names.}
+
+\item{splitspaces}{When \code{vars} is a character string,
+split it by spaces to get variable names?
+It is only rarely necessary to use this parameter.
+This should only be \code{FALSE} when a single variable name
+that contains spaces is specified.}
 
 \item{prune}{List of vectors that specifies nodes to prune.
 The name of each element of the
@@ -110,13 +117,15 @@ A logical vector of \code{FALSE} values for named variables is interpreted as
 \code{FALSE} for those variables and \code{TRUE} for all others.}
 
 \item{singlecolor}{When a variable has a single value,
-color its nodes light (1) medium (2) or dark (3)?}
+this parameter is used to specify whether nodes should have a
+(1) light shade, (2) a medium shade, or (3) a dark shade.
+specify \code{singlecolor=1} to assign a light shade.}
 
 \item{colorvarlabels}{Color the variable labels?}
 
 \item{title}{Optional title for the root node of the tree.}
 
-\item{sameline}{Display node labels on the same line as node percentages?}
+\item{sameline}{Display node labels on the same line as the count and percentage?}
 
 \item{Venn}{Display multi-way set membership information?
 This provides an alternative to a Venn diagram.
@@ -127,7 +136,11 @@ Assumption: all of the specified variables are logicals or 0/1 numeric variables
 whether or not each of its values is missing?}
 
 \item{seq}{Display the variable tree using "sequences"?
-Each unique sequence (i.e. pattern) of values will be shown separately.}
+Each unique sequence (i.e. pattern) of values will be shown separately.
+The sequences are sorted from least frequent to most frequent.}
+
+\item{showroot}{Show the root node?
+When \code{seq=TRUE}, it may be useful to set \code{showroot=FALSE}.}
 
 \item{text}{A list of vectors containing extra text to add to
 nodes corresponding to specified values of a specified variable.
@@ -145,7 +158,7 @@ except for an element named \code{text}, which specifies the text to add.}
 
 \item{plain}{Use "plain" settings?
 These settings are as follows: for each variable all nodes are the same color,
-namely a shade of blue (each successive variable uses a darker shade);
+namely a shade of blue (with each successive variable using a darker shade);
 all variable labels are black; and the \code{squeeze} parameter is set to 0.6.}
 
 \item{squeeze}{The degree (between 0 and 1) to which the tree will be "squeezed".
@@ -220,23 +233,17 @@ The rest of the character string is the text that will be displayed,
 along with special codes specifying the information to display
 (see \strong{Summary codes} below).
 A vector of character strings can also be specified,
-if more than one variable needs to be summarized.}
+if more than one variable is to be summarized.}
 
 \item{runsummary}{A list of functions, with the same length as \code{summary}.
 Each function must take a data frame as its sole argument,
 and return a logical value.
-Each string in \code{summary} will only be run if
+Each string in \code{summary} will only be interpreted if
 the corresponding logical value is \code{TRUE}.
 the corresponding string in \code{summary} will be evaluated.}
 
 \item{retain}{Vector of names of additional variables in the data frame that need to be
 available to execute the functions in \code{runsummary}.}
-
-\item{splitspaces}{When \code{vars} is a character string,
-split it by spaces to get variable names?
-It is only rarely necessary to use this parameter.
-This should only be \code{FALSE} when a single variable name
-that contains spaces is specified.}
 
 \item{width}{Width (in pixels) to be passed to \code{DiagrammeR::grViz}.}
 
@@ -266,8 +273,6 @@ specified by \code{nodefunc}.}
 \item{last}{Last node number (Internal use only.)}
 
 \item{root}{Is this the root node of the tree? (Internal use only.)}
-
-\item{showroot}{Show the root node?}
 }
 \value{
 If \code{getscript=TRUE}, returns a character string of DOT script that describes the variable tree.

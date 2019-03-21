@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 1.0.9"
+title: "Introduction to vtree 1.1.0"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -267,12 +267,12 @@ the marginal counts and percentages for `Severity` are identical to those displa
 In contrast, for `Sex`, the marginal counts and percentages are different
 from what is shown in the nodes because the nodes for `Sex` are nested with levels of `Severity`.
 
-(Unfortunately the NA disc in the legend is oddly sized and positioned due to an issue with the corresponding unicode symbols.)
+(Unfortunately the NA circle in the legend is oddly sized and positioned due to an issue with the corresponding unicode symbols.)
 
 
 ### Putting node labels on the same line as the counts and percentages
 
-When a variable tree is large, it can be difficult to display clearly.
+It can be difficult to clearly display a large variable tree.
 One approach is to display it horizontally
 and also to put the node labels on the same
 line as the counts and percentage by specifying `sameline=TRUE`.
@@ -287,7 +287,7 @@ vtree(FakeData,"Severity Sex Viral",sameline=TRUE)
 
 ### Hiding variable names
 
-By default, `vtree` shows the variable names next to the corresponding levels of the tree.
+By default, next to each level of the tree, `vtree` shows the variable name.
 These can be removed by specifying `showvarnames=FALSE`.
 
 
@@ -300,14 +300,16 @@ by specifying `splitwidth=15`.
 Text wrapping in the legend is controlled independently.
 To set the splitting in the legend to 8 characters,
 specify `lsplitwidth=8`.
-
-
-
+Also note that in the legend,
+text wrapping can take place not only at spaces,
+but also at any of the following characters: . - + _ = /
+ 
 ## Pruning
 
 *Pruning* a tree means removing specified nodes (and their descendants).
 This is useful when a variable tree gets too big,
 or when you are only interested in certain parts of the tree.
+For convenience, `vtree` provides several different ways to prune a tree.
 
 ### The `prune` parameter
 
@@ -431,6 +433,7 @@ The `tlabelnode` parameter allows "targeted" node labels.
 
 ```{r,eval=FALSE}
 vtree(FakeData,"Group Sex",horiz=FALSE,
+  labelnode=list(Group=c(Child="A",Adult="B")),
   tlabelnode=list(
     c(Group="A",Sex="F",label="girl"),
     c(Group="A",Sex="M",label="boy"),
@@ -439,6 +442,7 @@ vtree(FakeData,"Group Sex",horiz=FALSE,
 ```
 ```{r,echo=FALSE}
 v8b <- vtree(FakeData,"Group Sex",horiz=FALSE,width=700,height=250,
+  labelnode=list(Group=c(Child="A",Adult="B")),
   tlabelnode=list(
     c(Group="A",Sex="F",label="girl"),
     c(Group="A",Sex="M",label="boy"),
@@ -505,11 +509,11 @@ indicating that the Mild node should include additional text using Markdown-styl
 
 ```{r,eval=FALSE}
 vtree(FakeData,"Group Severity",horiz=FALSE,showvarnames=FALSE,
-  text=list(Severity=c(Mild="*Excluding\nnew diagnoses*")))
+  text=list(Severity=c(Mild="\n*Excluding\nnew diagnoses*")))
 ```
 ```{r,echo=FALSE}
 v9 <- vtree(FakeData,"Group Severity",horiz=FALSE,showvarnames=FALSE,
-  text=list(Severity=c(Mild="*Excluding\nnew diagnoses*")),
+  text=list(Severity=c(Mild="\n*Excluding\nnew diagnoses*")),
   width=450,height=150)
 filepath <- grVizToPNG(v9,folder=PNGdir,width=1000)
 ```
@@ -531,13 +535,13 @@ For example:
 
 ```{r,eval=FALSE}
 vtree(FakeData,"Group Severity",horiz=FALSE,showvarnames=FALSE,
-  ttext=list(c(Group="B",Severity="Mild",text="*Excluding\nnew diagnoses*"),
-    c(Group="A",text="Sweden"),c(Group="B",text="Norway")))
+  ttext=list(c(Group="B",Severity="Mild",text="\n*Excluding\nnew diagnoses*"),
+    c(Group="A",text="\nSweden"),c(Group="B",text="\nNorway")))
 ```
 ```{r,echo=FALSE}
 v9_a <- vtree(FakeData,"Group Severity",horiz=FALSE,showvarnames=FALSE,
-  ttext=list(c(Group="B",Severity="Mild",text="*Excluding\nnew diagnoses*"),
-    c(Group="A",text="Sweden"),c(Group="B",text="Norway")),
+  ttext=list(c(Group="B",Severity="Mild",text="\n*Excluding\nnew diagnoses*"),
+    c(Group="A",text="\nSweden"),c(Group="B",text="\nNorway")),
   width=450,height=150)
 filepath <- grVizToPNG(v9_a,folder=PNGdir,width=1000)
 ```
@@ -606,20 +610,20 @@ Sometimes it is useful to display summary information for more than one variable
 To do this, specify `summary` as a vector of character strings:
 
 ```{r,eval=FALSE}
-vtree(FakeData,"Severity",horiz=FALSE,showvarnames=FALSE,
+vtree(FakeData,"Severity",horiz=FALSE,showvarnames=FALSE,splitwidth=Inf,sameline=TRUE,
   summary=c(
-    "Score \n\nScore: mean (SD)\n %mean% (%SD%)",
-    "Pre \n\nPre: range\n %min%, %max%"))
+    "Score \nScore: mean (SD) %mean% (%SD%)",
+    "Pre \nPre: range %min%, %max%"))
 ```
 ```{r,echo=FALSE}
-v11 <- vtree(FakeData,"Severity",horiz=FALSE,showvarnames=FALSE,
+v11 <- vtree(FakeData,"Severity",horiz=FALSE,showvarnames=FALSE,splitwidth=Inf,sameline=TRUE,
   summary=c(
-    "Score \n\nScore: mean (SD)\n %mean% (%SD%)",
-    "Pre \n\nPre: range\n %min%, %max%"),
+    "Score \nScore: mean (SD) %mean% (%SD%)",
+    "Pre \nPre: range %min%, %max%"),
   width=650,height=350)
 filepath <- grVizToPNG(v11,folder=PNGdir,width=1000)
 ```
-![](`r filepath`){ height=3in }
+![](`r filepath`){ height=1.7in }
 
 
 ### The %npct% code

@@ -64,7 +64,7 @@
 #' @param pruneNA          Prune all missing values?
 #'                         This should be used carefully because "valid" percentages
 #'                         are hard to interpret when NAs are pruned.
-#' @param sameline         Display node labels on the same line as node percentages?
+#' @param sameline         Display node labels on the same line as the count and percentage?
 #' @param gradient         Use gradients of fill color across the values of each variable?
 #'                         A single value (with no names) specifies the setting for all variables.
 #'                         A logical vector of \code{TRUE} values for named variables is interpreted as
@@ -86,11 +86,11 @@
 #'                         along with special codes specifying the information to display
 #'                         (see \strong{Summary codes} below).
 #'                         A vector of character strings can also be specified,
-#'                         if more than one variable needs to be summarized.
+#'                         if more than one variable is to be summarized.
 #' @param runsummary       A list of functions, with the same length as \code{summary}.
 #'                         Each function must take a data frame as its sole argument,
 #'                         and return a logical value.
-#'                         Each string in \code{summary} will only be run if
+#'                         Each string in \code{summary} will only be interpreted if
 #'                         the corresponding logical value is \code{TRUE}.
 #'                         the corresponding string in \code{summary} will be evaluated.
 #' @param retain           Vector of names of additional variables in the data frame that need to be
@@ -149,7 +149,7 @@
 #'                         This controls two Graphviz parameters: \code{margin} and \code{nodesep}.
 #' @param plain            Use "plain" settings?
 #'                         These settings are as follows: for each variable all nodes are the same color,
-#'                         namely a shade of blue (each successive variable uses a darker shade);
+#'                         namely a shade of blue (with each successive variable using a darker shade);
 #'                         all variable labels are black; and the \code{squeeze} parameter is set to 0.6.
 #' @param showpct          Show percentage in each node?
 #'                         A single value (with no names) specifies the setting for all variables.
@@ -170,6 +170,9 @@
 #' @param edgeattr         Character string: Additional attributes for Graphviz edges.
 #' @param seq              Display the variable tree using "sequences"?
 #'                         Each unique sequence (i.e. pattern) of values will be shown separately.
+#'                         The sequences are sorted from least frequent to most frequent.
+#' @param showroot         Show the root node?
+#'                         When \code{seq=TRUE}, it may be useful to set \code{showroot=FALSE}.
 #' @param Venn             Display multi-way set membership information?
 #'                         This provides an alternative to a Venn diagram.
 #'                         This sets \code{showpct=FALSE} and \code{shownodelabels=FALSE}.
@@ -178,8 +181,9 @@
 #'                         The names of the vector indicate the corresponding variable.
 #'                         See \strong{Palettes} below for more information.
 #' @param singlecolor      When a variable has a single value,
-#'                         color its nodes light (1) medium (2) or dark (3)?
-#' @param showroot         Show the root node?
+#'                         this parameter is used to specify whether nodes should have a
+#'                         (1) light shade, (2) a medium shade, or (3) a dark shade.
+#'                         specify \code{singlecolor=1} to assign a light shade.
 #' @param parent           Parent node number (Internal use only.)
 #' @param last             Last node number (Internal use only.)
 #' @param root             Is this the root node of the tree? (Internal use only.)
@@ -271,7 +275,7 @@
 #'
 #' @export
 
-vtree <- function (z, vars,
+vtree <- function (z, vars, splitspaces=TRUE,
   prune=list(), prunebelow = list(), keep=list(), follow=list(), prunelone=NULL,pruneNA=FALSE,
   labelnode = list(),tlabelnode=NULL,labelvar = NULL,
   varminwidth=NULL,varminheight=NULL,varlabelloc=NULL,
@@ -284,26 +288,26 @@ vtree <- function (z, vars,
   title = "",
   sameline=FALSE,
   Venn = FALSE, check.is.na = FALSE,
-  seq=FALSE,
+  seq=FALSE, showroot=TRUE,
   text = list(),ttext=list(),
   plain = FALSE, squeeze = 1,
   shownodelabels=TRUE,
   showvarnames = TRUE, showlevels = TRUE,
   showpct=TRUE, showlpct=TRUE,
   showcount=TRUE, showlegend=FALSE,
-  varnamepointsize = 20,
+  varnamepointsize = 18,
   HTMLtext = FALSE,
-  digits = 0,cdigits=2,
+  digits = 0,cdigits=1,
   splitwidth = 20, lsplitwidth=15,
   getscript = FALSE,
   nodesep = 0.5, ranksep = 0.5, margin=0.2, vp = TRUE,
-  horiz = TRUE, summary = "", runsummary = NULL, retain=NULL,splitspaces=TRUE,
+  horiz = TRUE, summary = "", runsummary = NULL, retain=NULL,
   width=NULL,height=NULL,
   graphattr="",nodeattr="",edgeattr="",
   color = c("blue", "forestgreen", "red", "orange", "pink"), colornodes = FALSE,
   showempty = FALSE, rounded = TRUE,
-  nodefunc = NULL, nodeargs = NULL,
-  parent = 1, last = 1, root = TRUE, showroot=TRUE)
+  nodefunc = NULL, nodeargs = NULL, 
+  parent = 1, last = 1, root = TRUE)
 {
 
   makeHTML <- function(x) {
@@ -581,6 +585,14 @@ vtree <- function (z, vars,
       for (i in 1:length(vars)) {
         sequence <- paste(sequence,z[[vars[i]]])
       }
+      # The order of sequence levels has to be reversed
+      # if the root node is not shown. Which is a bit odd.
+      if (showroot) {
+        sequence_levels <- names(sort(table(sequence)))
+      } else {
+        sequence_levels <- names(rev(sort(table(sequence))))
+      }
+      sequence <- factor(sequence,levels=sequence_levels)
       z$sequence <- sequence
       vars <- c("sequence",vars)
       if (check.is.na) {
@@ -1411,7 +1423,7 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
     for (j in 1:length(ttext)) {
       if (length(ttext[[j]])==2 && any(names(ttext[[j]])==var)) {
         TTEXTposition <- CAT[-1] == ttext[[j]][names(ttext[[j]])==var]
-        extraText[-1][TTEXTposition] <- paste0("<BR/>",ttext[[j]]["text"])
+        extraText[-1][TTEXTposition] <- ttext[[j]]["text"]
       }
     }
   }
