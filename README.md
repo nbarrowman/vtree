@@ -37,3 +37,9 @@ remotes::install_github("nbarrowman/vtree@v1.0.7",build_opts = c("--no-resave-da
 * A comprehensive introduction to vtree is available in the [vignette](https://cran.r-project.org/web/packages/vtree/vignettes/vtree.html)
 
 * Two cheats sheets (pdf) are available: [page 1](https://github.com/nbarrowman/vtree/blob/master/cheatsheets/vtree_cheatsheet_v0.0.8.pdf), [page 2](https://github.com/nbarrowman/vtree/blob/master/cheatsheets/vtree_cheatsheet_page2.pdf)
+
+* Examples: 
+    * https://rpubs.com/nbarrowman/Data_exploration_with_vtree
+    * https://rpubs.com/nbarrowman/missing_values_vtree
+    * https://rpubs.com/nbarrowman/pruning_a_variable_tree
+    * https://rpubs.com/nbarrowman/CONSORTvtree
