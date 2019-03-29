@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 1.1.2"
+title: "Introduction to vtree 1.1.3"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -24,7 +24,7 @@ PNGdir <- tempdir()
 # Introduction
 
 *Subsets* play an important role in almost any data analysis.
-Suppose we have a dataset of countries,
+Suppose we have a data set of countries,
 and our main interest is countries in Africa.
 Further, suppose we wish to examine *nested* subsets such as (1) countries in Africa,
 (2) with populations exceeding 50 million, (3) that are landlocked.
@@ -35,17 +35,17 @@ In this situation, we might ask questions like:
 * What is the average GDP in African countries with populations over 50 million?
 
 Even in a simple situations like this, it can be a chore to keep track of nested subsets.
-The presence of missing values in data sets further complicates matters.
+When there are missing values in the data set, it is even harder.
 And as additional subsets are examined, the magnitude of the task grows rapidly.
 
-One way to represent nested subsets of a dataset is to use a tree structure,
-which we can call a *variable tree*.
-`vtree` is a flexible tool for drawing *variable trees*.
+A natural way to represent such nested subsets of a data set is to use a tree structure,
+which we call a *variable tree*.
+`vtree` is a flexible tool for drawing variable trees.
 
 ## Basic features of a variable tree
 
-The examples that follow use a dataset of `r nrow(FakeData)` fictitious patients called `FakeData`.
-Based on this dataset, the variable tree below depicts subsets defined by `Sex` (M or F)
+The examples that follow use a data set of `r nrow(FakeData)` fictitious patients called `FakeData`.
+Based on this data set, the variable tree below depicts subsets defined by `Sex` (M or F)
 nested within subsets defined by disease `Severity` (Mild, Moderate, Severe, or NA).
 
 ```{r, echo=FALSE}
@@ -63,7 +63,7 @@ are referred to as the *children* of the root node.
 In this case, `Severity` was missing (NA) for 6 patients,
 and there is a node for these patients.
 Inside each of the nodes, the number of patients is displayed
-and---except for the missing value node---the corresponding percentage is also shown.
+and---except for in the missing value node---the corresponding percentage is also shown.
 Note that, by default, `vtree` displays "valid" percentages,
 i.e. the denominator used to calculate the percentage is the total number of non-missing values,
 `r sum(!is.na(FakeData$Severity))`.
@@ -86,20 +86,22 @@ The node representing missing values of `Severity` is colored white to draw atte
 
 ## Applications of variable trees
 
-A tree with two variables is equivalent to a two-way contingency table with either row or column percentages,
-depending on which variable comes first in the tree.
+A tree with two variables is equivalent to a two-way contingency table.
 In the example above, `Sex` is shown within levels of `Severity`.
 This corresponds to the following contingency table,
-with column percentages (i.e., percentages within each column add to 100%).
+where the percentages within each column add to 100%,
+i.e. *column percentages*).
 
 &nbsp;| Mild      | Moderate | Severe   | NA
 ------|-----------|----------|----------|---------
 **F** | 11 (58%)  | 11 (69%) | 2 (40%)  | 3 (50%)
 **M** | 8 (42%)   | 5 (31%)  | 3 (60%)  | 3 (50%)
 
-Variable trees are easy to interpret because they represent subsets visually.
-Contingency tables can be less intuitive, especially when they involve more than two variables.
+Similarly, a tree with `Severity` shown within levels of `Sex` corresponds to
+a contingency table with *row percentages*.
 
+Variable trees are easy to interpret because they represent the structure of subsets visually, 
+whereas contingency tables can be less intuitive, especially when they involve more than two variables.
 Variable trees are thus a convenient alternative to multi-way contingency tables
 and can also be used to display a wide variety of information including:
 
@@ -109,9 +111,9 @@ and can also be used to display a wide variety of information including:
 
 * longitudinal events.
 
-Variable trees can be used for quick explorations of a data set,
-for figures to include in publications, 
-and also for double checking the results of subsetting operations in code.
+Variable trees can be used for exploration of a data set,
+for constructing figures to include in reports and publications, 
+and also for double checking code to ensure that subsetting is performed correctly.
 
 ## Features of vtree
 
@@ -125,8 +127,7 @@ One challenge with variable trees is that as variables are added,
 trees can get very large.
 For this reason, `vtree` includes tools for *pruning*.
 Variable trees can also be used to display additional subset-specific information.
-For example,
-suppose you wished to know the mean age within each subset defined by the specified variables.
+For example, vtree makes it easy to display the mean age within each node.
 `vtree` makes it easy to display such information in each node.
 Finally, `vtree` supports numerous additional customizations and formatting tweaks.
 
