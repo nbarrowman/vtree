@@ -171,6 +171,8 @@
 #' @param seq              Display the variable tree using "sequences"?
 #'                         Each unique sequence (i.e. pattern) of values will be shown separately.
 #'                         The sequences are sorted from least frequent to most frequent.
+#' @param pattern          Same as \code{seq}, but lines without arrows are drawn,
+#'                         and instead of a \code{sequence} variable, a \code{pattern} variable is shown.
 #' @param showroot         Show the root node?
 #'                         When \code{seq=TRUE}, it may be useful to set \code{showroot=FALSE}.
 #' @param Venn             Display multi-way set membership information?
@@ -288,7 +290,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
   title = "",
   sameline=FALSE,
   Venn = FALSE, check.is.na = FALSE,
-  seq=FALSE, showroot=TRUE,
+  seq=FALSE, pattern=FALSE, showroot=TRUE,
   text = list(),ttext=list(),
   plain = FALSE, squeeze = 1,
   shownodelabels=TRUE,
@@ -592,6 +594,31 @@ vtree <- function (z, vars, splitspaces=TRUE,
       if (missing(showpct)) showpct <- c(sequence=TRUE)
       if (missing(shownodelabels)) shownodelabels <- c(sequence=FALSE)
     }
+    
+    if (pattern) {
+      edgeattr <- paste(edgeattr,"arrowhead=none")
+      PATTERN <- NULL
+      for (i in 1:length(vars)) {
+        PATTERN <- paste(PATTERN,z[[vars[i]]])
+      }
+      # The order of pattern levels has to be reversed
+      # if the root node is not shown. Which is a bit odd.
+      if (showroot) {
+        PATTERN_levels <- names(sort(table(PATTERN)))
+      } else {
+        PATTERN_levels <- names(rev(sort(table(PATTERN))))
+      }
+      PATTERN <- factor(PATTERN,levels=PATTERN_levels)
+      z$pattern <- PATTERN
+      vars <- c("pattern",vars)
+      if (check.is.na) {
+        OLDVARS <- c("pattern",OLDVARS)
+      }
+      numvars <- length(vars)
+      if (missing(showcount)) showcount <- c(pattern=TRUE)
+      if (missing(showpct)) showpct <- c(pattern=TRUE)
+      if (missing(shownodelabels)) shownodelabels <- c(pattern=FALSE)
+    }    
 
     if (is.null(names(gradient))) {
       gradient <- rep(gradient[1],numvars)
@@ -805,7 +832,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
           valuecolors <- rep(NAfillcolor,length(values))
         }
         if (Nnonmissing>0) {
-          if (Nnonmissing>length(col) || (seq & (vars[i]=="sequence")) || (row==0)) {
+          if (Nnonmissing>length(col) || (seq & (vars[i]=="sequence")) || (pattern & (vars[i]=="pattern")) || (row==0)) {
             valuecolors[values!="NA"] <- col[[1]][row] # "grey90"
             names(valuecolors) <- values
             varlabelcolors[i] <- col[[1]][row] # "grey90"

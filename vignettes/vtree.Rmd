@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 1.1.1"
+title: "Introduction to vtree 1.1.2"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -98,7 +98,7 @@ with column percentages (i.e., percentages within each column add to 100%).
 **M** | 8 (42%)   | 5 (31%)  | 3 (60%)  | 3 (50%)
 
 Variable trees are easy to interpret because they represent subsets visually.
-Contingency tables can be harder to interpret, especially when they involve more than two variables.
+Contingency tables can be less intuitive, especially when they involve more than two variables.
 
 Variable trees are thus a convenient alternative to multi-way contingency tables
 and can also be used to display a wide variety of information including:
@@ -108,6 +108,10 @@ and can also be used to display a wide variety of information including:
 * flow diagrams involving a sequence of inclusion/exclusion steps,
 
 * longitudinal events.
+
+Variable trees can be used for quick explorations of a data set,
+for figures to include in publications, 
+and also for double checking the results of subsetting operations in code.
 
 ## Features of vtree
 
@@ -130,7 +134,8 @@ To summarize, `vtree` implements several additional features:
 
 * flexible pruning to remove parts of the tree that are of lesser interest
 
-* display of summary statistics for other variables (e.g. continuous variables) in each node
+* display of information about other variables in each node
+(e.g. summary statistics for continuous variables)
 
 * renaming of variables and nodes
 
@@ -839,42 +844,58 @@ filepath <- grVizToPNG(v22,folder=PNGdir,width=1000)
 By joining together the variables `Ind1` through `Ind4`
 the different patterns of set membership can be examined.
 ```{r,eval=FALSE}
-sequence <- with(FakeData,paste(Ind1,Ind2,Ind3,Ind4))
+pattern <- with(FakeData,paste(Ind1,Ind2,Ind3,Ind4))
 ```
 ```{r,echo=FALSE}
-sequence <- with(FakeData,paste(Ind1,Ind2,Ind3,Ind4,sep="|"))
+pattern <- with(FakeData,paste(Ind1,Ind2,Ind3,Ind4,sep="|"))
 ```
-We call these *sequences*, since in many applications they are time-indexed.
-Here are their observed frequencies:
+Here are the observed frequencies of these patterns:
 
 `Ind1` | `Ind2` | `Ind3` | `Ind4` | Frequency
 ---------|--------|--------|--------|----------------
-`r paste(paste0(names(table(sequence)),"|",table(sequence)),collapse="\n")`
+`r paste(paste0(names(table(pattern)),"|",table(pattern)),collapse="\n")`
 
 Note that these are the frequencies shown in the rightmost nodes of the
 variable tree above.
 
-Specifying `sequence` as the first variable in a call to `vtree`
-separates them from each other (which can be thought of as "de-tangling"),
-as shown in the tree below.
-Instead of building the sequences yourself and then using them in a call to `vtree`,
+Suppose `pattern` is put into the data frame.
+If `vtree` is called and `pattern` is listed as the first variable,
+then a special variable tree will be produced.
+After the first level (representing `pattern`),
+each subsequent node will have only one child.
+The resulting variable tree will thus separate the observed patterns and
+the branches of the tree will be linear.
+
+Instead of building the patterns yourself and then using them in a call to `vtree`,
 these steps can be performed automatically.
-Specifying `seq=TRUE` directly produces a vtree that separates the sequences:
+Specifying `pattern=TRUE` directly produces a vtree that separates the patterns:
 
 ```{r,eval=FALSE}
-vtree(FakeData,"Ind1 Ind2 Ind3 Ind4",Venn=TRUE,seq=TRUE,
+vtree(FakeData,"Ind1 Ind2 Ind3 Ind4",Venn=TRUE,pattern=TRUE,
   palette=c(Ind1=1,Ind2=2,Ind3=3,Ind4=4))
 ```
 ```{r,echo=FALSE}
-v23 <- vtree(FakeData,"Ind1 Ind2 Ind3 Ind4",Venn=TRUE,seq=TRUE,
+v23 <- vtree(FakeData,"Ind1 Ind2 Ind3 Ind4",Venn=TRUE,pattern=TRUE,
   palette=c(Ind1=1,Ind2=2,Ind3=3,Ind4=4))
 filepath <- grVizToPNG(v23,folder=PNGdir,width=1000)
 ```
 ![](`r filepath`){ height=7in }
 
+This tree has two other special characteristics.
+First, note that after the first level (representing `pattern`),
+counts and percentages are not shown,
+since they are not informative:
+by definition, all nodes within a branch have the same count.
+Second, note that in place of arrows, undirected line segments are shown.
+This is done because, without percentages, in general arrows have no particular significance.
+In some cases, however, there is a natural ordering to the variables
+(as is the case with longitudinal variables).
+In such cases, `seq=TRUE` can be specified instead of `pattern=TRUE`,
+and a "sequence" will be shown, including arrows.
+
 Note that the `palette` parameter is specified so that the color palettes match
 with the preceding variable trees.
-(Otherwise, `sequence` gets palette number 1,
+(Otherwise, `pattern` gets palette number 1,
 and then `Ind1` gets  palette number 2, and so on.)
 
 Dark-shaded nodes indicate membership in the cell (i.e. a value of 1)
@@ -905,16 +926,16 @@ filepath <- grVizToPNG(v24,folder=PNGdir,width=1000)
 ```
 ![](`r filepath`){ height=5in }
 
-To visualize the "sequences" of missing values, `seq=TRUE` can be specified.
+To visualize the patterns of missing values, `pattern=TRUE` can be specified.
 Note that `showroot=FALSE` has also been specified to illustrate how removing the root
 node can simplify the display:
 
 ```{r,eval=FALSE}
-vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,seq=TRUE,showroot=FALSE,
+vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,pattern=TRUE,showroot=FALSE,
   palette=c(Severity=1,Age=2,Pre=3,Post=4))
 ```
 ```{r,echo=FALSE}
-v25 <- vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,seq=TRUE,showroot=FALSE,
+v25 <- vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,pattern=TRUE,showroot=FALSE,
   palette=c(Severity=1,Age=2,Pre=3,Post=4))
 filepath <- grVizToPNG(v25,folder=PNGdir,width=1000)
 ```
