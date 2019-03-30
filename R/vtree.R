@@ -1453,7 +1453,6 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
   if (length(tlabelnode)>0) {
     for (j in 1:length(tlabelnode)) {
       if (length(tlabelnode[[j]])==2 && any(names(tlabelnode[[j]])==var)) {
-        #cat("here: var=",var," label=",tlabelnode[[j]][names(tlabelnode[[j]])==var],"\n")
         tlabelnode_position <- CAT[-1] == tlabelnode[[j]][names(tlabelnode[[j]])==var]
         CAT[-1][tlabelnode_position] <- tlabelnode[[j]]["label"]
       }
@@ -1538,6 +1537,7 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
   labelassign <- c()
   if (root) {
     if (showroot) {
+      if (title!="") CAT[1] <- paste0(CAT[1],"<BR/>")
       labelassign <- paste(paste0(
         nodenames[1],'[label=<',CAT[1],npctString[1],extraText[1],'> color=',topcolor,styleString,
         ' fillcolor=<',topfillcolor,'>]'),collapse='\n')
