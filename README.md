@@ -1,4 +1,4 @@
-vtree - An R package for drawing variable trees
+vtree - An R package for calculating and drawing variable trees
 =====
 
 [![CRAN
