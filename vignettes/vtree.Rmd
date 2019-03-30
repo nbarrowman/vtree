@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 1.1.4"
+title: "Introduction to vtree 1.1.5"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -34,20 +34,24 @@ for example, countries with populations under 10 million, between 10 and 30 mill
 and over 30 million.
 We might continue to a 3rd level of nesting,
 by considering countries that are landlocked or not.
-Nested subsets help us to answer questions like:
-
-* Among African countries with a population over 30 million, what proportion are landlocked?
-
-* What is the average GDP in non-African countries with populations under 10 million?
+Nested subsets help us to answer questions like the following:
+*Among African countries with a population over 30 million, what percentage are landlocked?*
 
 Even in a simple situations like this,
-it can be a chore to keep track of nested subsets.
-If there are missing values in the data set,
-the task becomes even more complicated.
-Finally, as the number of nested subsets increases,
+it can be a chore to keep track of nested subsets and calculate percentages.
+As the number of nested subsets increases,
 the magnitude of the task grows rapidly.
+To make matters worse, if there are missing values in the data set,
+the task becomes even more complicated.
 For these reasons,
-manual calculation of nested subsets of a data set is problematic.
+it is best to avoid manual calculation of nested subsets of a data set.
+To see where this can go wrong, consider study flow diagrams,
+which involve nested subsets such as
+*participants* within *eligible patients* within *patients who were assessed*.
+Because mistakes inevitably arise during manual calculation and transcription,
+it is not uncommon for published study flow diagrams to contain errors.
+The errors that make it to publication are often small,
+but occasionally they can be disastrous.
 
 A solution to the problem of calculating and displaying nested subsets is presented here.
 A natural way to represent nested subsets of a data set is to use a tree structure,
@@ -487,11 +491,11 @@ the open source graph visualization software that provides the basis for `vtree`
 supports a variety of text formatting (including boldface, colors, etc.).
 This is used in `vtree` to control formatting of text such as node labels.
 
-### HTML-style codes for text formatting
+### HTML-like codes for text formatting
 
-**NOTE: The section after this one shows how to use an easy alternative to HTML-style codes.**
+**NOTE: The section after this one shows how to use an easy alternative to HTML-like codes.**
 
-`Graphviz` implements "HTML-style" codes, including:
+`Graphviz` implements "HTML-like labels", including:
 
 * `<BR/>` means insert a line break
 * `<BR ALIGN='LEFT'/>` means make the preceding line left-justified and insert a line break
@@ -507,7 +511,7 @@ This is used in `vtree` to control formatting of text such as node labels.
 
 See <https://www.graphviz.org/doc/info/shapes.html#html> for more details.
 
-**Note**: To use these HTML-style codes, it is necessary to specify `HTMLtext=TRUE`.
+**Note**: To use these HTML-like codes, it is necessary to specify `HTMLtext=TRUE`.
 
 
 ### Markdown-style codes for text formatting
