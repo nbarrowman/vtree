@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 1.1.5"
+title: "Introduction to vtree 1.1.6"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -25,38 +25,41 @@ PNGdir <- tempdir()
 
 *Subsets* play an important role in almost any data analysis.
 Imagine a data set of countries,
-with variables representing population, continent, GDP, type of government, etc.
-Suppose we wish to compare countries based on *continent*,
-for example the countries in Africa with the rest of the countries.
+with variables named `population`, `continent`, `landlocked`,
+and a variety of other variables representing economic and political characteristics.
+We might wish to examine subsets of the data set based on the `continent` variable.
 Within each of these subsets,
-we might wish to examine *nested* subsets based on *population*,
-for example, countries with populations under 10 million, between 10 and 30 million,
-and over 30 million.
-We might continue to a 3rd level of nesting,
-by considering countries that are landlocked or not.
+we might wish to examine *nested* subsets based on the `population` variable,
+for example, countries with populations under 30 million and over 30 million.
+We might continue to a third level of nesting based on the `landlocked` variable.
 Nested subsets help us to answer questions like the following:
 *Among African countries with a population over 30 million, what percentage are landlocked?*
 
-Even in a simple situations like this,
-it can be a chore to keep track of nested subsets and calculate percentages.
-As the number of nested subsets increases,
-the magnitude of the task grows rapidly.
-To make matters worse, if there are missing values in the data set,
+Even in simple situations like this,
+it can be a chore to keep track of nested subsets and to calculate percentages.
+And as the number of subsetting variables increases,
+the number of nested subsets grows rapidly.
+When there are missing values in the data set,
 the task becomes even more complicated.
-For these reasons,
-it is best to avoid manual calculation of nested subsets of a data set.
-To see where this can go wrong, consider study flow diagrams,
-which involve nested subsets such as
+For these reasons, it is best not to perform nested subsetting by hand.
+
+To see where manual calculation of nested subsets can go wrong,
+consider study flow diagrams, which involve nested subsets such as
 *participants* within *eligible patients* within *patients who were assessed*.
 Because mistakes inevitably arise during manual calculation and transcription,
-it is not uncommon for published study flow diagrams to contain errors.
+it is not uncommon for flow diagrams in published studies to contain errors.
 The errors that make it to publication are often small,
 but occasionally they can be disastrous.
 
 A solution to the problem of calculating and displaying nested subsets is presented here.
-A natural way to represent nested subsets of a data set is to use a tree structure,
-which we call a *variable tree*.
+The idea is to represent nested subsets of a data set
+(where the subsets are defined by specific variables in the data set),
+using a tree structure, which we call a *variable tree*.
 `vtree` is a flexible tool for calculating and drawing variable trees.
+It can be used to explore a data set,
+to construct figures for reports and publications,
+and to double-check code to ensure that subsetting has been performed correctly.
+
 
 ## Basic features of a variable tree
 
@@ -100,7 +103,7 @@ while `Sex` has been assigned blue hues (light blue for females, dark blue for m
 The node representing missing values of `Severity` is colored white to draw attention to it.
 
 
-## Applications of variable trees
+## Variable trees vs. contingency tables
 
 A tree with two variables is equivalent to a two-way contingency table.
 In the example above, `Sex` is shown within levels of `Severity`.
@@ -121,7 +124,7 @@ but the variable tree is easier to interpret.
 This is all the more so with multi-way contingency tables,
 which are typically displayed using multiple two-way tables.
 It is also noteworthy that contingency tables are not always compact.
-When most cells of a contingency table are empty (i.e. the table is *sparse*),
+When most cells of a contingency table are empty (known as a *sparse* table),
 the corresponding variable tree will seem comparatively compact,
 since empty-nodes are not shown.
  
@@ -134,9 +137,6 @@ and can also be used to display a wide variety of information including:
 
 * longitudinal events.
 
-Variable trees can be used to explore a data set,
-to construct figures for reports and publications,
-and to double-check code to ensure that subsetting has been performed correctly.
 
 ## Features of vtree
 
@@ -150,7 +150,7 @@ One challenge with variable trees is that as variables are added,
 trees can get very large.
 For this reason, `vtree` includes tools for *pruning*.
 Variable trees can also be used to display additional subset-specific information.
-For example, vtree makes it easy to display the mean (or other summary statistic)
+For example, `vtree` makes it easy to display the mean (or other summary statistic)
 of a quantitative variable such as age within each node.
 Finally, `vtree` supports numerous additional customizations and formatting tweaks.
 
@@ -227,7 +227,7 @@ filepath <- grVizToPNG(v2,folder=PNGdir,width=1000)
 ![](`r filepath`){ height=2.5in }
 
 Next, consider a vertical variable tree with two variables, `Severity` and `Sex`.
-A less colorful display with more spacing has been requested by specifying `plain=TRUE`:
+A less colorful display with more spacing can be requested by specifying `plain=TRUE`:
 
 ```{r, eval=FALSE}
 vtree(FakeData,"Severity Sex",horiz=FALSE,plain=TRUE)
@@ -256,12 +256,12 @@ or `r nrow(FakeData) - sum(is.na(FakeData$Severity))`.
 There are `r sum(FakeData$Severity %in% "Mild")` Mild cases,
 and `r sum(FakeData$Severity %in% "Mild")`/`r nrow(FakeData) - sum(is.na(FakeData$Severity))` =
 `r sum(FakeData$Severity %in% "Mild")/(nrow(FakeData) - sum(is.na(FakeData$Severity)))` so the percentage shown is 48%.
-No percentage is shown in the NA nodes since they are not included.
+No percentage is shown in the NA node since missing values are not included in the denominator.
 
 Alternatively, if you don't want to use valid percentages, specify `vp=FALSE`,
 and the denominator will be the total number of observations,
 *including* any missing values.
-In this case, a percentage is shown in all of the nodes, including nodes for missing values.
+In this case, a percentage is shown in each of the nodes, including any NA nodes.
 
 If you don't wish to see percentages, specify `showpct=FALSE`,
 or if you don't need to see counts, specify `showcount=FALSE`.
@@ -419,8 +419,7 @@ As an example, if `Severity` in fact represents severity on day 1,
 you can specify `labelvar=c(Severity="Severity on day 1")`.
 
 ```{r,eval=FALSE}
-vtree(FakeData,"Severity Sex",horiz=FALSE,
-  labelvar=c(Severity="Severity on day 1"))
+vtree(FakeData,"Severity Sex",horiz=FALSE,labelvar=c(Severity="Severity on day 1"))
 ```
 ```{r,echo=FALSE}
 v8 <- vtree(FakeData,"Severity Sex",horiz=FALSE,width=700,height=250,
@@ -534,7 +533,7 @@ to any Mild nodes in the tree.
 The parameter `text` lets you add text to nodes.
 It is specified as a list with an element named for each variable.
 In the example below the list has one element, named `Severity`.
-That element in turn is a vector `c(Mild="*Excluding\nnew diagnoses*")`
+That element in turn is a vector `c(Mild="\n*Excluding\nnew diagnoses*")`
 indicating that the Mild node should include additional text using Markdown-style formatting
 (i.e. there is a linebreak and the asterisks around the text indicate that it should be displayed in italics):
 
@@ -566,8 +565,10 @@ For example:
 
 ```{r,eval=FALSE}
 vtree(FakeData,"Group Severity",horiz=FALSE,showvarnames=FALSE,
-  ttext=list(c(Group="B",Severity="Mild",text="\n*Excluding\nnew diagnoses*"),
-    c(Group="A",text="\nSweden"),c(Group="B",text="\nNorway")))
+  ttext=list(
+    c(Group="B",Severity="Mild",text="\n*Excluding\nnew diagnoses*"),
+    c(Group="A",text="\nSweden"),
+    c(Group="B",text="\nNorway")))
 ```
 ```{r,echo=FALSE}
 v9_a <- vtree(FakeData,"Group Severity",horiz=FALSE,showvarnames=FALSE,
@@ -659,10 +660,11 @@ filepath <- grVizToPNG(v11,folder=PNGdir,width=1000)
 
 ### The %npct% code
 
-Suppose we want to know, within each severity level, what proportion of patients have a viral infection.
+Suppose we want to know the proportion of patients with a viral infection
+within each severity level.
 We could display a variable tree for the variables `Severity` and `Viral`.
 But that would show a separate node for TRUE and FALSE values of `Viral`,
-and we don't need to examine these subsets.
+and we only need to know the percentage for the TRUE values.
 If what we're looking for is simply
 the number and percentage of patients with viral infection in each severity group,
 the `%npct%` code can be used.
