@@ -358,6 +358,24 @@ vtree <- function (z, vars, splitspaces=TRUE,
         colnames(z)[1] <- argname
         vars <- argname
     }
+    
+    findstem <- grep("^stem:",vars)
+    if (length(findstem)>0) {
+      expandedvars <- c()
+      for (i in 1:length(vars)) {
+        if (i %in% findstem) {
+          stem <- sub("^stem:([^ ]+)$","\\1",vars[i])
+          expanded_stem <- names(z)[grep(paste0("^",stem,"___[0-9]+$"),names(z))]
+          if (length(expanded_stem)==0) {
+            stop(paste0("Could not find variables with names matching the specified stem: ",stem))
+          }
+          expandedvars <- c(expandedvars,expanded_stem)
+        } else {
+          expandedvars <- c(expandedvars,vars[i])
+        }
+      }
+      vars <- expandedvars
+    }
 
     if (!missing(showlevels)) showvarnames <- showlevels
 
@@ -513,6 +531,11 @@ vtree <- function (z, vars, splitspaces=TRUE,
         c("#F7FCFD","#E0ECF4","#BFD3E6","#9EBCDA","#8C96C6","#8C6BB1","#88419D","#810F7C","#4D004B"),
         c("#FFFFCC","#FFEDA0","#FED976","#FEB24C","#FD8D3C","#FC4E2A","#E31A1C","#BD0026","#800026")
     ))
+    
+    # Duplicate the color gradients 3 times to allow for huge trees.
+    for (i in 1:length(col)) {
+      col[[i]] <- rbind(col[[i]],col[[i]],col[[i]])
+    }
 
     # When a variable has a single value,
     # should nodes be colored light (1) medium (2) or dark (3)?
