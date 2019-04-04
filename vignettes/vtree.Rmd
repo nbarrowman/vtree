@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 1.1.7"
+title: "Introduction to vtree 1.1.8"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -825,8 +825,6 @@ https://dreampuf.github.io/GraphvizOnline
 http://magjac.com/graphviz-visual-editor/
 
 
-
-
 ## Special variable trees
 
 ### Multi-way intersections (often shown in Venn diagrams)
@@ -1061,6 +1059,45 @@ v28 <- vtree(FakeRCT,"eligible randomized group followup analyzed",plain=TRUE,wi
 filepath <- grVizToPNG(v28,folder=PNGdir,width=1000)
 ```
 ![](`r filepath`){ height=7in }
+
+
+## REDCap checkboxes
+
+In datasets exported from [REDCap](https://www.project-redcap.org/),
+checkboxes (i.e. the boxes where you select all that apply)
+are represented in a special way.
+For each item in a checklist, a separate variable is created.
+Suppose survey respondents were asked to select which flavours of ice cream (Chocolate, Vanilla, Strawberry) they like.
+Within REDCap,
+the variable name for this list of checkboxes is `IceCream`,
+but when the dataset is exported,
+individual variables `IceCream___1` (representing Chocolate), 
+`IceCream___2` (Vanilla), and `IceCream___3` (Strawberry) are created.
+When the dataset is read into R,
+the names of the flavours are embedded in the `attributes` of these variables.
+
+`vtree` includes a feature designed to make REDCap checkbox variables easier to use.
+Instead of typing:
+
+```{r eval=FALSE}
+vtree(MyREDCapData,"IceCream___1 IceCream___2 IceCream___3")
+```
+
+you can use a special syntax where `stem:` precedes the REDCap variable name:
+
+```{r eval=FALSE}
+vtree(MyREDCapData,"stem:IceCream")
+```
+
+By default,
+`vtree` will also extract the names of the choices and create variables with those names.
+(This can be disabled by specifying `choicechecklist=FALSE`.)
+
+An especially convenient way to display checkbox variables with `vtree` is:
+
+```{r eval=FALSE}
+vtree(MyREDCapData,"stem:IceCream",pattern=TRUE,showroot=FALSE)
+```
 
 
 # Additional Graphviz customization

@@ -186,6 +186,8 @@
 #'                         this parameter is used to specify whether nodes should have a
 #'                         (1) light shade, (2) a medium shade, or (3) a dark shade.
 #'                         specify \code{singlecolor=1} to assign a light shade.
+#' @param choicechecklist  When REDCap checklists are specified using the \code{stem:} syntax,
+#'                         automatically extract the names of choices and use them as variable names? 
 #' @param parent           Parent node number (Internal use only.)
 #' @param last             Last node number (Internal use only.)
 #' @param root             Is this the root node of the tree? (Internal use only.)
@@ -309,6 +311,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
   color = c("blue", "forestgreen", "red", "orange", "pink"), colornodes = FALSE,
   showempty = FALSE, rounded = TRUE,
   nodefunc = NULL, nodeargs = NULL, 
+  choicechecklist = TRUE,
   parent = 1, last = 1, root = TRUE)
 {
 
@@ -359,6 +362,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
         vars <- argname
     }
     
+    # Process stem: tag in variable names to handle REDCap checklists automatically
     findstem <- grep("^stem:",vars)
     if (length(findstem)>0) {
       expandedvars <- c()
@@ -369,7 +373,15 @@ vtree <- function (z, vars, splitspaces=TRUE,
           if (length(expanded_stem)==0) {
             stop(paste0("Could not find variables with names matching the specified stem: ",stem))
           }
-          expandedvars <- c(expandedvars,expanded_stem)
+          if (choicechecklist) {
+            for (j in 1:length(expanded_stem)) {
+              choice <- sub(".+\\(choice=(.+)\\)","\\1",attributes(z[[expanded_stem[j]]])$label)
+              z[[choice]] <- z[[expanded_stem[j]]]
+              expandedvars <- c(expandedvars,choice)
+            }
+          } else {
+            expandedvars <- c(expandedvars,expanded_stem)
+          }
         } else {
           expandedvars <- c(expandedvars,vars[i])
         }
@@ -1410,16 +1422,26 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
   }
 
   if (!is.null(prunefull)) {
-    matching <- names(categoryCounts)[-1] %in% prunefull
-    categoryCounts <- c(categoryCounts[1],categoryCounts[-1][!matching])
-    npctString <- c(npctString[1],npctString[-1][!matching])
+    if (is.numeric(prunefull)) {
+      categoryCounts <- c(categoryCounts[1],categoryCounts[-1][-prunefull])
+      npctString <- c(npctString[1],npctString[-1][-prunefull])
+    } else {
+      matching <- names(categoryCounts)[-1] %in% prunefull
+      categoryCounts <- c(categoryCounts[1],categoryCounts[-1][!matching])
+      npctString <- c(npctString[1],npctString[-1][!matching])
+    }
   }
 
   if (!is.null(keep)) {
-    matching <- match(keep,names(categoryCounts)[-1])
-    matching <- matching[!is.na(matching)]
-    categoryCounts <- c(categoryCounts[1],categoryCounts[-1][matching])
-    npctString <- c(npctString[1],npctString[-1][matching])
+    if (is.numeric(keep)) {
+      categoryCounts <- c(categoryCounts[1],categoryCounts[-1][keep])
+      npctString <- c(npctString[1],npctString[-1][keep])
+    } else {      
+      matching <- match(keep,names(categoryCounts)[-1])
+      matching <- matching[!is.na(matching)]
+      categoryCounts <- c(categoryCounts[1],categoryCounts[-1][matching])
+      npctString <- c(npctString[1],npctString[-1][matching])
+    }
   }
 
   if (pruneNA) {
@@ -1533,7 +1555,9 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
   # Glue a space or a line break onto the non-empty elements of CAT
   if (sameline) {
     for (i in 1:length(CAT)) {
-      if (CAT[i]!="") CAT[i] <- paste0(CAT[i],", ")
+      if (showcount || showpct || extraText[i]!="") {
+        if (CAT[i]!="") CAT[i] <- paste0(CAT[i],", ")
+      }
     }
   } else {
     for (i in 1:length(CAT)) {

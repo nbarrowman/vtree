@@ -24,8 +24,8 @@ vtree(z, vars, splitspaces = TRUE, prune = list(),
   width = NULL, height = NULL, graphattr = "", nodeattr = "",
   edgeattr = "", color = c("blue", "forestgreen", "red", "orange",
   "pink"), colornodes = FALSE, showempty = FALSE, rounded = TRUE,
-  nodefunc = NULL, nodeargs = NULL, parent = 1, last = 1,
-  root = TRUE)
+  nodefunc = NULL, nodeargs = NULL, choicechecklist = TRUE,
+  parent = 1, last = 1, root = TRUE)
 }
 \arguments{
 \item{z}{Required: Data frame, or a single vector.}
@@ -270,6 +270,9 @@ available to execute the functions in \code{runsummary}.}
 
 \item{nodeargs}{A list containing named arguments for the node function
 specified by \code{nodefunc}.}
+
+\item{choicechecklist}{When REDCap checklists are specified using the \code{stem:} syntax,
+automatically extract the names of choices and use them as variable names?}
 
 \item{parent}{Parent node number (Internal use only.)}
 
