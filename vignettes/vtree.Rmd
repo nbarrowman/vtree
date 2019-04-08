@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 1.1.8"
+title: "Introduction to vtree 1.1.9"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -43,15 +43,18 @@ When there are missing values in the data set,
 the task becomes even more complicated.
 For these reasons, it is best not to perform nested subsetting by hand.
 
-To see where manual calculation of nested subsets can go wrong,
-consider study flow diagrams, which involve nested subsets such as
-*participants* within *eligible patients* within *patients who were assessed*.
+One example of nested subsetting is in flow diagrams for clinical studies,
+which often involve 
+*participants* who are a subset of
+*eligible patients* who in turn are a subset of 
+*patients who were assessed*.
 Because mistakes inevitably arise during manual calculation and transcription,
 it is not uncommon for flow diagrams in published studies to contain errors.
 The errors that make it to publication are often small,
 but occasionally they can be disastrous.
 
-A solution to the problem of calculating and displaying nested subsets is presented here.
+A solution to the problem of calculating nested subsets
+and displaying information about them is presented here.
 The idea is to represent nested subsets of a data set
 (where the subsets are defined by specific variables in the data set),
 using a tree structure, which we call a *variable tree*.
@@ -66,6 +69,7 @@ and to double-check code to ensure that subsetting has been performed correctly.
 The examples that follow use a data set of `r nrow(FakeData)` fictitious patients called `FakeData`.
 Based on this data set, the variable tree below depicts subsets defined by `Sex` (M or F)
 nested within subsets defined by disease `Severity` (Mild, Moderate, Severe, or NA).
+Later we'll see how variable trees with more than two variables are particularly useful.
 
 ```{r, echo=FALSE}
 v1 <- vtree(FakeData,"Severity Sex",showlegend=FALSE,horiz=FALSE,width=600,height=200)
@@ -77,7 +81,15 @@ A variable tree consists of *nodes* connected by arrows.
 At the top of the diagram above, the *root* node of the tree contains all 46 patients.
 The rest of the nodes are arranged in successive levels,
 where each level corresponds to a variable.
-The nodes immediately below the root represent values of `Severity` and
+Note that this highlights one difference between variable trees
+and some other kinds of trees:
+at each level of a variable tree, regardless of the branch,
+the nodes represent values of the same variable.
+In constrast, consider *decision trees*, which can have
+splits on different variables at the same level.
+ 
+Continuing with the variable tree above,
+the nodes immediately below the root represent values of `Severity` and
 are referred to as the *children* of the root node.
 In this case, `Severity` was missing (NA) for 6 patients,
 and there is a node for these patients.
@@ -105,7 +117,7 @@ The node representing missing values of `Severity` is colored white to draw atte
 
 ## Variable trees vs. contingency tables
 
-A tree with two variables is equivalent to a two-way contingency table.
+A tree with two variables is essentially the same as a two-way contingency table.
 In the example above, `Sex` is shown within levels of `Severity`.
 This corresponds to the following contingency table,
 where the percentages within each column add to 100%.
@@ -120,13 +132,14 @@ Similarly, a tree with `Severity` shown within levels of `Sex` corresponds to
 a contingency table with *row percentages*.
 
 The contingency table above is much more compact than the corresponding variable tree,
-but the variable tree is easier to interpret.
-This is all the more so with multi-way contingency tables,
-which are typically displayed using multiple two-way tables.
-It is also noteworthy that contingency tables are not always compact.
-When most cells of a contingency table are empty (known as a *sparse* table),
-the corresponding variable tree will seem comparatively compact,
-since empty-nodes are not shown.
+but some people find the variable tree easier to interpret.
+When three of more variables are of interest,
+multi-way contingency tables are typically displayed using several two-way tables.
+In this situation, variable trees are much easier to interpret.
+
+It is also noteworthy that contingency tables are not *always* more compact than variable trees.
+When most cells of a large contingency table are empty (known as a *sparse* table),
+the corresponding variable tree may be more compact since empty-nodes are not shown.
  
 Variable trees are thus an appealing alternative to multi-way contingency tables
 and can also be used to display a wide variety of information including:
