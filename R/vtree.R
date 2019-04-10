@@ -1505,9 +1505,9 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
   }
 
   if (HTMLtext) {
-    CAT[-1] <- splitlines(CAT[-1],width=splitwidth,sp="<BR/>",at=" ")
+    CAT <- splitlines(CAT,width=splitwidth,sp="<BR/>",at=" ")
   } else {
-    CAT[-1] <- splitlines(CAT[-1],width=splitwidth,sp="\n",at = c(" ", ".", "-", "+", "_", "=", "/"))
+    CAT <- splitlines(CAT,width=splitwidth,sp="\n",at = c(" ", ".", "-", "+", "_", "=", "/"))
   }
 
   if (check.is.na) {
@@ -1570,7 +1570,7 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
   }
 
   if (!HTMLtext) {
-    CAT[-1] <- convertToHTML(CAT[-1])
+    CAT <- convertToHTML(CAT)
     extraText[-1] <- convertToHTML(extraText[-1])
   }
   
