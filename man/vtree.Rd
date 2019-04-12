@@ -307,7 +307,8 @@ in which the subsetting is defined by the values of categorical variables.
  \item{\code{\%v\%} }{the name of the variable}
  \item{\code{\%noroot\%} }{flag: Do not show summary in the root node.}
  \item{\code{\%leafonly\%} }{flag: Only show summary in leaf nodes.}
- \item{\code{\%var=}n\code{\%} }{flag: Only show summary in nodes of the specified variable.}
+ \item{\code{\%var=}V\code{\%} }{flag: Only show summary in nodes of variable V.}
+ \item{\code{\%node=}N\code{\%} }{flag: Only show summary in nodes with value N.}
  \item{\code{\%trunc=}n\code{\%} }{flag: Truncate the summary to the first n characters.}
 }
 }

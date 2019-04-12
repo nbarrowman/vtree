@@ -1,7 +1,7 @@
 Package: vtree
 Type: Package
 Title: Display Information About Nested Subsets of a Data Frame
-Version: 1.2.0
+Version: 1.2.1
 Depends: R (>= 2.10)
 Author: Nick Barrowman
 Maintainer: Nick Barrowman <nbarrowman@cheo.on.ca>

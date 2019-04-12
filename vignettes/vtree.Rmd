@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 1.2.0"
+title: "Introduction to vtree 1.2.1"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -954,7 +954,7 @@ This kind of tree is also useful for investigating incomplete longitudinal data.
 
 ### Checking for missing values with the `check.is.na` parameter
 
-The `check.is.na` argument is used to produce a tree that only shows whether
+The `check.is.na` parameter is used to produce a tree that only shows whether
 the specified variables are missing or not.
 Whereas the variables that `vtree` uses to build variable trees are usually categorical,
 this is a situation where non-categorical variables can be used,
@@ -986,6 +986,12 @@ filepath <- grVizToPNG(v25,folder=PNGdir,width=1000)
 ![](`r filepath`){ height=4.5in }
 
 
+### Replacing specified variables with missing value indicators
+
+Specifying individual variable names with the prefix `na:`
+replaces them with a missing value indicator in the variable tree.
+(This differs from the `check.is.na` parameter,
+which is used to replace *all* of the specified variables with missing value indicators.
 
 
 ### Rudimentary CONSORT diagrams

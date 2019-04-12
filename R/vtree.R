@@ -207,7 +207,8 @@
 #'  \item{\code{\%v\%} }{the name of the variable}
 #'  \item{\code{\%noroot\%} }{flag: Do not show summary in the root node.}
 #'  \item{\code{\%leafonly\%} }{flag: Only show summary in leaf nodes.}
-#'  \item{\code{\%var=}n\code{\%} }{flag: Only show summary in nodes of the specified variable.}
+#'  \item{\code{\%var=}V\code{\%} }{flag: Only show summary in nodes of variable V.}
+#'  \item{\code{\%node=}N\code{\%} }{flag: Only show summary in nodes with value N.}
 #'  \item{\code{\%trunc=}n\code{\%} }{flag: Truncate the summary to the first n characters.}
 #' }
 #'
@@ -360,6 +361,24 @@ vtree <- function (z, vars, splitspaces=TRUE,
             argname <- vars
         colnames(z)[1] <- argname
         vars <- argname
+    }
+    
+    # Process na: tag in variable names to handle individual missing value checks
+    findna <- grep("^na:",vars)
+    if (length(findna)>0) {
+      for (i in 1:length(vars)) {
+        if (i %in% findna) {
+          navar <- sub("^na:([^ ]+)$","\\1",vars[i])
+          newvar <- paste0("MISSING_", navar)
+          m <- is.na(z[[navar]])
+          z[[newvar]] <- factor(m, levels = c(FALSE, TRUE),c("available","N/A"))
+          # Note that available comes before N/A in alphabetical sorting.
+          # Similarly FALSE comes before TRUE.
+          # And 0 (representing FALSE) comes before 1 (representing TRUE) numerically.
+          # This is convenient, especially when when using the seq parameter.
+          vars[i] <- newvar
+        }
+      }
     }
     
     # Process stem: tag in variable names to handle REDCap checklists automatically
@@ -1873,12 +1892,33 @@ summaryNodeFunction <- function (u, varname, value, args) {
         }
       }
 
+      # check the %var=V% and %node=N% codes
       if (length(grep("%var=([^%]+)%",result))>0) {
         varspec <- sub("(.*)%var=([^%]+)%(.*)","\\2",result)
         if (varspec==varname) {
-          ShowNodeText <- TRUE
+          if (length(grep("%node=([^%]+)%",result))>0) {
+            nodespec <- sub("(.*)%node=([^%]+)%(.*)","\\2",result)
+            if (nodespec==value) {
+              ShowNodeText <- TRUE
+            } else {
+              ShowNodeText <- FALSE
+            }            
+          } else {
+            ShowNodeText <- TRUE
+          }
         } else {
           ShowNodeText <- FALSE
+        } 
+      } else {
+        if (length(grep("%node=([^%]+)%",result))>0) {
+          nodespec <- sub("(.*)%node=([^%]+)%(.*)","\\2",result)
+          if (nodespec==value) {
+            ShowNodeText <- TRUE
+          } else {
+            ShowNodeText <- FALSE
+          }            
+        } else {
+          ShowNodeText <- TRUE
         }
       }
 
