@@ -370,6 +370,11 @@ vtree <- function (z, vars, splitspaces=TRUE,
         if (i %in% findequal) {
           equalvar <- sub("([^ ]+)(=)([^ ]+)","\\1",vars[i])
           equalval <- sub("([^ ]+)(=)([^ ]+)","\\3",vars[i])
+          # Check to see if any of the values of the specified variable contain spaces
+          # If they do, replace underscores in the specified value with spaces.
+          if (any(length(grep(" ",names(table(z[[equalvar]]))))>0)) {
+            equalval <- gsub("_"," ",equalval)
+          }
           m <- z[[equalvar]]==equalval
           z[[equalvar]] <- factor(m, levels = c(FALSE, TRUE),
             c(paste("Not",equalval),paste(equalval)))
@@ -1897,18 +1902,6 @@ summaryNodeFunction <- function (u, varname, value, args) {
 
       ShowNodeText <- TRUE
 
-      if (!args$leaf) {
-        if (length(grep("%leafonly%",result))>0) {
-          ShowNodeText <- FALSE
-        }
-      }
-
-      if (args$root) {
-        if (length(grep("%noroot%",result))>0) {
-          ShowNodeText <- FALSE
-        }
-      }
-
       # check the %var=V% and %node=N% codes
       if (length(grep("%var=([^%]+)%",result))>0) {
         varspec <- sub("(.*)%var=([^%]+)%(.*)","\\2",result)
@@ -1934,8 +1927,18 @@ summaryNodeFunction <- function (u, varname, value, args) {
           } else {
             ShowNodeText <- FALSE
           }            
-        } else {
-          ShowNodeText <- TRUE
+        }
+      }
+
+      if (!args$leaf) {
+        if (length(grep("%leafonly%",result))>0) {
+          ShowNodeText <- FALSE
+        }
+      }
+
+      if (args$root) {
+        if (length(grep("%noroot%",result))>0) {
+          ShowNodeText <- FALSE
         }
       }
 

@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 1.2.2"
+title: "Introduction to vtree 1.2.3"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -213,11 +213,8 @@ In this case, a variable tree can be displayed using the following command:
 vtree(df,"v1 v2")
 ```
 
-For convenience,
-`vtree` allows you to specify the variable names in a single character string
-(with the variable names separated by whitespace).
-If, however, any of the variable names have internal spaces,
-the variable names must be specified as a vector of character strings.
+For additional details about how variables can be specified,
+see [Variable Specification](#VariableSpecification}
 
 Numerous additional parameters can be supplied.
 For example, by default `vtree` produces a horizontal tree
@@ -839,26 +836,99 @@ https://dreampuf.github.io/GraphvizOnline
 http://magjac.com/graphviz-visual-editor/
 
 
-## Special variable specifications
-
-There are several special ways to specify variables in a call to `vtree`.
-
-### `is.na:` - Replacing a variable with a missing value indicator
+## Variable specifications {#VariableSpecification}
+ 
+For convenience,
+vtree allows you to specify the variable names in a single character string
+(with the variable names separated by whitespace).
+If, however, any of the variable names have internal spaces,
+the variable names must be specified as a vector of character strings.
+ 
+Additionally, there are several special ways to specify variables.
+ 
+ 
+### `is.na:` &mdash; Replacing a variable with a missing value indicator
 
 Specifying individual variable names with the prefix `is.na:`
 replaces them with a missing value indicator in the variable tree.
 (This differs from the `check.is.na` parameter, described below,
 which is used to replace *all* of the specified variables with missing value indicators.)
 
-### `stem:` - Variable stems for REDCap checkboxes
 
-This is described in the REDCap section later in this vignette.
+### `stem:` &mdash; Variable stems for REDCap checkboxes
+
+In datasets exported from [REDCap](https://www.project-redcap.org/),
+checkboxes are represented using multiple variables.
+The `stem:` prefix makes it easier to work with them.
+This is described in the section on [REDCap checkboxes](#redcapcheckboxes)
+later in this vignette.
+
+
+### `variable=value` &mdash; Dichotomizing based on a specific value
+
+When a variable takes on a large number of different values,
+it will result in a very large variable tree.
+One solution is to prune the tree,
+for example by keeping just one node.
+An alternative is to specify the value of the variable that is of primary interest.
+
+#### Esophageal cancer
+
+For example, the `esoph` data set
+(data from a case-control study of esophageal cancer in Ille-et-Vilaine, France, one of the R datasets)
+has 88 different combinations of age group, alcohol consumption, and tobacco consumption.
+Let's consider examine the mean number of cases among patients
+aged 75 and older compared to the rest of the patients:
 
 ```{r, eval=FALSE}
-This is described [later](#REDCap-checkboxes).
+vtree(esoph,"agegp=75+",
+  summary="ncases \nmean=%mean%%leafonly%",sameline=TRUE)
 ```
 
-### `variable=value` - Dichotomizing based on a specific value
+#### Hair and eye color
+
+Another example, based on the `HairEyeColor` data set
+(one of the R datasets).
+That data set is an array representing a contingency table.
+Let's use the following function (from the R Cookbook site, http://www.cookbook-r.com/Manipulating_data/Converting_between_data_frames_and_contingency_tables/#cases-to-contingency-table) to convert the array to a dataframe:
+
+```{r, eval=FALSE}
+# Convert from data frame of counts to data frame of cases.
+# `countcol` is the name of the column containing the counts
+countsToCases <- function(x, countcol = "Freq") {
+    # Get the row indices to pull from x
+    idx <- rep.int(seq_len(nrow(x)), x[[countcol]])
+
+    # Drop count column
+    x[[countcol]] <- NULL
+
+    # Get the rows from x
+    x[idx, ]
+}
+```
+
+```{r, eval=FALSE}
+hec <- countsToCases(as.data.frame(HairEyeColor))
+```
+
+There are a lot of combinations but let's say are especially interested
+in green eyes (versus non-green eyes).
+```{r, eval=FALSE}
+vtree(hec,"Hair Eye=Green Sex")
+```
+
+#### Titanic
+
+Another example:
+
+```{r, eval=FALSE}
+titanic <- countsToCases(as.data.frame(Titanic))
+```
+
+```{r, eval=FALSE}
+vtree(titanic,"Class=Crew Sex Age Survived")
+```
+
 
 
 ## Special variable trees
@@ -1101,7 +1171,7 @@ filepath <- grVizToPNG(v28,folder=PNGdir,width=1000)
 ![](`r filepath`){ height=7in }
 
 
-## REDCap checkboxes
+## REDCap checkboxes {#redcapcheckboxes}
 
 In datasets exported from [REDCap](https://www.project-redcap.org/),
 checkboxes (i.e. the boxes where you select all that apply)
