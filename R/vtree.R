@@ -363,20 +363,35 @@ vtree <- function (z, vars, splitspaces=TRUE,
         vars <- argname
     }
     
-    # Process na: tag in variable names to handle individual missing value checks
-    findna <- grep("^na:",vars)
+    # Process = tag in variable names 
+    findequal <- grep("=",vars)
+    if (length(findequal)>0) {
+      for (i in 1:length(vars)) {    
+        if (i %in% findequal) {
+          equalvar <- sub("([^ ]+)(=)([^ ]+)","\\1",vars[i])
+          equalval <- sub("([^ ]+)(=)([^ ]+)","\\3",vars[i])
+          m <- z[[equalvar]]==equalval
+          z[[equalvar]] <- factor(m, levels = c(FALSE, TRUE),
+            c(paste("Not",equalval),paste(equalval)))
+          vars[i] <- equalvar
+        }
+      }
+    }
+    
+    # Process is.na: tag in variable names to handle individual missing value checks
+    findna <- grep("^is\\.na:",vars)
     if (length(findna)>0) {
       for (i in 1:length(vars)) {
         if (i %in% findna) {
-          navar <- sub("^na:([^ ]+)$","\\1",vars[i])
-          newvar <- paste0("MISSING_", navar)
+          navar <- sub("^is\\.na:([^ ]+)$","\\1",vars[i])
+#          newvar <- paste0("MISSING_", navar)
           m <- is.na(z[[navar]])
-          z[[newvar]] <- factor(m, levels = c(FALSE, TRUE),c("available","N/A"))
+          z[[navar]] <- factor(m, levels = c(FALSE, TRUE),c("available","N/A"))
           # Note that available comes before N/A in alphabetical sorting.
           # Similarly FALSE comes before TRUE.
           # And 0 (representing FALSE) comes before 1 (representing TRUE) numerically.
           # This is convenient, especially when when using the seq parameter.
-          vars[i] <- newvar
+          vars[i] <- navar
         }
       }
     }
@@ -626,6 +641,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
     }
 
     if (seq) {
+      if (missing(showroot)) showroot <- FALSE
       sequence <- NULL
       for (i in 1:length(vars)) {
         sequence <- paste(sequence,z[[vars[i]]])
@@ -650,6 +666,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
     }
     
     if (pattern) {
+      if (missing(showroot)) showroot <- FALSE
       edgeattr <- paste(edgeattr,"arrowhead=none")
       PATTERN <- NULL
       for (i in 1:length(vars)) {

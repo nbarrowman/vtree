@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 1.2.1"
+title: "Introduction to vtree 1.2.2"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -643,6 +643,7 @@ Any missing values are also reported.
 * `%noroot%` flag: Do not show summary in the root node.
 * `%leafonly%` flag: Only show summary in leaf nodes, i.e. nodes that have no children.
 * `%var=`*v*`%` flag: Only show summary in nodes of the specified variable *v*.
+* `%node=`*n*`%` flag: Only show summary in nodes with value *n*.
 * `%trunc=`*n*`%` flag: Truncate the summary to the first *n* characters.
 
 The `summary` argument can use any number of these codes,
@@ -838,6 +839,28 @@ https://dreampuf.github.io/GraphvizOnline
 http://magjac.com/graphviz-visual-editor/
 
 
+## Special variable specifications
+
+There are several special ways to specify variables in a call to `vtree`.
+
+### `is.na:` - Replacing a variable with a missing value indicator
+
+Specifying individual variable names with the prefix `is.na:`
+replaces them with a missing value indicator in the variable tree.
+(This differs from the `check.is.na` parameter, described below,
+which is used to replace *all* of the specified variables with missing value indicators.)
+
+### `stem:` - Variable stems for REDCap checkboxes
+
+This is described in the REDCap section later in this vignette.
+
+```{r, eval=FALSE}
+This is described [later](#REDCap-checkboxes).
+```
+
+### `variable=value` - Dichotomizing based on a specific value
+
+
 ## Special variable trees
 
 ### Multi-way intersections (often shown in Venn diagrams)
@@ -924,6 +947,12 @@ filepath <- grVizToPNG(v23,folder=PNGdir,width=1000)
 ```
 ![](`r filepath`){ height=7in }
 
+Note that, by default, the root node is not shown when `pattern=TRUE` is specified,
+because this simplifies the display
+(in fact, without the root node it is no longer a tree!).
+A disadvantage of this is that the total sample size is not shown.
+The root node can be shown by specifying `showroot=TRUE`.
+
 This tree has two other special characteristics.
 First, note that after the first level (representing `pattern`),
 counts and percentages are not shown,
@@ -971,27 +1000,19 @@ filepath <- grVizToPNG(v24,folder=PNGdir,width=1000)
 ![](`r filepath`){ height=5in }
 
 To visualize the patterns of missing values, `pattern=TRUE` can be specified.
-Note that `showroot=FALSE` has also been specified to illustrate how removing the root
-node can simplify the display:
+
 
 ```{r,eval=FALSE}
-vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,pattern=TRUE,showroot=FALSE,
+vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,pattern=TRUE,
   palette=c(Severity=1,Age=2,Pre=3,Post=4))
 ```
 ```{r,echo=FALSE}
-v25 <- vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,pattern=TRUE,showroot=FALSE,
+v25 <- vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,pattern=TRUE,
   palette=c(Severity=1,Age=2,Pre=3,Post=4))
 filepath <- grVizToPNG(v25,folder=PNGdir,width=1000)
 ```
 ![](`r filepath`){ height=4.5in }
 
-
-### Replacing specified variables with missing value indicators
-
-Specifying individual variable names with the prefix `na:`
-replaces them with a missing value indicator in the variable tree.
-(This differs from the `check.is.na` parameter,
-which is used to replace *all* of the specified variables with missing value indicators.
 
 
 ### Rudimentary CONSORT diagrams
