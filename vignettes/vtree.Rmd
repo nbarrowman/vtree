@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 1.2.3"
+title: "Introduction to vtree 1.2.4"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -864,13 +864,19 @@ This is described in the section on [REDCap checkboxes](#redcapcheckboxes)
 later in this vignette.
 
 
-### `variable=value` &mdash; Dichotomizing based on a specific value
+### `variable=value` &mdash; Dichotomizing based on equaling a specific value
 
 When a variable takes on a large number of different values,
 it will result in a very large variable tree.
 One solution is to prune the tree,
 for example by keeping just one node.
 An alternative is to specify the value of the variable that is of primary interest.
+
+### `variable<value`, `variable>value`  &mdash; Dichotomizing based on inequality  
+
+These two specifications can be useful for identifying subsets with extreme values.
+**Warning:** The specified value is treated as *numeric*, not as a character string.
+ 
 
 #### Esophageal cancer
 

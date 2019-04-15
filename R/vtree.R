@@ -377,11 +377,51 @@ vtree <- function (z, vars, splitspaces=TRUE,
           }
           m <- z[[equalvar]]==equalval
           z[[equalvar]] <- factor(m, levels = c(FALSE, TRUE),
-            c(paste("Not",equalval),paste(equalval)))
+            c(paste0("Not ",equalval),paste0(equalval)))
           vars[i] <- equalvar
         }
       }
     }
+    
+    # Process > tag in varible names
+    findgt <- grep(">",vars)
+    if (length(findgt)>0) {
+      for (i in 1:length(vars)) {    
+        if (i %in% findgt) {
+          gtvar <- sub("([^ ]+)(>)([^ ]+)","\\1",vars[i])
+          gtval <- sub("([^ ]+)(>)([^ ]+)","\\3",vars[i])
+          # Check to see if any of the values of the specified variable contain spaces
+          # If they do, replace underscores in the specified value with spaces.
+          if (any(length(grep(" ",names(table(z[[gtvar]]))))>0)) {
+            gtval <- gsub("_"," ",gtval)
+          }
+          m <- z[[gtvar]]>as.numeric(gtval)
+          z[[gtvar]] <- factor(m, levels = c(FALSE, TRUE),
+            c(paste0("<=",gtval),paste0(">",gtval)))
+          vars[i] <- gtvar
+        }
+      }
+    }    
+    
+    # Process < tag in varible names
+    findlt <- grep("<",vars)
+    if (length(findlt)>0) {
+      for (i in 1:length(vars)) {    
+        if (i %in% findlt) {
+          ltvar <- sub("([^ ]+)(<)([^ ]+)","\\1",vars[i])
+          ltval <- sub("([^ ]+)(<)([^ ]+)","\\3",vars[i])
+          # Check to see if any of the values of the specified variable contain spaces
+          # If they do, replace underscores in the specified value with spaces.
+          if (any(length(grep(" ",names(table(z[[ltvar]]))))>0)) {
+            ltval <- gsub("_"," ",ltval)
+          }
+          m <- z[[ltvar]]<as.numeric(ltval)
+          z[[ltvar]] <- factor(m, levels = c(FALSE, TRUE),
+            c(paste0(">=",ltval),paste0("<",ltval)))
+          vars[i] <- ltvar
+        }
+      }
+    }        
     
     # Process is.na: tag in variable names to handle individual missing value checks
     findna <- grep("^is\\.na:",vars)
