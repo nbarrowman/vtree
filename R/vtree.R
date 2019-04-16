@@ -1873,6 +1873,23 @@ convertToHTML <- function(x) {
 
 summaryNodeFunction <- function (u, varname, value, args) {
 
+  justpct <- function(w,digits=2,vp=TRUE,empty="") {
+    if (vp) {
+      num <- sum(w==1,na.rm=TRUE)
+      den <- length(w) - sum(is.na(w))
+    } else {
+      num <- sum(w==1,na.rm=TRUE)
+      den <- length(w)
+    }
+    pctString <- paste0(around(100*num/den,digits),"%")
+    if (den==0) {
+      pctString <- empty
+    }
+    if (any(is.na(w)))
+      pctString <- paste0(pctString," mv=",sum(is.na(w)))
+    pctString
+  }
+  
   nAndpct <- function(w,digits=2,vp=TRUE,empty="") {
     if (vp) {
       num <- sum(w==1,na.rm=TRUE)
@@ -2013,6 +2030,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
           # Note that y is used in the call to nAndpct
           # so that missing values can be handled as desired
           result <- gsub("%npct%",nAndpct(y,digits=digits),result)
+          result <- gsub("%pct%",justpct(y,digits=digits),result)
           result <- gsub("%mean%", around(mean(x), digits = cdigits),
               result)
           result <- gsub("%median%", around(stats::median(x), digits = cdigits),

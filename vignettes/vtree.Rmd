@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 1.2.4"
+title: "Introduction to vtree 1.2.5"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -117,7 +117,7 @@ The node representing missing values of `Severity` is colored white to draw atte
 
 ## Variable trees vs. contingency tables
 
-A tree with two variables is essentially the same as a two-way contingency table.
+A tree with two variables can be compared to a two-way contingency table.
 In the example above, `Sex` is shown within levels of `Severity`.
 This corresponds to the following contingency table,
 where the percentages within each column add to 100%.
@@ -214,7 +214,7 @@ vtree(df,"v1 v2")
 ```
 
 For additional details about how variables can be specified,
-see [Variable Specification](#VariableSpecification}
+see the section on [Variable specification](#VariableSpecification) below.
 
 Numerous additional parameters can be supplied.
 For example, by default `vtree` produces a horizontal tree
@@ -614,11 +614,11 @@ This specifies that in each node, after the usual frequency and percentage,
 the summary should start on a new line with the words "mean score: " followed by the mean.
 
 ```{r,eval=FALSE}
-vtree(FakeData,"Severity",summary="Score \nmean score: %mean%",horiz=FALSE)
+vtree(FakeData,"Severity",summary="Score \nmean score: %mean%",sameline=TRUE,horiz=FALSE)
 ```
 ```{r,echo=FALSE}
-v10 <- vtree(FakeData,"Severity",summary="Score \nmean score: %mean%",horiz=FALSE,
-  width=450,height=150)
+v10 <- vtree(FakeData,"Severity",summary="Score \nmean score: %mean%",
+  sameline=TRUE,horiz=FALSE,width=450,height=150)
 filepath <- grVizToPNG(v10,folder=PNGdir,width=1000)
 ```
 ![](`r filepath`){ height=1.6in }
@@ -634,6 +634,7 @@ The following summary codes can be used by `summary`:
 * `%IQR%` IQR, i.e. p25, p75
 * `%npct%` n (%). By default "valid percentages" are used.
 Any missing values are also reported.
+* `%pct%` same as `%npct%` but % only (with no parentheses).
 * `%list%` list of the individual values
 * `%mv%` the number of missing values
 * `%v%` the name of the variable
@@ -682,17 +683,23 @@ the `%npct%` code can be used.
 This results in a simpler tree:
 
 ```{r,eval=FALSE}
-vtree(FakeData,"Severity",summary="Viral \nViral %npct%",horiz=FALSE,showvarnames=FALSE)
+vtree(FakeData,"Severity",summary="Viral \nViral %npct%",horiz=FALSE,
+  showvarnames=FALSE,sameline=TRUE)
 ```
 ```{r,echo=FALSE}
-v12 <- vtree(FakeData,"Severity",summary="Viral \nViral %npct%",horiz=FALSE,showvarnames=FALSE,
-  width=650,height=200)
+v12 <- vtree(FakeData,"Severity",summary="Viral \nViral %npct%",horiz=FALSE,
+  showvarnames=FALSE,sameline=TRUE,width=650,height=200)
 filepath <- grVizToPNG(v12,folder=PNGdir,width=1000)
 ```
 ![](`r filepath`){ height=2in }
 
 Note that in each node,
 "mv" indicates the number of missing values (if any).
+
+
+### The %pct% code
+
+The `%pct%` code is the same as the `%npct%` code except that it does not show the frequency, only the percentage (without parentheses).
 
 
 ### The %list% code
@@ -722,11 +729,11 @@ For example,
 
 ```{r,eval=FALSE}
 vtree(FakeData,"Severity",summary="id \nid = %list%%var=Severity%%trunc=40%",
-  horiz=FALSE,showvarnames=FALSE)
+  horiz=FALSE,showvarnames=FALSE,sameline=TRUE)
 ```
 ```{r,echo=FALSE}
 v13 <- vtree(FakeData,"Severity",summary="id \nid = %list%%var=Severity%%trunc=40%",
-  horiz=FALSE,showvarnames=FALSE,width=650,height=200)
+  horiz=FALSE,showvarnames=FALSE,sameline=TRUE,width=650,height=200)
 filepath <- grVizToPNG(v13,folder=PNGdir,width=1000)
 ```
 ![](`r filepath`){ height=2in }
@@ -818,6 +825,48 @@ filepath <- grVizToPNG(v13b,folder=PNGdir,width=1000)
 ![](`r filepath`){ height=4in }
 
 
+
+## Variable specification {#VariableSpecification}
+ 
+For convenience,
+vtree allows you to specify the variable names in a single character string
+(with the variable names separated by whitespace).
+If, however, any of the variable names have internal spaces,
+the variable names must be specified as a vector of character strings.
+ 
+Additionally, there are several modifiers that affect the way that variables are represented in a tree.
+ 
+### prefix `is.na:` &mdash; Replacing a variable with a missing value indicator
+
+Specifying individual variable names with the prefix `is.na:`
+replaces them with a missing value indicator in the variable tree.
+(This differs from the `check.is.na` parameter, described below,
+which is used to replace *all* of the specified variables with missing value indicators.)
+
+
+### prefix `stem:` &mdash; Variable stems for REDCap checkboxes
+
+In datasets exported from [REDCap](https://www.project-redcap.org/),
+checkboxes are represented using multiple variables.
+The `stem:` prefix makes it easier to work with them.
+This is described in the section on [REDCap checkboxes](#redcapcheckboxes)
+later in this vignette.
+
+
+### specification `variable=value` &mdash; Dichotomizing based on equaling a specific value
+
+When a variable takes on a large number of different values,
+it will result in a very large variable tree.
+One solution is to prune the tree,
+for example by keeping just one node.
+An alternative is to specify the value of the variable that is of primary interest.
+
+### specification `variable<value`, `variable>value`  &mdash; Dichotomizing based on inequality  
+
+These two specifications can be useful for identifying subsets with extreme values.
+**Warning:** The specified value is treated as *numeric*, not as a character string.
+ 
+
 ## Examining the DOT script generated by `vtree`
 
 Specifying `getscript=TRUE` lets you capture the DOT script representing a flowchart.
@@ -834,106 +883,6 @@ it can can be pasted into one of these online Graphviz editors:
 https://dreampuf.github.io/GraphvizOnline
 
 http://magjac.com/graphviz-visual-editor/
-
-
-## Variable specifications {#VariableSpecification}
- 
-For convenience,
-vtree allows you to specify the variable names in a single character string
-(with the variable names separated by whitespace).
-If, however, any of the variable names have internal spaces,
-the variable names must be specified as a vector of character strings.
- 
-Additionally, there are several special ways to specify variables.
- 
- 
-### `is.na:` &mdash; Replacing a variable with a missing value indicator
-
-Specifying individual variable names with the prefix `is.na:`
-replaces them with a missing value indicator in the variable tree.
-(This differs from the `check.is.na` parameter, described below,
-which is used to replace *all* of the specified variables with missing value indicators.)
-
-
-### `stem:` &mdash; Variable stems for REDCap checkboxes
-
-In datasets exported from [REDCap](https://www.project-redcap.org/),
-checkboxes are represented using multiple variables.
-The `stem:` prefix makes it easier to work with them.
-This is described in the section on [REDCap checkboxes](#redcapcheckboxes)
-later in this vignette.
-
-
-### `variable=value` &mdash; Dichotomizing based on equaling a specific value
-
-When a variable takes on a large number of different values,
-it will result in a very large variable tree.
-One solution is to prune the tree,
-for example by keeping just one node.
-An alternative is to specify the value of the variable that is of primary interest.
-
-### `variable<value`, `variable>value`  &mdash; Dichotomizing based on inequality  
-
-These two specifications can be useful for identifying subsets with extreme values.
-**Warning:** The specified value is treated as *numeric*, not as a character string.
- 
-
-#### Esophageal cancer
-
-For example, the `esoph` data set
-(data from a case-control study of esophageal cancer in Ille-et-Vilaine, France, one of the R datasets)
-has 88 different combinations of age group, alcohol consumption, and tobacco consumption.
-Let's consider examine the mean number of cases among patients
-aged 75 and older compared to the rest of the patients:
-
-```{r, eval=FALSE}
-vtree(esoph,"agegp=75+",
-  summary="ncases \nmean=%mean%%leafonly%",sameline=TRUE)
-```
-
-#### Hair and eye color
-
-Another example, based on the `HairEyeColor` data set
-(one of the R datasets).
-That data set is an array representing a contingency table.
-Let's use the following function (from the R Cookbook site, http://www.cookbook-r.com/Manipulating_data/Converting_between_data_frames_and_contingency_tables/#cases-to-contingency-table) to convert the array to a dataframe:
-
-```{r, eval=FALSE}
-# Convert from data frame of counts to data frame of cases.
-# `countcol` is the name of the column containing the counts
-countsToCases <- function(x, countcol = "Freq") {
-    # Get the row indices to pull from x
-    idx <- rep.int(seq_len(nrow(x)), x[[countcol]])
-
-    # Drop count column
-    x[[countcol]] <- NULL
-
-    # Get the rows from x
-    x[idx, ]
-}
-```
-
-```{r, eval=FALSE}
-hec <- countsToCases(as.data.frame(HairEyeColor))
-```
-
-There are a lot of combinations but let's say are especially interested
-in green eyes (versus non-green eyes).
-```{r, eval=FALSE}
-vtree(hec,"Hair Eye=Green Sex")
-```
-
-#### Titanic
-
-Another example:
-
-```{r, eval=FALSE}
-titanic <- countsToCases(as.data.frame(Titanic))
-```
-
-```{r, eval=FALSE}
-vtree(titanic,"Class=Crew Sex Age Survived")
-```
 
 
 
@@ -1216,7 +1165,72 @@ vtree(MyREDCapData,"stem:IceCream",pattern=TRUE,showroot=FALSE)
 ```
 
 
-# Additional Graphviz customization
+
+## Examples using R datasets
+
+The R datasets package is loaded in R by default.
+The following datasets can be used to illustrate `vtree`.
+
+#### Esophageal cancer
+
+The `esoph` data set
+(data from a case-control study of esophageal cancer in Ille-et-Vilaine, France), 
+has 88 different combinations of age group, alcohol consumption, and tobacco consumption.
+Let's consider examine the mean number of cases among patients
+aged 75 and older compared to the rest of the patients:
+
+```{r, eval=FALSE}
+vtree(esoph,"agegp=75+",
+  summary="ncases \nmean=%mean%%leafonly%",sameline=TRUE)
+```
+
+#### Hair and eye color
+
+The `HairEyeColor` data set is an array representing a contingency table.
+Let's use the following function (from the R Cookbook site, http://www.cookbook-r.com/Manipulating_data/Converting_between_data_frames_and_contingency_tables/#cases-to-contingency-table) to convert the array to a dataframe:
+
+```{r, eval=FALSE}
+# Convert from data frame of counts to data frame of cases.
+# `countcol` is the name of the column containing the counts
+countsToCases <- function(x, countcol = "Freq") {
+    # Get the row indices to pull from x
+    idx <- rep.int(seq_len(nrow(x)), x[[countcol]])
+
+    # Drop count column
+    x[[countcol]] <- NULL
+
+    # Get the rows from x
+    x[idx, ]
+}
+```
+
+```{r, eval=FALSE}
+hec <- countsToCases(as.data.frame(HairEyeColor))
+```
+
+There are a lot of combinations but let's say we are especially interested
+in green eyes (versus non-green eyes).
+We can use the variable specification `Eye=Green` to do this: 
+```{r, eval=FALSE}
+vtree(hec,"Hair Eye=Green Sex")
+```
+
+
+#### Titanic
+
+The Titanic dataset is a 4-dimensional array of counts.
+First, let's convert it to a dataframe of individuals:
+```{r, eval=FALSE}
+titanic <- countsToCases(as.data.frame(Titanic))
+```
+
+We'll specify `sameline=TRUE` so that it fits a bit better:
+```{r, eval=FALSE}
+vtree(titanic,"Class Sex Age Survived",sameline=TRUE)
+```
+
+
+## Additional Graphviz customization
 
 `vtree` has three additional parameters to access GraphViz attributes: `graphattr` (for graph attributes), `nodeattr` (node attributes), and `edgeatttr` (edge attributes).
 A full list of Graphviz attributes is [available](https://www.graphviz.org/doc/info/attrs.html).
