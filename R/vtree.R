@@ -363,6 +363,33 @@ vtree <- function (z, vars, splitspaces=TRUE,
         vars <- argname
     }
     
+    # Process tri: tag in variable names 
+   findtri <- grep("tri:",vars)
+    if (length(findtri)>0) {
+      for (i in 1:length(vars)) {    
+        if (i %in% findtri) {
+          trivar <- sub("^tri:([^ ]+)$","\\1",vars[i])
+          med <- median(z[[trivar]],na.rm=TRUE)
+          iqrange <- 
+            quantile(z[[trivar]],0.75,na.rm=TRUE)-
+            quantile(z[[trivar]],0.25,na.rm=TRUE)
+          upper <- med+1.5*iqrange
+          lower <- med-1.5*iqrange
+          m <- ifelse(z[[trivar]]<lower,"lo",
+                ifelse(z[[trivar]]>=lower & z[[trivar]]<upper,"mid",
+                  ifelse(z[[trivar]]>=upper,"hi","impossible")))
+          trivar_name <- paste0("tri:",trivar)
+          z[[trivar_name]] <- factor(m)
+          vars[i] <- trivar_name
+        }
+      }
+    }    
+    
+    
+    
+    
+    
+    
     # Process = tag in variable names 
     findequal <- grep("=",vars)
     if (length(findequal)>0) {
