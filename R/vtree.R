@@ -1584,7 +1584,7 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
   extraText <- rep("",length(CAT))
 
   # Match extra text to nodes
-  if (TopText!="") extraText[1] <- paste0("<BR/> ",TopText)
+  if (TopText!="") extraText[1] <- TopText # paste0(sepN,TopText)
   for (label in names(text)) {
     if (label %in% names(categoryCounts)) {
       m <- match(label,names(categoryCounts))
@@ -1637,11 +1637,7 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
   if (!showvarnames) {
     if (!is.null(labelvar)) {
       if (!is.na(labelvar)) {
-        if (HTMLtext) {
-          CAT[-1] <- paste0(labelvar,"<BR/>",CAT[-1])
-        } else {
-          CAT[-1] <- paste0(labelvar,"\n",CAT[-1])        
-        }
+        CAT[-1] <- paste0(labelvar,sepN,CAT[-1])
       }
     }
   }
@@ -1679,7 +1675,7 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
 
   if (!HTMLtext) {
     CAT <- convertToHTML(CAT)
-    extraText[-1] <- convertToHTML(extraText[-1])
+    extraText <- convertToHTML(extraText)
   }
   
   # Write DOT code for assigning labels (using the DiagrammeR framework)
@@ -1895,6 +1891,22 @@ convertToHTML <- function(x) {
 
 
 
+tableWithoutSort <- function(x,exclude = NA) {
+  tab <- table(x,exclude=exclude)
+  u <- unique(x)
+  if (any(is.na(u))) {
+    u <- u[!is.na(u)]
+    ustr <- as.character(u)
+    count <- tab[ustr]
+    count <- c(count,tab[is.na(names(tab))])
+  } else {
+    ustr <- as.character(u)
+    count <- tab[ustr]  
+  }
+  names(dimnames(count)) <- NULL
+  count
+}
+
 
 #' @importFrom stats median quantile sd
 
@@ -2033,7 +2045,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
       }
 
       # Format %list% output
-      tabval <- table(around(y,digits=cdigits),exclude=NULL)
+      tabval <- tableWithoutSort(around(sort(y,na.last=TRUE),digits=cdigits),exclude=NULL)
       countval <- paste0(" (n=",tabval,")")
       countval[tabval==1] <- ""
       listOutput <- paste0(paste0(names(tabval),countval),collapse=", ")
