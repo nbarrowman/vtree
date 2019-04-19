@@ -1111,10 +1111,29 @@ vtree <- function (z, vars, splitspaces=TRUE,
     #cat("Return NULL because z is NULL or vars is NULL\n")
     return(NULL)
   }
+  
   if (nrow(z) == 0 || numvars == 0) {
     #cat("Return NULL because z is empty or vars has zero length\n")
     return(NULL)
   }
+  
+  # Process tri: tag in variable names 
+  actualvarname <- vars[1]
+  findtri <- grep("tri:",vars[1])
+  if (length(findtri)>0) {
+    trivar <- sub("^tri:([^ ]+)$","\\1",vars[1])
+    med <- median(z[[trivar]],na.rm=TRUE)
+    iqrange <- 
+      quantile(z[[trivar]],0.75,na.rm=TRUE)-
+      quantile(z[[trivar]],0.25,na.rm=TRUE)
+    upper <- med+1.5*iqrange
+    lower <- med-1.5*iqrange
+    m <- ifelse(z[[trivar]]<lower,"lo",
+          ifelse(z[[trivar]]>=lower & z[[trivar]]<upper,"mid",
+            ifelse(z[[trivar]]>=upper,"hi","impossible")))
+    z[[vars[1]]] <- factor(m,levels=c("hi","mid","lo"))
+  }
+  
   TopText <- ""
   if (!is.null(nodefunc)) {
     if (numvars == 1)
@@ -1142,23 +1161,6 @@ vtree <- function (z, vars, splitspaces=TRUE,
   }
   else {
     ThisLevelText <- text[[vars[1]]]
-  }
-
-  # Process tri: tag in variable names 
-  actualvarname <- vars[1]
-  findtri <- grep("tri:",vars[1])
-  if (length(findtri)>0) {
-    trivar <- sub("^tri:([^ ]+)$","\\1",vars[1])
-    med <- median(z[[trivar]],na.rm=TRUE)
-    iqrange <- 
-      quantile(z[[trivar]],0.75,na.rm=TRUE)-
-      quantile(z[[trivar]],0.25,na.rm=TRUE)
-    upper <- med+1.5*iqrange
-    lower <- med-1.5*iqrange
-    m <- ifelse(z[[trivar]]<lower,"lo",
-          ifelse(z[[trivar]]>=lower & z[[trivar]]<upper,"mid",
-            ifelse(z[[trivar]]>=upper,"hi","impossible")))
-    z[[vars[1]]] <- factor(m,levels=c("hi","mid","lo"))
   }
 
   fc <- flowcat(z[[vars[1]]], root = root, title = title, parent = parent,
