@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 1.2.9"
+title: "Introduction to vtree 1.3.0"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -214,7 +214,7 @@ vtree(df,"v1 v2")
 ```
 
 For additional details about how variables can be specified,
-see the section on [Variable specification](#VariableSpecification) below.
+see the section on [specification of variables](#VariableSpecification) below.
 
 Numerous additional parameters can be supplied.
 For example, by default `vtree` produces a horizontal tree
@@ -828,7 +828,7 @@ filepath <- grVizToPNG(v13b,folder=PNGdir,width=1000)
 
 
 
-## Variable specification {#VariableSpecification}
+## Specification of variables {#VariableSpecification}
  
 For convenience,
 vtree allows you to specify the variable names in a single character string
@@ -838,7 +838,7 @@ the variable names must be specified as a vector of character strings.
  
 Additionally, there are several modifiers that affect the way that variables are represented in a tree.
  
-### prefix `is.na:` &mdash; Replacing a variable with a missing value indicator
+### prefix `is.na:`
 
 Specifying individual variable names with the prefix `is.na:`
 replaces them with a missing value indicator in the variable tree.
@@ -846,7 +846,7 @@ replaces them with a missing value indicator in the variable tree.
 which is used to replace *all* of the specified variables with missing value indicators.)
 
 
-### prefix `stem:` &mdash; Variable stems for REDCap checkboxes
+### prefix `stem:`
 
 In datasets exported from [REDCap](https://www.project-redcap.org/),
 checkboxes are represented using multiple variables.
@@ -855,23 +855,27 @@ This is described in the section on [REDCap checkboxes](#redcapcheckboxes)
 later in this vignette.
 
 
-### prefix `tri:` &mdash; Trichotomizing variables to identify extreme values
+### prefix `tri:`
 
 The `tri:` prefix is useful for identifying values of a numeric variable
 that are *extreme* compared to the other values in a node.
-**Note:** The `tri:` prefix is unique compared to other variable prefixes
-in that it takes effect within each node,
-rather than at the level of the entire data frame.
+**Note:** Unlike other variable specifications,
+which take effect at the level of the entire data frame,
+the `tri:` prefix takes effect within each node.
 
-The `tri:` prefix trichotomizes a numeric variable within a node
-based on the median and the IQR, both computed within the node.
-The result is
-a "mid" group representing values within plus or minus 1.5&times;IQR of the median,
-a "hi" group more than 1.5&times;IQR above the median,
-and a "lo" group more than 1.5&times;IQR below the median.
+The effect of this variable specification
+is to trichotomize a numeric variable within a node
+based on the median and the IQR, both computed within that node.
+The result is three categories:
+
+* "mid": namely values within plus or minus 1.5&times;IQR of the median,
+
+* "high": namely values more than 1.5&times;IQR above the median,
+
+* "low": namely values more than 1.5&times;IQR below the median.
 
 
-### specification `variable=value` &mdash; Dichotomizing based on equaling a specific value
+### specification `variable=value`
 
 When a variable takes on a large number of different values,
 it will result in a very large variable tree.
@@ -879,7 +883,7 @@ One solution is to prune the tree,
 for example by keeping just one node.
 An alternative is to specify the value of the variable that is of primary interest.
 
-### specification `variable<value`, `variable>value`  &mdash; Dichotomizing based on inequality  
+### specifications `variable<value`, `variable>value`
 
 These two specifications can be useful for identifying subsets with extreme values.
 **Warning:** The specified value is treated as *numeric*, not as a character string.

@@ -363,28 +363,6 @@ vtree <- function (z, vars, splitspaces=TRUE,
         vars <- argname
     }
     
-   #  # Process tri: tag in variable names 
-   # findtri <- grep("tri:",vars)
-   #  if (length(findtri)>0) {
-   #    for (i in 1:length(vars)) {    
-   #      if (i %in% findtri) {
-   #        trivar <- sub("^tri:([^ ]+)$","\\1",vars[i])
-   #        med <- median(z[[trivar]],na.rm=TRUE)
-   #        iqrange <- 
-   #          quantile(z[[trivar]],0.75,na.rm=TRUE)-
-   #          quantile(z[[trivar]],0.25,na.rm=TRUE)
-   #        upper <- med+1.5*iqrange
-   #        lower <- med-1.5*iqrange
-   #        m <- ifelse(z[[trivar]]<lower,"lo",
-   #              ifelse(z[[trivar]]>=lower & z[[trivar]]<upper,"mid",
-   #                ifelse(z[[trivar]]>=upper,"hi","impossible")))
-   #        trivar_name <- paste0("tri:",trivar)
-   #        z[[trivar_name]] <- factor(m)
-   #        vars[i] <- trivar_name
-   #      }
-   #    }
-   #  }    
-    
     # Process = tag in variable names 
     findequal <- grep("=",vars)
     if (length(findequal)>0) {
@@ -953,7 +931,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
       numPalettes <- nrow(col[[1]])
       for (i in 1:numvars) {
         if (tri.variable[i]) {
-          thisvar <- factor(c("lo","mid","hi","NA"),levels=c("hi","mid","lo","NA"))
+          thisvar <- factor(c("low","mid","high","NA"),levels=c("high","mid","low","NA"))
         } else {
           thisvar <- z[[vars[i]]]
         }
@@ -1128,10 +1106,10 @@ vtree <- function (z, vars, splitspaces=TRUE,
       quantile(z[[trivar]],0.25,na.rm=TRUE)
     upper <- med+1.5*iqrange
     lower <- med-1.5*iqrange
-    m <- ifelse(z[[trivar]]<lower,"lo",
+    m <- ifelse(z[[trivar]]<lower,"low",
           ifelse(z[[trivar]]>=lower & z[[trivar]]<upper,"mid",
-            ifelse(z[[trivar]]>=upper,"hi","impossible")))
-    z[[vars[1]]] <- factor(m,levels=c("hi","mid","lo"))
+            ifelse(z[[trivar]]>=upper,"high","impossible")))
+    z[[vars[1]]] <- factor(m,levels=c("high","mid","low"))
   }
   
   TopText <- ""
