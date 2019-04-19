@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 1.2.7"
+title: "Introduction to vtree 1.2.8"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -172,7 +172,7 @@ To summarize, `vtree` supports:
 * flexible pruning to remove parts of the tree that are of lesser interest
 
 * display of information about other variables in each node
-(e.g. summary statistics for continuous variables)
+(e.g. summary statistics for numeric variables)
 
 * renaming of variables and nodes
 
@@ -594,6 +594,8 @@ filepath <- grVizToPNG(v9_a,folder=PNGdir,width=1000)
 
 It is often useful to display information about other variables
 (apart from those that define the tree) in the nodes of a variable tree.
+This is particularly useful for numeric variables,
+which generally cannot be used to build the tree since they have too many distinct values.
 For example, we might wish to display the mean age for individuals in each node.
 Or we might wish to list the ID numbers for individuals in each node.
 The `summary` argument can be used to flexibly specify additional information to display.
@@ -606,7 +608,7 @@ This is followed by a space,
 and then the rest of the string specifies what to display.
 Special codes are use to indicate the type of summary desired,
 for example `%mean%` indicates that the mean of the specified variable should be shown.
-For example, to display the mean of the variable `Score`,
+For example, to display the mean of the numeric variable `Score`,
 you could specify `summary="Score \nmean score: %mean%"`.
 Note that the part of the string following the first space is
 `"\nmean score: %mean%"`.
@@ -855,10 +857,18 @@ later in this vignette.
 
 ### prefix `tri:` &mdash; Trichotomizing variables to identify extreme values
 
-The `tri:` prefix trichotomizes numerical variables
-between a "mid" group representing values within plus or minus 1.5&times;IQR,
-a "hi" group above the median+1.5&times;IQR,
-and a "lo" group below the median-1.5&times;IQR.
+The `tri:` prefix is useful for identifying values of a numeric variable
+that are *extreme* compared to the other values in a node.
+**Note:** The `tri:` prefix is unique compared to other variable prefixes
+in that it takes effect within each node,
+rather than at the level of the entire data frame.
+
+The `tri:` prefix trichotomizes a numeric variable within a node
+based on the median and the IQR, both computed within the node.
+The result is
+a "mid" group representing values within plus or minus 1.5&times;IQR of the median,
+a "hi" group more than 1.5&times;IQR above the median,
+and a "lo" group more than 1.5&times;IQR below the median.
 
 
 ### specification `variable=value` &mdash; Dichotomizing based on equaling a specific value

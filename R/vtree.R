@@ -363,32 +363,27 @@ vtree <- function (z, vars, splitspaces=TRUE,
         vars <- argname
     }
     
-    # Process tri: tag in variable names 
-   findtri <- grep("tri:",vars)
-    if (length(findtri)>0) {
-      for (i in 1:length(vars)) {    
-        if (i %in% findtri) {
-          trivar <- sub("^tri:([^ ]+)$","\\1",vars[i])
-          med <- median(z[[trivar]],na.rm=TRUE)
-          iqrange <- 
-            quantile(z[[trivar]],0.75,na.rm=TRUE)-
-            quantile(z[[trivar]],0.25,na.rm=TRUE)
-          upper <- med+1.5*iqrange
-          lower <- med-1.5*iqrange
-          m <- ifelse(z[[trivar]]<lower,"lo",
-                ifelse(z[[trivar]]>=lower & z[[trivar]]<upper,"mid",
-                  ifelse(z[[trivar]]>=upper,"hi","impossible")))
-          trivar_name <- paste0("tri:",trivar)
-          z[[trivar_name]] <- factor(m)
-          vars[i] <- trivar_name
-        }
-      }
-    }    
-    
-    
-    
-    
-    
+   #  # Process tri: tag in variable names 
+   # findtri <- grep("tri:",vars)
+   #  if (length(findtri)>0) {
+   #    for (i in 1:length(vars)) {    
+   #      if (i %in% findtri) {
+   #        trivar <- sub("^tri:([^ ]+)$","\\1",vars[i])
+   #        med <- median(z[[trivar]],na.rm=TRUE)
+   #        iqrange <- 
+   #          quantile(z[[trivar]],0.75,na.rm=TRUE)-
+   #          quantile(z[[trivar]],0.25,na.rm=TRUE)
+   #        upper <- med+1.5*iqrange
+   #        lower <- med-1.5*iqrange
+   #        m <- ifelse(z[[trivar]]<lower,"lo",
+   #              ifelse(z[[trivar]]>=lower & z[[trivar]]<upper,"mid",
+   #                ifelse(z[[trivar]]>=upper,"hi","impossible")))
+   #        trivar_name <- paste0("tri:",trivar)
+   #        z[[trivar_name]] <- factor(m)
+   #        vars[i] <- trivar_name
+   #      }
+   #    }
+   #  }    
     
     # Process = tag in variable names 
     findequal <- grep("=",vars)
@@ -661,15 +656,29 @@ vtree <- function (z, vars, splitspaces=TRUE,
     if (singlecolor==2) { col[[1]] <- col[[3]][,2,drop=FALSE] }
     if (singlecolor==3) { col[[1]] <- col[[3]][,3,drop=FALSE] }
 
+    # Identify any "tri:" variables
+    tri.variable <- rep(FALSE,length(allvars))
+    findtri <- grep("tri:",allvars)
+    ALLVARS <- allvars
+    if (length(findtri)>0) {
+      tri.variable[findtri] <- TRUE
+      for (i in 1:length(allvars)) {    
+        if (i %in% findtri) {
+          trivar <- sub("^tri:([^ ]+)$","\\1",allvars[i])
+          ALLVARS[i] <- trivar
+        }
+      }
+    }    
+    
     # Check that all of named variables are in the data frame
-    findallvars <- allvars %in% names(z)
+    findallvars <- ALLVARS %in% names(z)
     if (any(!findallvars)) {
-        stop("The following variables were not found in the data frame: ",
-            paste(vars[!findallvars], collapse = ", "))
+      stop("The following variables were not found in the data frame: ",
+        paste(vars[!findallvars], collapse = ", "))
     }
 
     # Subset the whole data frame!
-    z <- z[allvars]
+    z <- z[ALLVARS]
 
     if (Venn) {
       if (missing(shownodelabels)) shownodelabels <- FALSE
@@ -754,6 +763,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
       PATTERN <- factor(PATTERN,levels=PATTERN_levels)
       z$pattern <- PATTERN
       vars <- c("pattern",vars)
+      tri.variable <- c(tri.variable,FALSE)
       if (check.is.na) {
         OLDVARS <- c("pattern",OLDVARS)
       }
@@ -942,7 +952,11 @@ vtree <- function (z, vars, splitspaces=TRUE,
       names(FC) <- vars
       numPalettes <- nrow(col[[1]])
       for (i in 1:numvars) {
-        thisvar <- z[[vars[i]]]
+        if (tri.variable[i]) {
+          thisvar <- factor(c("lo","mid","hi","NA"),levels=c("hi","mid","lo","NA"))
+        } else {
+          thisvar <- z[[vars[i]]]
+        }
         if (i>numPalettes) {
           row <- i %% numPalettes
         } else {
@@ -1042,7 +1056,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
   }
 
   ### ----------- End code for root only ------------
-
+  
   numvars <- length(vars)
 
   # Node outline colors
@@ -1050,11 +1064,11 @@ vtree <- function (z, vars, splitspaces=TRUE,
 
   z_names <- names(z)
 
-  findvars <- vars %in% z_names
-  if (any(!findvars)) {
-      stop("The following variables were not found in the data frame: ",
-          paste(vars[!findvars], collapse = ", "))
-  }
+  # findvars <- vars %in% z_names
+  # if (any(!findvars)) {
+  #     stop("The following variables were not found in the data frame: ",
+  #         paste(vars[!findvars], collapse = ", "))
+  # }
 
   # Special case with a single variable being relabled and variable name not specified
   if (!missing(labelvar) && is.null(names(labelvar))) {
@@ -1129,10 +1143,23 @@ vtree <- function (z, vars, splitspaces=TRUE,
   else {
     ThisLevelText <- text[[vars[1]]]
   }
-  #if (!HTMLtext)
-  #    ThisLevelText <- makeHTML(ThisLevelText)
-  #if (!HTMLtext)
-  #    TopText <- makeHTML(TopText)
+
+  # Process tri: tag in variable names 
+  actualvarname <- vars[1]
+  findtri <- grep("tri:",vars[1])
+  if (length(findtri)>0) {
+    trivar <- sub("^tri:([^ ]+)$","\\1",vars[1])
+    med <- median(z[[trivar]],na.rm=TRUE)
+    iqrange <- 
+      quantile(z[[trivar]],0.75,na.rm=TRUE)-
+      quantile(z[[trivar]],0.25,na.rm=TRUE)
+    upper <- med+1.5*iqrange
+    lower <- med-1.5*iqrange
+    m <- ifelse(z[[trivar]]<lower,"lo",
+          ifelse(z[[trivar]]>=lower & z[[trivar]]<upper,"mid",
+            ifelse(z[[trivar]]>=upper,"hi","impossible")))
+    z[[vars[1]]] <- factor(m,levels=c("hi","mid","lo"))
+  }
 
   fc <- flowcat(z[[vars[1]]], root = root, title = title, parent = parent,
     var=vars[[1]],
