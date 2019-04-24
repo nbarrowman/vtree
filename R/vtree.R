@@ -337,6 +337,12 @@ vtree <- function (z, vars, splitspaces=TRUE,
     }
     x
   }
+  
+  if (HTMLtext) {
+    sepN <- "<BR/>"
+  } else {
+    sepN <- "\n"
+  }  
 
 
   ### ----------- Begin code for root only ------------
@@ -486,7 +492,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
       }
       codecode <- gsub("^([^ ]+) (.+)$", "\\2", summary)
       nodefunc <- summaryNodeFunction
-      nodeargs <- list(var = codevar, format = codecode, sf = runsummary, digits = digits, cdigits = cdigits)
+      nodeargs <- list(var = codevar, format = codecode, sf = runsummary, digits = digits, cdigits = cdigits, sepN=sepN)
       allvars <- c(allvars,codevar)
     }
 
@@ -671,7 +677,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
 
     if (length(labelvar) > 0) {
         namesvarheaders <- names(labelvar)
-        labelvar <- splitlines(labelvar, splitwidth, sp = "\n", at = c(" ", ".", "-", "+", "_", "=", "/"))
+        labelvar <- splitlines(labelvar, splitwidth, sp = sepN, at = c(" ", ".", "-", "+", "_", "=", "/"))
         names(labelvar) <- namesvarheaders
     }
 
@@ -679,7 +685,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
 
     if (length(labelnode) > 0) {
       for (i in 1:length(labelnode)) {
-        names(labelnode[[i]]) <- splitlines(names(labelnode[[i]]),splitwidth,sp ="\n", at=" ")
+        names(labelnode[[i]]) <- splitlines(names(labelnode[[i]]),splitwidth,sp =sepN, at=" ")
       }
     }
 
@@ -1124,7 +1130,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
     CAT <- names(categoryCounts)
     for (value in CAT) {
       nodetext <- nodefunc(z[qqq == value, ], vars[1], value, args = nodeargs)
-      nodetext <- splitlines(nodetext, width = splitwidth, sp = "\n", at=" ")
+      nodetext <- splitlines(nodetext, width = splitwidth, sp = sepN, at=" ")
       ThisLevelText <- c(ThisLevelText, nodetext)
     }
     if (root) {
@@ -1132,7 +1138,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
       topnodeargs$root <- TRUE
       topnodeargs$leaf <- FALSE
       nodetext <- nodefunc(z, "", value = NA, args = topnodeargs)
-      nodetext <- splitlines(nodetext, width = splitwidth,sp = "\n", at=" ")
+      nodetext <- splitlines(nodetext, width = splitwidth,sp = sepN, at=" ")
       TopText <- nodetext
     }
     names(ThisLevelText) <- CAT
@@ -1962,6 +1968,8 @@ summaryNodeFunction <- function (u, varname, value, args) {
     }
   }
 
+  sepN <- args$sepN
+  
   if (is.null(args$digits))
     args$digits <- 1
   if (is.null(args$cdigits))
@@ -2068,6 +2076,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
       countval <- paste0(" (n=",tabval,")")
       countval[tabval==1] <- ""
       listOutput <- paste0(paste0(names(tabval),countval),collapse=", ")
+      listLinesOutput <- paste0(paste0(names(tabval),countval),collapse=sepN)
 
       if (ShowNodeText) {
         if (length(x)==0 || !is.numeric(x)) {
@@ -2083,6 +2092,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
         result <- gsub("%leafonly%","",result)
         result <- gsub("%v%",args$var[i],result)
         result <- gsub("%list%",listOutput,result)
+        result <- gsub("%listlines%",listLinesOutput,result)
         result <- gsub("%mv%",paste0(missingNum),result)
         result <- gsub("%pct=[^%]+%",justpct(y_event,digits=digits),result)
         result <- gsub("%npct=[^%]+%",nAndpct(y_event,digits=digits),result)
