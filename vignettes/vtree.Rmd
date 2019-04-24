@@ -156,27 +156,24 @@ and can also be used to display a wide variety of information including:
 `vtree` is designed to be quick and easy to use,
 so that it is convenient for data exploration,
 but also flexible enough that it can be used to prepare publication-ready figures.
+`vtree` provides:
 
-To make variable trees easier to interpret,
-`vtree` supports custom labeling of variables and nodes.
-One challenge with variable trees is that as variables are added,
-trees can get very large.
-For this reason, `vtree` includes tools for *pruning*.
-Variable trees can also be used to display additional subset-specific information.
-For example, `vtree` makes it easy to display the mean (or other summary statistic)
-of a quantitative variable such as age within each node.
-Finally, `vtree` supports numerous additional customizations and formatting tweaks.
+* control over [labeling](#labeling), colors, [legends](#legends), [line wrapping](#wrapping),
+[text formatting](#textFormatting) and other customization features;
 
-To summarize, `vtree` supports:
+* flexible [pruning](#pruning) to remove parts of the tree that are of lesser interest,
+which is particularly useful when a tree gets large;
 
-* flexible pruning to remove parts of the tree that are of lesser interest
+* [display of information about other variables in each node](#summary),
+including a variety of summary statistics;
 
-* display of information about other variables in each node
-(e.g. summary statistics for numeric variables)
+* special displays for [indicator variables](#Venn),
+[patterns](#patterns) of values, and
+[missing value patterns](#missingValues);
 
-* renaming of variables and nodes
+* support for REDCap [checkbox variables](#REDCapCheckboxes); and
 
-* additional customization and formatting options.
+* features for [dichotomizing variables](#dichotomizing) and [checking for outliers](#detectingOutliers).
 
 
 ## Technical overview
@@ -277,7 +274,7 @@ If you don't wish to see percentages, specify `showpct=FALSE`,
 or if you don't need to see counts, specify `showcount=FALSE`.
 
 
-### Displaying a legend and hiding node labels
+### Displaying a legend and hiding node labels {#legends}
 
 To include a legend, specify `showlegend=TRUE`.
 Next to each level of the tree,
@@ -331,7 +328,7 @@ By default, next to each level of the tree, `vtree` shows the variable name.
 These can be removed by specifying `showvarnames=FALSE`.
 
 
-### Text wrapping
+### Text wrapping {#wrapping}
 
 By default,
 `vtree` wraps text onto the next line whenever a space occurs after at least 20 characters.
@@ -345,12 +342,13 @@ Also note that in the legend,
 text wrapping can take place not only at spaces,
 but also at any of the following characters: . - + _ = /
  
-## Pruning
+## Pruning {#pruning}
 
 *Pruning* a tree means removing specified nodes (and their descendants).
 This is useful when a variable tree gets too big,
 or when you are only interested in certain parts of the tree.
-For convenience, `vtree` provides several different ways to prune a tree.
+For convenience, `vtree` provides several different ways to prune a tree,
+described below.
 
 ### The `prune` parameter
 
@@ -383,8 +381,8 @@ using the number of non-missing observations as denominator).
 
 ### The `prunebelow` parameter
 
-The `prune` parameter completely eliminates nodes (along with their descendants).
-A disadvantage of this is that the counts shown in child nodes do not add up to the counts shown in the parent node.
+A disadvantage of the `prune` parameter is that in the resulting tree,
+the counts shown in child nodes may not add up to the counts shown in the parent node.
 For example in the variable tree above,
 of a total of 46 patients,
 5 have Severe disease and `Severity` is unknown for 6.
@@ -414,7 +412,7 @@ The `follow` parameter is like the `keep` parameter except that no nodes at that
 Instead, those nodes that are not "followed" will be pruned at the next level.
 
 
-## Changing how variables and nodes are labeled
+## Changing how variables and nodes are labeled {#labeling}
 
 By default, `vtree` labels variables and nodes exactly as they are in the data frame.
 For presentation purposes it is often useful to change these labels.
@@ -493,7 +491,7 @@ filepath <- grVizToPNG(v8b,folder=PNGdir,width=1000)
 ![](`r filepath`){ height=2.2in }
 
 
-## Text and text formatting
+## Text and text formatting {#textFormatting}
 
 `Graphviz`,
 the open source graph visualization software that provides the basis for `vtree`,
@@ -590,7 +588,7 @@ filepath <- grVizToPNG(v9_a,folder=PNGdir,width=1000)
 ![](`r filepath`){ height=2.5in }
 
 
-## Displaying summary statistics in nodes
+## Displaying summary statistics in nodes {#summary}
 
 It is often useful to display information about other variables
 (apart from those that define the tree) in the nodes of a variable tree.
@@ -640,7 +638,8 @@ Any missing values are also reported.
 * `%npct=Value%` frequency and percentage equal to Value.
 * `%pct%` same as `%npct%` but percentage only (with no parentheses).
 * `%pct=Value%` percentage equal to Value.
-* `%list%` list of the individual values
+* `%list%` comma-separated list of individual values
+* `%listlines%` list of individual values, each on a separate line
 * `%mv%` the number of missing values
 * `%v%` the name of the variable
 * `%noroot%` flag: Do not show summary in the root node.
@@ -726,6 +725,8 @@ To do this, use the `%list%` code.
 By default this information will be displayed in each node.
 When a value occurs more than once in the subset,
 it will be followed by a count of the number of repetitions in parentheses.
+The `%list%` code separates values by commas.
+Alternatively, the `%listlines%` code can be used to put each value on a new line.
 
 It may also be convenient to only show the output from `%list` in certain nodes.
 For example we might only want to see the information in the leaf nodes.
@@ -736,6 +737,9 @@ In this simple case the following codes are equivalent:
 * `%leafonly%`
 
 * `%var=Severity%`
+
+
+### The %trunc% code
 
 When there are many IDs, it often convenience to truncate the output.
 The `%trunc=N%` code specifies that, after N characters, summary information
@@ -869,7 +873,7 @@ This is described in the section on [REDCap checkboxes](#redcapcheckboxes)
 later in this vignette.
 
 
-### prefix `tri:`
+### prefix `tri:` {#detectingOutliers}
 
 The `tri:` prefix is useful for identifying values of a numeric variable
 that are *extreme* compared to the other values in a node.
@@ -889,7 +893,7 @@ The result is three categories:
 * "low": namely values more than 1.5&times;IQR below the median.
 
 
-### specification `variable=value`
+### specification `variable=value` {#dichotomizing}
 
 When a variable takes on a large number of different values,
 it will result in a very large variable tree.
@@ -906,7 +910,7 @@ These two specifications can be useful for identifying subsets with extreme valu
 
 ## Special variable trees
 
-### Multi-way intersections (often shown in Venn diagrams)
+### Multi-way intersections (often shown in Venn diagrams) {#Venn}
 
 A Venn diagram is defined by a set of variables that indicate whether an
 observation belongs to each of several sets.
@@ -948,7 +952,7 @@ filepath <- grVizToPNG(v22,folder=PNGdir,width=1000)
 ![](`r filepath`){ height=7in }
 
 
-### A different way of showing Venn diagram information
+### A different way of showing Venn diagram information {#patterns}
 
 By joining together the variables `Ind1` through `Ind4`
 the different patterns of set membership can be examined.
@@ -1024,7 +1028,7 @@ it is more easily interpreted.
 This kind of tree is also useful for investigating incomplete longitudinal data.
 
 
-### Checking for missing values with the `check.is.na` parameter
+### Checking for missing values with the `check.is.na` parameter {#missingValues}
 
 The `check.is.na` parameter is used to produce a tree that only shows whether
 the specified variables are missing or not.
@@ -1144,7 +1148,7 @@ filepath <- grVizToPNG(v28,folder=PNGdir,width=1000)
 ![](`r filepath`){ height=7in }
 
 
-## REDCap checkboxes {#redcapcheckboxes}
+## REDCap checkboxes {#REDCapCheckboxes}
 
 In datasets exported from [REDCap](https://www.project-redcap.org/),
 checkboxes (i.e. the boxes where you select all that apply)
