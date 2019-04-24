@@ -2032,6 +2032,18 @@ summaryNodeFunction <- function (u, varname, value, args) {
           }            
         }
       }
+      
+      y_event <- NULL
+      if (length(grep("%pct=([^%]+)%",result))>0) {
+        pct_arg <- sub(
+          "(.*)%pct=([^%]+)%(.*)","\\2",result)
+        y_event <- y==pct_arg
+      }
+      if (length(grep("%npct=([^%]+)%",result))>0) {
+        npct_arg <- sub(
+          "(.*)%npct=([^%]+)%(.*)","\\2",result)
+        y_event <- y==npct_arg
+      }      
 
       if (!args$leaf) {
         if (length(grep("%leafonly%",result))>0) {
@@ -2072,6 +2084,8 @@ summaryNodeFunction <- function (u, varname, value, args) {
         result <- gsub("%v%",args$var[i],result)
         result <- gsub("%list%",listOutput,result)
         result <- gsub("%mv%",paste0(missingNum),result)
+        result <- gsub("%pct=[^%]+%",justpct(y_event,digits=digits),result)
+        result <- gsub("%npct=[^%]+%",nAndpct(y_event,digits=digits),result)
         if (is.numeric(x) | is.logical(x)) {
           # Note that y is used in the call to nAndpct
           # so that missing values can be handled as desired

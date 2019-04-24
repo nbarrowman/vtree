@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 1.3.0"
+title: "Introduction to vtree 1.3.1"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -634,9 +634,12 @@ The following summary codes can be used by `summary`:
 * `%pX%` Xth percentile (e.g. `p50` means the 50th percentile)
 * `%median%` median, i.e. p50
 * `%IQR%` IQR, i.e. p25, p75
-* `%npct%` n (%). By default "valid percentages" are used.
+* `%npct%` frequency and percentage of a logical variable.
+By default "valid percentages" are used.
 Any missing values are also reported.
-* `%pct%` same as `%npct%` but % only (with no parentheses).
+* `%npct=Value%` frequency and percentage equal to Value.
+* `%pct%` same as `%npct%` but percentage only (with no parentheses).
+* `%pct=Value%` percentage equal to Value.
 * `%list%` list of the individual values
 * `%mv%` the number of missing values
 * `%v%` the name of the variable
@@ -698,10 +701,21 @@ filepath <- grVizToPNG(v12,folder=PNGdir,width=1000)
 Note that in each node,
 "mv" indicates the number of missing values (if any).
 
+Now consider the `Category` variable,
+and suppose we want to know the proportion that are in the "single" category.
+The `%npct%` code can also be specified as `%npct=single%`:
+
+```{r,eval=FALSE}
+vtree(FakeData,"Severity",summary="Category \n%npct=single% single",horiz=FALSE,
+  showvarnames=FALSE,sameline=TRUE)
+```
+
 
 ### The %pct% code
 
 The `%pct%` code is the same as the `%npct%` code except that it does not show the frequency, only the percentage (without parentheses).
+Like `%npct%`, the `%pct%` can also be specified as `%pct=Value%`
+where Value is a value of the summary variable.
 
 
 ### The %list% code
