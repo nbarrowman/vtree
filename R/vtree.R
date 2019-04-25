@@ -389,7 +389,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
       }
     }
     
-    # Process > tag in varible names
+    # Process > tag in variable names
     findgt <- grep(">",vars)
     if (length(findgt)>0) {
       for (i in 1:length(vars)) {    
@@ -409,7 +409,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
       }
     }    
     
-    # Process < tag in varible names
+    # Process < tag in variable names
     findlt <- grep("<",vars)
     if (length(findlt)>0) {
       for (i in 1:length(vars)) {    
@@ -481,10 +481,71 @@ vtree <- function (z, vars, splitspaces=TRUE,
     # Set up summaries if requested
     if (!all(summary=="")) {
       codevar <- gsub("^([^ ]+) (.+)$", "\\1", summary)
-      if (!all(codevar %in% names(z))) {
-        nomatch <- codevar[!(codevar %in% names(z))]
-        stop("Variable(s) specified in summary argument not in data frame: ",paste(nomatch,collapse=", "))
+      
+      # Process = tag in variable names 
+      findequal <- grep("=",codevar)
+      if (length(findequal)>0) {
+        for (i in 1:length(codevar)) {    
+          if (i %in% findequal) {
+            equalvar <- sub("([^ ]+)(=)([^ ]+)","\\1",codevar[i])
+            equalval <- sub("([^ ]+)(=)([^ ]+)","\\3",codevar[i])
+            # Check to see if any of the values of the specified variable contain spaces
+            # If they do, replace underscores in the specified value with spaces.
+            if (any(length(grep(" ",names(table(z[[equalvar]]))))>0)) {
+              equalval <- gsub("_"," ",equalval)
+            }
+            m <- z[[equalvar]]==equalval
+            z[[equalvar]] <- m
+            codevar[i] <- equalvar
+          }
+        }
+      } 
+      
+      # Process > tag in variable names
+      findgt <- grep(">",codevar)
+      if (length(findgt)>0) {
+        for (i in 1:length(codevar)) {    
+          if (i %in% findgt) {
+            gtvar <- sub("([^ ]+)(>)([^ ]+)","\\1",codevar[i])
+            gtval <- sub("([^ ]+)(>)([^ ]+)","\\3",codevar[i])
+            # Check to see if any of the values of the specified variable contain spaces
+            # If they do, replace underscores in the specified value with spaces.
+            if (any(length(grep(" ",names(table(z[[gtvar]]))))>0)) {
+              gtval <- gsub("_"," ",gtval)
+            }
+            m <- z[[gtvar]]>as.numeric(gtval)
+            z[[gtvar]] <- m
+            codevar[i] <- gtvar
+          }
+        }
       }
+      
+      # Process < tag in variable names
+      findlt <- grep("<",codevar)
+      if (length(findlt)>0) {
+        for (i in 1:length(codevar)) {    
+          if (i %in% findlt) {
+            ltvar <- sub("([^ ]+)(<)([^ ]+)","\\1",codevar[i])
+            ltval <- sub("([^ ]+)(<)([^ ]+)","\\3",codevar[i])
+            # Check to see if any of the values of the specified variable contain spaces
+            # If they do, replace underscores in the specified value with spaces.
+            if (any(length(grep(" ",names(table(z[[ltvar]]))))>0)) {
+              ltval <- gsub("_"," ",ltval)
+            }
+            m <- z[[ltvar]]<as.numeric(ltval)
+            z[[ltvar]] <- m
+            codevar[i] <- ltvar
+          }
+        }
+      }      
+
+      allvars <- c(allvars,codevar)
+       
+      #  if (!all(codevar %in% names(z))) {
+      #    nomatch <- codevar[!(codevar %in% names(z))]
+      #    stop("Variable(s) specified in summary argument not in data frame: ",paste(nomatch,collapse=", "))
+      #  }
+      
       if (!is.null(runsummary)) {
         if (length(runsummary) != length(summary)) {
           stop("runsummary argument is not the same length as summary argument.")
@@ -493,7 +554,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
       codecode <- gsub("^([^ ]+) (.+)$", "\\2", summary)
       nodefunc <- summaryNodeFunction
       nodeargs <- list(var = codevar, format = codecode, sf = runsummary, digits = digits, cdigits = cdigits, sepN=sepN)
-      allvars <- c(allvars,codevar)
+      # allvars <- c(allvars,codevar)
     }
 
     # Add any extra variables needed
@@ -1914,7 +1975,8 @@ tableWithoutSort <- function(x,exclude = NA) {
     count <- c(count,tab[is.na(names(tab))])
   } else {
     ustr <- as.character(u)
-    count <- tab[ustr]  
+    #count <- tab[ustr]  
+    count <- tab[match(ustr,names(tab))]  
   }
   names(dimnames(count)) <- NULL
   count
@@ -1987,8 +2049,10 @@ summaryNodeFunction <- function (u, varname, value, args) {
 
   RESULT <- ""
   for (i in 1:length(args$var)) {
+  
+    var <- args$var[i]
 
-    y <- u[[args$var[i]]]
+    y <- u[[var]]
 
     show <- TRUE
     if (!is.null(args$sf)) {
@@ -2094,8 +2158,6 @@ summaryNodeFunction <- function (u, varname, value, args) {
         result <- gsub("%list%",listOutput,result)
         result <- gsub("%listlines%",listLinesOutput,result)
         result <- gsub("%mv%",paste0(missingNum),result)
-        result <- gsub("%pct=[^%]+%",justpct(y_event,digits=digits),result)
-        result <- gsub("%npct=[^%]+%",nAndpct(y_event,digits=digits),result)
         if (is.numeric(x) | is.logical(x)) {
           # Note that y is used in the call to nAndpct
           # so that missing values can be handled as desired

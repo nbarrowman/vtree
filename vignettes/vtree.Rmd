@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 1.3.3"
+title: "Introduction to vtree 1.3.4"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -590,6 +590,70 @@ filepath <- grVizToPNG(v9_a,folder=PNGdir,width=1000)
 ![](`r filepath`){ height=2.5in }
 
 
+
+## Specification of variables {#VariableSpecification}
+ 
+For convenience,
+vtree allows you to specify the variable names in a single character string
+(with the variable names separated by whitespace).
+If, however, any of the variable names have internal spaces,
+the variable names must be specified as a vector of character strings.
+ 
+Additionally, there are several modifiers that can be used
+to change the way that variables are represented in a tree.
+ 
+### prefix `is.na:`
+
+Specifying individual variable names with the prefix `is.na:`
+replaces them with a missing value indicator in the variable tree.
+(This differs from the `check.is.na` parameter, described below,
+which is used to replace *all* of the specified variables with missing value indicators.)
+
+
+### prefix `stem:`
+
+In datasets exported from [REDCap](https://www.project-redcap.org/),
+checkboxes are represented using multiple variables.
+The `stem:` prefix makes it easier to work with them.
+This is described in the section on [REDCap checkboxes](#redcapcheckboxes)
+later in this vignette.
+
+
+### prefix `tri:` {#detectingOutliers}
+
+The `tri:` prefix is useful for identifying values of a numeric variable
+that are *extreme* compared to the other values in a node.
+**Note:** Unlike other variable specifications,
+which take effect at the level of the entire data frame,
+the `tri:` prefix takes effect within each node.
+
+The effect of this variable specification
+is to trichotomize a numeric variable within a node
+based on the median and the IQR, both computed within that node.
+The result is three categories:
+
+* "mid": namely values within plus or minus 1.5&times;IQR of the median,
+
+* "high": namely values more than 1.5&times;IQR above the median,
+
+* "low": namely values more than 1.5&times;IQR below the median.
+
+
+### specification `variable=value` {#dichotomizing}
+
+When a variable takes on a large number of different values,
+it will result in a very large variable tree.
+One solution is to prune the tree,
+for example by keeping just one node.
+An alternative is to specify the value of the variable that is of primary interest.
+
+### specifications `variable<value`, `variable>value`
+
+These two specifications can be useful for identifying subsets with extreme values.
+**Warning:** The specified value is treated as *numeric*, not as a character string.
+ 
+
+
 ## Displaying summary statistics in nodes {#summary}
 
 It is often useful to display information about other variables
@@ -638,9 +702,7 @@ code            | result
 `%median%`      |  median, i.e. p50
 `%IQR%`         |  IQR, i.e. p25, p75
 `%npct%`        |  frequency and percentage of a logical variable. By default "valid percentages" are used. Any missing values are also reported.     
-`%npct=Value%`  |  frequency and percentage equal to Value.
 `%pct%`         |  same as `%npct%` but percentage only (with no parentheses).
-`%pct=Value%`   |  percentage equal to Value.
 `%list%`        |  comma-separated list of individual values
 `%listlines%`   |  list of individual values, each on a separate line
 `%mv%`          |  the number of missing values
@@ -703,20 +765,10 @@ filepath <- grVizToPNG(v12,folder=PNGdir,width=1000)
 Note that in each node,
 "mv" indicates the number of missing values (if any).
 
-Now consider the `Category` variable,
-and suppose we want to know the proportion that are in the "single" category.
-The `%npct%` code can also be specified as `%npct=single%`:
-
-```{r,eval=FALSE}
-vtree(FakeData,"Severity",summary="Category \n%npct=single% single",horiz=FALSE,
-  showvarnames=FALSE,sameline=TRUE)
-```
-
 
 ### The %pct% code
 
 The `%pct%` code is the same as the `%npct%` code except that it does not show the frequency, only the percentage (without parentheses).
-Like `%npct%`, the `%pct%` can also be specified as `%pct=Value%`
 where Value is a value of the summary variable.
 
 
@@ -760,6 +812,27 @@ v13 <- vtree(FakeData,"Severity",summary="id \nid = %list%%var=Severity%%trunc=4
 filepath <- grVizToPNG(v13,folder=PNGdir,width=1000)
 ```
 ![](`r filepath`){ height=2in }
+
+
+### Specification of variables in summary
+
+As in the [specification of variables](#VariableSpecification) for structuring a variable tree,
+there are special ways to specify variables in the `summary` parameter.
+For example, if we wish to know the proportion of patients in each node whose `Category` is single,
+we specify `Category=single` in the `summary` argument.
+
+```{r,eval=FALSE}
+vtree(FakeData,"Severity",summary="Category=single \n%pct% single",sameline=TRUE,horiz=FALSE)
+```
+```{r,echo=FALSE}
+v13x <- vtree(FakeData,"Severity",summary="Category=single \n%pct% single", 
+  horiz=FALSE,sameline=TRUE,width=450,height=150)
+filepath <- grVizToPNG(v13x,folder=PNGdir,width=1000)
+```
+![](`r filepath`){ height=1.6in }
+
+Continuous variables such as `Score` can be dichotomized using
+notation such as `Score>10` or `Score<20`.
 
 
 ### Showing/hiding summaries on a node-by-node basis depending on the data in the node using the `runsummary` parameter
@@ -849,67 +922,6 @@ filepath <- grVizToPNG(v13b,folder=PNGdir,width=1000)
 
 
 
-## Specification of variables {#VariableSpecification}
- 
-For convenience,
-vtree allows you to specify the variable names in a single character string
-(with the variable names separated by whitespace).
-If, however, any of the variable names have internal spaces,
-the variable names must be specified as a vector of character strings.
- 
-Additionally, there are several modifiers that can be used
-to change the way that variables are represented in a tree.
- 
-### prefix `is.na:`
-
-Specifying individual variable names with the prefix `is.na:`
-replaces them with a missing value indicator in the variable tree.
-(This differs from the `check.is.na` parameter, described below,
-which is used to replace *all* of the specified variables with missing value indicators.)
-
-
-### prefix `stem:`
-
-In datasets exported from [REDCap](https://www.project-redcap.org/),
-checkboxes are represented using multiple variables.
-The `stem:` prefix makes it easier to work with them.
-This is described in the section on [REDCap checkboxes](#redcapcheckboxes)
-later in this vignette.
-
-
-### prefix `tri:` {#detectingOutliers}
-
-The `tri:` prefix is useful for identifying values of a numeric variable
-that are *extreme* compared to the other values in a node.
-**Note:** Unlike other variable specifications,
-which take effect at the level of the entire data frame,
-the `tri:` prefix takes effect within each node.
-
-The effect of this variable specification
-is to trichotomize a numeric variable within a node
-based on the median and the IQR, both computed within that node.
-The result is three categories:
-
-* "mid": namely values within plus or minus 1.5&times;IQR of the median,
-
-* "high": namely values more than 1.5&times;IQR above the median,
-
-* "low": namely values more than 1.5&times;IQR below the median.
-
-
-### specification `variable=value` {#dichotomizing}
-
-When a variable takes on a large number of different values,
-it will result in a very large variable tree.
-One solution is to prune the tree,
-for example by keeping just one node.
-An alternative is to specify the value of the variable that is of primary interest.
-
-### specifications `variable<value`, `variable>value`
-
-These two specifications can be useful for identifying subsets with extreme values.
-**Warning:** The specified value is treated as *numeric*, not as a character string.
- 
 
 
 ## Special variable trees
