@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 1.3.2"
+title: "Introduction to vtree 1.3.3"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -43,15 +43,16 @@ When there are missing values in the data set,
 the task becomes even more complicated.
 For these reasons, it is best not to perform nested subsetting by hand.
 
-One example of nested subsetting is in flow diagrams for clinical studies,
-which often involve 
-*participants* who are a subset of
-*eligible patients* who in turn are a subset of 
-*patients who were assessed*.
+Nested subsets arise in many situations.
+Consider, for example, flow diagrams for clinical studies.
+In a typical study, 
+participants are a subset of
+eligible patients who in turn are a subset of 
+patients who were assessed.
 Because mistakes inevitably arise during manual calculation and transcription,
 it is not uncommon for flow diagrams in published studies to contain errors.
-The errors that make it to publication are often small,
-but occasionally they can be disastrous.
+And although the errors that make it to publication are often small,
+they can occasionally be disastrous.
 
 A solution to the problem of calculating nested subsets
 and displaying information about them is presented here.
@@ -117,7 +118,7 @@ The node representing missing values of `Severity` is colored white to draw atte
 
 ## Variable trees vs. contingency tables
 
-A tree with two variables can be compared to a two-way contingency table.
+A tree with two variables is similar to a two-way contingency table.
 In the example above, `Sex` is shown within levels of `Severity`.
 This corresponds to the following contingency table,
 where the percentages within each column add to 100%.
@@ -128,17 +129,18 @@ These are called *column percentages*.
 **F** | 11 (58%)  | 11 (69%) | 2 (40%)  | 3 (50%)
 **M** | 8 (42%)   | 5 (31%)  | 3 (60%)  | 3 (50%)
 
-Similarly, a tree with `Severity` shown within levels of `Sex` corresponds to
+Likewise, a tree with `Severity` shown within levels of `Sex` corresponds to
 a contingency table with *row percentages*.
 
 The contingency table above is much more compact than the corresponding variable tree,
 but some people find the variable tree easier to interpret.
 When three of more variables are of interest,
-multi-way contingency tables are typically displayed using several two-way tables.
+multi-way contingency tables can be used.
+These are typically displayed using several two-way tables.
 In this situation, variable trees are much easier to interpret.
 
 It is also noteworthy that contingency tables are not *always* more compact than variable trees.
-When most cells of a large contingency table are empty (known as a *sparse* table),
+When most cells of a large contingency table are empty (in which case the table is said to be *sparse*),
 the corresponding variable tree may be more compact since empty-nodes are not shown.
  
 Variable trees are thus an appealing alternative to multi-way contingency tables
@@ -344,7 +346,7 @@ but also at any of the following characters: . - + _ = /
  
 ## Pruning {#pruning}
 
-*Pruning* a tree means removing specified nodes (and their descendants).
+*Pruning* a tree means removing specified nodes along with their descendants.
 This is useful when a variable tree gets too big,
 or when you are only interested in certain parts of the tree.
 For convenience, `vtree` provides several different ways to prune a tree,
@@ -601,12 +603,13 @@ The `summary` argument can be used to flexibly specify additional information to
 ### A simple example
 
 The `summary` parameter is specified as a character string
-that starts with the variable in question.
+that starts with the name of the variable for which a summary is desired.
 This is followed by a space,
 and then the rest of the string specifies what to display.
-Special codes are use to indicate the type of summary desired,
-for example `%mean%` indicates that the mean of the specified variable should be shown.
-For example, to display the mean of the numeric variable `Score`,
+Special codes (see table below) are use to indicate the type of summary desired,
+control which nodes display the summary, etc.
+For example `%mean%` indicates that the mean of the specified variable should be shown.
+Thus to display the mean of the numeric variable `Score`,
 you could specify `summary="Score \nmean score: %mean%"`.
 Note that the part of the string following the first space is
 `"\nmean score: %mean%"`.
@@ -623,30 +626,30 @@ filepath <- grVizToPNG(v10,folder=PNGdir,width=1000)
 ```
 ![](`r filepath`){ height=1.6in }
 
-The following summary codes can be used by `summary`:
+The following codes can be used by `summary`:
 
-* `%mean%` mean
-* `%SD%` standard deviation
-* `%min%` minimum
-* `%max%` maximum
-* `%pX%` Xth percentile (e.g. `p50` means the 50th percentile)
-* `%median%` median, i.e. p50
-* `%IQR%` IQR, i.e. p25, p75
-* `%npct%` frequency and percentage of a logical variable.
-By default "valid percentages" are used.
-Any missing values are also reported.
-* `%npct=Value%` frequency and percentage equal to Value.
-* `%pct%` same as `%npct%` but percentage only (with no parentheses).
-* `%pct=Value%` percentage equal to Value.
-* `%list%` comma-separated list of individual values
-* `%listlines%` list of individual values, each on a separate line
-* `%mv%` the number of missing values
-* `%v%` the name of the variable
-* `%noroot%` flag: Do not show summary in the root node.
-* `%leafonly%` flag: Only show summary in leaf nodes, i.e. nodes that have no children.
-* `%var=`*v*`%` flag: Only show summary in nodes of the specified variable *v*.
-* `%node=`*n*`%` flag: Only show summary in nodes with value *n*.
-* `%trunc=`*n*`%` flag: Truncate the summary to the first *n* characters.
+code            | result
+:---------------|:-------------------------------------------------------------------
+`%mean%`        |  mean
+`%SD%`          |  standard deviation
+`%min%`         |  minimum
+`%max%`         |  maximum
+`%pX%`          |  Xth percentile (e.g. `p50` means the 50th percentile)
+`%median%`      |  median, i.e. p50
+`%IQR%`         |  IQR, i.e. p25, p75
+`%npct%`        |  frequency and percentage of a logical variable. By default "valid percentages" are used. Any missing values are also reported.     
+`%npct=Value%`  |  frequency and percentage equal to Value.
+`%pct%`         |  same as `%npct%` but percentage only (with no parentheses).
+`%pct=Value%`   |  percentage equal to Value.
+`%list%`        |  comma-separated list of individual values
+`%listlines%`   |  list of individual values, each on a separate line
+`%mv%`          |  the number of missing values
+`%v%`           |  the name of the variable
+`%noroot%`      |  flag: Do not show summary in the root node.
+`%leafonly%`    |  flag: Only show summary in leaf nodes, i.e. nodes that have no children.
+`%var=`*v*`%`   |  flag: Only show summary in nodes of the specified variable *v*.
+`%node=`*n*`%`  |  flag: Only show summary in nodes with value *n*.
+`%trunc=`*n*`%` |  flag: Truncate the summary to the first *n* characters. 
 
 The `summary` argument can use any number of these codes,
 mixed with text and formatting codes.
@@ -854,7 +857,8 @@ vtree allows you to specify the variable names in a single character string
 If, however, any of the variable names have internal spaces,
 the variable names must be specified as a vector of character strings.
  
-Additionally, there are several modifiers that affect the way that variables are represented in a tree.
+Additionally, there are several modifiers that can be used
+to change the way that variables are represented in a tree.
  
 ### prefix `is.na:`
 
@@ -1199,20 +1203,22 @@ and `penwidth`, which specifies the thickness of the edge (in points).
 (Note that `penwidth` is also a node attribute.)
 To draw a variable tree without any arrows on the edges and with thick edges, use:
 ```{r,eval=FALSE}
-vtree(FakeData,"Severity",edgeattr="arrowhead=none penwidth=4")
+vtree(FakeData,"Severity",edgeattr="arrowhead=none penwidth=4",sameline=TRUE)
 ```
 ```{r,echo=FALSE}
-v29 <- vtree(FakeData,"Severity",edgeattr="arrowhead=none penwidth=2",width=250,height=250)
+v29 <- vtree(FakeData,"Severity",edgeattr="arrowhead=none penwidth=2",
+  sameline=TRUE,width=250,height=250)
 filepath <- grVizToPNG(v29,folder=PNGdir,width=1000)
 ```
 ![](`r filepath`){ height=2.5in }
 
 The minimum width of nodes (in inches) can be specified using the node attribute `width`:
 ```{r,eval=FALSE}
-vtree(FakeData,"Severity",nodeattr="width=2")
+vtree(FakeData,"Severity",nodeattr="width=2",sameline=TRUE)
 ```
 ```{r,echo=FALSE}
-v30 <- vtree(FakeData,"Severity",nodeattr="width=2",width=250,height=250)
+v30 <- vtree(FakeData,"Severity",nodeattr="width=2",
+  sameline=TRUE,width=250,height=250)
 filepath <- grVizToPNG(v30,folder=PNGdir,width=1000)
 ```
 ![](`r filepath`){ height=2.5in }
