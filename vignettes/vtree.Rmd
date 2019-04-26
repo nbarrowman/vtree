@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 1.3.5"
+title: "Introduction to vtree 1.3.6"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -605,10 +605,11 @@ the variable names must be specified as a vector of character strings.
 Additionally, there are several modifiers that can be used
 to change the way that variables are represented in a tree.
  
+ 
 ### prefix `is.na:`
 
-Specifying individual variable names with the prefix `is.na:`
-replaces them with a missing value indicator in the variable tree.
+If an individual variable name is preceded by `is.na:`,
+that variable will be replaced by a missing value indicator in the variable tree.
 (This differs from the `check.is.na` parameter, described below,
 which is used to replace *all* of the specified variables with missing value indicators.)
 
@@ -649,12 +650,16 @@ it will result in a very large variable tree.
 One solution is to prune the tree,
 for example by keeping just one node.
 An alternative is to specify the value of the variable that is of primary interest.
+The result will be to dichotomize the variable at that value.
+For example if `Severity=Mild` is specified,
+the `Severity` variable will be dichotomized between `Mild` and `Not Mild`.
+
 
 ### specifications `variable<value`, `variable>value`
 
-These two specifications can be useful for identifying subsets with extreme values.
-**Warning:** The specified value is treated as *numeric*, not as a character string.
- 
+These two specifications are used to dichotomize a *numeric* variable,
+splitting above and below a specified value.
+This can be useful for identifying subsets with extreme values.
 
 
 ## Displaying summary statistics in nodes {#summary}
@@ -666,6 +671,7 @@ which generally cannot be used to build the tree since they have too many distin
 For example, we might wish to display the mean age for individuals in each node.
 Or we might wish to list the ID numbers for individuals in each node.
 The `summary` argument can be used to flexibly specify additional information to display.
+
 
 ### A simple example
 
@@ -782,15 +788,19 @@ it will be followed by a count of the number of repetitions in parentheses.
 The `%list%` code separates values by commas.
 Alternatively, the `%listlines%` code can be used to put each value on a new line.
 
-It may also be convenient to only show the output from `%list` in certain nodes.
-For example we might only want to see the information in the leaf nodes.
-In this simple case the following codes are equivalent:
 
-* `%noroot%`
+### The `%noroot%`, `%leafonly%`, `%var=`*v*`%`, and `%node=`*n*`%` codes
 
-* `%leafonly%`
+By default, summary information is shown in all nodes.
+However, it may also be convenient to only show it in certain nodes.
+The following codes are available:
 
-* `%var=Severity%`
+**code**         | **summary information restricted to:**
+-----------------|----------------------------------------
+`%noroot%`       | all nodes *except* the root
+`%leafonly%`     | leaf nodes
+`%var=`*v*`%`    | nodes of variable *v*
+`%node=`*n*`%`   | nodes named *n*
 
 
 ### The %trunc% code
