@@ -2164,7 +2164,8 @@ summaryNodeFunction <- function (u, varname, value, args) {
           maxx <- max(x)
         }
 
-        result <- gsub("%var=(.+)%","",result)
+        result <- gsub("%var=[^%]+%","",result)
+        result <- gsub("%node=[^%]+%","",result)
         result <- gsub("%trunc=(.+)%","",result)
         result <- gsub("%noroot%","",result)
         result <- gsub("%leafonly%","",result)
