@@ -375,6 +375,8 @@ vtree <- function (z, vars, splitspaces=TRUE,
       for (i in 1:length(vars)) {    
         if (i %in% findequal) {
           equalvar <- sub("([^ ]+)(=)([^ ]+)","\\1",vars[i])
+          if (is.null(z[[equalvar]]))
+            stop(paste("Unknown variable:",equalvar))                    
           equalval <- sub("([^ ]+)(=)([^ ]+)","\\3",vars[i])
           # Check to see if any of the values of the specified variable contain spaces
           # If they do, replace underscores in the specified value with spaces.
@@ -395,6 +397,8 @@ vtree <- function (z, vars, splitspaces=TRUE,
       for (i in 1:length(vars)) {    
         if (i %in% findgt) {
           gtvar <- sub("([^ ]+)(>)([^ ]+)","\\1",vars[i])
+          if (is.null(z[[gtvar]]))
+            stop(paste("Unknown variable:",gtvar))                    
           gtval <- sub("([^ ]+)(>)([^ ]+)","\\3",vars[i])
           # Check to see if any of the values of the specified variable contain spaces
           # If they do, replace underscores in the specified value with spaces.
@@ -415,6 +419,8 @@ vtree <- function (z, vars, splitspaces=TRUE,
       for (i in 1:length(vars)) {    
         if (i %in% findlt) {
           ltvar <- sub("([^ ]+)(<)([^ ]+)","\\1",vars[i])
+          if (is.null(z[[ltvar]]))
+            stop(paste("Unknown variable:",ltvar))                    
           ltval <- sub("([^ ]+)(<)([^ ]+)","\\3",vars[i])
           # Check to see if any of the values of the specified variable contain spaces
           # If they do, replace underscores in the specified value with spaces.
@@ -435,7 +441,8 @@ vtree <- function (z, vars, splitspaces=TRUE,
       for (i in 1:length(vars)) {
         if (i %in% findna) {
           navar <- sub("^is\\.na:([^ ]+)$","\\1",vars[i])
-#          newvar <- paste0("MISSING_", navar)
+          if (is.null(z[[navar]]))
+            stop(paste("Unknown variable:",navar))
           m <- is.na(z[[navar]])
           z[[navar]] <- factor(m, levels = c(FALSE, TRUE),c("available","N/A"))
           # Note that available comes before N/A in alphabetical sorting.
@@ -488,6 +495,8 @@ vtree <- function (z, vars, splitspaces=TRUE,
         for (i in 1:length(codevar)) {    
           if (i %in% findequal) {
             equalvar <- sub("([^ ]+)(=)([^ ]+)","\\1",codevar[i])
+            if (is.null(z[[equalvar]]))
+              stop(paste("Unknown variable:",equalvar))                      
             equalval <- sub("([^ ]+)(=)([^ ]+)","\\3",codevar[i])
             # Check to see if any of the values of the specified variable contain spaces
             # If they do, replace underscores in the specified value with spaces.
@@ -507,6 +516,8 @@ vtree <- function (z, vars, splitspaces=TRUE,
         for (i in 1:length(codevar)) {    
           if (i %in% findgt) {
             gtvar <- sub("([^ ]+)(>)([^ ]+)","\\1",codevar[i])
+            if (is.null(z[[gtvar]]))
+              stop(paste("Unknown variable:",gtvar))                             
             gtval <- sub("([^ ]+)(>)([^ ]+)","\\3",codevar[i])
             # Check to see if any of the values of the specified variable contain spaces
             # If they do, replace underscores in the specified value with spaces.
@@ -526,6 +537,8 @@ vtree <- function (z, vars, splitspaces=TRUE,
         for (i in 1:length(codevar)) {    
           if (i %in% findlt) {
             ltvar <- sub("([^ ]+)(<)([^ ]+)","\\1",codevar[i])
+            if (is.null(z[[ltvar]]))
+              stop(paste("Unknown variable:",ltvar))                             
             ltval <- sub("([^ ]+)(<)([^ ]+)","\\3",codevar[i])
             # Check to see if any of the values of the specified variable contain spaces
             # If they do, replace underscores in the specified value with spaces.
@@ -719,7 +732,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
     findallvars <- ALLVARS %in% names(z)
     if (any(!findallvars)) {
       stop("The following variables were not found in the data frame: ",
-        paste(vars[!findallvars], collapse = ", "))
+        paste(ALLVARS[!findallvars], collapse = ", "))
     }
 
     # Subset the whole data frame!
@@ -2083,7 +2096,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
         if (varspec==varname) {
           if (length(grep("%node=([^%]+)%",result))>0) {
             nodespec <- sub("(.*)%node=([^%]+)%(.*)","\\2",result)
-            if (nodespec==value) {
+            if (!is.na(value) & (nodespec==value)) {
               ShowNodeText <- TRUE
             } else {
               ShowNodeText <- FALSE
@@ -2097,13 +2110,14 @@ summaryNodeFunction <- function (u, varname, value, args) {
       } else {
         if (length(grep("%node=([^%]+)%",result))>0) {
           nodespec <- sub("(.*)%node=([^%]+)%(.*)","\\2",result)
-          if (nodespec==value) {
+          if (!is.na(value) & (nodespec==value)) {
             ShowNodeText <- TRUE
           } else {
             ShowNodeText <- FALSE
           }            
         }
       }
+      
       
       y_event <- NULL
       if (length(grep("%pct=([^%]+)%",result))>0) {
@@ -2230,7 +2244,6 @@ summaryNodeFunction <- function (u, varname, value, args) {
 #' @export
 #'
 
-
 grVizToPNG <- function (g, width=NULL, height=NULL, folder = ".") {
   filename <- paste0(sapply(as.list(substitute({g})[-1]), deparse),".png")
   if (is.null(g)) {
@@ -2242,4 +2255,45 @@ grVizToPNG <- function (g, width=NULL, height=NULL, folder = ".") {
   message <- utils::capture.output(svg <- DiagrammeRsvg::export_svg(g))
   result <- rsvg::rsvg_png(charToRaw(svg),fullpath, width = width, height=height)
   invisible(fullpath)
+}
+
+
+#' @title crosstabToCases
+#'
+#' @author Nick Barrowman
+#'
+#' @description
+#' Convert a crosstabulation into a data frame of cases.
+#'
+#' @param x  a matrix or table of frequencies representing a crosstabulation.
+ 
+#' @return
+#'   Returns a data frame of cases.
+#'
+#' @export
+#'
+
+crosstabToCases <- function(x) {
+  # Based on
+  # http://www.cookbook-r.com/Manipulating_data/Converting_between_data_frames_and_contingency_tables/#cases-to-contingency-table
+  if (!is.table(x)) {
+    if (is.matrix(x)) {
+      x <- table(x)
+    } else {
+      stop("not a matrix")
+    }
+  }
+  
+  u <- data.frame(x)
+
+  # Get the row indices to pull from x
+  idx <- rep.int(seq_len(nrow(u)), u$Freq)
+
+  # Drop count column
+  u$Freq <- NULL
+
+  # Get the rows from x
+  rows <- u[idx, ]
+  rownames(rows) <- NULL
+  rows
 }

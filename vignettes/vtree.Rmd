@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 1.3.4"
+title: "Introduction to vtree 1.3.5"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -158,6 +158,9 @@ and can also be used to display a wide variety of information including:
 `vtree` is designed to be quick and easy to use,
 so that it is convenient for data exploration,
 but also flexible enough that it can be used to prepare publication-ready figures.
+To generate a basic variable tree,
+it is only necessary to provide `vtree` with a data frame and some variable names.
+However extra features make `vtree` much more useful. 
 `vtree` provides:
 
 * control over [labeling](#labeling), colors, [legends](#legends), [line wrapping](#wrapping),
@@ -703,7 +706,7 @@ code            | result
 `%IQR%`         |  IQR, i.e. p25, p75
 `%npct%`        |  frequency and percentage of a logical variable. By default "valid percentages" are used. Any missing values are also reported.     
 `%pct%`         |  same as `%npct%` but percentage only (with no parentheses).
-`%list%`        |  comma-separated list of individual values
+`%list%`        |  list of individual values, separated by commas
 `%listlines%`   |  list of individual values, each on a separate line
 `%mv%`          |  the number of missing values
 `%v%`           |  the name of the variable
@@ -765,11 +768,7 @@ filepath <- grVizToPNG(v12,folder=PNGdir,width=1000)
 Note that in each node,
 "mv" indicates the number of missing values (if any).
 
-
-### The %pct% code
-
 The `%pct%` code is the same as the `%npct%` code except that it does not show the frequency, only the percentage (without parentheses).
-where Value is a value of the summary variable.
 
 
 ### The %list% code
@@ -796,8 +795,8 @@ In this simple case the following codes are equivalent:
 
 ### The %trunc% code
 
-When there are many IDs, it often convenience to truncate the output.
-The `%trunc=N%` code specifies that, after N characters, summary information
+When there are many IDs, it is often convenient to truncate the output.
+The `%trunc=`*N*`%` code specifies that, after *N* characters, summary information
 should be truncated with "...".
 
 For example,
@@ -1275,26 +1274,16 @@ vtree(esoph,"agegp=75+",
 
 #### Hair and eye color
 
-The `HairEyeColor` data set is an array representing a contingency table.
-Let's use the following function (from the R Cookbook site, http://www.cookbook-r.com/Manipulating_data/Converting_between_data_frames_and_contingency_tables/#cases-to-contingency-table) to convert the array to a dataframe:
+The `HairEyeColor` data set is an array representing a contingency table
+(also called a crosstab or crosstabulation).
+Before `vtree` can be applied to this data set,
+it is necessary to convert the table of crosstabulated frequencies to a data frame of cases.
+For convenience, the `vtree` package includes a helper function to do this,
+called `crosstabToCases`.
+It is adapted from a function listed on the [Cookbook for R website](http://www.cookbook-r.com/Manipulating_data/Converting_between_data_frames_and_contingency_tables/#countstocases-function)
 
 ```{r, eval=FALSE}
-# Convert from data frame of counts to data frame of cases.
-# `countcol` is the name of the column containing the counts
-countsToCases <- function(x, countcol = "Freq") {
-    # Get the row indices to pull from x
-    idx <- rep.int(seq_len(nrow(x)), x[[countcol]])
-
-    # Drop count column
-    x[[countcol]] <- NULL
-
-    # Get the rows from x
-    x[idx, ]
-}
-```
-
-```{r, eval=FALSE}
-hec <- countsToCases(as.data.frame(HairEyeColor))
+hec <- crosstabToCases(HairEyeColor)
 ```
 
 There are a lot of combinations but let's say we are especially interested
@@ -1310,12 +1299,12 @@ vtree(hec,"Hair Eye=Green Sex")
 The Titanic dataset is a 4-dimensional array of counts.
 First, let's convert it to a dataframe of individuals:
 ```{r, eval=FALSE}
-titanic <- countsToCases(as.data.frame(Titanic))
+titanic <- crosstabToCases(Titanic)
 ```
 
 We'll specify `sameline=TRUE` so that it fits a bit better:
 ```{r, eval=FALSE}
-vtree(titanic,"Class Sex Age Survived",sameline=TRUE)
+vtree(titanic,"Class Sex Age",summary="Survived=Yes \n%pct% survived",sameline=TRUE)
 ```
 
 
