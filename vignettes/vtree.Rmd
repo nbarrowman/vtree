@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 1.3.9"
+title: "Introduction to vtree 1.4.0"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -132,12 +132,12 @@ These are called *column percentages*.
 Likewise, a tree with `Severity` shown within levels of `Sex` corresponds to
 a contingency table with *row percentages*.
 
-The contingency table above is much more compact than the corresponding variable tree,
+The contingency table above is more compact than the corresponding variable tree,
 but some people find the variable tree easier to interpret.
 When three of more variables are of interest,
 multi-way contingency tables can be used.
 These are typically displayed using several two-way tables.
-In this situation, variable trees are much easier to interpret.
+In this situation, variable trees are generally easier to interpret.
 
 It is also noteworthy that contingency tables are not *always* more compact than variable trees.
 When most cells of a large contingency table are empty (in which case the table is said to be *sparse*),
@@ -200,7 +200,7 @@ each node in the variable tree represents the subset of its parent defined by a 
 and is labeled with the number of observations in that subset and the corresponding percentage of the number of observations in its parent node.
 
 Note that a node always represents at least one observation.
-Unlike a contingency table,
+AJd unlike a contingency table,
 which can have empty cells,
 a variable tree has no empty nodes.
 
@@ -435,15 +435,15 @@ If `Severity` in fact represents severity on day 1,
 you might want it to appear that way in the variable tree.
 To do this, use the `labelvar` parameter,
 which is specified as a vector whose element names are variable names.
-As an example, if `Severity` in fact represents severity on day 1,
-you can specify `labelvar=c(Severity="Severity on day 1")`.
+As an example, if `Severity` in fact represents initial severity,
+you can specify `labelvar=c(Severity="Initial severity")`.
 
 ```{r,eval=FALSE}
-vtree(FakeData,"Severity Sex",horiz=FALSE,labelvar=c(Severity="Severity on day 1"))
+vtree(FakeData,"Severity Sex",horiz=FALSE,labelvar=c(Severity="Initial severity"))
 ```
 ```{r,echo=FALSE}
 v8 <- vtree(FakeData,"Severity Sex",horiz=FALSE,width=700,height=250,
-  labelvar=c(Severity="Severity on day 1"))
+  labelvar=c(Severity="Initial severity"))
 filepath <- grVizToPNG(v8,folder=PNGdir,width=1000)
 ```
 ![](`r filepath`){ height=2.2in }
@@ -706,7 +706,7 @@ filepath <- grVizToPNG(v10,folder=PNGdir,width=1000)
 ```
 ![](`r filepath`){ height=1.6in }
 
-The following codes can be used by `summary`:
+The following codes can be used to show summary information:
 
 code            | result
 :---------------|:-------------------------------------------------------------------
@@ -723,11 +723,6 @@ code            | result
 `%listlines%`   |  list of individual values, each on a separate line
 `%mv%`          |  the number of missing values
 `%v%`           |  the name of the variable
-`%noroot%`      |  flag: Do not show summary in the root node.
-`%leafonly%`    |  flag: Only show summary in leaf nodes, i.e. nodes that have no children.
-`%var=`*v*`%`   |  flag: Only show summary in nodes of the specified variable *v*.
-`%node=`*n*`%`  |  flag: Only show summary in nodes with value *n*.
-`%trunc=`*n*`%` |  flag: Truncate the summary to the first *n* characters. 
 
 The `summary` argument can use any number of these codes,
 mixed with text and formatting codes.
@@ -795,6 +790,10 @@ it will be followed by a count of the number of repetitions in parentheses.
 The `%list%` code separates values by commas.
 Alternatively, the `%listlines%` code can be used to put each value on a new line.
 
+When there are many IDs, it is often convenient to truncate the output.
+The `%trunc=`*N*`%` code specifies that, after *N* characters, summary information
+should be truncated with "...".
+
 
 ### The `%noroot%`, `%leafonly%`, `%var=`*v*`%`, and `%node=`*n*`%` codes
 
@@ -809,25 +808,6 @@ The following codes are available:
 `%var=`*v*`%`    | nodes of variable *v*
 `%node=`*n*`%`   | nodes named *n*
 
-
-### The %trunc% code
-
-When there are many IDs, it is often convenient to truncate the output.
-The `%trunc=`*N*`%` code specifies that, after *N* characters, summary information
-should be truncated with "...".
-
-For example,
-
-```{r,eval=FALSE}
-vtree(FakeData,"Severity",summary="id \nid = %list%%var=Severity%%trunc=40%",
-  horiz=FALSE,showvarnames=FALSE,sameline=TRUE)
-```
-```{r,echo=FALSE}
-v13 <- vtree(FakeData,"Severity",summary="id \nid = %list%%var=Severity%%trunc=40%",
-  horiz=FALSE,showvarnames=FALSE,sameline=TRUE,width=650,height=200)
-filepath <- grVizToPNG(v13,folder=PNGdir,width=1000)
-```
-![](`r filepath`){ height=2in }
 
 
 ### Specification of variables in summary
@@ -983,9 +963,9 @@ pattern <- with(FakeData,paste(Ind1,Ind2,Ind3,Ind4,sep="|"))
 ```
 Here are the observed frequencies of these patterns:
 
-`Ind1` | `Ind2` | `Ind3` | `Ind4` | Frequency
----------|--------|--------|--------|----------------
-`r paste(paste0(names(table(pattern)),"|",table(pattern)),collapse="\n")`
+Pattern&nbsp;&nbsp;&nbsp;&nbsp; |`Ind1` | `Ind2` | `Ind3` | `Ind4` | Frequency
+--------|-------|--------|--------|--------|----------------
+`r paste(gsub("[|]",",",names(table(pattern))),"|", paste0(names(table(pattern)),"|",table(pattern)),collapse="\n")`
 
 Note that these are the frequencies shown in the rightmost nodes of the
 variable tree above.
@@ -1206,23 +1186,12 @@ To draw a variable tree without any arrows on the edges and with thick edges, us
 ```{r,eval=FALSE}
 vtree(FakeData,"Severity",edgeattr="arrowhead=none penwidth=4",sameline=TRUE)
 ```
-```{r,echo=FALSE}
-v29 <- vtree(FakeData,"Severity",edgeattr="arrowhead=none penwidth=2",
-  sameline=TRUE,width=250,height=250)
-filepath <- grVizToPNG(v29,folder=PNGdir,width=1000)
-```
-![](`r filepath`){ height=2.5in }
-
+ 
 The minimum width of nodes (in inches) can be specified using the node attribute `width`:
 ```{r,eval=FALSE}
 vtree(FakeData,"Severity",nodeattr="width=2",sameline=TRUE)
 ```
-```{r,echo=FALSE}
-v30 <- vtree(FakeData,"Severity",nodeattr="width=2",
-  sameline=TRUE,width=250,height=250)
-filepath <- grVizToPNG(v30,folder=PNGdir,width=1000)
-```
-![](`r filepath`){ height=2.5in }
+ 
 
 
 ## Examining the DOT script generated by `vtree`

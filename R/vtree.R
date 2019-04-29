@@ -575,6 +575,11 @@ vtree <- function (z, vars, splitspaces=TRUE,
 
     numvars <- length(vars)
 
+    # Each element of the following list
+    # is a matrix where the rows are the different hues (one for each variable).
+    # The 1st matrix is for a single-valued variable,
+    # The 2nd matrix is for a two-valued variable,
+    # and so on.
     col <- list(
       rbind(
         "#DE2D26",
@@ -735,7 +740,8 @@ vtree <- function (z, vars, splitspaces=TRUE,
         paste(ALLVARS[!findallvars], collapse = ", "))
     }
 
-    # Subset the whole data frame!
+    # Use a data frame that *only* contains the variables of interest.
+    # This greatly speeds things up!
     z <- z[ALLVARS]
 
     if (Venn) {
@@ -1049,6 +1055,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
         }
         if (Nnonmissing>0) {
           if (Nnonmissing>length(col) || (seq & (vars[i]=="sequence")) || (pattern & (vars[i]=="pattern")) || (row==0)) {
+            # Too many values to permit distinct colors
             valuecolors[values!="NA"] <- col[[1]][row] # "grey90"
             names(valuecolors) <- values
             varlabelcolors[i] <- col[[1]][row] # "grey90"
