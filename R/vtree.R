@@ -746,6 +746,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
     }
 
     if (check.is.na) {
+      if (missing(pattern)) pattern <- TRUE
       if (missing(shownodelabels)) shownodelabels <- FALSE
     }
 

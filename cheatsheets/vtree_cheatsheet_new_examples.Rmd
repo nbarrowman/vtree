@@ -1,0 +1,181 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(vtree)
+```
+
+# Basics
+
+```{r}
+(v1 <- vtree(FakeData,"Severity Sex"))
+```
+
+```{r}
+grVizToPNG(v1,width=3000,folder="png")
+```
+
+```{r}
+(v2 <- vtree(FakeData,"Group",horiz=FALSE))
+```
+
+```{r}
+grVizToPNG(v2,width=3000,folder="png")
+```
+
+```{r}
+(v3 <- vtree(FakeData,"Severity Sex",
+  showlegend=TRUE,sameline=TRUE))
+```
+
+## Variable specification modifiers
+
+modifier         | effect
+-----------------|-------------------------------------------------
+prefix `is.na:`  | replace variable with missing value indicator
+prefix `stem:`   | include all variables from REDCap with names based on stem
+prefix `tri:`    | within each node, replace variable with trichotomized variable 
+`variable=value` | dichotomize variable at value
+`variable<value` | dichotomize variable below value
+`variable>value` | dichotomize variable above value
+
+# Pruning
+
+parameter     | effect
+--------------|---------------------------------------------------
+`prune`       | remove all specified nodes
+`prunebelow`  | remove all descendants of the specified nodes
+`keep`        | retain only the specified nodes
+`follow`      | retain the descendants of only the specified nodes
+
+```{r}
+grVizToPNG(v3,width=3000,folder="png")
+```
+
+```{r}
+(v4 <- vtree(FakeData,"Severity Sex",
+  prune=list(Severity=c("Mild","Moderate"))))
+```
+
+```{r}
+grVizToPNG(v4,width=3000,folder="png")
+```
+
+```{r}
+(v5 <- vtree(FakeData,"Severity Sex",
+  prunebelow=list(Severity=c("Mild","Moderate"))))
+```
+
+```{r}
+grVizToPNG(v5,width=3000,folder="png")
+```
+
+```{r}
+(v6 <- vtree(FakeData,"Severity Sex",
+  keep=list(Severity=c("Mild","NA"))))
+```
+
+```{r}
+grVizToPNG(v6,width=3000,folder="png")
+```
+
+```{r}
+(v7 <- vtree(FakeData,"Severity Sex",
+  follow=list(Severity=c("Mild","NA"))))
+```
+
+```{r}
+grVizToPNG(v7,width=3000,folder="png")
+```
+
+# Labeling
+
+**paramater** | **example**
+--------------|----------------------------------------------
+`labelvar`    | `labelvar=c(Severity="New label for Severity")`
+`labelnode`   | `labelnode=list(Sex=c(Male="M",Female="F"))`
+`tlabelnode`  | `tlabelnode=list(c(Group="A",Sex="F",label="girl"))`
+
+
+# Text
+
+code                  | effect
+----------------------|--------------------------
+`\n `                 | Line break
+`*`&rect;`*`          | Italics
+`**`&rect;`**`        | Bold
+`^`&rect;`^`          | Superscript
+`~`&rect;`~`          | Subscript
+`%%red` &rect;`%%`    | Make text red (or whatever color)
+
+```{r}
+(v8 <- vtree(FakeData,"Group Severity",sameline=TRUE,
+  text=list(Severity=c(Mild="\n*or none*"))))
+```
+
+```{r}
+grVizToPNG(v8,width=3000,folder="png")
+```
+
+```{r}
+(v9 <- vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE))
+```
+
+```{r}
+grVizToPNG(v9,width=3000,folder="png")
+```
+
+# Summary
+
+## Statistic codes
+
+**code**        | **result**
+:---------------|:-------------------------------------------------------------------
+`%mean%`        |  mean
+`%SD%`          |  standard deviation
+`%min%`         |  minimum
+`%max%`         |  maximum
+`%pX%`          |  Xth percentile (e.g. `p50` means the 50th percentile)
+`%median%`      |  median, i.e. p50
+`%IQR%`         |  IQR, i.e. p25, p75
+`%npct%`        |  frequency and percentage
+`%pct%`         |  just percentage
+`%list%`        |  list of individual values, separated by commas
+`%listlines%`   |  list of individual values, each on a separate line
+`%mv%`          |  the number of missing values
+`%v%`           |  the name of the variable
+`%trunc=`*n*`%` |  flag: Truncate the summary to the first *n* characters. 
+
+## Restriction codes
+
+**code**        | **summary information restricted to:**
+:---------------|:---------------------------------------
+`%noroot%`      | all nodes *except* the root
+`%leafonly%`    | leaf nodes
+`%var=`*v*`%`   | nodes of variable *v*
+`%node=`*n*`%`  | nodes named *n*
+
+
+## Variable specification modifiers
+
+modifier         | effect
+-----------------|-------------------------------------------------
+`variable=value` | dichotomize variable at value
+`variable<value` | dichotomize variable below value
+`variable>value` | dichotomize variable above value
+
+
+```{r}
+(v10 <- vtree(FakeData,"Severity",sameline=TRUE,
+  summary="Score \n mean=%mean%"))
+```
+
+```{r}
+grVizToPNG(v10,width=3000,folder="png")
+```
