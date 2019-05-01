@@ -1,5 +1,5 @@
 ---
-title: "Untitled"
+title: "Cheatsheet elements"
 output: html_document
 ---
 
@@ -14,7 +14,7 @@ library(vtree)
 # Basics
 
 ```{r}
-(v1 <- vtree(FakeData,"Severity Sex"))
+(v1 <- vtree(FakeData,"Severity Sex",sameline=TRUE))
 ```
 
 ```{r}
@@ -36,7 +36,7 @@ grVizToPNG(v2,width=3000,folder="png")
 
 ## Variable specification modifiers
 
-modifier         | effect
+Modifier         | Effect
 -----------------|-------------------------------------------------
 prefix `is.na:`  | replace variable with missing value indicator
 prefix `stem:`   | include all variables from REDCap with names based on stem
@@ -45,14 +45,15 @@ prefix `tri:`    | within each node, replace variable with trichotomized variabl
 `variable<value` | dichotomize variable below value
 `variable>value` | dichotomize variable above value
 
+
 # Pruning
 
-parameter     | effect
+Parameter     | Effect
 --------------|---------------------------------------------------
 `prune`       | remove all specified nodes
 `prunebelow`  | remove all descendants of the specified nodes
 `keep`        | retain only the specified nodes
-`follow`      | retain the descendants of only the specified nodes
+`follow`      | retain descendants of only the specified nodes
 
 ```{r}
 grVizToPNG(v3,width=3000,folder="png")
@@ -96,7 +97,7 @@ grVizToPNG(v7,width=3000,folder="png")
 
 # Labeling
 
-**paramater** | **example**
+Parameter     | Example
 --------------|----------------------------------------------
 `labelvar`    | `labelvar=c(Severity="New label for Severity")`
 `labelnode`   | `labelnode=list(Sex=c(Male="M",Female="F"))`
@@ -105,14 +106,14 @@ grVizToPNG(v7,width=3000,folder="png")
 
 # Text
 
-code                  | effect
+Code                  | Effect
 ----------------------|--------------------------
-`\n `                 | Line break
-`*`&rect;`*`          | Italics
-`**`&rect;`**`        | Bold
-`^`&rect;`^`          | Superscript
-`~`&rect;`~`          | Subscript
-`%%red` &rect;`%%`    | Make text red (or whatever color)
+`\n`                 | Line break
+`*...*`          | Italics
+`**...**`        | Bold
+`^...^`          | Superscript
+`~...~`          | Subscript
+`%%red` ...`%%`    | Make text red (or whatever color)
 
 ```{r}
 (v8 <- vtree(FakeData,"Group Severity",sameline=TRUE,
@@ -135,7 +136,7 @@ grVizToPNG(v9,width=3000,folder="png")
 
 ## Statistic codes
 
-**code**        | **result**
+Code            | Result
 :---------------|:-------------------------------------------------------------------
 `%mean%`        |  mean
 `%SD%`          |  standard deviation
@@ -149,12 +150,11 @@ grVizToPNG(v9,width=3000,folder="png")
 `%list%`        |  list of individual values, separated by commas
 `%listlines%`   |  list of individual values, each on a separate line
 `%mv%`          |  the number of missing values
-`%v%`           |  the name of the variable
 `%trunc=`*n*`%` |  flag: Truncate the summary to the first *n* characters. 
 
 ## Restriction codes
 
-**code**        | **summary information restricted to:**
+Code            | Summary information restricted to:
 :---------------|:---------------------------------------
 `%noroot%`      | all nodes *except* the root
 `%leafonly%`    | leaf nodes
@@ -164,7 +164,7 @@ grVizToPNG(v9,width=3000,folder="png")
 
 ## Variable specification modifiers
 
-modifier         | effect
+Modifier         | Effect
 -----------------|-------------------------------------------------
 `variable=value` | dichotomize variable at value
 `variable<value` | dichotomize variable below value
@@ -173,7 +173,7 @@ modifier         | effect
 
 ```{r}
 (v10 <- vtree(FakeData,"Severity",sameline=TRUE,
-  summary="Score \n mean=%mean%"))
+  summary="Score , mean=%mean%"))
 ```
 
 ```{r}
