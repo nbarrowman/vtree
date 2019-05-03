@@ -13,19 +13,19 @@ vtree(z, vars, splitspaces = TRUE, prune = list(),
   palette = NULL, gradient = TRUE, revgradient = FALSE,
   singlecolor = 2, colorvarlabels = TRUE, title = "",
   sameline = FALSE, Venn = FALSE, check.is.na = FALSE, seq = FALSE,
-  pattern = FALSE, showroot = TRUE, text = list(), ttext = list(),
-  plain = FALSE, squeeze = 1, shownodelabels = TRUE,
-  showvarnames = TRUE, showlevels = TRUE, showpct = TRUE,
-  showlpct = TRUE, showcount = TRUE, showlegend = FALSE,
-  varnamepointsize = 18, HTMLtext = FALSE, digits = 0, cdigits = 1,
-  splitwidth = 20, lsplitwidth = 15, getscript = FALSE,
-  nodesep = 0.5, ranksep = 0.5, margin = 0.2, vp = TRUE,
-  horiz = TRUE, summary = "", runsummary = NULL, retain = NULL,
-  width = NULL, height = NULL, graphattr = "", nodeattr = "",
-  edgeattr = "", color = c("blue", "forestgreen", "red", "orange",
-  "pink"), colornodes = FALSE, showempty = FALSE, rounded = TRUE,
-  nodefunc = NULL, nodeargs = NULL, choicechecklist = TRUE,
-  parent = 1, last = 1, root = TRUE)
+  pattern = FALSE, ptable = FALSE, showroot = TRUE, text = list(),
+  ttext = list(), plain = FALSE, squeeze = 1,
+  shownodelabels = TRUE, showvarnames = TRUE, showlevels = TRUE,
+  showpct = TRUE, showlpct = TRUE, showcount = TRUE,
+  showlegend = FALSE, varnamepointsize = 18, HTMLtext = FALSE,
+  digits = 0, cdigits = 1, splitwidth = 20, lsplitwidth = 15,
+  getscript = FALSE, nodesep = 0.5, ranksep = 0.5, margin = 0.2,
+  vp = TRUE, horiz = TRUE, summary = "", runsummary = NULL,
+  retain = NULL, width = NULL, height = NULL, graphattr = "",
+  nodeattr = "", edgeattr = "", color = c("blue", "forestgreen",
+  "red", "orange", "pink"), colornodes = FALSE, showempty = FALSE,
+  rounded = TRUE, nodefunc = NULL, nodeargs = NULL,
+  choicechecklist = TRUE, parent = 1, last = 1, root = TRUE)
 }
 \arguments{
 \item{z}{Required: Data frame, or a single vector.}
@@ -141,6 +141,9 @@ The sequences are sorted from least frequent to most frequent.}
 
 \item{pattern}{Same as \code{seq}, but lines without arrows are drawn,
 and instead of a \code{sequence} variable, a \code{pattern} variable is shown.}
+
+\item{ptable}{Generate a pattern table instead of a variable tree? 
+Only applies when \code{pattern=TRUE}.}
 
 \item{showroot}{Show the root node?
 When \code{seq=TRUE}, it may be useful to set \code{showroot=FALSE}.}

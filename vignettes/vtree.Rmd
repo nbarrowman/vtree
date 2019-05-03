@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 1.4.0"
+title: "Introduction to vtree 1.4.2"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -14,6 +14,7 @@ vignette: >
 ---
 
 ```{r, echo=FALSE}
+suppressMessages(library(ggplot2))
 library(vtree)
 ```
 
@@ -918,18 +919,68 @@ filepath <- grVizToPNG(v13b,folder=PNGdir,width=1000)
 
 
 
+## Pattern trees
+
+Each leaf node in a tree provides the frequency of a particular combination values
+of the variables.
+By specifying `pattern=TRUE`, an alternative display is produced:
+ 
+```{r, eval=FALSE}
+vtree(FakeData,"Severity Sex")
+vtree(FakeData,"Severity Sex",pattern=TRUE)
+```
+```{r, echo=FALSE}
+v14 <- vtree(FakeData,"Severity Sex",width=650,height=650)
+filepath <- grVizToPNG(v14,folder=PNGdir,width=1000)
+v15 <- vtree(FakeData,"Severity Sex",pattern=TRUE,width=650,height=650)
+filepath2 <- grVizToPNG(v15,folder=PNGdir,width=1000)
+```
+![](`r filepath`){ height=4in } &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ![](`r filepath2`){ height=4in }
+
+Note that, by default, the root node is not shown when `pattern=TRUE` is specified,
+because this simplifies the display
+(in fact, without the root node, it is no longer a tree!).
+A disadvantage of this is that the total sample size is not shown.
+The root node can be shown by specifying `showroot=TRUE`.
+
+Also note that when `pattern=TRUE`, percentages are also not shown by default.
+Specifying `showpct=TRUE` displays percentages.
+
+This tree has two other special characteristics.
+First, note that after the first level (representing `pattern`),
+counts and percentages are not shown,
+since they are not informative:
+by definition, all nodes within a branch have the same count.
+Second, note that in place of arrows, undirected line segments are shown.
+This is because, without percentages, arrows have no particular significance.
+That being said, in some cases there is a natural ordering to the variables
+(as is the case with longitudinal variables).
+To show arrows, specify `seq=TRUE` instead of `pattern=TRUE`,
+and a "sequence" (i.e. an ordered pattern) will be shown.
+
+
+### The pattern table
+
+When `pattern=TRUE` is specified, the variable tree looks a lot like a table.
+In fact the corresponding table can be exported by specifying `ptable=TRUE`:
+
+```{r}
+vtree(FakeData,"Severity Sex",pattern=TRUE,ptable=TRUE)
+```
+
+This compact representation may be more convenient for display in a manuscript.
+
 
 
 ## Special variable trees
 
-### Multi-way intersections (often shown in Venn diagrams) {#Venn}
+### Multi-way intersections {#Venn}
 
-A Venn diagram is defined by a set of variables that indicate whether an
-observation belongs to each of several sets.
-When there are more than three sets, Venn diagrams tend to be hard to read.
+A Venn diagram is used to show all intersections between several sets.
+When there are more than three sets, Venn diagrams are hard to construct and to read.
 Additionally, Venn diagrams cannot represent missing values.
 
-Variable trees provide an alternative.
+One alternative is to use variable trees.
 In the following example,
 the variables `Ind1` through `Ind4` are indicators of set membership
 (0 = not a member of the set, 1 = member).
@@ -951,36 +1002,15 @@ while light colors indicate non-membership.
 Note that percentages are also not shown by default.
 Specifying `showpct=TRUE` displays percentages.
 
-### A different way of showing Venn diagram information {#patterns}
+It should be noted that,
+in contrast to a Venn diagram, which shows all intersections,
+a variable tree only shows information on specific intersections,
+determined by the ordering of the variables.
+ 
+Specifying `pattern=TRUE` produces an even simpler representation,
+since only the full *n*-way intersections (when there are *n* variables)
+are represented:
 
-By joining together the variables `Ind1` through `Ind4`
-the different patterns of set membership can be examined.
-```{r,eval=FALSE}
-pattern <- with(FakeData,paste(Ind1,Ind2,Ind3,Ind4))
-```
-```{r,echo=FALSE}
-pattern <- with(FakeData,paste(Ind1,Ind2,Ind3,Ind4,sep="|"))
-```
-Here are the observed frequencies of these patterns:
-
-Pattern&nbsp;&nbsp;&nbsp;&nbsp; |`Ind1` | `Ind2` | `Ind3` | `Ind4` | Frequency
---------|-------|--------|--------|--------|----------------
-`r paste(gsub("[|]",",",names(table(pattern))),"|", paste0(names(table(pattern)),"|",table(pattern)),collapse="\n")`
-
-Note that these are the frequencies shown in the rightmost nodes of the
-variable tree above.
-
-Suppose `pattern` is put into the data frame.
-If `vtree` is called and `pattern` is listed as the first variable,
-then a special variable tree will be produced.
-After the first level (representing `pattern`),
-each subsequent node will, by definition, have only one child.
-The resulting variable tree will thus separate the observed patterns and
-the branches of the tree will be linear.
-
-Instead of building the patterns yourself and then using them in a call to `vtree`,
-these steps can be performed automatically.
-Specifying `pattern=TRUE` directly produces a variable tree that separates the patterns:
 
 ```{r,eval=FALSE}
 vtree(FakeData,"Ind1 Ind2 Ind3 Ind4",Venn=TRUE,pattern=TRUE,
@@ -993,34 +1023,11 @@ filepath <- grVizToPNG(v23,folder=PNGdir,width=1000)
 ```
 ![](`r filepath`){ height=7in }
 
-Note that, by default, the root node is not shown when `pattern=TRUE` is specified,
-because this simplifies the display
-(in fact, without the root node it is no longer a tree!).
-A disadvantage of this is that the total sample size is not shown.
-The root node can be shown by specifying `showroot=TRUE`.
-
-This tree has two other special characteristics.
-First, note that after the first level (representing `pattern`),
-counts and percentages are not shown,
-since they are not informative:
-by definition, all nodes within a branch have the same count.
-Second, note that in place of arrows, undirected line segments are shown.
-This is because, without percentages, arrows have no particular significance.
-That being said, in some cases there is a natural ordering to the variables
-(as is the case with longitudinal variables).
-To show arrows, specify `seq=TRUE` instead of `pattern=TRUE`,
-and a "sequence" (i.e. an ordered pattern) will be shown.
-
-Note that in the call to vtree above,
+Note that in the call to `vtree` above,
 the `palette` parameter is specified so that the color palettes match
-with the preceding variable trees.
+with the preceding variable tree.
 (Otherwise, `pattern` gets palette number 1,
 and then `Ind1` gets  palette number 2, and so on.)
-
-Dark-shaded nodes indicate membership in the cell (i.e. a value of 1)
-and light-shaded nodes indicate non-membership (0).
-For simplicity the nodes are not labeled, except for the `pattern` nodes.
-A legend can be shown if desired.
 
 Although this tree provides less information than the branching-style tree,
 it is more easily interpreted.
@@ -1034,7 +1041,7 @@ the specified variables are missing or not.
 By default, `pattern=TRUE` is also set when `check.is.na=TRUE`.
 Whereas the variables that `vtree` uses to build variable trees are usually categorical,
 this is a situation where non-categorical variables can be used,
-because their missingness is represented, not their actual values.
+because their missingness is represented instead of their actual values.
 
 ```{r,eval=FALSE}
 vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE)
@@ -1045,6 +1052,19 @@ v24 <- vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,
 filepath <- grVizToPNG(v24,folder=PNGdir,width=1000)
 ```
 ![](`r filepath`){ height=5in }
+
+Specifying `ptable=TRUE` produces this information in table format:
+
+```{r}
+vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,ptable=TRUE)
+```
+
+It is particulary useful to combine `ptable=TRUE` with a `summary`.
+For example, we might wish to examine the ids in each of the combinations:
+
+```{r}
+vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,summary="id %list%%trunc=10%",ptable=TRUE)
+```
 
 
 ### Rudimentary CONSORT diagrams

@@ -359,6 +359,10 @@ vtree <- function (z, vars, splitspaces=TRUE,
     # Check some inputs
     if (!is.logical(splitspaces)) stop("splitspaces must be TRUE or FALSE")
     
+    if (ptable & !(pattern | check.is.na)) {
+      stop("ptable=TRUE can only be specified when pattern=TRUE or check.is.na=TRUE")
+    }
+    
     if (!missing(vars) && length(vars)==1 && splitspaces) {
       vars <- strsplit(vars,"\\s+")[[1]]
       # In case the first element is empty
@@ -782,7 +786,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
       for (v in vars) {
         newvar <- paste0("MISSING_", v)
         m <- is.na(z[[v]])
-        z[[newvar]] <- factor(m, levels = c(FALSE, TRUE),c("available","N/A"))
+        z[[newvar]] <- factor(m, levels = c(FALSE, TRUE),c("available","not"))
         # Note that available comes before N/A in alphabetical sorting.
         # Similarly FALSE comes before TRUE.
         # And 0 (representing FALSE) comes before 1 (representing TRUE) numerically.
@@ -820,16 +824,21 @@ vtree <- function (z, vars, splitspaces=TRUE,
     if (pattern) {
       if (missing(showroot)) showroot <- FALSE
       edgeattr <- paste(edgeattr,"arrowhead=none")
-      PATTERN <- NULL
       for (i in 1:length(vars)) {
-        PATTERN <- paste(PATTERN,z[[vars[i]]])
+        if (i==1) {
+          PATTERN <- paste(z[[vars[i]]])
+        } else {
+          PATTERN <- paste(PATTERN,z[[vars[i]]])
+        }
       }
-      # The order of pattern levels has to be reversed
-      # if the root node is not shown. Which is a bit odd.
+      tab <- table(PATTERN)
+      TAB <- as.numeric(tab)
+      names(TAB) <- names(tab)
       if (showroot) {
-        PATTERN_levels <- names(sort(table(PATTERN)))
+        PATTERN_levels <- names(sort(TAB))
       } else {
-        PATTERN_levels <- names(rev(sort(table(PATTERN))))
+        o <- order(as.numeric(TAB),names(TAB),decreasing=TRUE)
+        PATTERN_levels <- names(TAB)[o]
       }
       PATTERN_values <- data.frame(matrix("",nrow=length(PATTERN_levels),ncol=length(vars)),
         stringsAsFactors=FALSE)
@@ -1505,8 +1514,10 @@ vtree <- function (z, vars, splitspaces=TRUE,
       nodelevels <- ''
     }
     if (ptable) {
-      rownames(patternTable) <- NULL
-      patternTable[nrow(patternTable):1,]
+      #browser()
+      pt <- patternTable[nrow(patternTable):1,]
+      rownames(pt) <- NULL
+      pt
     } else {    
       showflow(fc, getscript = getscript, nodesep = nodesep,
         ranksep=ranksep, margin=margin, nodelevels = nodelevels, horiz = horiz,
@@ -1738,17 +1749,18 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
       }
     }
   }
-
+  
+  displayCAT <- CAT
+  
   if (HTMLtext) {
-    CAT <- splitlines(CAT,width=splitwidth,sp="<BR/>",at=" ")
+    displayCAT <- splitlines(displayCAT,width=splitwidth,sp="<BR/>",at=" ")
   } else {
-    CAT <- splitlines(CAT,width=splitwidth,sp="\n",at = c(" ", ".", "-", "+", "_", "=", "/"))
+    displayCAT <- splitlines(displayCAT,width=splitwidth,sp="\n",at = c(" ", ".", "-", "+", "_", "=", "/"))
   }
 
   if (check.is.na) {
-    for (i in 2:length(CAT)) {
+    for (i in 2:length(displayCAT)) {
       varname <- gsub("^MISSING_(.+)", "\\1", var)
-      # CAT[i] <- paste0(varname," ",CAT[i])
     }
   }
 
@@ -1756,7 +1768,7 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
   for (label in labels) {
     if (label %in% names(categoryCounts)) {
       m <- match(label,names(categoryCounts))
-      CAT[m] <- names(labels)[labels==label]
+      displayCAT[m] <- names(labels)[labels==label]
     }
   }
 
@@ -1764,7 +1776,7 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
   if (!showvarnames) {
     if (!is.null(labelvar)) {
       if (!is.na(labelvar)) {
-        CAT[-1] <- paste0(labelvar,sepN,CAT[-1])
+        displayCAT[-1] <- paste0(labelvar,sepN,displayCAT[-1])
       }
     }
   }
@@ -1783,7 +1795,7 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
     styleString <- ' style=filled'
   }
 
-  displayCAT <- CAT
+  #displayCAT <- CAT
   
   # Glue a space or a line break onto the non-empty elements of CAT
   if (sameline) {
