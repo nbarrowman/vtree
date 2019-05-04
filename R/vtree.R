@@ -359,8 +359,8 @@ vtree <- function (z, vars, splitspaces=TRUE,
     # Check some inputs
     if (!is.logical(splitspaces)) stop("splitspaces must be TRUE or FALSE")
     
-    if (ptable & !(pattern | check.is.na)) {
-      stop("ptable=TRUE can only be specified when pattern=TRUE or check.is.na=TRUE")
+    if (ptable & !(pattern | seq | check.is.na)) {
+      pattern <- TRUE
     }
     
     if (!missing(vars) && length(vars)==1 && splitspaces) {
@@ -741,8 +741,8 @@ vtree <- function (z, vars, splitspaces=TRUE,
           ALLVARS[i] <- trivar
         }
       }
-    }    
-    
+    }
+
     # Check that all of named variables are in the data frame
     findallvars <- ALLVARS %in% names(z)
     if (any(!findallvars)) {
@@ -795,35 +795,12 @@ vtree <- function (z, vars, splitspaces=TRUE,
       }
       vars <- NEWVARS
     }
-
-    if (seq) {
-      if (missing(showroot)) showroot <- FALSE
-      sequence <- NULL
-      for (i in 1:length(vars)) {
-        sequence <- paste(sequence,z[[vars[i]]])
-      }
-      # The order of sequence levels has to be reversed
-      # if the root node is not shown. Which is a bit odd.
-      if (showroot) {
-        sequence_levels <- names(sort(table(sequence)))
-      } else {
-        sequence_levels <- names(rev(sort(table(sequence))))
-      }
-      sequence <- factor(sequence,levels=sequence_levels)
-      z$sequence <- sequence
-      vars <- c("sequence",vars)
-      if (check.is.na) {
-        OLDVARS <- c("sequence",OLDVARS)
-      }
-      numvars <- length(vars)
-      if (missing(showcount)) showcount <- c(sequence=TRUE)
-      if (missing(showpct)) showpct <- c(sequence=TRUE)
-      if (missing(shownodelabels)) shownodelabels <- c(sequence=FALSE)
-    }
     
-    if (pattern) {
+    if (pattern | seq) {
       if (missing(showroot)) showroot <- FALSE
-      edgeattr <- paste(edgeattr,"arrowhead=none")
+      if (pattern) {
+        edgeattr <- paste(edgeattr,"arrowhead=none")
+      }
       for (i in 1:length(vars)) {
         if (i==1) {
           PATTERN <- paste(z[[vars[i]]])
@@ -831,13 +808,13 @@ vtree <- function (z, vars, splitspaces=TRUE,
           PATTERN <- paste(PATTERN,z[[vars[i]]])
         }
       }
-      tab <- table(PATTERN)
-      TAB <- as.numeric(tab)
-      names(TAB) <- names(tab)
+      TAB <- table(PATTERN)
+      #TAB <- as.numeric(tab)
+      #names(TAB) <- names(tab)
       if (showroot) {
         PATTERN_levels <- names(sort(TAB))
       } else {
-        o <- order(as.numeric(TAB),names(TAB),decreasing=TRUE)
+        o <- order(as.numeric(TAB),tolower(names(TAB)),decreasing=TRUE)
         PATTERN_levels <- names(TAB)[o]
       }
       PATTERN_values <- data.frame(matrix("",nrow=length(PATTERN_levels),ncol=length(vars)),
@@ -850,16 +827,27 @@ vtree <- function (z, vars, splitspaces=TRUE,
         }
       }
       PATTERN <- factor(PATTERN,levels=PATTERN_levels)
-      z$pattern <- PATTERN
-      vars <- c("pattern",vars)
+      if (pattern) {
+        z$pattern <- PATTERN
+        vars <- c("pattern",vars)
+      } else {
+        z$sequence <- PATTERN
+        vars <- c("sequence",vars)
+      }
       tri.variable <- c(tri.variable,FALSE)
       if (check.is.na) {
         OLDVARS <- c("pattern",OLDVARS)
       }
       numvars <- length(vars)
-      if (missing(showcount)) showcount <- c(pattern=TRUE)
-      if (missing(showpct)) showpct <- c(pattern=TRUE)
-      if (missing(shownodelabels)) shownodelabels <- c(pattern=FALSE)
+      if (pattern) {
+        if (missing(showcount)) showcount <- c(pattern=TRUE)
+        if (missing(showpct)) showpct <- c(pattern=TRUE)
+        if (missing(shownodelabels)) shownodelabels <- c(pattern=FALSE)
+      } else {
+        if (missing(showcount)) showcount <- c(sequence=TRUE)
+        if (missing(showpct)) showpct <- c(sequence=TRUE)
+        if (missing(shownodelabels)) shownodelabels <- c(sequence=FALSE)
+      }
     }    
 
     if (is.null(names(gradient))) {
@@ -1274,7 +1262,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
     vp = vp, rounded = rounded, showroot=showroot)
   
   if (root & ptable) {
-    if (vars[1]=="pattern") {
+    if (vars[1]=="pattern" | vars[1]=="sequence") {
       patternTable <- data.frame(npct=fc$npctString,PATTERN_values)
       if (length(ThisLevelText)>0) {
         sm <- gsub("\n"," ",ThisLevelText)

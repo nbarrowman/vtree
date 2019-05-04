@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 1.4.2"
+title: "Introduction to vtree 1.4.3"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -16,6 +16,7 @@ vignette: >
 ```{r, echo=FALSE}
 suppressMessages(library(ggplot2))
 library(vtree)
+options(width=90)
 ```
 
 ```{r, echo=FALSE}
@@ -921,10 +922,15 @@ filepath <- grVizToPNG(v13b,folder=PNGdir,width=1000)
 
 ## Pattern trees
 
-Each leaf node in a tree provides the frequency of a particular combination values
-of the variables.
-By specifying `pattern=TRUE`, an alternative display is produced:
- 
+Each leaf node in a tree provides the frequency of a particular pattern (combination)
+of values of the variables.
+For example, in a variable tree for `Severity` and `Sex`,
+the leaf nodes correspond to Mild F, Mild M, Moderate F, Moderate M, etc.
+If these patterns themselves are used as the first variable in a tree,
+then the tree will be "detangled";
+that is, each branch of the tree will represent a unique pattern.
+A "pattern tree" can be easily produced by specifying `pattern=TRUE`:
+
 ```{r, eval=FALSE}
 vtree(FakeData,"Severity Sex")
 vtree(FakeData,"Severity Sex",pattern=TRUE)
@@ -937,14 +943,16 @@ filepath2 <- grVizToPNG(v15,folder=PNGdir,width=1000)
 ```
 ![](`r filepath`){ height=4in } &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ![](`r filepath2`){ height=4in }
 
+Pattern trees are easier to read,
+but they involve a considerable a loss of information,
+since they only represent the *n*th-level subsets
+(where *n* is the number of variables)..
+
 Note that, by default, the root node is not shown when `pattern=TRUE` is specified,
 because this simplifies the display
 (in fact, without the root node, it is no longer a tree!).
 A disadvantage of this is that the total sample size is not shown.
 The root node can be shown by specifying `showroot=TRUE`.
-
-Also note that when `pattern=TRUE`, percentages are also not shown by default.
-Specifying `showpct=TRUE` displays percentages.
 
 This tree has two other special characteristics.
 First, note that after the first level (representing `pattern`),
@@ -959,16 +967,16 @@ To show arrows, specify `seq=TRUE` instead of `pattern=TRUE`,
 and a "sequence" (i.e. an ordered pattern) will be shown.
 
 
-### The pattern table
+### Pattern tables
 
 When `pattern=TRUE` is specified, the variable tree looks a lot like a table.
 In fact the corresponding table can be exported by specifying `ptable=TRUE`:
 
 ```{r}
-vtree(FakeData,"Severity Sex",pattern=TRUE,ptable=TRUE)
+vtree(FakeData,"Severity Sex",ptable=TRUE)
 ```
 
-This compact representation may be more convenient for display in a manuscript.
+This compact representation may be convenient for display in a manuscript.
 
 
 
@@ -998,17 +1006,15 @@ filepath <- grVizToPNG(v21,folder=PNGdir,width=1000)
 Note that for simplicity, node labels are not shown.
 Instead, dark colors indicate set membership,
 while light colors indicate non-membership.
-
-Note that percentages are also not shown by default.
+Also, percentages are not shown by default.
 Specifying `showpct=TRUE` displays percentages.
 
-It should be noted that,
-in contrast to a Venn diagram, which shows all intersections,
+In contrast to a Venn diagram, which shows all intersections,
 a variable tree only shows information on specific intersections,
 determined by the ordering of the variables.
  
 Specifying `pattern=TRUE` produces an even simpler representation,
-since only the full *n*-way intersections (when there are *n* variables)
+since only the full *n*-way intersections (where *n* is the number of variables)
 are represented:
 
 
@@ -1060,10 +1066,12 @@ vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,ptable=TRUE)
 ```
 
 It is particulary useful to combine `ptable=TRUE` with a `summary`.
-For example, we might wish to examine the ids in each of the combinations:
+For example, we might wish to examine the ids in each of the combinations
+(here the results are truncated to 15 characters):
 
 ```{r}
-vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,summary="id %list%%trunc=10%",ptable=TRUE)
+vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,summary="id %list%%trunc=15%",
+  ptable=TRUE)
 ```
 
 
@@ -1151,6 +1159,7 @@ v28 <- vtree(FakeRCT,"eligible randomized group followup analyzed",plain=TRUE,wi
 filepath <- grVizToPNG(v28,folder=PNGdir,width=1000)
 ```
 ![](`r filepath`){ height=7in }
+
 
 
 ## REDCap checkboxes {#REDCapCheckboxes}
@@ -1388,6 +1397,7 @@ Let's examine the percentage with length > 20 by dose nested within delivery met
 ```{r, eval=FALSE}
 vtree(ToothGrowth,"supp dose",summary="len>20 \n%pct% length > 20")
 ```
+
 
 
 # Saving to PNG files
