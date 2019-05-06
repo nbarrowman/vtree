@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 1.4.3"
+title: "Introduction to vtree 1.4.4"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -966,17 +966,30 @@ That being said, in some cases there is a natural ordering to the variables
 To show arrows, specify `seq=TRUE` instead of `pattern=TRUE`,
 and a "sequence" (i.e. an ordered pattern) will be shown.
 
+Summaries can be shown in pattern trees
+(using the `summary` parameter), but they only appear in the pattern node
+(or the sequence node if `seq=TRUE`).
+
 
 ### Pattern tables
 
 When `pattern=TRUE` is specified, the variable tree looks a lot like a table.
-In fact the corresponding table can be exported by specifying `ptable=TRUE`:
+In fact a data frame containing the information from the pattern tree 
+can be exported by specifying `ptable=TRUE`:
 
 ```{r}
 vtree(FakeData,"Severity Sex",ptable=TRUE)
 ```
 
 This compact representation may be convenient for display in a manuscript.
+
+Summaries can be very useful in pattern tables.
+If a single summary is requested, it appears in the `summary_1` variable in the data frame.
+If additional summaries are requested they appear as `summary_2`, `summary_3`, etc.
+
+```{r}
+vtree(FakeData,"Severity Sex",summary=c("Score %mean%","Pre %mean%"),ptable=TRUE)
+```
 
 
 
@@ -1059,15 +1072,13 @@ filepath <- grVizToPNG(v24,folder=PNGdir,width=1000)
 ```
 ![](`r filepath`){ height=5in }
 
-Specifying `ptable=TRUE` produces this information in table format:
+Specifying `ptable=TRUE` produces this information in a data frame:
 
 ```{r}
 vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,ptable=TRUE)
 ```
 
-It is particulary useful to combine `ptable=TRUE` with a `summary`.
-For example, we might wish to examine the ids in each of the combinations
-(here the results are truncated to 15 characters):
+It may be useful to identify the ids for these patterns. Here the results are truncated to 15 characters:
 
 ```{r}
 vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,summary="id %list%%trunc=15%",

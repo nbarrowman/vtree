@@ -14,12 +14,22 @@ library(vtree)
 # Basics
 
 ```{r}
-(v1 <- vtree(FakeData,"Severity Sex",sameline=TRUE))
+(v1 <- vtree(FakeData,"Severity Sex"))
 ```
 
 ```{r}
 grVizToPNG(v1,width=3000,folder="png")
 ```
+
+
+```{r}
+(v1a <- vtree(FakeData,"Severity Sex",squeeze=0.8))
+```
+
+```{r}
+grVizToPNG(v1a,width=3000,folder="png")
+```
+
 
 ```{r}
 (v2 <- vtree(FakeData,"Group",horiz=FALSE))
@@ -108,12 +118,12 @@ Parameter     | Example
 
 Code                  | Effect
 ----------------------|--------------------------
-`\n`                 | Line break
-`*...*`          | Italics
-`**...**`        | Bold
-`^...^`          | Superscript
-`~...~`          | Subscript
-`%%red` ...`%%`    | Make text red (or whatever color)
+`\n`                  | Line break
+`*...*`               | Italics
+`**...**`             | Bold
+`^...^`               | Superscript
+`~...~`               | Subscript
+`%%red` ...`%%`       | Make text red (or whatever color)
 
 ```{r}
 (v8 <- vtree(FakeData,"Group Severity",sameline=TRUE,

@@ -819,6 +819,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
       }
       PATTERN_values <- data.frame(matrix("",nrow=length(PATTERN_levels),ncol=length(vars)),
         stringsAsFactors=FALSE)
+      
       names(PATTERN_values) <- vars
       for (i in 1:length(PATTERN_levels)) {
         for (j in 1:length(vars)) {
@@ -1223,8 +1224,11 @@ vtree <- function (z, vars, splitspaces=TRUE,
     qqq[is.na(qqq)] <- "NA"
     categoryCounts <- table(qqq, exclude = NULL)
     CAT <- names(categoryCounts)
+    summarytext <- vector("list",length=length(CAT))
+    names(summarytext) <- CAT
     for (value in CAT) {
-      nodetext <- nodefunc(z[qqq == value, ], vars[1], value, args = nodeargs)
+      summarytext[[value]] <- nodefunc(z[qqq == value, ], vars[1], value, args = nodeargs)
+      nodetext <- paste0(summarytext[[value]],collapse="")
       nodetext <- splitlines(nodetext, width = splitwidth, sp = sepN, at=" ")
       ThisLevelText <- c(ThisLevelText, nodetext)
     }
@@ -1232,16 +1236,20 @@ vtree <- function (z, vars, splitspaces=TRUE,
       topnodeargs <- nodeargs
       topnodeargs$root <- TRUE
       topnodeargs$leaf <- FALSE
-      nodetext <- nodefunc(z, "", value = NA, args = topnodeargs)
+      overallsummary <- nodefunc(z, "", value = NA, args = topnodeargs)
+      nodetext <- paste0(overallsummary,collapse="")
       nodetext <- splitlines(nodetext, width = splitwidth,sp = sepN, at=" ")
       TopText <- nodetext
     }
     names(ThisLevelText) <- CAT
-  }
-  else {
+  } else {
     ThisLevelText <- text[[vars[1]]]
+    summarytext <- NULL
   }
-
+  
+  if (pattern & vars[1]!="pattern") ThisLevelText <- ""
+  if (seq  & vars[1]!="sequence") ThisLevelText <- ""
+  
   fc <- flowcat(z[[vars[1]]], root = root, title = title, parent = parent,
     var=vars[[1]],
     last = last, labels = labelnode[[vars[1]]], tlabelnode=tlabelnode, labelvar = labelvar[vars[1]],
@@ -1264,10 +1272,18 @@ vtree <- function (z, vars, splitspaces=TRUE,
   if (root & ptable) {
     if (vars[1]=="pattern" | vars[1]=="sequence") {
       patternTable <- data.frame(npct=fc$npctString,PATTERN_values)
-      if (length(ThisLevelText)>0) {
-        sm <- gsub("\n"," ",ThisLevelText)
-        sm <- gsub("<BR/>"," ",sm)
-        patternTable$summary <- sm[fc$value]
+      if (length(summarytext)>0) {
+        numsum <- max(sapply(summarytext,length))
+        for (j in 1:numsum) {
+          patternTable[[paste0("summary_",j)]] <- ""
+        }
+        for (i in 1:length(summarytext)) {
+          sm <- gsub("\n"," ",summarytext[[PATTERN_levels[i]]])
+          sm <- gsub("<BR/>"," ",sm)
+          for (j in 1:length(sm)) {
+            patternTable[[paste0("summary_",j)]][i] <- sm[j]
+          }
+        }
       }
     } 
   }  
@@ -1347,6 +1363,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
           keep=keep,
           follow=follow,
           pruneNA=pruneNA,
+          pattern=pattern,seq=seq,
           text = text, ttext=TTEXT,gradient=gradient,
           colornodes = colornodes, color = color[-1], fillnodes = fillnodes,
           fillcolor = fillcolor, splitwidth = splitwidth,
@@ -2105,8 +2122,9 @@ summaryNodeFunction <- function (u, varname, value, args) {
     args$leaf <- FALSE
   }
 
-  RESULT <- ""
-  for (i in 1:length(args$var)) {
+  nargs <- length(args$var)
+  RESULT <- rep("",nargs)
+  for (i in 1:nargs) {
   
     var <- args$var[i]
 
@@ -2162,7 +2180,6 @@ summaryNodeFunction <- function (u, varname, value, args) {
           }            
         }
       }
-      
       
       y_event <- NULL
       if (length(grep("%pct=([^%]+)%",result))>0) {
@@ -2249,11 +2266,14 @@ summaryNodeFunction <- function (u, varname, value, args) {
       } else {
         result <- ""
       }
-      RESULT <- paste0(RESULT,result)
       if (TruncNodeText) {
-        if (nchar(RESULT)>truncval) {
-          RESULT <- paste0(substr(RESULT,1,truncval),"...")
+        if (nchar(result)>truncval) {
+          RESULT[i] <- paste0(substr(result,1,truncval),"...")
+        } else {
+          RESULT[i] <- result
         }
+      } else {
+        RESULT[i] <- result
       }
     }
   }
