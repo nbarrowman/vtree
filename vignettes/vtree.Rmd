@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 1.4.4"
+title: "Introduction to vtree 1.4.5"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -1077,6 +1077,8 @@ Specifying `ptable=TRUE` produces this information in a data frame:
 ```{r}
 vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,ptable=TRUE)
 ```
+
+Note that the columns `n` and `pct` represent the frequency and percentage of the total number of cases.
 
 It may be useful to identify the ids for these patterns. Here the results are truncated to 15 characters:
 

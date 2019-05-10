@@ -454,7 +454,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
           if (is.null(z[[navar]]))
             stop(paste("Unknown variable:",navar))
           m <- is.na(z[[navar]])
-          z[[navar]] <- factor(m, levels = c(FALSE, TRUE),c("available","N/A"))
+          z[[navar]] <- factor(m, levels = c(FALSE, TRUE),c("not N/A","N/A"))
           # Note that available comes before N/A in alphabetical sorting.
           # Similarly FALSE comes before TRUE.
           # And 0 (representing FALSE) comes before 1 (representing TRUE) numerically.
@@ -786,7 +786,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
       for (v in vars) {
         newvar <- paste0("MISSING_", v)
         m <- is.na(z[[v]])
-        z[[newvar]] <- factor(m, levels = c(FALSE, TRUE),c("available","not"))
+        z[[newvar]] <- factor(m, levels = c(FALSE, TRUE),c("not N/A","N/A"))
         # Note that available comes before N/A in alphabetical sorting.
         # Similarly FALSE comes before TRUE.
         # And 0 (representing FALSE) comes before 1 (representing TRUE) numerically.
@@ -1271,7 +1271,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
   
   if (root & ptable) {
     if (vars[1]=="pattern" | vars[1]=="sequence") {
-      patternTable <- data.frame(npct=fc$npctString,PATTERN_values)
+      patternTable <- data.frame(n=fc$n,pct=fc$pct,PATTERN_values)
       if (length(summarytext)>0) {
         numsum <- max(sapply(summarytext,length))
         for (j in 1:numsum) {
@@ -1635,17 +1635,21 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
     cc <- cc[names(cc)!="NA"]
     if (length(cc)>0) {
       npctString <- rep("",length(cc))
+      nString <- cc
       if (showcount) {
         npctString <- cc
         if (showpct) npctString <- paste0(npctString," ")
       }
+      pctString <- around(100*cc/sum(cc),digits)
       if (showpct) {
-        npctString <- paste0(npctString,"(",
-          around(100*cc/sum(cc),digits),"%)")
+        npctString <- paste0(npctString,"(",pctString,"%)")
       }
     } else {
       npctString <- NULL
+      nString <- NULL
+      pctString <- NULL
     }
+    nString <- c(nString,categoryCounts["NA"])
     if (showcount) {
       npctString <- c(npctString,categoryCounts["NA"])
     } else {
@@ -1653,17 +1657,20 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
     }
   } else {
     npctString <- rep("",length(categoryCounts[-1]))
+    nString <- categoryCounts[-1]
     if (showcount) {
       npctString <- categoryCounts[-1]
       if (showpct) npctString <- paste0(npctString," ")
     }
+    pctString <- around(100*categoryCounts[-1]/length(z),digits)
     if (showpct) {
-      npctString <- paste0(npctString,"(",
-        around(100*categoryCounts[-1]/length(z),digits),"%)")
+      npctString <- paste0(npctString,"(",pctString,"%)")
     }
   }
 
   npctString <- c(length(z),npctString)
+  nString <- c(length(z),nString)
+  pctString <- c("",pctString)
   #names(npctString)[1] <- title
 
   if (!showempty) {
@@ -1850,6 +1857,8 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
 
   return(list(
     value=CAT[-1],
+    n=as.numeric(nString[-1]),
+    pct=as.numeric(pctString[-1]),
     npctString=npctString[-1],
     extraText=extraText[-1],
     levels=names(categoryCounts)[-1],
