@@ -1,4 +1,4 @@
-# vtree 2.0.0
+# vtree 1.4.6
 
 ## New features
 
@@ -10,9 +10,11 @@
 
 * `varlabelloc` parameter
 
-* Sorting least frequent to most frequent when `seq=TRUE`
-
 * `pattern` parameter
+
+* Sorting least frequent to most frequent when `seq=TRUE` or `pattern=TRUE`
+
+* `ptable` parameter to generate pattern tables
 
 * Variable specification modifiers: `stem:`, `is.na:`,
 `variable=value`, `variable<value`, `variable>value`, `tri:`
