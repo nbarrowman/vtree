@@ -1,3 +1,44 @@
+# vtree 1.4.6
+
+## New features
+
+* `runsummary` parameter to control which nodes show summaries depending on node contents.
+
+* `retain` parameter 
+
+* `varminwidth`, `varminheight` parameters
+
+* `varlabelloc` parameter
+
+* `pattern` parameter
+
+* Sorting least frequent to most frequent when `seq=TRUE` or `pattern=TRUE`
+
+* `ptable` parameter to generate pattern tables
+
+* Variable specification modifiers: `stem:`, `is.na:`,
+`variable=value`, `variable<value`, `variable>value`, `tri:`
+
+* `%pct%` produces only percentage (not frequency).
+
+* `%listlines%` separates items with a new line (unlike %list% which uses commas).
+
+* Summary variable specification modifiers:
+`variable=value`, `variable<value`, `variable>value`
+
+* Modified `check.is.na` so that it uses `pattern=TRUE` by default.
+
+* `tlabelnode` parameter: targeted node labels
+
+* `ttext` parameter: targeted text
+
+* `%node=n%` and `%var=v%` summary codes fixed. (The former `%node%` code is now `%var%`.) 
+
+* `summary` parameter now does not start on a new line unless specified using `\n`.
+
+* `crosstabToCases` function to convert crosstabulated data to a data frame of cases
+
+
 # vtree 1.0.0 
 
 This is a major release that incorporates several new features.

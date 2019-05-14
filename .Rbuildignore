@@ -1,4 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+source.R
 Thumbs.db
 cheatsheets
+README.md

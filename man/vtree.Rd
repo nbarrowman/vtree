@@ -4,27 +4,28 @@
 \alias{vtree}
 \title{vtree: Draw a variable tree}
 \usage{
-vtree(z, vars, prune = list(), prunebelow = list(), keep = list(),
-  follow = list(), prunelone = NULL, pruneNA = FALSE,
-  labelnode = list(), tlabelnode = NULL, labelvar = NULL,
-  varminwidth = NULL, varminheight = NULL, varlabelloc = NULL,
-  fillcolor = NULL, fillnodes = TRUE, NAfillcolor = "white",
-  rootfillcolor = "#EFF3FF", palette = NULL, gradient = TRUE,
-  revgradient = FALSE, singlecolor = 2, colorvarlabels = TRUE,
-  title = "", sameline = FALSE, Venn = FALSE, check.is.na = FALSE,
-  seq = FALSE, text = list(), ttext = list(), plain = FALSE,
-  squeeze = 1, shownodelabels = TRUE, showvarnames = TRUE,
-  showlevels = TRUE, showpct = TRUE, showlpct = TRUE,
-  showcount = TRUE, showlegend = FALSE, varnamepointsize = 20,
-  HTMLtext = FALSE, digits = 0, splitwidth = 20, lsplitwidth = 15,
+vtree(z, vars, splitspaces = TRUE, prune = list(),
+  prunebelow = list(), keep = list(), follow = list(),
+  prunelone = NULL, pruneNA = FALSE, labelnode = list(),
+  tlabelnode = NULL, labelvar = NULL, varminwidth = NULL,
+  varminheight = NULL, varlabelloc = NULL, fillcolor = NULL,
+  fillnodes = TRUE, NAfillcolor = "white", rootfillcolor = "#EFF3FF",
+  palette = NULL, gradient = TRUE, revgradient = FALSE,
+  singlecolor = 2, colorvarlabels = TRUE, title = "",
+  sameline = FALSE, Venn = FALSE, check.is.na = FALSE, seq = FALSE,
+  pattern = FALSE, ptable = FALSE, showroot = TRUE, text = list(),
+  ttext = list(), plain = FALSE, squeeze = 1,
+  shownodelabels = TRUE, showvarnames = TRUE, showlevels = TRUE,
+  showpct = TRUE, showlpct = TRUE, showcount = TRUE,
+  showlegend = FALSE, varnamepointsize = 18, HTMLtext = FALSE,
+  digits = 0, cdigits = 1, splitwidth = 20, lsplitwidth = 15,
   getscript = FALSE, nodesep = 0.5, ranksep = 0.5, margin = 0.2,
   vp = TRUE, horiz = TRUE, summary = "", runsummary = NULL,
-  retain = NULL, splitspaces = TRUE, width = NULL, height = NULL,
-  graphattr = "", nodeattr = "", edgeattr = "", color = c("blue",
-  "forestgreen", "red", "orange", "pink"), colornodes = FALSE,
-  showempty = FALSE, rounded = TRUE, nodefunc = NULL,
-  nodeargs = NULL, parent = 1, last = 1, root = TRUE,
-  showroot = TRUE)
+  retain = NULL, width = NULL, height = NULL, graphattr = "",
+  nodeattr = "", edgeattr = "", color = c("blue", "forestgreen",
+  "red", "orange", "pink"), colornodes = FALSE, showempty = FALSE,
+  rounded = TRUE, nodefunc = NULL, nodeargs = NULL,
+  choicechecklist = TRUE, parent = 1, last = 1, root = TRUE)
 }
 \arguments{
 \item{z}{Required: Data frame, or a single vector.}
@@ -33,22 +34,28 @@ vtree(z, vars, prune = list(), prunebelow = list(), keep = list(),
 Either a character string of whitespace-separated variable names
 or a vector of variable names.}
 
-\item{prune}{List of vectors that identifies nodes to prune.
+\item{splitspaces}{When \code{vars} is a character string,
+split it by spaces to get variable names?
+It is only rarely necessary to use this parameter.
+This should only be \code{FALSE} when a single variable name
+that contains spaces is specified.}
+
+\item{prune}{List of vectors that specifies nodes to prune.
 The name of each element of the
 list must be one of the variable names in \code{vars}.
 Each element is a vector of character strings that
 identifies the values of the variable (i.e. the nodes) to prune.}
 
-\item{prunebelow}{Like \code{prune} but the nodes themselves are not pruned,
-just their descendants.}
+\item{prunebelow}{Like \code{prune} but instead of pruning the specified nodes,
+their descendants are pruned.}
 
-\item{keep}{Like \code{prune} but specifies which nodes should be kept (i.e. not pruned).}
+\item{keep}{Like \code{prune} but specifies which nodes to \emph{keep}.
+The other nodes will be pruned.}
 
-\item{follow}{Like \code{prune} but specifies which nodes should be "followed".
-For the variables named,
-only the descendants of nodes that are followed will be shown.}
+\item{follow}{Like \code{keep} but specifies which nodes to "follow",
+i.e. which nodes' \emph{descendants} to keep.}
 
-\item{prunelone}{A vector of values specifying \emph{lone nodes} (of any variable) to prune.
+\item{prunelone}{A vector of values specifying "lone nodes" (of \emph{any} variable) to prune.
 A lone node is a node that has no siblings.}
 
 \item{pruneNA}{Prune all missing values?
@@ -69,63 +76,79 @@ except for an element named \code{label}, which specifies the label to use.}
 
 \item{labelvar}{A named vector of labels for variables.}
 
-\item{varminwidth}{A named vector of minimum initial widths for nodes of each variable. (Sets the Graphviz \code{width} attribute.)}
+\item{varminwidth}{A named vector of minimum initial widths for nodes of each variable.
+(Sets the Graphviz \code{width} attribute.)}
 
-\item{varminheight}{A named vector of minimum initial heights for nodes of each variable. (Sets the Graphviz \code{height} attribute.)}
+\item{varminheight}{A named vector of minimum initial heights for nodes of each variable.
+(Sets the Graphviz \code{height} attribute.)}
 
-\item{varlabelloc}{A named vector of vertical label locations ("t", "c", or "b" for top, center, or bottom, respectively)
-for nodes of each variable. (Sets the Graphviz \code{labelloc} attribute.)}
+\item{varlabelloc}{A named vector of vertical label locations
+("t", "c", or "b" for top, center, or bottom, respectively)
+for nodes of each variable.
+(Sets the Graphviz \code{labelloc} attribute.)}
 
 \item{fillcolor}{A named vector of colors for filling the nodes of each variable.
 If an unnamed, scalar color is specified,
 all nodes will have this color.}
 
-\item{fillnodes}{Should the nodes be filled with color?}
+\item{fillnodes}{Fill the nodes with color?}
 
-\item{NAfillcolor}{Fill color for missing value nodes.
-If NULL, fill colors of missing value nodes will be consistent
+\item{NAfillcolor}{Fill-color for missing-value nodes.
+If \code{NULL}, fill colors of missing value nodes will be consistent
 with the fill colors in the rest of the tree.}
 
-\item{rootfillcolor}{Fill color for the root node.}
+\item{rootfillcolor}{Fill-color for the root node.}
 
 \item{palette}{A vector of palette numbers (which can range between 1 and 9).
 The names of the vector indicate the corresponding variable.
 See \strong{Palettes} below for more information.}
 
-\item{gradient}{Should gradients of fill color be used across the values of each variable?
+\item{gradient}{Use gradients of fill color across the values of each variable?
 A single value (with no names) specifies the setting for all variables.
-A logical vector of TRUE values for named variables is interpreted as
-TRUE for those variables and FALSE for all others.
-A logical vector of FALSE values for named variables is interpreted as
-FALSE for those variables and TRUE for all others.}
+A logical vector of \code{TRUE} values for named variables is interpreted as
+\code{TRUE} for those variables and \code{FALSE} for all others.
+A logical vector of \code{FALSE} values for named variables is interpreted as
+\code{FALSE} for those variables and \code{TRUE} for all others.}
 
 \item{revgradient}{Should the gradient be reversed (i.e. dark to light instead of light to dark)?
 A single value (with no names) specifies the setting for all variables.
-A logical vector of TRUE values for named variables is interpreted as
-A logical vector of FALSE values for named variables is interpreted as
-FALSE for those variables and TRUE for all others.}
+A logical vector of \code{TRUE} values for named variables is interpreted as
+A logical vector of \code{FALSE} values for named variables is interpreted as
+\code{FALSE} for those variables and \code{TRUE} for all others.}
 
 \item{singlecolor}{When a variable has a single value,
-should its nodes can be colored light (1) medium (2) or dark (3)?}
+this parameter is used to specify whether nodes should have a
+(1) light shade, (2) a medium shade, or (3) a dark shade.
+specify \code{singlecolor=1} to assign a light shade.}
 
-\item{colorvarlabels}{Should the variable labels be colored?}
+\item{colorvarlabels}{Color the variable labels?}
 
 \item{title}{Optional title for the root node of the tree.}
 
-\item{sameline}{Should node labels be on the same line as node percentages?}
+\item{sameline}{Display node labels on the same line as the count and percentage?}
 
 \item{Venn}{Display multi-way set membership information?
 This provides an alternative to a Venn diagram.
-This sets \code{showpct=FALSE}, \code{shownodelabels=FALSE}.
+This sets \code{showpct=FALSE} and \code{shownodelabels=FALSE}.
 Assumption: all of the specified variables are logicals or 0/1 numeric variables.}
 
 \item{check.is.na}{Replace each variable named in \code{vars} with a logical vector indicating
 whether or not each of its values is missing?}
 
 \item{seq}{Display the variable tree using "sequences"?
-Each unique sequence (i.e. pattern) of values will be shown separately.}
+Each unique sequence (i.e. pattern) of values will be shown separately.
+The sequences are sorted from least frequent to most frequent.}
 
-\item{text}{A list of vectors containing extra text to add to 
+\item{pattern}{Same as \code{seq}, but lines without arrows are drawn,
+and instead of a \code{sequence} variable, a \code{pattern} variable is shown.}
+
+\item{ptable}{Generate a pattern table instead of a variable tree? 
+Only applies when \code{pattern=TRUE}.}
+
+\item{showroot}{Show the root node?
+When \code{seq=TRUE}, it may be useful to set \code{showroot=FALSE}.}
+
+\item{text}{A list of vectors containing extra text to add to
 nodes corresponding to specified values of a specified variable.
 The name of each element of the list
 must be one of the variable names in \code{vars}.
@@ -139,18 +162,20 @@ as well as text to add to that node ("targeted" text).
 The names of each vector specify variable names,
 except for an element named \code{text}, which specifies the text to add.}
 
-\item{plain}{Use "plain" color settings?}
+\item{plain}{Use "plain" settings?
+These settings are as follows: for each variable all nodes are the same color,
+namely a shade of blue (with each successive variable using a darker shade);
+all variable labels are black; and the \code{squeeze} parameter is set to 0.6.}
 
-\item{squeeze}{How much should the tree be "squeezed"?
-A value between 0 and 1.
+\item{squeeze}{The degree (between 0 and 1) to which the tree will be "squeezed".
 This controls two Graphviz parameters: \code{margin} and \code{nodesep}.}
 
-\item{shownodelabels}{Should node labels be shown?
+\item{shownodelabels}{Show node labels?
 A single value (with no names) specifies the setting for all variables.
-A logical vector of TRUE values for named variables is interpreted as
-TRUE for those variables and FALSE for all others.
-A logical vector of FALSE values for named variables is interpreted as
-FALSE for those variables and TRUE for all others.}
+A logical vector of \code{TRUE} values for named variables is interpreted as
+\code{TRUE} for those variables and \code{FALSE} for all others.
+A logical vector of \code{FALSE} values for named variables is interpreted as
+\code{FALSE} for those variables and \code{TRUE} for all others.}
 
 \item{showvarnames}{Show the name of the variable next to each level of the tree?}
 
@@ -158,18 +183,17 @@ FALSE for those variables and TRUE for all others.}
 
 \item{showpct}{Show percentage in each node?
 A single value (with no names) specifies the setting for all variables.
-A logical vector of TRUE for named variables is interpreted as
-A logical vector of FALSE for named variables is interpreted as
-FALSE for those variables and TRUE for all others.}
+A logical vector of \code{TRUE} for named variables is interpreted as
+A logical vector of \code{FALSE} for named variables is interpreted as
+\code{FALSE} for those variables and TRUE for all others.}
 
-\item{showlpct}{Show the (marginal) percentages for values of
-each variable in the legend?}
+\item{showlpct}{Show percentages (for the marginal frequencies) in the legend?}
 
 \item{showcount}{Show count in each node?
 A single value (with no names) specifies the setting for all variables.
-A logical vector of TRUE for named variables is interpreted as
-A logical vector of FALSE for named variables is interpreted as
-FALSE for those variables and TRUE for all others.}
+A logical vector of \code{TRUE} for named variables is interpreted as
+A logical vector of \code{FALSE} for named variables is interpreted as
+\code{FALSE} for those variables and \code{TRUE} for all others.}
 
 \item{showlegend}{Show legend (including marginal frequencies) for each variable?}
 
@@ -179,11 +203,13 @@ FALSE for those variables and TRUE for all others.}
 
 \item{digits}{Number of decimal digits to show in percentages.}
 
+\item{cdigits}{Number of decimal digits to show in continuous values displayed via the summary parameter.}
+
 \item{splitwidth}{The minimum number of characters before an automatic
 linebreak is inserted.}
 
-\item{lsplitwidth}{The minimum number of characters before an automatic
-linebreak is inserted for legends.}
+\item{lsplitwidth}{In legends, the minimum number of characters before an automatic
+linebreak is inserted.}
 
 \item{getscript}{Instead of displaying the variable tree,
 return the DOT script as a character string?}
@@ -213,25 +239,21 @@ The rest of the character string is the text that will be displayed,
 along with special codes specifying the information to display
 (see \strong{Summary codes} below).
 A vector of character strings can also be specified,
-so that more than one variable may be summarized.}
+if more than one variable is to be summarized.}
 
 \item{runsummary}{A list of functions, with the same length as \code{summary}.
 Each function must take a data frame as its sole argument,
 and return a logical value.
-Each string in \code{summary} will only be run if the corresponding logical value is TRUE.
+Each string in \code{summary} will only be interpreted if
+the corresponding logical value is \code{TRUE}.
 the corresponding string in \code{summary} will be evaluated.}
 
 \item{retain}{Vector of names of additional variables in the data frame that need to be
 available to execute the functions in \code{runsummary}.}
 
-\item{splitspaces}{When \code{vars} is a character string, should by it 
-be split by spaces to get variable names?
-This should only be FALSE when a single variable name
-that contains spaces is specified.}
+\item{width}{Width (in pixels) to be passed to \code{DiagrammeR::grViz}.}
 
-\item{width}{width (in pixels) to be passed to \code{grViz}.}
-
-\item{height}{height (in pixels) to be passed to \code{grViz}.}
+\item{height}{Height (in pixels) to be passed to \code{DiagrammeR::grViz}.}
 
 \item{graphattr}{Character string: Additional attributes for the Graphviz graph.}
 
@@ -241,24 +263,25 @@ that contains spaces is specified.}
 
 \item{color}{A vector of color names for the \emph{outline} of the nodes at each level.}
 
-\item{colornodes}{Should the node outlines be colored?}
+\item{colornodes}{Color the node outlines?}
 
 \item{showempty}{Show nodes that do not contain any observations?}
 
-\item{rounded}{Should the nodes have rounded boxes?}
+\item{rounded}{Use rounded boxes for nodes?}
 
 \item{nodefunc}{A node function (see \strong{Node functions} below).}
 
 \item{nodeargs}{A list containing named arguments for the node function
 specified by \code{nodefunc}.}
 
+\item{choicechecklist}{When REDCap checklists are specified using the \code{stem:} syntax,
+automatically extract the names of choices and use them as variable names?}
+
 \item{parent}{Parent node number (Internal use only.)}
 
 \item{last}{Last node number (Internal use only.)}
 
 \item{root}{Is this the root node of the tree? (Internal use only.)}
-
-\item{showroot}{Should the root node be shown?}
 }
 \value{
 If \code{getscript=TRUE}, returns a character string of DOT script that describes the variable tree.
@@ -281,13 +304,14 @@ in which the subsetting is defined by the values of categorical variables.
  \item{\code{\%pX\%} }{Xth percentile, e.g. p50 means the 50th percentile}
  \item{\code{\%median\%} }{median, i.e. p50}
  \item{\code{\%IQR\%} }{interquartile range, i.e. p25, p75}
- \item{\code{\%npct\%} }{number and percentage of TRUE values}
+ \item{\code{\%npct\%} }{number and percentage of \code{TRUE} values}
  \item{\code{\%list\%} }{list of the individual values}
  \item{\code{\%mv\%} }{the number of missing values}
  \item{\code{\%v\%} }{the name of the variable}
  \item{\code{\%noroot\%} }{flag: Do not show summary in the root node.}
  \item{\code{\%leafonly\%} }{flag: Only show summary in leaf nodes.}
- \item{\code{\%var=}n\code{\%} }{flag: Only show summary in nodes of the specified variable.}
+ \item{\code{\%var=}V\code{\%} }{flag: Only show summary in nodes of variable V.}
+ \item{\code{\%node=}N\code{\%} }{flag: Only show summary in nodes with value N.}
  \item{\code{\%trunc=}n\code{\%} }{flag: Truncate the summary to the first n characters.}
 }
 }
@@ -355,7 +379,8 @@ vtree(FakeData,"Severity Sex",summary="id \\nid = \%list\% \%var=Severity\% \%tr
 
 # Adding text to specified nodes of a tree
 vtree(FakeData,"Severity Sex",ttext=list(
-  c(Severity="Severe",Sex="M",text="see if this works"),c(Severity="NA",text="Nothing")))
+  c(Severity="Severe",Sex="M",text="Males with Severe disease"),
+  c(Severity="NA",text="Unknown severity")))
 
 }
 \author{
