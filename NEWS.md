@@ -30,7 +30,7 @@
 
 * `tlabelnode` parameter: targeted node labels
 
-* `ttext` parameter: tageted text
+* `ttext` parameter: targeted text
 
 * `%node=n%` and `%var=v%` summary codes fixed. (The former `%node%` code is now `%var%`.) 
 

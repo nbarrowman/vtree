@@ -88,7 +88,7 @@ Note that this highlights one difference between variable trees
 and some other kinds of trees:
 at each level of a variable tree, regardless of the branch,
 the nodes represent values of the same variable.
-In constrast, consider *decision trees*, which can have
+In contrast, consider *decision trees*, which can have
 splits on different variables at the same level.
  
 Continuing with the variable tree above,
@@ -202,7 +202,7 @@ each node in the variable tree represents the subset of its parent defined by a 
 and is labeled with the number of observations in that subset and the corresponding percentage of the number of observations in its parent node.
 
 Note that a node always represents at least one observation.
-AJd unlike a contingency table,
+And unlike a contingency table,
 which can have empty cells,
 a variable tree has no empty nodes.
 
@@ -582,7 +582,7 @@ exactly which nodes should have the specified text.
 
 The `ttext` parameter requires that you specify the full path from the root of the tree to the node in question,
 along with the text in question.
-The `ttext` parameter is specified as a list so that multiple targetted text strings can be specified at once.
+The `ttext` parameter is specified as a list so that multiple targeted text strings can be specified at once.
 For example:
 
 ```{r,eval=FALSE}
@@ -1181,7 +1181,7 @@ In datasets exported from [REDCap](https://www.project-redcap.org/),
 checkboxes (i.e. the boxes where you select all that apply)
 are represented in a special way.
 For each item in a checklist, a separate variable is created.
-Suppose survey respondents were asked to select which flavours of ice cream (Chocolate, Vanilla, Strawberry) they like.
+Suppose survey respondents were asked to select which flavors of ice cream (Chocolate, Vanilla, Strawberry) they like.
 Within REDCap,
 the variable name for this list of checkboxes is `IceCream`,
 but when the dataset is exported,
@@ -1353,7 +1353,7 @@ applicants to graduate school at Berkeley for the six largest departments in 197
 classified by admission and sex.
 According to the data set Details,
 "This data set is frequently used for illustrating Simpson's paradox,
-see Bickel et al (1975).
+see Bickel et al. (1975).
 At issue is whether the data show evidence of sex bias in admission practices.
 There were 2691 male applicants, of whom 1198 (44.5%) were admitted,
 compared with 1835 female applicants of whom 557 (30.4%) were admitted."
