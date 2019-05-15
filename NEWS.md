@@ -1,12 +1,17 @@
-# vtree 1.4.6
+# vtree 2.0.0
 
 ## Changes
 
 * `check.is.na` now  uses `pattern=TRUE` by default.
 
-* Changed the meaning of the `%node=n%` summary code. (The former `%node%` code is now `%var%`.) 
-
-* `summary` text now does not start on a new line unless specified using `\n`.
+* Changed the meaning of the `%node%` summary code,
+which had previously (and confusingly!) been used to specify the *variable* 
+in whose nodes summary information should be shown.
+Now `%node=n%` specifies node `n` and `%var=v%` specifies variable `v`.
+  
+* Additional text produced by `text` or `ttext` or `summary`
+now starts on the *same line* as the number of observations and percentage.
+In order to put this text on a new line, it must begin with `\n`.
 
 * When `seq=TRUE` the first-level nodes are ordered from least frequent sequence to most frequent sequence.
 (The same applies for the new `pattern` parameter.)
