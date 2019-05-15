@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 1.4.6"
+title: "Introduction to vtree 1.4.7"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -76,7 +76,7 @@ Later we'll see how variable trees with more than two variables are particularly
 
 ```{r, echo=FALSE}
 v1 <- vtree(FakeData,"Severity Sex",showlegend=FALSE,horiz=FALSE,width=600,height=200)
-filepath <- grVizToPNG(v1,folder=PNGdir,width=1000)
+filepath <- grVizToPNG(v1,folder=PNGdir,width=800)
 ```
 ![](`r filepath`){ height=2.2in }
 
@@ -248,9 +248,9 @@ vtree(FakeData,"Severity Sex",horiz=FALSE,plain=TRUE)
 ```
 ```{r, echo=FALSE}
 v3 <- vtree(FakeData,"Severity Sex",horiz=FALSE,plain=TRUE,width=550,height=200)
-filepath <- grVizToPNG(v3,folder=PNGdir,width=1000)
+filepath <- grVizToPNG(v3,folder=PNGdir,width=800)
 ```
-![](`r filepath`){ height=1.8in }
+![](`r filepath`){ height=1.6in }
 
 At the top, the root node represents the entire data frame.
 Moving down, each subsequent level of the tree corresponds to a different variable (first `Severity`, then `Sex`).
@@ -299,9 +299,9 @@ vtree(FakeData,"Severity Sex",showlegend=TRUE,shownodelabels=FALSE)
 ```
 ```{r,echo=FALSE}
 v4 <- vtree(FakeData,"Severity Sex",showlegend=TRUE,shownodelabels=FALSE,width=550,height=450)
-filepath <- grVizToPNG(v4,folder=PNGdir,width=1000)
+filepath <- grVizToPNG(v4,folder=PNGdir,width=800)
 ```
-![](`r filepath`){ height=5in }
+![](`r filepath`){ height=4in }
 
 The legend shows how colors are assigned to the different values of each variable,
 and additionally provides marginal (that is, overall) counts and percentages for each variable.
@@ -380,7 +380,7 @@ vtree(FakeData,"Severity Sex",prune=list(Severity=c("Mild","Moderate")))
 ```{r,echo=FALSE}
 v6 <- vtree(FakeData,"Severity Sex",prune=list(Severity=c("Mild","Moderate")),
   width=500,height=300)
-filepath <- grVizToPNG(v6,folder=PNGdir,width=1000)
+filepath <- grVizToPNG(v6,folder=PNGdir,width=800)
 ```
 ![](`r filepath`){ height=2.5in }
 
@@ -412,7 +412,7 @@ vtree(FakeData,"Severity Sex",prunebelow=list(Severity=c("Mild","Moderate")))
 ```{r,echo=FALSE}
 v7 <- vtree(FakeData,"Severity Sex",prunebelow=list(Severity=c("Mild","Moderate")),
   width=500,height=300)
-filepath <- grVizToPNG(v7,folder=PNGdir,width=1000)
+filepath <- grVizToPNG(v7,folder=PNGdir,width=800)
 ```
 ![](`r filepath`){ height=3in }
 
@@ -446,7 +446,7 @@ vtree(FakeData,"Severity Sex",horiz=FALSE,labelvar=c(Severity="Initial severity"
 ```{r,echo=FALSE}
 v8 <- vtree(FakeData,"Severity Sex",horiz=FALSE,width=700,height=250,
   labelvar=c(Severity="Initial severity"))
-filepath <- grVizToPNG(v8,folder=PNGdir,width=1000)
+filepath <- grVizToPNG(v8,folder=PNGdir,width=800)
 ```
 ![](`r filepath`){ height=2.2in }
 
@@ -469,7 +469,7 @@ vtree(FakeData,"Group Sex",horiz=FALSE,labelnode=list(Sex=c(Male="M",Female="F")
 ```{r,echo=FALSE}
 v8a <- vtree(FakeData,"Group Sex",horiz=FALSE,labelnode=list(Sex=c(Male="M",Female="F")),
   width=700,height=250)
-filepath <- grVizToPNG(v8a,folder=PNGdir,width=1000)
+filepath <- grVizToPNG(v8a,folder=PNGdir,width=800)
 ```
 ![](`r filepath`){ height=2.2in }
 
@@ -771,9 +771,9 @@ vtree(FakeData,"Severity",summary="Viral \nViral %npct%",horiz=FALSE,
 ```{r,echo=FALSE}
 v12 <- vtree(FakeData,"Severity",summary="Viral \nViral %npct%",horiz=FALSE,
   showvarnames=FALSE,sameline=TRUE,width=650,height=200)
-filepath <- grVizToPNG(v12,folder=PNGdir,width=1000)
+filepath <- grVizToPNG(v12,folder=PNGdir,width=800)
 ```
-![](`r filepath`){ height=2in }
+![](`r filepath`){ height=1.5in }
 
 Note that in each node,
 "mv" indicates the number of missing values (if any).
@@ -825,9 +825,9 @@ vtree(FakeData,"Severity",summary="Category=single \n%pct% single",sameline=TRUE
 ```{r,echo=FALSE}
 v13x <- vtree(FakeData,"Severity",summary="Category=single \n%pct% single", 
   horiz=FALSE,sameline=TRUE,width=450,height=150)
-filepath <- grVizToPNG(v13x,folder=PNGdir,width=1000)
+filepath <- grVizToPNG(v13x,folder=PNGdir,width=800)
 ```
-![](`r filepath`){ height=1.6in }
+![](`r filepath`){ height=1.3in }
 
 Continuous variables such as `Score` can be dichotomized using
 notation such as `Score>10` or `Score<20`.
@@ -869,9 +869,9 @@ v13a <-
     "Viral \nviral: %npct%%leafonly%",
     "Feature1 , F1: %npct%%leafonly%",
     "Feature2 , F2: %npct%%leafonly%"))
-filepath <- grVizToPNG(v13a,folder=PNGdir,width=1000)
+filepath <- grVizToPNG(v13a,folder=PNGdir,width=800)
 ```
-![](`r filepath`){ height=4in }
+![](`r filepath`){ height=3in }
 
 But note that in two of the nodes there are no viral infections,
 so in these nodes there are no virus features to describe.
@@ -914,13 +914,13 @@ v13b <- vtree(FakeData,"Sex Category",sameline=TRUE,splitwidth=150,varminwidth=c
     function(x) TRUE,
     function(x) any(x$Viral,na.rm=TRUE),
     function(x) any(x$Viral,na.rm=TRUE)))
-filepath <- grVizToPNG(v13b,folder=PNGdir,width=1000)
+filepath <- grVizToPNG(v13b,folder=PNGdir,width=800)
 ```
-![](`r filepath`){ height=4in }
+![](`r filepath`){ height=3in }
 
 
 
-## Pattern trees
+## Pattern trees {#patterns}
 
 Each leaf node in a tree provides the frequency of a particular pattern (combination)
 of values of the variables.
@@ -937,9 +937,9 @@ vtree(FakeData,"Severity Sex",pattern=TRUE)
 ```
 ```{r, echo=FALSE}
 v14 <- vtree(FakeData,"Severity Sex",width=650,height=650)
-filepath <- grVizToPNG(v14,folder=PNGdir,width=1000)
+filepath <- grVizToPNG(v14,folder=PNGdir,width=800)
 v15 <- vtree(FakeData,"Severity Sex",pattern=TRUE,width=650,height=650)
-filepath2 <- grVizToPNG(v15,folder=PNGdir,width=1000)
+filepath2 <- grVizToPNG(v15,folder=PNGdir,width=800)
 ```
 ![](`r filepath`){ height=4in } &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ![](`r filepath2`){ height=4in }
 
@@ -1038,9 +1038,9 @@ vtree(FakeData,"Ind1 Ind2 Ind3 Ind4",Venn=TRUE,pattern=TRUE,
 ```{r,echo=FALSE}
 v23 <- vtree(FakeData,"Ind1 Ind2 Ind3 Ind4",Venn=TRUE,pattern=TRUE,
   palette=c(Ind1=1,Ind2=2,Ind3=3,Ind4=4))
-filepath <- grVizToPNG(v23,folder=PNGdir,width=1000)
+filepath <- grVizToPNG(v23,folder=PNGdir,width=800)
 ```
-![](`r filepath`){ height=7in }
+![](`r filepath`){ height=5.5in }
 
 Note that in the call to `vtree` above,
 the `palette` parameter is specified so that the color palettes match
@@ -1068,9 +1068,9 @@ vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE)
 ```{r,echo=FALSE}
 v24 <- vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,
   width=700,height=370)
-filepath <- grVizToPNG(v24,folder=PNGdir,width=1000)
+filepath <- grVizToPNG(v24,folder=PNGdir,width=800)
 ```
-![](`r filepath`){ height=5in }
+![](`r filepath`){ height=3.5in }
 
 Specifying `ptable=TRUE` produces this information in a data frame:
 
@@ -1111,9 +1111,9 @@ vtree(FakeRCT,"eligible randomized group followup analyzed",plain=TRUE,
 v26 <- vtree(FakeRCT,"eligible randomized group followup analyzed",plain=TRUE,width=230,height=500,
   keep=list(eligible="Eligible",randomized="Randomized",followup="Followed up"),
   horiz=FALSE,showvarnames=FALSE,title="Assessed for eligibility")
-filepath <- grVizToPNG(v26,folder=PNGdir,width=1000)
+filepath <- grVizToPNG(v26,folder=PNGdir,width=800)
 ```
-![](`r filepath`){ height=7in }
+![](`r filepath`){ height=6in }
 
 
 Note that this does not include all of the additional information for a full CONSORT diagram
@@ -1125,22 +1125,6 @@ It does, however, provide the main flow information.
 Additional information can be obtained by examining the nodes for patients in the pruned branches.
 The `follow` parameter allows that:
 
-```{r, eval=FALSE, echo=FALSE}
-IneligibleReasons <- paste0(
-  "Not meeting inclusion criteria (n=",sum(FakeRCT$eligible=="Ineligible")-sum(FakeRCT$declined),")\n",
-  "Declined to participate (n= ",sum(FakeRCT$declined),")\n")
-
-AllocatedA <- paste0(
-  "Did not receive allocated intervention (n=",
-  sum(!FakeRCT[FakeRCT$eligible=="Eligible" & FakeRCT$randomized=="Randomized" & FakeRCT$group=="A",]$received),")")
-
-LostB <- paste0(
-  "Lost to follow-up (n=",
-  sum(FakeRCT[FakeRCT$eligible=="Eligible" & FakeRCT$randomized=="Randomized" & FakeRCT$group=="B",]$lost),")")
-
-#   text=list(eligible=c("Ineligible"=IneligibleReasons),group=c("A"=AllocatedA),followup=c("Followed up"=LostB)),
-```
-
 ```{r,eval=FALSE}
 v7 <- vtree(FakeRCT,"eligible randomized group followup analyzed",plain=TRUE,
   follow=list(eligible="Eligible",randomized="Randomized",followup="Followed up"),
@@ -1150,9 +1134,9 @@ v7 <- vtree(FakeRCT,"eligible randomized group followup analyzed",plain=TRUE,
 v27 <- vtree(FakeRCT,"eligible randomized group followup analyzed",plain=TRUE,width=400,height=500,
   follow=list(eligible="Eligible",randomized="Randomized",followup="Followed up"),
   horiz=FALSE,showvarnames=FALSE,title="Assessed for eligibility")
-filepath <- grVizToPNG(v27,folder=PNGdir,width=1000)
+filepath <- grVizToPNG(v27,folder=PNGdir,width=800)
 ```
-![](`r filepath`){ height=7in }
+![](`r filepath`){ height=6in }
 
 Finally, it may be useful to see the identification numbers in each node.
 This can be done using the `summary` parameter with the `%list%` code.
@@ -1169,9 +1153,9 @@ v28 <- vtree(FakeRCT,"eligible randomized group followup analyzed",plain=TRUE,wi
   follow=list(eligible="Eligible",randomized="Randomized",followup="Followed up"),
   horiz=FALSE,showvarnames=FALSE,title="Assessed for eligibility",
   summary="id \nid: %list% %noroot%")
-filepath <- grVizToPNG(v28,folder=PNGdir,width=1000)
+filepath <- grVizToPNG(v28,folder=PNGdir,width=800)
 ```
-![](`r filepath`){ height=7in }
+![](`r filepath`){ height=6in }
 
 
 

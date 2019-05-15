@@ -15,6 +15,13 @@ Returns a data frame of cases.
 \description{
 Convert a crosstabulation into a data frame of cases.
 }
+\examples{
+# The Titanic data set is in the datasets package.
+# Convert it from a 4 x 2 x 2 x 2 crosstabulation 
+# to a 4-column data frame of 2201 individuals
+titanic <- crosstabToCases(Titanic)
+
+}
 \author{
-Nick Barrowman
+Nick Barrowman, based on the \code{countsToCases} function at \url{http://www.cookbook-r.com/Manipulating_data/Converting_between_data_frames_and_contingency_tables/#countstocases-function}
 }
