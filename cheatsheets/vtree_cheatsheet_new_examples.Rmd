@@ -11,6 +11,62 @@ knitr::opts_chunk$set(echo = TRUE)
 library(vtree)
 ```
 
+# Pruning revised
+
+```{r}
+(r1 <- vtree(FakeData,"Severity Sex",sameline=TRUE))
+```
+
+```{r}
+grVizToPNG(r1,width=3000,folder="png")
+```
+
+```{r}
+(r2 <- vtree(FakeData,"Severity Sex",sameline=TRUE,
+  prune=list(Severity=c("Mild","Moderate"))))
+```
+
+```{r}
+grVizToPNG(r2,width=3000,folder="png")
+```
+
+vtree(FakeData,"Group Category",sameline=TRUE)
+
+```{r}
+(r3 <- vtree(FakeData,"Category Group",sameline=TRUE))
+```
+
+```{r}
+grVizToPNG(r3,width=3000,folder="png")
+```
+
+```{r}
+(r4 <- vtree(FakeData,"Category Group",sameline=TRUE,
+  prunebelow=list(Category=c("single","double"))))
+```
+
+```{r}
+grVizToPNG(r4,width=3000,folder="png")
+```
+
+```{r}
+(r5 <- vtree(FakeData,"Category Group",sameline=TRUE,
+  keep=list(Category=c("single","double"))))
+```
+
+```{r}
+grVizToPNG(r5,width=3000,folder="png")
+```
+
+```{r}
+(r6 <- vtree(FakeData,"Category Group",sameline=TRUE,
+  follow=list(Category=c("single","double"))))
+```
+
+```{r}
+grVizToPNG(r6,width=3000,folder="png")
+```
+
 # Basics
 
 ```{r}
