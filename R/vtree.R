@@ -277,8 +277,8 @@
 #'
 #' # Adding text to specified nodes of a tree
 #' vtree(FakeData,"Severity Sex",ttext=list(
-#'   c(Severity="Severe",Sex="M",text="Males with Severe disease"),
-#'   c(Severity="NA",text="Unknown severity")))
+#'   c(Severity="Severe",Sex="M",text="\nMales with Severe disease"),
+#'   c(Severity="NA",text="\nUnknown severity")))
 #'
 #' @export
 
@@ -1519,7 +1519,6 @@ vtree <- function (z, vars, splitspaces=TRUE,
       nodelevels <- ''
     }
     if (ptable) {
-      #browser()
       pt <- patternTable[nrow(patternTable):1,]
       rownames(pt) <- NULL
       pt
@@ -2337,7 +2336,7 @@ grVizToPNG <- function (g, width=NULL, height=NULL, folder = ".") {
 
 #' @title crosstabToCases
 #'
-#' @author Nick Barrowman
+#' @author Nick Barrowman, based on the \code{countsToCases} function at \url{http://www.cookbook-r.com/Manipulating_data/Converting_between_data_frames_and_contingency_tables/#countstocases-function}
 #'
 #' @description
 #' Convert a crosstabulation into a data frame of cases.
@@ -2347,12 +2346,17 @@ grVizToPNG <- function (g, width=NULL, height=NULL, folder = ".") {
 #' @return
 #'   Returns a data frame of cases.
 #'
+#' @examples
+#' # The Titanic data set is in the datasets package.
+#' # Convert it from a 4 x 2 x 2 x 2 crosstabulation 
+#' # to a 4-column data frame of 2201 individuals
+#' titanic <- crosstabToCases(Titanic)
+#'
 #' @export
 #'
 
 crosstabToCases <- function(x) {
-  # Based on
-  # http://www.cookbook-r.com/Manipulating_data/Converting_between_data_frames_and_contingency_tables/#cases-to-contingency-table
+
   if (!is.table(x)) {
     if (is.matrix(x)) {
       x <- table(x)

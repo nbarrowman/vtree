@@ -379,8 +379,8 @@ vtree(FakeData,"Severity Sex",summary="id \\nid = \%list\% \%var=Severity\% \%tr
 
 # Adding text to specified nodes of a tree
 vtree(FakeData,"Severity Sex",ttext=list(
-  c(Severity="Severe",Sex="M",text="Males with Severe disease"),
-  c(Severity="NA",text="Unknown severity")))
+  c(Severity="Severe",Sex="M",text="\\nMales with Severe disease"),
+  c(Severity="NA",text="\\nUnknown severity")))
 
 }
 \author{
