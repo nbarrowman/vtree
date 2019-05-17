@@ -67,6 +67,15 @@ grVizToPNG(r5,width=3000,folder="png")
 grVizToPNG(r6,width=3000,folder="png")
 ```
 
+```{r}
+(r7 <- vtree(FakeData,"Category Group",sameline=TRUE,showlegend=TRUE))
+```
+
+```{r}
+grVizToPNG(r7,width=3000,folder="png")
+```
+
+
 # Basics
 
 ```{r}
