@@ -79,7 +79,7 @@ grVizToPNG(r7,width=3000,folder="png")
 # Basics
 
 ```{r}
-(v1 <- vtree(FakeData,"Severity Sex"))
+(v1 <- vtree(FakeData,"Severity Sex",NAfillcolor="#FFFDFD"))
 ```
 
 ```{r}
@@ -105,8 +105,12 @@ grVizToPNG(v2,width=3000,folder="png")
 ```
 
 ```{r}
-(v3 <- vtree(FakeData,"Severity Sex",
-  showlegend=TRUE,sameline=TRUE))
+(v3 <- vtree(FakeData,"Category Group",sameline=TRUE,
+  showlegend=TRUE))
+```
+
+```{r}
+grVizToPNG(v3,width=3000,folder="png")
 ```
 
 ## Variable specification modifiers
@@ -129,10 +133,6 @@ Parameter     | Effect
 `prunebelow`  | remove all descendants of the specified nodes
 `keep`        | retain only the specified nodes
 `follow`      | retain descendants of only the specified nodes
-
-```{r}
-grVizToPNG(v3,width=3000,folder="png")
-```
 
 ```{r}
 (v4 <- vtree(FakeData,"Severity Sex",
@@ -191,8 +191,8 @@ Code                  | Effect
 `%%red` ...`%%`       | Make text red (or whatever color)
 
 ```{r}
-(v8 <- vtree(FakeData,"Group Severity",sameline=TRUE,
-  text=list(Severity=c(Mild="\n*or none*"))))
+(v8 <- vtree(FakeData,"Group Category",sameline=TRUE,
+  text=list(Category=c(triple="\n*not verified*"))))
 ```
 
 ```{r}
