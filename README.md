@@ -24,7 +24,7 @@ install.packages("vtree")
 
 * A comprehensive introduction to vtree is available in the [vignette](https://cran.r-project.org/web/packages/vtree/vignettes/vtree.html)
 
-* A cheat sheet (pdf) is available: [page 1](https://github.com/nbarrowman/vtree/blob/master/cheatsheets/vtree_cheatsheet_v0.0.8.pdf) 
+* A cheat sheet (pdf) is available: [page 1](https://github.com/nbarrowman/vtree/blob/master/cheatsheets/vtree_cheatsheet_2.pdf) 
 
 * Examples: 
     * https://rpubs.com/nbarrowman/Data_exploration_with_vtree
