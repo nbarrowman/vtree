@@ -18,6 +18,18 @@ You can install the current version of vtree (version 2.0.0) from CRAN
 install.packages("vtree")
 ```
 
+Or the get the latest release candidate from github (also version 2.0.0)
+
+```
+remotes::install_github("nbarrowman/vtree@v2.0.0")
+```
+
+To get the vignette as well you need to use this longer command:
+
+```
+remotes::install_github("nbarrowman/vtree@v2.0.0",build_opts = c("--no-resave-data", "--no-manual"))
+```
+
 # More information
 
 * vtree is available on [CRAN](https://cran.r-project.org/package=vtree)
