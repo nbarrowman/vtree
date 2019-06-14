@@ -55,6 +55,7 @@
 #'                         identifies the values of the variable (i.e. the nodes) to prune.
 #' @param prunebelow       Like \code{prune} but instead of pruning the specified nodes,
 #'                         their descendants are pruned.
+#' @param prunesmaller     Prune any nodes with count less than specified number.
 #' @param keep             Like \code{prune} but specifies which nodes to \emph{keep}.
 #'                         The other nodes will be pruned.
 #' @param follow           Like \code{keep} but specifies which nodes to "follow",
@@ -283,7 +284,7 @@
 #' @export
 
 vtree <- function (z, vars, splitspaces=TRUE,
-  prune=list(), prunebelow = list(), keep=list(), follow=list(), prunelone=NULL,pruneNA=FALSE,
+  prune=list(), prunebelow = list(), keep=list(), follow=list(), prunelone=NULL,pruneNA=FALSE,prunesmaller=NULL,
   labelnode = list(),tlabelnode=NULL,labelvar = NULL,
   varminwidth=NULL,varminheight=NULL,varlabelloc=NULL,
   fillcolor = NULL, fillnodes = TRUE,
@@ -1261,6 +1262,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
     showcount=showcount[vars[1]],
     prunefull=prune[[vars[1]]],
     prunelone=prunelone,
+    prunesmaller=prunesmaller,
     HTMLtext = HTMLtext, showvarnames = showvarnames,
     keep=keep[[vars[1]]],
     pruneNA=pruneNA,
@@ -1355,7 +1357,8 @@ vtree <- function (z, vars, splitspaces=TRUE,
           showpct=showpct,
           showcount=showcount,
           sameline=sameline, showempty = showempty,
-          root = FALSE, prune=prune, prunebelow = prunebelow, labelvar = labelvar,
+          root = FALSE, prune=prune, prunebelow = prunebelow, prunesmaller=prunesmaller,
+          labelvar = labelvar,
           varminwidth = varminwidth, varminheight = varminheight, varlabelloc=varlabelloc,
           prunelone=prunelone,
           nodefunc = nodefunc, nodeargs = nodeargs, digits = digits,
@@ -1588,7 +1591,7 @@ labelvar=NULL,
 varminwidth=NULL,varminheight=NULL,varlabelloc=NULL,
 shownodelabels=TRUE,sameline=FALSE,
 prunefull=NULL,
-prunelone=NULL,
+prunelone=NULL,prunesmaller=NULL,
 keep=NULL,
 text=NULL,ttext=NULL,TopText="",showempty=FALSE,digits=0,cdigits=2,
 showpct=TRUE,
@@ -1618,7 +1621,12 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
 
   categoryCounts <- table(z,exclude=NULL)
   names(categoryCounts)[is.na(names(categoryCounts))] <- "NA"
-
+  
+  if (!is.null(prunesmaller)) {
+    selectcount <- categoryCounts>=prunesmaller  
+    categoryCounts <- categoryCounts[selectcount]
+  }
+  
   # Pre-pend the parent node
   categoryCounts <- c(length(z),categoryCounts)
   names(categoryCounts)[1] <- title
@@ -1629,7 +1637,7 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
   # If there are no missing values, don't include the NA category
   # if (sum(is.na(z))==0) npctString <- npct(z,pcs="%")
 
-  if (vp & any(is.na(z))) {
+    if (vp & any(names(categoryCounts)=="NA")) { 
     cc <- categoryCounts[-1]
     cc <- cc[names(cc)!="NA"]
     if (length(cc)>0) {
@@ -1666,12 +1674,12 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
       npctString <- paste0(npctString,"(",pctString,"%)")
     }
   }
-
+  
   npctString <- c(length(z),npctString)
   nString <- c(length(z),nString)
   pctString <- c("",pctString)
   #names(npctString)[1] <- title
-
+  
   if (!showempty) {
     s <- categoryCounts>0
     categoryCounts <- categoryCounts[s]
@@ -1727,7 +1735,6 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
   nodenames <- paste0("Node_",nodenum)
 
   CAT <- names(categoryCounts)
-
   FILLCOLOR <- fillcolor[match(CAT[-1],names(fillcolor))]
 
   extraText <- rep("",length(CAT))
