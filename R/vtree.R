@@ -491,7 +491,39 @@ vtree <- function (z, vars, splitspaces=TRUE,
       }
       vars <- expandedvars
     }
-
+    
+    # Process * tag in variable names to expand list of variables
+    findstar <- grep("\\*$",vars)
+    if (length(findstar)>0) {
+      expandedvars <- c()
+      for (i in 1:length(vars)) {
+        if (i %in% findstar) {
+          stem <- sub("([^ ]+)\\*$","\\1",vars[i])
+          expanded_stem <- names(z)[grep(paste0(stem,".*$"),names(z))]
+          expandedvars <- c(expandedvars,expanded_stem)
+        } else {
+          expandedvars <- c(expandedvars,vars[i])
+        }
+      }
+      vars <- expanded_stem
+    }    
+    
+    # Process # tag in variable names to expand list of variables ending in numeric digits
+    findstar <- grep("#$",vars)
+    if (length(findstar)>0) {
+      expandedvars <- c()
+      for (i in 1:length(vars)) {
+        if (i %in% findstar) {
+          stem <- sub("([^ ]+)\\#$","\\1",vars[i])
+          expanded_stem <- names(z)[grep(paste0(stem,"[0-9]+$"),names(z))]
+          expandedvars <- c(expandedvars,expanded_stem)
+        } else {
+          expandedvars <- c(expandedvars,vars[i])
+        }
+      }
+      vars <- expanded_stem
+    }        
+        
     if (!missing(showlevels)) showvarnames <- showlevels
 
     allvars <- vars
@@ -823,9 +855,9 @@ vtree <- function (z, vars, splitspaces=TRUE,
       
       names(PATTERN_values) <- vars
       for (i in 1:length(PATTERN_levels)) {
+        patternRow <- z[PATTERN==PATTERN_levels[i],]
         for (j in 1:length(vars)) {
-          pat <- PATTERN_levels[i]
-          PATTERN_values[[vars[j]]][i] <- as.character(z[PATTERN==pat,vars[j]][1])
+          PATTERN_values[[vars[j]]][i] <- as.character(patternRow[[vars[j]]][1])
         }
       }
       PATTERN <- factor(PATTERN,levels=PATTERN_levels)

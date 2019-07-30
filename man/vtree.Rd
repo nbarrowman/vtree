@@ -6,15 +6,15 @@
 \usage{
 vtree(z, vars, splitspaces = TRUE, prune = list(),
   prunebelow = list(), keep = list(), follow = list(),
-  prunelone = NULL, pruneNA = FALSE, labelnode = list(),
-  tlabelnode = NULL, labelvar = NULL, varminwidth = NULL,
-  varminheight = NULL, varlabelloc = NULL, fillcolor = NULL,
-  fillnodes = TRUE, NAfillcolor = "white", rootfillcolor = "#EFF3FF",
-  palette = NULL, gradient = TRUE, revgradient = FALSE,
-  singlecolor = 2, colorvarlabels = TRUE, title = "",
-  sameline = FALSE, Venn = FALSE, check.is.na = FALSE, seq = FALSE,
-  pattern = FALSE, ptable = FALSE, showroot = TRUE, text = list(),
-  ttext = list(), plain = FALSE, squeeze = 1,
+  prunelone = NULL, pruneNA = FALSE, prunesmaller = NULL,
+  labelnode = list(), tlabelnode = NULL, labelvar = NULL,
+  varminwidth = NULL, varminheight = NULL, varlabelloc = NULL,
+  fillcolor = NULL, fillnodes = TRUE, NAfillcolor = "white",
+  rootfillcolor = "#EFF3FF", palette = NULL, gradient = TRUE,
+  revgradient = FALSE, singlecolor = 2, colorvarlabels = TRUE,
+  title = "", sameline = FALSE, Venn = FALSE, check.is.na = FALSE,
+  seq = FALSE, pattern = FALSE, ptable = FALSE, showroot = TRUE,
+  text = list(), ttext = list(), plain = FALSE, squeeze = 1,
   shownodelabels = TRUE, showvarnames = TRUE, showlevels = TRUE,
   showpct = TRUE, showlpct = TRUE, showcount = TRUE,
   showlegend = FALSE, varnamepointsize = 18, HTMLtext = FALSE,
@@ -61,6 +61,8 @@ A lone node is a node that has no siblings.}
 \item{pruneNA}{Prune all missing values?
 This should be used carefully because "valid" percentages
 are hard to interpret when NAs are pruned.}
+
+\item{prunesmaller}{Prune any nodes with count less than specified number.}
 
 \item{labelnode}{List of vectors used to change how values of variables are displayed.
 The name of each element of the
