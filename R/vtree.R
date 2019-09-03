@@ -194,6 +194,17 @@
 #' @param parent           Parent node number (Internal use only.)
 #' @param last             Last node number (Internal use only.)
 #' @param root             Is this the root node of the tree? (Internal use only.)
+#' @param mincount         Minimum count to include in a pattern tree or pattern table.
+#' @param maxcount         Maximum count to include in a pattern tree or pattern table.
+#'                         (Overrides mincount.)
+#' @param pxwidth          Width in pixels of the PNG bitmap
+#' @param pxheight         Height in pixels of the PNG bitmap
+#' @param imagewidth       A character string specifying the width of the image
+#'                         to be rendered through R Markdown, e.g. \code{"3in"}
+#' @param imageheight      A character string specifying the height of the image
+#'                         to be rendered through R Markdown, e.g. \code{"3in"}
+#' @param folder           Optional path to a folder where the PNG file should stored
+#' @param pngknit          Generate a PNG file when called during knit
 #'
 #' @section Summary codes:
 #' \itemize{
@@ -248,6 +259,12 @@
 #'  \item{YlOrBr}
 #' }
 #'
+#' @section R Markdown:
+#' If \code{vtree} is called from a file that is being knitted by \code{knitr},
+#' it will convert the result to a PNG file, and generate pandoc markdown code
+#' to embed the PNG file. Successive PNG files will be named \code{vtree1.png}, \code{vtree2.png}, etc.
+#' (The variable \code{vtcount} is use to automatically keep track of this.)
+#' 
 #' @return
 #' If \code{getscript=TRUE}, returns a character string of DOT script that describes the variable tree.
 #' If \code{getscript=FALSE}, returns an object of class \code{htmlwidget}
@@ -255,6 +272,18 @@
 #' including the R console, within R Markdown documents, and within Shiny output bindings.
 #'
 #' @examples
+#' 
+#' #' # Call to vtree equivalent to calling vtree directly
+#' vtree(FakeData,"Sex Severity")
+#' 
+#' # Inline call to vtree
+#' `r vtree(FakeData,"Sex Severity")`
+#' 
+#' # Call to vtree in an R markdown code chunk
+#' ```{r, results="asis"}
+#' cat(vtree(z,"Sex Severity"))
+#' ```
+#'
 #' # A single-level hierarchy
 #' vtree(FakeData,"Severity")
 #'
@@ -314,9 +343,11 @@ vtree <- function (z, vars, splitspaces=TRUE,
   width=NULL,height=NULL,
   graphattr="",nodeattr="",edgeattr="",
   color = c("blue", "forestgreen", "red", "orange", "pink"), colornodes = FALSE,
+  mincount=1,maxcount,
   showempty = FALSE, rounded = TRUE,
   nodefunc = NULL, nodeargs = NULL, 
   choicechecklist = TRUE,
+  pxwidth,pxheight,imagewidth,imageheight,folder=".",pngknit=TRUE,
   parent = 1, last = 1, root = TRUE)
 {
 
@@ -842,6 +873,13 @@ vtree <- function (z, vars, splitspaces=TRUE,
         }
       }
       TAB <- table(PATTERN)
+      
+      if (!missing(maxcount)) {
+        TAB <- TAB[TAB<=maxcount]
+      } else {
+        TAB <- TAB[TAB>=mincount]
+      }
+      
       #TAB <- as.numeric(tab)
       #names(TAB) <- names(tab)
       if (showroot) {
@@ -850,9 +888,17 @@ vtree <- function (z, vars, splitspaces=TRUE,
         o <- order(as.numeric(TAB),tolower(names(TAB)),decreasing=TRUE)
         PATTERN_levels <- names(TAB)[o]
       }
+      
+      select <- PATTERN %in% PATTERN_levels
+      PATTERN <- PATTERN[select]
+      
+      z <- z[select,]
+      
+      #PATTERN[!(PATTERN) %in% PATTERN_levels] <- "Other"
+      #PATTERN_levels <- c(PATTERN_levels,"Other")
       PATTERN_values <- data.frame(matrix("",nrow=length(PATTERN_levels),ncol=length(vars)),
         stringsAsFactors=FALSE)
-      
+
       names(PATTERN_values) <- vars
       for (i in 1:length(PATTERN_levels)) {
         patternRow <- z[PATTERN==PATTERN_levels[i],]
@@ -1305,7 +1351,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
   
   if (root & ptable) {
     if (vars[1]=="pattern" | vars[1]=="sequence") {
-      patternTable <- data.frame(n=fc$n,pct=fc$pct,PATTERN_values)
+      patternTable <- data.frame(n=fc$n,pct=fc$pct,PATTERN_values,check.names=FALSE)
       if (length(summarytext)>0) {
         numsum <- max(sapply(summarytext,length))
         for (j in 1:numsum) {
@@ -1558,10 +1604,57 @@ vtree <- function (z, vars, splitspaces=TRUE,
       rownames(pt) <- NULL
       pt
     } else {    
-      showflow(fc, getscript = getscript, nodesep = nodesep,
+      flowchart <- showflow(fc, getscript = getscript, nodesep = nodesep,
         ranksep=ranksep, margin=margin, nodelevels = nodelevels, horiz = horiz,
         width=width,height=height,
         graphattr=graphattr,nodeattr=nodeattr,edgeattr=edgeattr)
+      
+      if (getscript || !pngknit) {
+        return(flowchart)
+      }
+      
+      if (!isTRUE(getOption('knitr.in.progress'))) {
+        print(flowchart)
+        return(invisible(NULL))
+      }  
+      
+      if (!exists("vtcount")) vtcount <<- 0
+      vtcount <<- vtcount+1
+      filename <- paste0("vtree",vtcount,".png")
+      
+      if (missing(pxheight)) {
+        if (missing(pxwidth)) {
+          grVizToPNG(flowchart,width=3000,filename=filename,folder=folder)
+        } else {
+          grVizToPNG(flowchart,width=pxwidth,filename=filename,folder=folder)
+        }
+      } else {
+        if (missing(pxwidth)) {
+          grVizToPNG(flowchart,height=pxheight,filename=filename,folder=folder)
+        } else {
+          grVizToPNG(flowchart,width=pxwidth,height=pxheight,filename=filename,folder=folder)
+        }
+      }  
+      
+      fullpath <- file.path(folder,filename)
+    
+      embedded <- paste0("![](",fullpath,")")
+    
+      if (missing(imageheight)) {
+        if (missing(imagewidth)) {
+          result <- paste0(embedded,"{ height=3in }")
+        } else {
+          result <- paste0(embedded,"{width=",imagewidth,"}")
+        }
+      } else {
+        if (missing(imagewidth)) {
+          result <- paste0(embedded,"{height=",imageheight,"}")
+        } else {
+          result <- paste0(embedded,"{width=",imagewidth," height=",imageheight,"}")
+        }
+      }
+      
+      result        
     }
   } else {
       fc
@@ -1611,6 +1704,7 @@ graphattr="",nodeattr="",edgeattr="") {
   script <- paste0(script,"\n}\n")
   if (getscript) { return(script) }
   flowchart <- DiagrammeR::grViz(script,width=width,height=height)
+  
   flowchart
 }
 
@@ -2339,10 +2433,13 @@ summaryNodeFunction <- function (u, varname, value, args) {
 #' @description
 #'  \code{grVizToPNG} Export a grViz object into a PNG file.
 #'
-#' @param g      an object produced by the grViz function from the DiagrammmeR package
-#' @param width  the width in pixels of the bitmap
-#' @param height the height in pixels of the bitmap
-#' @param folder path to folder where the PNG file should stored
+#' @param g        an object produced by the grViz function from the DiagrammmeR package
+#' @param width    the width in pixels of the bitmap
+#' @param height   the height in pixels of the bitmap
+#' @param folder   path to folder where the PNG file should stored
+#' @param filename an optional filename.
+#'                 If not provided, the filename will be derived from the name 
+#'                 of the argument of \code{g}.
 #'
 #' @details
 #'   First the grViz object is exported to an SVG file (using \code{DiagrammeRsvg::export_svg}).
@@ -2359,8 +2456,10 @@ summaryNodeFunction <- function (u, varname, value, args) {
 #' @export
 #'
 
-grVizToPNG <- function (g, width=NULL, height=NULL, folder = ".") {
-  filename <- paste0(sapply(as.list(substitute({g})[-1]), deparse),".png")
+grVizToPNG <- function (g, width=NULL, height=NULL, folder = ".",filename) {
+  if (missing(filename)) {
+    filename <- paste0(sapply(as.list(substitute({g})[-1]), deparse),".png")
+  }
   if (is.null(g)) {
     g <- DiagrammeR::grViz("digraph empty{ Node1[label='Empty'] }")
   }
@@ -2370,6 +2469,98 @@ grVizToPNG <- function (g, width=NULL, height=NULL, folder = ".") {
   message <- utils::capture.output(svg <- DiagrammeRsvg::export_svg(g))
   result <- rsvg::rsvg_png(charToRaw(svg),fullpath, width = width, height=height)
   invisible(fullpath)
+}
+
+
+#' @title vtmd - vtree markdown
+#'
+#' @author Nick Barrowman
+#'
+#' @description
+#'  \code{vtmd} Call vtree, convert the result to a PNG file, 
+#'  and embed in an R Markdown document.
+#'
+#' @param ...         arguments to be passed to \code{vtree}
+#' @param pxwidth     the width in pixels of the PNG bitmap
+#' @param pxheight    the height in pixels of the PNG bitmap
+#' @param imagewidth  a character string specifying the width of the image
+#'                    to be rendered through R Markdown, e.g. \code{"3in"}
+#' @param imageheight a character string specifying the height of the image
+#'                    to be rendered through R Markdown, e.g. \code{"3in"}
+#' @param folder      optional path to a folder where the PNG file should stored
+#'                 
+#' @details
+#' Successive PNG files will be named \code{vtree1.png}, \code{vtree2.png}, etc.
+#' (The variable \code{vtcount} is use to automatically keep track of this.)
+#' 
+#' When called interactively (i.e. while not knitting), the PNG file will
+#' not be generated, and instead the variable tree will be displayed.
+#' 
+#' @examples
+#' 
+#' # Call to vtmd equivalent to calling vtree directly
+#' vtmd(FakeData,"Sex Severity")
+#' 
+#' # Inline call to vtmd
+#' `r vtmd(FakeData,"Sex Severity")`
+#' 
+#' # Call to vtmd in an R markdown code chunk
+#' ```{r, results="asis"}
+#' cat(vtmd(z,"Sex Severity"))
+#' ```
+#'
+#' @return
+#' Returns pandoc markdown code to embed the image,
+#' e.g. \code{![](vtree1.png){height = 3in}}
+#'
+#' @export
+#'
+vtmd <- function(...,pxwidth,pxheight,imagewidth,imageheight,folder=".") {
+  
+  v <- vtree(...)
+  
+  if (!isTRUE(getOption('knitr.in.progress'))) {
+    print(v)
+    return(invisible(NULL))
+  }
+  
+  if (!exists("vtcount")) vtcount <<- 0
+  vtcount <<- vtcount+1
+  filename <- paste0("vtree",vtcount,".png")
+  
+  if (missing(pxheight)) {
+    if (missing(pxwidth)) {
+      grVizToPNG(v,width=3000,filename=filename,folder=folder)
+    } else {
+      grVizToPNG(v,width=pxwidth,filename=filename,folder=folder)
+    }
+  } else {
+    if (missing(pxwidth)) {
+      grVizToPNG(v,height=pxheight,filename=filename,folder=folder)
+    } else {
+      grVizToPNG(v,width=pxwidth,height=pxheight,filename=filename,folder=folder)
+    }
+  }  
+  
+  fullpath <- file.path(folder,filename)
+
+  embedded <- paste0("![](",fullpath,")")
+
+  if (missing(imageheight)) {
+    if (missing(imagewidth)) {
+      result <- paste0(embedded,"{ height=3in }")
+    } else {
+      result <- paste0(embedded,"{width=",imagewidth,"}")
+    }
+  } else {
+    if (missing(imagewidth)) {
+      result <- paste0(embedded,"{height=",imageheight,"}")
+    } else {
+      result <- paste0(embedded,"{width=",imagewidth," height=",imageheight,"}")
+    }
+  }
+  
+  result
 }
 
 

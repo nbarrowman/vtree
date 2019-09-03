@@ -23,9 +23,11 @@ vtree(z, vars, splitspaces = TRUE, prune = list(),
   vp = TRUE, horiz = TRUE, summary = "", runsummary = NULL,
   retain = NULL, width = NULL, height = NULL, graphattr = "",
   nodeattr = "", edgeattr = "", color = c("blue", "forestgreen",
-  "red", "orange", "pink"), colornodes = FALSE, showempty = FALSE,
-  rounded = TRUE, nodefunc = NULL, nodeargs = NULL,
-  choicechecklist = TRUE, parent = 1, last = 1, root = TRUE)
+  "red", "orange", "pink"), colornodes = FALSE, mincount = 1, maxcount,
+  showempty = FALSE, rounded = TRUE, nodefunc = NULL,
+  nodeargs = NULL, choicechecklist = TRUE, pxwidth, pxheight,
+  imagewidth, imageheight, folder = ".", pngknit = TRUE, parent = 1,
+  last = 1, root = TRUE)
 }
 \arguments{
 \item{z}{Required: Data frame, or a single vector.}
@@ -267,6 +269,11 @@ available to execute the functions in \code{runsummary}.}
 
 \item{colornodes}{Color the node outlines?}
 
+\item{mincount}{Minimum count to include in a pattern tree or pattern table.}
+
+\item{maxcount}{Maximum count to include in a pattern tree or pattern table.
+(Overrides mincount.)}
+
 \item{showempty}{Show nodes that do not contain any observations?}
 
 \item{rounded}{Use rounded boxes for nodes?}
@@ -278,6 +285,20 @@ specified by \code{nodefunc}.}
 
 \item{choicechecklist}{When REDCap checklists are specified using the \code{stem:} syntax,
 automatically extract the names of choices and use them as variable names?}
+
+\item{pxwidth}{Width in pixels of the PNG bitmap}
+
+\item{pxheight}{Height in pixels of the PNG bitmap}
+
+\item{imagewidth}{A character string specifying the width of the image
+to be rendered through R Markdown, e.g. \code{"3in"}}
+
+\item{imageheight}{A character string specifying the height of the image
+to be rendered through R Markdown, e.g. \code{"3in"}}
+
+\item{folder}{Optional path to a folder where the PNG file should stored}
+
+\item{pngknit}{Generate a PNG file when called during knit}
 
 \item{parent}{Parent node number (Internal use only.)}
 
@@ -357,7 +378,27 @@ Sequential palettes from Color Brewer:
 }
 }
 
+\section{R Markdown}{
+
+If \code{vtree} is called from a file that is being knitted by \code{knitr},
+it will convert the result to a PNG file, and generate pandoc markdown code
+to embed the PNG file. Successive PNG files will be named \code{vtree1.png}, \code{vtree2.png}, etc.
+(The variable \code{vtcount} is use to automatically keep track of this.)
+}
+
 \examples{
+
+#' # Call to vtree equivalent to calling vtree directly
+vtree(FakeData,"Sex Severity")
+
+# Inline call to vtree
+`r vtree(FakeData,"Sex Severity")`
+
+# Call to vtree in an R markdown code chunk
+```{r, results="asis"}
+cat(vtree(z,"Sex Severity"))
+```
+
 # A single-level hierarchy
 vtree(FakeData,"Severity")
 

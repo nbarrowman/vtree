@@ -4,7 +4,7 @@
 \alias{grVizToPNG}
 \title{grVizToPNG}
 \usage{
-grVizToPNG(g, width = NULL, height = NULL, folder = ".")
+grVizToPNG(g, width = NULL, height = NULL, folder = ".", filename)
 }
 \arguments{
 \item{g}{an object produced by the grViz function from the DiagrammmeR package}
@@ -14,6 +14,10 @@ grVizToPNG(g, width = NULL, height = NULL, folder = ".")
 \item{height}{the height in pixels of the bitmap}
 
 \item{folder}{path to folder where the PNG file should stored}
+
+\item{filename}{an optional filename.
+If not provided, the filename will be derived from the name 
+of the argument of \code{g}.}
 }
 \value{
 Returns the full path of the PNG file.
