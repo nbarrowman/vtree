@@ -2,7 +2,7 @@
 
 export(crosstabToCases)
 export(grVizToPNG)
-export(vtmd)
+export(ptableExtra)
 export(vtree)
 importFrom(stats,median)
 importFrom(stats,quantile)

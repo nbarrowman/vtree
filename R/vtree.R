@@ -199,9 +199,9 @@
 #'                         (Overrides mincount.)
 #' @param pxwidth          Width in pixels of the PNG bitmap
 #' @param pxheight         Height in pixels of the PNG bitmap
-#' @param imagewidth       A character string specifying the width of the image
+#' @param imagewidth       A character string specifying the width of the PNG image
 #'                         to be rendered through R Markdown, e.g. \code{"3in"}
-#' @param imageheight      A character string specifying the height of the image
+#' @param imageheight      A character string specifying the height of the PNG image
 #'                         to be rendered through R Markdown, e.g. \code{"3in"}
 #' @param folder           Optional path to a folder where the PNG file should stored
 #' @param pngknit          Generate a PNG file when called during knit
@@ -2472,96 +2472,60 @@ grVizToPNG <- function (g, width=NULL, height=NULL, folder = ".",filename) {
 }
 
 
-#' @title vtmd - vtree markdown
+#' @title ptableExtra
 #'
 #' @author Nick Barrowman
 #'
 #' @description
-#'  \code{vtmd} Call vtree, convert the result to a PNG file, 
-#'  and embed in an R Markdown document.
+#'  \code{ptableExtra} Augument a pattern table of indicator (i.e 0/1) variables that 
+#'                     was produced by vtree (by specifying \code{ptable=TRUE})
 #'
-#' @param ...         arguments to be passed to \code{vtree}
-#' @param pxwidth     the width in pixels of the PNG bitmap
-#' @param pxheight    the height in pixels of the PNG bitmap
-#' @param imagewidth  a character string specifying the width of the image
-#'                    to be rendered through R Markdown, e.g. \code{"3in"}
-#' @param imageheight a character string specifying the height of the image
-#'                    to be rendered through R Markdown, e.g. \code{"3in"}
-#' @param folder      optional path to a folder where the PNG file should stored
-#'                 
-#' @details
-#' Successive PNG files will be named \code{vtree1.png}, \code{vtree2.png}, etc.
-#' (The variable \code{vtcount} is use to automatically keep track of this.)
+#' @param x         Pattern table from vtree for indicator (i.e 0/1) variables
+#' @param markdown  Format nicely for markdown (see details).
 #' 
-#' When called interactively (i.e. while not knitting), the PNG file will
-#' not be generated, and instead the variable tree will be displayed.
+#' @details
+#' The column totals ignore missing values.
+#' 
+#' When \code{markdown=TRUE}, the row and column headings for percentages are 
+#' labeled "%", indicator values equal to 1 are replaced by checkmark codes,
+#' indicator values equal to 0 are replaced by spaces, and missing indicator
+#' values are replaced by dashes. Empty headings are replaced by spaces.
+#' Finally the table is trasposed.
 #' 
 #' @examples
 #' 
-#' # Call to vtmd equivalent to calling vtree directly
-#' vtmd(FakeData,"Sex Severity")
+#' ptableExtra(tab)
 #' 
-#' # Inline call to vtmd
-#' `r vtmd(FakeData,"Sex Severity")`
-#' 
-#' # Call to vtmd in an R markdown code chunk
-#' ```{r, results="asis"}
-#' cat(vtmd(z,"Sex Severity"))
-#' ```
-#'
 #' @return
-#' Returns pandoc markdown code to embed the image,
-#' e.g. \code{![](vtree1.png){height = 3in}}
+#' Returns a character matrix with extra rows containing indicator sums.
 #'
 #' @export
 #'
-vtmd <- function(...,pxwidth,pxheight,imagewidth,imageheight,folder=".") {
+ptableExtra <- function(x,markdown=FALSE) {
+  mat <- as.matrix(x[,-c(1,2)])
+  mode(mat) <- "numeric"
+  mat <- mat*x$n  # Note that this relies on column recycling
+  count <- apply(mat,2,sum,na.rm=TRUE)
+  xmat <- as.matrix(x)
+  if (markdown) {
+    xmat[,-(1:2)][xmat[,-(1:2)]=="0"] <- ""
+    xmat[,-(1:2)][xmat[,-(1:2)]=="1"] <- "&#10004;"
+  }
+  xmat <- rbind(xmat,c("","",count))
+  xmat <- rbind(xmat,c("","",round(100*count/sum(x[,1]))))
+  rownames(xmat) <- c(rep("",nrow(x)),"N","pct")
   
-  v <- vtree(...)
-  
-  if (!isTRUE(getOption('knitr.in.progress'))) {
-    print(v)
-    return(invisible(NULL))
+  if (markdown) {
+    colnames(xmat)[colnames(xmat)=="pct"] <- "%"
+    rownames(xmat)[rownames(xmat)=="pct"] <- "%"
+    rownames(xmat)[rownames(xmat)==""] <- "&nbsp;"
+    xmat <- t(xmat) 
   }
   
-  if (!exists("vtcount")) vtcount <<- 0
-  vtcount <<- vtcount+1
-  filename <- paste0("vtree",vtcount,".png")
-  
-  if (missing(pxheight)) {
-    if (missing(pxwidth)) {
-      grVizToPNG(v,width=3000,filename=filename,folder=folder)
-    } else {
-      grVizToPNG(v,width=pxwidth,filename=filename,folder=folder)
-    }
-  } else {
-    if (missing(pxwidth)) {
-      grVizToPNG(v,height=pxheight,filename=filename,folder=folder)
-    } else {
-      grVizToPNG(v,width=pxwidth,height=pxheight,filename=filename,folder=folder)
-    }
-  }  
-  
-  fullpath <- file.path(folder,filename)
-
-  embedded <- paste0("![](",fullpath,")")
-
-  if (missing(imageheight)) {
-    if (missing(imagewidth)) {
-      result <- paste0(embedded,"{ height=3in }")
-    } else {
-      result <- paste0(embedded,"{width=",imagewidth,"}")
-    }
-  } else {
-    if (missing(imagewidth)) {
-      result <- paste0(embedded,"{height=",imageheight,"}")
-    } else {
-      result <- paste0(embedded,"{width=",imagewidth," height=",imageheight,"}")
-    }
-  }
-  
-  result
+  xmat
 }
+
+
 
 
 #' @title crosstabToCases

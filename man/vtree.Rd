@@ -290,10 +290,10 @@ automatically extract the names of choices and use them as variable names?}
 
 \item{pxheight}{Height in pixels of the PNG bitmap}
 
-\item{imagewidth}{A character string specifying the width of the image
+\item{imagewidth}{A character string specifying the width of the PNG image
 to be rendered through R Markdown, e.g. \code{"3in"}}
 
-\item{imageheight}{A character string specifying the height of the image
+\item{imageheight}{A character string specifying the height of the PNG image
 to be rendered through R Markdown, e.g. \code{"3in"}}
 
 \item{folder}{Optional path to a folder where the PNG file should stored}
