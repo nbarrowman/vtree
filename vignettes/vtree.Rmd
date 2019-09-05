@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 2.0.9"
+title: "Introduction to vtree 2.1.0"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -1449,7 +1449,9 @@ vtree(ToothGrowth,"supp dose",summary="len>20 \n%pct% length > 20")
 ```
 
 
-# Using vtree interactively or from R Markdown
+# Different ways to call vtree
+
+## Using vtree interactively 
 
 `vtree` behaves differently depending on how it is called.
 
@@ -1457,11 +1459,18 @@ vtree(ToothGrowth,"supp dose",summary="len>20 \n%pct% length > 20")
 
 * If `vtree` is called interactively from the R console, it displays the variable tree in a browser window.
 
-* If `vtree` is called while an R Markdown file is being knitted, it generates a PNG file and automatically embeds it into the knitted document. Successive PNG files are named `vtree1.png`, `vtree2.png`, and so forth and are stored in the current folder, or the folder specified by the `folder` parameter. During knitting, `vtree` uses a global counting variable called `vtcount` to keep track of the PNG files. If the `pngknit` parameter is set to `FALSE`, then PNG files are not generated or embedded.
+## Using vtree in R Markdown
 
-## R Markdown
+If `vtree` is called while an R Markdown file is being knitted, it generates a PNG file and automatically embeds it into the knitted document.
+The PNG file is stored in the folder specified by the `folder` parameter,
+or if a folder is not specified, a temporary folder will be used.
+Successive PNG files are named `vtree1.png`, `vtree2.png`, and so forth and are stored in the  folder.
+During knitting, `vtree` uses a global counting variable called `vtcount` to count the PNG files,
+and a global folder called `vtfolder` to identify where to store them.
 
-To use vtree in R Markdown, you can use inline code:
+If you specify `pngknit=FALSE`, then no PNG files will be generated.
+
+To call `vtree` in R Markdown, you can use inline code:
 
 ```{r, eval=FALSE}
 `r vtree(FakeData,"Sex Severity")`
@@ -1475,7 +1484,8 @@ cat(vtree(FakeData,"Sex Severity"))
 ```
 ````
 
-Code chunks have the advantage that they can also be run interactively (for example within RStudio, by clicking of the green arrow at the right-hand side of a code chunk).
+One advantage of code chunks is that they can also be run interactively
+(for example within RStudio, by clicking of the green arrow at the right-hand side of a code chunk).
 
 
 # Advanced: Saving to PNG files 

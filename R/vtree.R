@@ -347,7 +347,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
   showempty = FALSE, rounded = TRUE,
   nodefunc = NULL, nodeargs = NULL, 
   choicechecklist = TRUE,
-  pxwidth,pxheight,imagewidth,imageheight,folder=".",pngknit=TRUE,
+  pxwidth,pxheight,imagewidth,imageheight,folder,pngknit=TRUE,
   parent = 1, last = 1, root = TRUE)
 {
 
@@ -410,6 +410,38 @@ vtree <- function (z, vars, splitspaces=TRUE,
         colnames(z)[1] <- argname
         vars <- argname
     }
+    
+    # Process * tag in variable names to expand list of variables
+    findstar <- grep("\\*$",vars)
+    if (length(findstar)>0) {
+      expandedvars <- c()
+      for (i in 1:length(vars)) {
+        if (i %in% findstar) {
+          stem <- sub("([^ ]+)\\*$","\\1",vars[i])
+          expanded_stem <- names(z)[grep(paste0(stem,".*$"),names(z))]
+          expandedvars <- c(expandedvars,expanded_stem)
+        } else {
+          expandedvars <- c(expandedvars,vars[i])
+        }
+      }
+      vars <- expanded_stem
+    }    
+    
+    # Process # tag in variable names to expand list of variables ending in numeric digits
+    findstar <- grep("#$",vars)
+    if (length(findstar)>0) {
+      expandedvars <- c()
+      for (i in 1:length(vars)) {
+        if (i %in% findstar) {
+          stem <- sub("([^ ]+)\\#$","\\1",vars[i])
+          expanded_stem <- names(z)[grep(paste0(stem,"[0-9]+$"),names(z))]
+          expandedvars <- c(expandedvars,expanded_stem)
+        } else {
+          expandedvars <- c(expandedvars,vars[i])
+        }
+      }
+      vars <- expanded_stem
+    }            
     
     # Process = tag in variable names 
     findequal <- grep("=",vars)
@@ -509,7 +541,17 @@ vtree <- function (z, vars, splitspaces=TRUE,
           }
           if (choicechecklist) {
             for (j in 1:length(expanded_stem)) {
-              choice <- sub(".+\\(choice=(.+)\\)","\\1",attributes(z[[expanded_stem[j]]])$label)
+              rexp1 <- ".+\\(choice=(.+)\\)"
+              rexp2 <- ".+: (.+)"
+              lab <- attributes(z[[expanded_stem[j]]])$label
+              if (length(grep(rexp1,lab))>0) {
+                choice <- sub(rexp1,"\\1",lab)
+              } else
+              if (length(grep(rexp2,lab))>0) {
+                choice <- sub(rexp2,"\\1",lab)
+              } else {
+                stop("Could not find value of checklist item")
+              }
               z[[choice]] <- z[[expanded_stem[j]]]
               expandedvars <- c(expandedvars,choice)
             }
@@ -523,38 +565,6 @@ vtree <- function (z, vars, splitspaces=TRUE,
       vars <- expandedvars
     }
     
-    # Process * tag in variable names to expand list of variables
-    findstar <- grep("\\*$",vars)
-    if (length(findstar)>0) {
-      expandedvars <- c()
-      for (i in 1:length(vars)) {
-        if (i %in% findstar) {
-          stem <- sub("([^ ]+)\\*$","\\1",vars[i])
-          expanded_stem <- names(z)[grep(paste0(stem,".*$"),names(z))]
-          expandedvars <- c(expandedvars,expanded_stem)
-        } else {
-          expandedvars <- c(expandedvars,vars[i])
-        }
-      }
-      vars <- expanded_stem
-    }    
-    
-    # Process # tag in variable names to expand list of variables ending in numeric digits
-    findstar <- grep("#$",vars)
-    if (length(findstar)>0) {
-      expandedvars <- c()
-      for (i in 1:length(vars)) {
-        if (i %in% findstar) {
-          stem <- sub("([^ ]+)\\#$","\\1",vars[i])
-          expanded_stem <- names(z)[grep(paste0(stem,"[0-9]+$"),names(z))]
-          expandedvars <- c(expandedvars,expanded_stem)
-        } else {
-          expandedvars <- c(expandedvars,vars[i])
-        }
-      }
-      vars <- expanded_stem
-    }        
-        
     if (!missing(showlevels)) showvarnames <- showlevels
 
     allvars <- vars
@@ -644,11 +654,12 @@ vtree <- function (z, vars, splitspaces=TRUE,
       # allvars <- c(allvars,codevar)
     }
 
+
     # Add any extra variables needed
     allvars <- c(allvars,retain)
 
     numvars <- length(vars)
-
+    
     # Each element of the following list
     # is a matrix where the rows are the different hues (one for each variable).
     # The 1st matrix is for a single-valued variable,
@@ -1618,25 +1629,33 @@ vtree <- function (z, vars, splitspaces=TRUE,
         return(invisible(NULL))
       }  
       
-      if (!exists("vtcount")) vtcount <<- 0
+      if (!exists("vtcount")) {
+        vtcount <<- 0
+        if (missing(folder)) {
+          vtfolder <<- tempdir()
+        } else {
+          vtfolder <<- folder
+        }
+      }
+
       vtcount <<- vtcount+1
       filename <- paste0("vtree",vtcount,".png")
       
       if (missing(pxheight)) {
         if (missing(pxwidth)) {
-          grVizToPNG(flowchart,width=3000,filename=filename,folder=folder)
+          grVizToPNG(flowchart,width=3000,filename=filename,folder=vtfolder)
         } else {
-          grVizToPNG(flowchart,width=pxwidth,filename=filename,folder=folder)
+          grVizToPNG(flowchart,width=pxwidth,filename=filename,folder=vtfolder)
         }
       } else {
         if (missing(pxwidth)) {
-          grVizToPNG(flowchart,height=pxheight,filename=filename,folder=folder)
+          grVizToPNG(flowchart,height=pxheight,filename=filename,folder=vtfolder)
         } else {
-          grVizToPNG(flowchart,width=pxwidth,height=pxheight,filename=filename,folder=folder)
+          grVizToPNG(flowchart,width=pxwidth,height=pxheight,filename=filename,folder=vtfolder)
         }
       }  
       
-      fullpath <- file.path(folder,filename)
+      fullpath <- file.path(vtfolder,filename)
     
       embedded <- paste0("![](",fullpath,")")
     

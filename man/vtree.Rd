@@ -26,7 +26,7 @@ vtree(z, vars, splitspaces = TRUE, prune = list(),
   "red", "orange", "pink"), colornodes = FALSE, mincount = 1, maxcount,
   showempty = FALSE, rounded = TRUE, nodefunc = NULL,
   nodeargs = NULL, choicechecklist = TRUE, pxwidth, pxheight,
-  imagewidth, imageheight, folder = ".", pngknit = TRUE, parent = 1,
+  imagewidth, imageheight, folder, pngknit = TRUE, parent = 1,
   last = 1, root = TRUE)
 }
 \arguments{
