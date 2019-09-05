@@ -2477,37 +2477,49 @@ grVizToPNG <- function (g, width=NULL, height=NULL, folder = ".",filename) {
 #' @author Nick Barrowman
 #'
 #' @description
-#'  \code{ptableExtra} Augument a pattern table of indicator (i.e 0/1) variables that 
-#'                     was produced by vtree (by specifying \code{ptable=TRUE})
-#'
-#' @param x         Pattern table from vtree for indicator (i.e 0/1) variables
-#' @param markdown  Format nicely for markdown (see details).
+#' Given a pattern table produced by \code{vtree} for indicator (i.e 0/1) variables,
+#' \code{ptableExtra} returns an augmented table.
+#' The augmented table includes an extra row with the total for each indicator variable
+#' and an extra row with the corresponding percentage
+#' (which will not in general add to 100\%).
+#' Also, optionally, does some additional formatting for pandoc markdown.
+#'  
+#' @param x         Pattern table produced by \code{vtree} for indicator (i.e 0/1) variables
+#' @param markdown  Format nicely for markdown (see Details).
+#' @param NAcode    Code to use to represent NAs in markdown formatting
 #' 
 #' @details
 #' The column totals ignore missing values.
 #' 
 #' When \code{markdown=TRUE}, the row and column headings for percentages are 
-#' labeled "%", indicator values equal to 1 are replaced by checkmark codes,
+#' labeled "\%", indicator values equal to 1 are replaced by checkmark codes,
 #' indicator values equal to 0 are replaced by spaces, and missing indicator
 #' values are replaced by dashes. Empty headings are replaced by spaces.
-#' Finally the table is trasposed.
+#' Finally the table is transposed.
 #' 
 #' @examples
-#' 
-#' ptableExtra(tab)
+#' # Generate a pattern table for the indicator variables Ind1 and Ind2
+#' ptab <- vtree(FakeData,"Ind1 Ind2",ptable=TRUE)
+#' # Apply ptableExtra
+#' ptab2 <- ptableExtra(ptab)
+#' # Print the result without quotation marks (which are distracting)
+#' print(ptab2,quote=FALSE)
+#' # Generate a table with pandoc markdown formatting
+#' ptab3 <- ptableExtra(ptab,markdown=TRUE)
 #' 
 #' @return
 #' Returns a character matrix with extra rows containing indicator sums.
 #'
 #' @export
 #'
-ptableExtra <- function(x,markdown=FALSE) {
+ptableExtra <- function(x,markdown=FALSE,NAcode="-") {
   mat <- as.matrix(x[,-c(1,2)])
   mode(mat) <- "numeric"
   mat <- mat*x$n  # Note that this relies on column recycling
   count <- apply(mat,2,sum,na.rm=TRUE)
   xmat <- as.matrix(x)
   if (markdown) {
+    xmat[,-(1:2)][is.na(xmat[,-(1:2)])] <- NAcode
     xmat[,-(1:2)][xmat[,-(1:2)]=="0"] <- ""
     xmat[,-(1:2)][xmat[,-(1:2)]=="1"] <- "&#10004;"
   }

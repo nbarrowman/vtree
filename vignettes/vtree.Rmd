@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 2.0.7"
+title: "Introduction to vtree 2.0.8"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -1439,6 +1439,23 @@ vtree(ToothGrowth,"supp dose",summary="len>20 \n%pct% length > 20")
 
 * If `vtree` is called while an R Markdown file is being knitted, it generates a PNG file and automatically embeds it into the knitted document. Successive PNG files are named `vtree1.png`, `vtree2.png`, and so forth and are stored in the current folder, or the folder specified by the `folder` parameter. During knitting, `vtree` uses a global counting variable called `vtcount` to keep track of the PNG files. If the `pngknit` parameter is set to `FALSE`, then PNG files are not generated or embedded.
 
+## R Markdown
+
+To use vtree in R Markdown, you can use inline code:
+
+```{r, eval=FALSE}
+`r vtree(FakeData,"Sex Severity")`
+```
+
+Or you can use a code chunk:
+
+````
+`r ''````{r, results="asis"}
+cat(vtree(FakeData,"Sex Severity"))
+```
+````
+
+Code chunks have the advantage that they can also be run interactively (for example within RStudio, by clicking of the green arrow at the right-hand side of a code chunk).
 
 
 # Advanced: Saving to PNG files 

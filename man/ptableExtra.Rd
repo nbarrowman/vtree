@@ -4,32 +4,44 @@
 \alias{ptableExtra}
 \title{ptableExtra}
 \usage{
-ptableExtra(x, markdown = FALSE)
+ptableExtra(x, markdown = FALSE, NAcode = "-")
 }
 \arguments{
-\item{x}{Pattern table from vtree for indicator (i.e 0/1) variables}
+\item{x}{Pattern table produced by \code{vtree} for indicator (i.e 0/1) variables}
 
-\item{markdown}{Format nicely for markdown (see details).}
+\item{markdown}{Format nicely for markdown (see Details).}
+
+\item{NAcode}{Code to use to represent NAs in markdown formatting}
 }
 \value{
 Returns a character matrix with extra rows containing indicator sums.
 }
 \description{
-\code{ptableExtra} Augument a pattern table of indicator (i.e 0/1) variables that 
-                    was produced by vtree (by specifying \code{ptable=TRUE})
+Given a pattern table produced by \code{vtree} for indicator (i.e 0/1) variables,
+\code{ptableExtra} returns an augmented table.
+The augmented table includes an extra row with the total for each indicator variable
+and an extra row with the corresponding percentage
+(which will not in general add to 100\%).
+Also, optionally, does some additional formatting for pandoc markdown.
 }
 \details{
 The column totals ignore missing values.
 
 When \code{markdown=TRUE}, the row and column headings for percentages are 
-labeled "%", indicator values equal to 1 are replaced by checkmark codes,
+labeled "\%", indicator values equal to 1 are replaced by checkmark codes,
 indicator values equal to 0 are replaced by spaces, and missing indicator
 values are replaced by dashes. Empty headings are replaced by spaces.
-Finally the table is trasposed.
+Finally the table is transposed.
 }
 \examples{
-
-ptableExtra(tab)
+# Generate a pattern table for the indicator variables Ind1 and Ind2
+ptab <- vtree(FakeData,"Ind1 Ind2",ptable=TRUE)
+# Apply ptableExtra
+ptab2 <- ptableExtra(ptab)
+# Print the result without quotation marks (which are distracting)
+print(ptab2,quote=FALSE)
+# Generate a table with pandoc markdown formatting
+ptab3 <- ptableExtra(ptab,markdown=TRUE)
 
 }
 \author{
