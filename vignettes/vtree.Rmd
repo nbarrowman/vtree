@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 2.0.8"
+title: "Introduction to vtree 2.0.9"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -1004,6 +1004,26 @@ vtree(FakeData,"Severity Sex",ptable=TRUE)
 ```
 
 This compact representation may be convenient for display in a manuscript.
+
+When a pattern table is created for indicator variables,
+it provides all the information of a Venn Diagram.
+For example:
+
+```{r}
+vtree(FakeData,"Ind1 Ind2",ptable=TRUE)
+```
+
+For indicator variables, there is an extra function, `VennTable`,
+which converts the pattern table to a matrix of character strings,
+adds some additional totals, and does some formatting:
+
+```{r}
+print(VennTable(vtree(FakeData,"Ind1 Ind2",ptable=TRUE)),quote=FALSE)
+```
+
+(In the example above, quotation marks are suppressed.
+This is done because ordinarily a matrix of character strings is shown with
+quotation marks, which are a bit distracting.)
 
 Summaries can be very useful in pattern tables.
 If a single summary is requested, it appears in the `summary_1` variable in the data frame.

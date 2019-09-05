@@ -2472,13 +2472,13 @@ grVizToPNG <- function (g, width=NULL, height=NULL, folder = ".",filename) {
 }
 
 
-#' @title ptableExtra
+#' @title VennTable
 #'
 #' @author Nick Barrowman
 #'
 #' @description
 #' Given a pattern table produced by \code{vtree} for indicator (i.e 0/1) variables,
-#' \code{ptableExtra} returns an augmented table.
+#' \code{VennTable} returns an augmented table.
 #' The augmented table includes an extra row with the total for each indicator variable
 #' and an extra row with the corresponding percentage
 #' (which will not in general add to 100\%).
@@ -2500,20 +2500,23 @@ grVizToPNG <- function (g, width=NULL, height=NULL, folder = ".",filename) {
 #' @examples
 #' # Generate a pattern table for the indicator variables Ind1 and Ind2
 #' ptab <- vtree(FakeData,"Ind1 Ind2",ptable=TRUE)
-#' # Apply ptableExtra
-#' ptab2 <- ptableExtra(ptab)
+#' # Augment the table
+#' ptab2 <- VennTable(ptab)
 #' # Print the result without quotation marks (which are distracting)
 #' print(ptab2,quote=FALSE)
 #' # Generate a table with pandoc markdown formatting
-#' ptab3 <- ptableExtra(ptab,markdown=TRUE)
+#' ptab3 <- VennTable(ptab,markdown=TRUE)
 #' 
 #' @return
 #' Returns a character matrix with extra rows containing indicator sums.
 #'
 #' @export
 #'
-ptableExtra <- function(x,markdown=FALSE,NAcode="-") {
+VennTable <- function(x,markdown=FALSE,NAcode="-") {
   mat <- as.matrix(x[,-c(1,2)])
+  # Convert logical values to 1's and 0's
+  mat[mat=="TRUE"] <- "1"
+  mat[mat=="FALSE"] <- "0"  
   mode(mat) <- "numeric"
   mat <- mat*x$n  # Note that this relies on column recycling
   count <- apply(mat,2,sum,na.rm=TRUE)
