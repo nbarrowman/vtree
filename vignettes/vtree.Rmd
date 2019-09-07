@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 2.1.1"
+title: "Introduction to vtree 2.1.2"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -434,6 +434,18 @@ The `keep` parameter is used to specify nodes that should *not* be pruned
 The `follow` parameter is like the `keep` parameter except that no nodes at that level of the tree will be pruned.
 Instead, those nodes that are not "followed" will be pruned at the next level.
 
+### The `prunesmaller` parameter
+
+When the number of nodes in a variable tree gets very large,
+it may be hard to see where most of the observations actually are.
+One solution is to prune nodes that contain small numbers of observations.
+For example if you want to only see nodes with at least 3 observations,
+you can specify `prunesmaller=3` as in this example:
+
+```{r, eval=FALSE}
+vtree(FakeData,"Severity Sex Age Category",sameline=TRUE,prunesmaller=3)
+```
+
 
 ## Changing how variables and nodes are labeled {#labeling}
 
@@ -459,7 +471,6 @@ cat(vtree(FakeData,"Severity Sex",horiz=FALSE,
 #filepath <- grVizToPNG(v8,folder=PNGdir,width=800)
 #![](`r filepath`){ height=2.2in }
 ```
-
 
 ### Changing node labels with the `labelnode` parameter
 
@@ -663,6 +674,22 @@ The result is three categories:
 * "high": namely values more than 1.5&times;IQR above the median,
 
 * "low": namely values more than 1.5&times;IQR below the median.
+
+
+### suffix `*`
+
+In `FakeData`,
+specifying `Ind*` matches all variable names that start with `Ind`,
+namely `Ind1`, `Ind2`, and `Ind3`.
+
+The `*` suffix matches all variable names
+
+
+### suffix `#`
+
+Specifying `Ind#` matches all variable names that start with `Ind`
+and end with a numeric digit, namely `Ind1`, `Ind2`, and `Ind3`.
+(In this case this is the same result as using `Ind*`).
 
 
 ### specification `variable=value` {#dichotomizing}
@@ -1375,12 +1402,12 @@ and experiment with many other possibilities.
 The `esoph` data set
 (data from a case-control study of esophageal cancer in Ille-et-Vilaine, France), 
 has 88 different combinations of age group, alcohol consumption, and tobacco consumption.
-Let's consider examine the mean number of cases among patients
+Let's examine the mean number of cases among patients
 aged 75 and older compared to the rest of the patients:
 
 ```{r, eval=FALSE}
 vtree(esoph,"agegp=75+",
-  summary="ncases \nmean=%mean%%leafonly%",sameline=TRUE)
+  summary="ncases \nmean cases=%mean%%leafonly%",sameline=TRUE)
 ```
 
 
@@ -1399,10 +1426,10 @@ hec <- crosstabToCases(HairEyeColor)
 ```
 
 There are a lot of combinations but let's say we are especially interested
-in green eyes (versus non-green eyes).
+in green eyes (as compared to non-green eyes).
 We can use the variable specification `Eye=Green` to do this: 
 ```{r, eval=FALSE}
-vtree(hec,"Hair Eye=Green Sex")
+vtree(hec,"Hair Eye=Green Sex",sameline=TRUE)
 ```
 
 
@@ -1414,7 +1441,7 @@ First, let's convert it to a dataframe of individuals:
 titanic <- crosstabToCases(Titanic)
 ```
 
-We'll specify `sameline=TRUE` so that it fits a bit better:
+We'll specify `sameline=TRUE` so that the variable tree is a bit more compact:
 ```{r, eval=FALSE}
 vtree(titanic,"Class Sex Age",summary="Survived=Yes \n%pct% survived",sameline=TRUE)
 ```
@@ -1441,14 +1468,16 @@ by number of carburetors, nested within number of gears,
 and in turn nested within number of cylinders.
 
 ```{r, eval=FALSE}
-vtree(mt,"cyl gear carb",summary="hp \nmean (SD) HP %mean% (%SD%)%var=pattern%",pattern=TRUE)
+vtree(mt,"cyl gear carb",summary="hp \nmean (SD) HP %mean% (%SD%)%var=pattern%",
+  labelvar=c(cyl="# cylinders",gear="# gears",carb="# carburetors"),pattern=TRUE)
 ```
 
 We might also like to list the names of cars by number of carburetors
 nested within number of gears:
 
 ```{r, eval=FALSE}
-vtree(mt,"gear carb",summary="name \n%list%%noroot%",splitwidth=50)
+vtree(mt,"gear carb",summary="name \n%list%%noroot%",splitwidth=50,
+  labelvar=c(gear="# gears",carb="# carburetors"))
 ```
 
 
@@ -1488,7 +1517,9 @@ Let's look at the mean weight of chicks at birth (0 days of age) and 4 days of a
 nested within type of diet. 
 
 ```{r, eval=FALSE}
-vtree(ChickWeight,"Diet Time",keep=list(Time=c("0","4")),summary="weight \nmean weight %mean%g")
+vtree(ChickWeight,"Diet Time",keep=list(Time=c("0","4")),
+  labelnode=list(Diet=c("Diet 1"="1","Diet 2"="2","Diet 3"="3","Diet 4"="4")),
+  labelvar=c(Time="Days since birth"),summary="weight \nmean weight %mean%g")
 ```
 
 
@@ -1496,10 +1527,11 @@ vtree(ChickWeight,"Diet Time",keep=list(Time=c("0","4")),summary="weight \nmean 
 
 The `InsectSprays` data set contains
 counts of insects in agricultural experimental units treated with different insecticides.
-Let's look at the mean and standard deviation of those counts by insecticide.
+Let's look at those counts by insecticide.
 
 ```{r, eval=FALSE}
-vtree(InsectSprays,"spray",summary="count \nmean (SD) count %mean% (%SD%)",splitwidth=50)
+vtree(InsectSprays,"spray",splitwidth=80,sameline=TRUE,
+  summary="count \ncounts: %list%%noroot%",cdigits=0)
 ```
 
 
@@ -1514,7 +1546,9 @@ orange juice or ascorbic acid (a form of vitamin C and coded as VC).
 Let's examine the percentage with length > 20 by dose nested within delivery method:
 
 ```{r, eval=FALSE}
-vtree(ToothGrowth,"supp dose",summary="len>20 \n%pct% length > 20")
+vtree(ToothGrowth,"supp dose",summary="len>20 \n%pct% length > 20",
+  labelvar=c("supp"="Supplement type","dose"="Dose (mg/day)"),
+  labelnode=list(supp=c("Vitamin C"="VC","Orange Juice"="OJ")))
 ```
 
 
