@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 2.1.2"
+title: "Introduction to vtree 2.1.3"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -749,6 +749,14 @@ cat(vtree(FakeData,"Severity",summary="Score \nmean score: %mean%",
 #![](`r filepath`){ height=1.6in }
 ```
 
+To see the means without any decimals, the `cdigits` parameter can be used,
+for example:
+
+```{r,eval=FALSE}
+vtree(FakeData,"Severity",summary="Score \nmean score: %mean%",cdigits=0,
+  sameline=TRUE,horiz=FALSE)
+```
+
 
 The following codes can be used to show summary information:
 
@@ -756,6 +764,7 @@ code            | result
 :---------------|:-------------------------------------------------------------------
 `%mean%`        |  mean
 `%SD%`          |  standard deviation
+`%sum%`         |  sum
 `%min%`         |  minimum
 `%max%`         |  maximum
 `%pX%`          |  Xth percentile (e.g. `p50` means the 50th percentile)
@@ -1402,12 +1411,12 @@ and experiment with many other possibilities.
 The `esoph` data set
 (data from a case-control study of esophageal cancer in Ille-et-Vilaine, France), 
 has 88 different combinations of age group, alcohol consumption, and tobacco consumption.
-Let's examine the mean number of cases among patients
-aged 75 and older compared to the rest of the patients:
+Let's examine the total number of cases and the total number of controls
+among patients aged 75 and older compared to the rest of the patients:
 
 ```{r, eval=FALSE}
-vtree(esoph,"agegp=75+",
-  summary="ncases \nmean cases=%mean%%leafonly%",sameline=TRUE)
+vtree(esoph,"agegp=75+",sameline=TRUE,cdigits=0,
+  summary=c("ncases \ncases=%sum%%leafonly%","ncontrols  controls=%sum%%leafonly%"))
 ```
 
 
@@ -1465,21 +1474,40 @@ rownames(mt) <- NULL
 
 Now let's look at the mean and standard deviation of horsepower (HP)
 by number of carburetors, nested within number of gears,
-and in turn nested within number of cylinders.
+and in turn nested within number of cylinders:
 
 ```{r, eval=FALSE}
-vtree(mt,"cyl gear carb",summary="hp \nmean (SD) HP %mean% (%SD%)%var=pattern%",
-  labelvar=c(cyl="# cylinders",gear="# gears",carb="# carburetors"),pattern=TRUE)
+vtree(mt,"cyl gear carb",summary="hp \nmean (SD) HP %mean% (%SD%)")
+```
+
+The above shows the mean and SD of horsepower by
+(1) number of cylinders;
+(2) number of gears (within number of cylinders);
+and 
+(3) number of carburetors (within number of gears nested within number of cylinders).
+That's a lot of information.
+Suppose instead that we are only interested in number 3 above,
+i.e. all combinations of number of cylinders, number of gears, and number of carburetors.
+
+In that case, we can specify `pattern=TRUE`, 
+To make the display a little easier to read,
+set the number of digits for the mean and SD to be zero,
+and relabel the variables.
+
+```{r, eval=FALSE}
+vtree(mt,"cyl gear carb",summary="hp \nmean (SD) HP %mean% (%SD%)",
+  cdigits=0,labelvar=c(cyl="# cylinders",gear="# gears",carb="# carburetors"),
+  pattern=TRUE)
 ```
 
 We might also like to list the names of cars by number of carburetors
 nested within number of gears:
 
 ```{r, eval=FALSE}
-vtree(mt,"gear carb",summary="name \n%list%%noroot%",splitwidth=50,
+vtree(mt,"gear carb",summary="name \n%list%%noroot%",splitwidth=50,sameline=TRUE,
   labelvar=c(gear="# gears",carb="# carburetors"))
 ```
-
+  
 
 ## UCBAdmissions
 
@@ -1514,11 +1542,21 @@ vtree(ucb,"Dept Gender",summary="Admit=Admitted \n%pct% admitted",sameline=TRUE)
 
 The `ChickWeight` data set is from an experiment on the effect of diet on early growth of chicks.
 Let's look at the mean weight of chicks at birth (0 days of age) and 4 days of age,
-nested within type of diet. 
+nested within type of diet.
+A simple variable tree can be produced like this:
+
+```{r}
+vtree(ChickWeight,"Diet Time",keep=list(Time=c("0","4")),summary="weight \nmean weight %mean%g")
+```
+
+To make the display a little easier to read, relabel the nodes
+and the `Time` variable:
 
 ```{r, eval=FALSE}
 vtree(ChickWeight,"Diet Time",keep=list(Time=c("0","4")),
-  labelnode=list(Diet=c("Diet 1"="1","Diet 2"="2","Diet 3"="3","Diet 4"="4")),
+  labelnode=list(
+    Diet=c("Diet 1"="1","Diet 2"="2","Diet 3"="3","Diet 4"="4"),
+    Time=c("0 days"="0","4 days"="4")),
   labelvar=c(Time="Days since birth"),summary="weight \nmean weight %mean%g")
 ```
 
@@ -1544,6 +1582,13 @@ by one of two delivery methods,
 orange juice or ascorbic acid (a form of vitamin C and coded as VC).
 
 Let's examine the percentage with length > 20 by dose nested within delivery method:
+
+```{r, eval=FALSE}
+vtree(ToothGrowth,"supp dose",summary="len>20 \n%pct% length > 20")
+```
+
+To make the display a little easier to read, relabel the nodes
+and the `Time` variable:
 
 ```{r, eval=FALSE}
 vtree(ToothGrowth,"supp dose",summary="len>20 \n%pct% length > 20",

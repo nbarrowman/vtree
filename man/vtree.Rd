@@ -317,28 +317,6 @@ vtree is a tool for drawing variable trees.
 Variable trees display information about nested subsets of a data frame,
 in which the subsetting is defined by the values of categorical variables.
 }
-\section{Summary codes}{
-
-\itemize{
- \item{\code{\%mean\%} }{mean}
- \item{\code{\%SD\%} }{standard deviation}
- \item{\code{\%min\%} }{minimum}
- \item{\code{\%max\%} }{maximum}
- \item{\code{\%pX\%} }{Xth percentile, e.g. p50 means the 50th percentile}
- \item{\code{\%median\%} }{median, i.e. p50}
- \item{\code{\%IQR\%} }{interquartile range, i.e. p25, p75}
- \item{\code{\%npct\%} }{number and percentage of \code{TRUE} values}
- \item{\code{\%list\%} }{list of the individual values}
- \item{\code{\%mv\%} }{the number of missing values}
- \item{\code{\%v\%} }{the name of the variable}
- \item{\code{\%noroot\%} }{flag: Do not show summary in the root node.}
- \item{\code{\%leafonly\%} }{flag: Only show summary in leaf nodes.}
- \item{\code{\%var=}V\code{\%} }{flag: Only show summary in nodes of variable V.}
- \item{\code{\%node=}N\code{\%} }{flag: Only show summary in nodes with value N.}
- \item{\code{\%trunc=}n\code{\%} }{flag: Truncate the summary to the first n characters.}
-}
-}
-
 \section{Node functions}{
 
 Node functions provide a mechanism for running a function within each subset

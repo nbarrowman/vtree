@@ -210,6 +210,7 @@
 #' \itemize{
 #'  \item{\code{\%mean\%} }{mean}
 #'  \item{\code{\%SD\%} }{standard deviation}
+#'  \item{\code{\%sum\%}{sum}
 #'  \item{\code{\%min\%} }{minimum}
 #'  \item{\code{\%max\%} }{maximum}
 #'  \item{\code{\%pX\%} }{Xth percentile, e.g. p50 means the 50th percentile}
@@ -2402,8 +2403,8 @@ summaryNodeFunction <- function (u, varname, value, args) {
           # so that missing values can be handled as desired
           result <- gsub("%npct%",nAndpct(y,digits=digits),result)
           result <- gsub("%pct%",justpct(y,digits=digits),result)
-          result <- gsub("%mean%", around(mean(x), digits = cdigits),
-              result)
+          result <- gsub("%mean%", around(mean(x), digits = cdigits),result)
+          result <- gsub("%sum%", around(sum(x), digits = cdigits),result)
           result <- gsub("%median%", around(stats::median(x), digits = cdigits),
               result)
           result <- gsub("%SD%", around(stats::sd(x), digits = cdigits), result)
