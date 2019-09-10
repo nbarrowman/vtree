@@ -308,14 +308,16 @@ to be rendered through R Markdown, e.g. \code{"3in"}}
 }
 \value{
 \itemize{
-  \item If \code{getscript=TRUE}, a character string is returned, consisting of DOT script that describes the variable tree.
-  \item If \code{getscript=FALSE} and knitting is not taking place,
-an object of class \code{htmlwidget} is returned (see \link[DiagrammeR]{DiagrammeR}).
-It will intelligently print itself into HTML in a variety of contexts
-including the R console, within R Markdown documents, and within Shiny output bindings.
-  \item If \code{getscript=FALSE} and knitting is taking place,
-pandoc markdown code is returned,
-consisting of a command to embed a PNG file identified by its path.
+  \item If \code{getscript=TRUE}, a character string is returned,
+        consisting of a DOT script that describes the variable tree.
+  \item If \code{getscript=FALSE}, and knitting is not taking place
+        (or knitting is taking place and \code{pngknit=FALSE}),
+        an object of class \code{htmlwidget} is returned (see \link[DiagrammeR]{DiagrammeR}).
+        It will intelligently print itself into HTML in a variety of contexts
+        including the R console, within R Markdown documents, and within Shiny output bindings.
+  \item If \code{getscript=FALSE} and knitting is taking place and \code{pngknit=TRUE},
+        pandoc markdown code is returned, 
+        consisting of a command to embed a PNG file with fully-specified path.
 }
 }
 \description{
@@ -388,8 +390,9 @@ Sequential palettes from Color Brewer:
 \section{R Markdown}{
 
 If \code{vtree} is called from a file that is being knitted by \code{knitr},
-it will convert the result to a PNG file, and generate pandoc markdown code
-to embed the PNG file. Successive PNG files will be named \code{vtree1.png}, \code{vtree2.png}, etc.
+it will convert the result to a PNG file (unless \code{pngknit=FALSE}),
+and generate pandoc markdown code to embed the PNG file.
+Successive PNG files will be named \code{vtree1.png}, \code{vtree2.png}, etc.
 (The variable \code{vtcount} is use to automatically keep track of this.)
 }
 
