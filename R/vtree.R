@@ -210,7 +210,7 @@
 #' \itemize{
 #'  \item{\code{\%mean\%} }{mean}
 #'  \item{\code{\%SD\%} }{standard deviation}
-#'  \item{\code{\%sum\%}{sum}
+#'  \item{\code{\%sum\%} }{sum}
 #'  \item{\code{\%min\%} }{minimum}
 #'  \item{\code{\%max\%} }{maximum}
 #'  \item{\code{\%pX\%} }{Xth percentile, e.g. p50 means the 50th percentile}
@@ -267,10 +267,16 @@
 #' (The variable \code{vtcount} is use to automatically keep track of this.)
 #' 
 #' @return
-#' If \code{getscript=TRUE}, returns a character string of DOT script that describes the variable tree.
-#' If \code{getscript=FALSE}, returns an object of class \code{htmlwidget}
-#' that will intelligently print itself into HTML in a variety of contexts
+#' \itemize{
+#'   \item If \code{getscript=TRUE}, a character string is returned, consisting of DOT script that describes the variable tree.
+#'   \item If \code{getscript=FALSE} and knitting is not taking place,
+#' an object of class \code{htmlwidget} is returned (see \link[DiagrammeR]{DiagrammeR}).
+#' It will intelligently print itself into HTML in a variety of contexts
 #' including the R console, within R Markdown documents, and within Shiny output bindings.
+#'   \item If \code{getscript=FALSE} and knitting is taking place,
+#' pandoc markdown code is returned,
+#' consisting of a command to embed a PNG file identified by its path.
+#' }
 #'
 #' @examples
 #' 
@@ -1692,50 +1698,6 @@ vtree <- function (z, vars, splitspaces=TRUE,
 
 
 
-showflow <- function(flow,getscript=FALSE,nodesep=0.5,ranksep=0.5,margin=0.2,
-nodelevels="",horiz=FALSE,width=NULL,height=NULL,
-graphattr="",nodeattr="",edgeattr="") {
-#
-# {show} a {flow}chart produced by flowcat or by hier.
-#
-# showscript Only show the script generated rather than displaying the flowchart? Useful for debugging.
-# nodesep    The nodesep graph attribute.
-# ranksep    The ranksep graph attribute.
-#
-
-  nodePart <- "node [fontname = Helvetica, fontcolor = black,shape = rectangle, color = black"
-  nodePart <- paste0(nodePart,",margin=",margin)
-  nodePart <- paste0(nodePart,ifelse(nodeattr=="","",","),nodeattr)
-  nodePart <- paste0(nodePart,"]\n")
-
-  graphPart <- paste0('graph [layout = dot, compound=true, nodesep=',nodesep,', ranksep=',ranksep,', fontsize=12')
-  graphPart <- paste0(graphPart,ifelse(graphattr=="","",","),graphattr)
-  graphPart <- paste0(graphPart,']\n')
-
-  script <- paste0(
-    'digraph vtree {\n',
-    graphPart,
-    nodePart)
-
-  if (horiz) {
-    script <- paste0(script,'rankdir=LR;\n')
-  }
-
-  script <- paste0(script,nodelevels)
-
-  edgePart <- '\nedge[style=solid'
-  edgePart <- paste0(edgePart,ifelse(edgeattr=="","",","),edgeattr)
-  edgePart <- paste0(edgePart,']\n')
-
-  script <- paste0(script,edgePart,
-    flow$edges,"\n\n",flow$labelassign,sep="\n")
-
-  script <- paste0(script,"\n}\n")
-  if (getscript) { return(script) }
-  flowchart <- DiagrammeR::grViz(script,width=width,height=height)
-  
-  flowchart
-}
 
 
 

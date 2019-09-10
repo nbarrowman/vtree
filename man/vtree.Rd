@@ -307,16 +307,45 @@ to be rendered through R Markdown, e.g. \code{"3in"}}
 \item{root}{Is this the root node of the tree? (Internal use only.)}
 }
 \value{
-If \code{getscript=TRUE}, returns a character string of DOT script that describes the variable tree.
-If \code{getscript=FALSE}, returns an object of class \code{htmlwidget}
-that will intelligently print itself into HTML in a variety of contexts
+\itemize{
+  \item If \code{getscript=TRUE}, a character string is returned, consisting of DOT script that describes the variable tree.
+  \item If \code{getscript=FALSE} and knitting is not taking place,
+an object of class \code{htmlwidget} is returned (see \link[DiagrammeR]{DiagrammeR}).
+It will intelligently print itself into HTML in a variety of contexts
 including the R console, within R Markdown documents, and within Shiny output bindings.
+  \item If \code{getscript=FALSE} and knitting is taking place,
+pandoc markdown code is returned,
+consisting of a command to embed a PNG file identified by its path.
+}
 }
 \description{
 vtree is a tool for drawing variable trees.
 Variable trees display information about nested subsets of a data frame,
 in which the subsetting is defined by the values of categorical variables.
 }
+\section{Summary codes}{
+
+\itemize{
+ \item{\code{\%mean\%} }{mean}
+ \item{\code{\%SD\%} }{standard deviation}
+ \item{\code{\%sum\%} }{sum}
+ \item{\code{\%min\%} }{minimum}
+ \item{\code{\%max\%} }{maximum}
+ \item{\code{\%pX\%} }{Xth percentile, e.g. p50 means the 50th percentile}
+ \item{\code{\%median\%} }{median, i.e. p50}
+ \item{\code{\%IQR\%} }{interquartile range, i.e. p25, p75}
+ \item{\code{\%npct\%} }{number and percentage of \code{TRUE} values}
+ \item{\code{\%list\%} }{list of the individual values}
+ \item{\code{\%mv\%} }{the number of missing values}
+ \item{\code{\%v\%} }{the name of the variable}
+ \item{\code{\%noroot\%} }{flag: Do not show summary in the root node.}
+ \item{\code{\%leafonly\%} }{flag: Only show summary in leaf nodes.}
+ \item{\code{\%var=}V\code{\%} }{flag: Only show summary in nodes of variable V.}
+ \item{\code{\%node=}N\code{\%} }{flag: Only show summary in nodes with value N.}
+ \item{\code{\%trunc=}n\code{\%} }{flag: Truncate the summary to the first n characters.}
+}
+}
+
 \section{Node functions}{
 
 Node functions provide a mechanism for running a function within each subset
