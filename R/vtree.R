@@ -574,7 +574,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
     if (!all(summary=="")) {
       codevar <- gsub("^([^ ]+) (.+)$", "\\1", summary)
       
-      # Process = tag in variable names 
+      # Process = tag in variable names in summary argument
       findequal <- grep("=",codevar)
       if (length(findequal)>0) {
         for (i in 1:length(codevar)) {    
@@ -595,7 +595,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
         }
       } 
       
-      # Process > tag in variable names
+      # Process > tag in variable names in summary argument
       findgt <- grep(">",codevar)
       if (length(findgt)>0) {
         for (i in 1:length(codevar)) {    
@@ -616,7 +616,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
         }
       }
       
-      # Process < tag in variable names
+      # Process < tag in variable names in summary argument
       findlt <- grep("<",codevar)
       if (length(findlt)>0) {
         for (i in 1:length(codevar)) {    
@@ -635,8 +635,17 @@ vtree <- function (z, vars, splitspaces=TRUE,
             codevar[i] <- ltvar
           }
         }
-      }      
-
+      } 
+      
+      # If an element of codevar is not the name of a variable in z,
+      # perhaps it's an expression that can be evaluated in z
+      for (i in 1:length(codevar)) { 
+        if (!(codevar[i] %in% names(z))) {
+          derivedvar <- with(z,eval(str2expression(codevar[i]))) 
+          z[[codevar[i]]] <- derivedvar
+        }
+      }
+      
       allvars <- c(allvars,codevar)
        
       #  if (!all(codevar %in% names(z))) {

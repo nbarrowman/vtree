@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 2.1.3"
+title: "Introduction to vtree 2.1.4"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -724,12 +724,14 @@ The `summary` argument can be used to flexibly specify additional information to
 
 ### A simple example
 
-The `summary` parameter is specified as a character string
-that starts with the name of the variable for which a summary is desired.
-This is followed by a space,
-and then the rest of the string specifies what to display.
-Special codes (see table below) are use to indicate the type of summary desired,
-control which nodes display the summary, etc.
+The argument of the `summary` parameter is a character string with the following structure:
+
+* It starts with the name of the variable for which a summary is desired. (We'll see later that variable specifications and expressions can also be used, as long as they do not contain any spaces.)
+
+* Next there is a space.
+
+* The remainder of the string specifies what to display, with special codes to indicate the type of summary desired to control which nodes display the summary, etc.
+
 For example `%mean%` indicates that the mean of the specified variable should be shown.
 Thus to display the mean of the numeric variable `Score`,
 you could specify `summary="Score \nmean score: %mean%"`.
@@ -749,7 +751,7 @@ cat(vtree(FakeData,"Severity",summary="Score \nmean score: %mean%",
 #![](`r filepath`){ height=1.6in }
 ```
 
-To see the means without any decimals, the `cdigits` parameter can be used,
+To see the means without any decimals, the `cdigits` parameter can be used;
 for example:
 
 ```{r,eval=FALSE}
@@ -803,36 +805,6 @@ cat(vtree(FakeData,"Severity",horiz=FALSE,showvarnames=FALSE,splitwidth=Inf,same
 ```
 
 
-### The %npct% code
-
-Suppose we want to know the proportion of patients with a viral infection
-within each severity level.
-We could display a variable tree for the variables `Severity` and `Viral`.
-But that would show a separate node for TRUE and FALSE values of `Viral`,
-and we only need to know the percentage for the TRUE values.
-If what we're looking for is simply
-the number and percentage of patients with viral infection in each severity group,
-the `%npct%` code can be used.
-This results in a simpler tree:
-
-```{r,eval=FALSE}
-vtree(FakeData,"Severity",summary="Viral \nViral %npct%",horiz=FALSE,
-  showvarnames=FALSE,sameline=TRUE)
-```
-```{r,echo=FALSE,results="asis"}
-cat(vtree(FakeData,"Severity",summary="Viral \nViral %npct%",horiz=FALSE,
-  showvarnames=FALSE,sameline=TRUE,
-  width=650,height=200,pxwidth=800,imageheight="1.5in",folder=PNGdir))
-#filepath <- grVizToPNG(v12,folder=PNGdir,width=800)
-#![](`r filepath`){ height=1.5in }
-```
-
-Note that in each node,
-"mv" indicates the number of missing values (if any).
-
-The `%pct%` code is the same as the `%npct%` code except that it does not show the frequency, only the percentage (without parentheses).
-
-
 ### The %list% code
 
 It is sometimes convenient to see individual values of a variable in each node.
@@ -852,7 +824,7 @@ should be truncated with "...".
 ### The `%noroot%`, `%leafonly%`, `%var=`*v*`%`, and `%node=`*n*`%` codes
 
 By default, summary information is shown in all nodes.
-However, it may also be convenient to only show it in certain nodes.
+However, it may also be convenient to only show it in specific nodes.
 The following codes are available:
 
 **code**         | **summary information restricted to:**
@@ -863,11 +835,10 @@ The following codes are available:
 `%node=`*n*`%`   | nodes named *n*
 
 
+### Specification of variables in the summary argument
 
-### Specification of variables in summary
-
-As in the [specification of variables](#VariableSpecification) for structuring a variable tree,
-there are special ways to specify variables in the `summary` parameter.
+Variables in the `summary` parameter can also be specified in a way similar
+to the [specification of variables](#VariableSpecification) for structuring a variable tree.
 For example, if we wish to know the proportion of patients in each node whose `Category` is single,
 we specify `Category=single` in the `summary` argument.
 
@@ -882,9 +853,27 @@ cat(vtree(FakeData,"Severity",summary="Category=single \n%pct% single",
 #![](`r filepath`){ height=1.3in }
 ```
 
-
 Continuous variables such as `Score` can be dichotomized using
 notation such as `Score>10` or `Score<20`.
+
+
+### R expressions in the summary argument
+
+Rather than starting the `summary` argument with a variable name,
+an R expression involving variables in the data frame can be given,
+as long as it does not contain any spaces.
+
+```{r,eval=FALSE}
+vtree(FakeData,"Severity Category",
+  summary="(Post-Pre)/Pre \nmean = %mean%",sameline=TRUE,horiz=FALSE,cdigits=1)
+```
+```{r,echo=FALSE,results="asis"}
+cat(vtree(FakeData,"Severity Category",
+  summary="(Post-Pre)/Pre \nmean = %mean%",sameline=TRUE,horiz=FALSE,cdigits=1,
+  width=450,height=150,pxwidth=1000,imageheight="2in",folder=PNGdir))
+```
+
+Expressions involving functions can also be used; for example `sqrt(abs(Post/Pre))`.
 
 
 ### Showing/hiding summaries on a node-by-node basis depending on the data in the node using the `runsummary` parameter
