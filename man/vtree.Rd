@@ -26,8 +26,8 @@ vtree(z, vars, splitspaces = TRUE, prune = list(),
   "red", "orange", "pink"), colornodes = FALSE, mincount = 1, maxcount,
   showempty = FALSE, rounded = TRUE, nodefunc = NULL,
   nodeargs = NULL, choicechecklist = TRUE, pxwidth, pxheight,
-  imagewidth, imageheight, folder, pngknit = TRUE, parent = 1,
-  last = 1, root = TRUE)
+  imagewidth, imageheight, folder, pngknit = TRUE, as.if.knit = FALSE,
+  parent = 1, last = 1, root = TRUE)
 }
 \arguments{
 \item{z}{Required: Data frame, or a single vector.}
@@ -298,7 +298,9 @@ to be rendered through R Markdown, e.g. \code{"3in"}}
 
 \item{folder}{Optional path to a folder where the PNG file should stored}
 
-\item{pngknit}{Generate a PNG file when called during knit}
+\item{pngknit}{Generate a PNG file when called during knit?}
+
+\item{as.if.knit}{Behave as if called while knitting?}
 
 \item{parent}{Parent node number (Internal use only.)}
 
@@ -393,7 +395,12 @@ If \code{vtree} is called from a file that is being knitted by \code{knitr},
 it will convert the result to a PNG file (unless \code{pngknit=FALSE}),
 and generate pandoc markdown code to embed the PNG file.
 Successive PNG files will be named \code{vtree1.png}, \code{vtree2.png}, etc.
-(The variable \code{vtcount} is use to automatically keep track of this.)
+(The options \code{vtree_count} is used to automatically keep track of this.)
+
+The PNG files will be stored to a folder
+(specified by the \code{folder} parameter, or if that is missing,
+a temporary folder will be used).
+The folder path will be stored in option \code{vtree_folder}.)
 }
 
 \examples{
@@ -402,12 +409,12 @@ Successive PNG files will be named \code{vtree1.png}, \code{vtree2.png}, etc.
 vtree(FakeData,"Sex Severity")
 
 # Inline call to vtree
-`r vtree(FakeData,"Sex Severity")`
+# `r vtree(FakeData,"Sex Severity")`
 
 # Call to vtree in an R markdown code chunk
-```{r, results="asis"}
-cat(vtree(z,"Sex Severity"))
-```
+# ```{r, results="asis"}
+# cat(vtree(z,"Sex Severity"))
+# ```
 
 # A single-level hierarchy
 vtree(FakeData,"Severity")

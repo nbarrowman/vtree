@@ -204,7 +204,8 @@
 #' @param imageheight      A character string specifying the height of the PNG image
 #'                         to be rendered through R Markdown, e.g. \code{"3in"}
 #' @param folder           Optional path to a folder where the PNG file should stored
-#' @param pngknit          Generate a PNG file when called during knit
+#' @param as.if.knit       Behave as if called while knitting?
+#' @param pngknit          Generate a PNG file when called during knit?
 #'
 #' @section Summary codes:
 #' \itemize{
@@ -265,7 +266,12 @@
 #' it will convert the result to a PNG file (unless \code{pngknit=FALSE}),
 #' and generate pandoc markdown code to embed the PNG file.
 #' Successive PNG files will be named \code{vtree1.png}, \code{vtree2.png}, etc.
-#' (The variable \code{vtcount} is use to automatically keep track of this.)
+#' (The options \code{vtree_count} is used to automatically keep track of this.)
+#' 
+#' The PNG files will be stored to a folder
+#' (specified by the \code{folder} parameter, or if that is missing,
+#' a temporary folder will be used).
+#' The folder path will be stored in option \code{vtree_folder}.)
 #' 
 #' @return
 #' \itemize{
@@ -287,12 +293,12 @@
 #' vtree(FakeData,"Sex Severity")
 #' 
 #' # Inline call to vtree
-#' `r vtree(FakeData,"Sex Severity")`
+#' # `r vtree(FakeData,"Sex Severity")`
 #' 
 #' # Call to vtree in an R markdown code chunk
-#' ```{r, results="asis"}
-#' cat(vtree(z,"Sex Severity"))
-#' ```
+#' # ```{r, results="asis"}
+#' # cat(vtree(z,"Sex Severity"))
+#' # ```
 #'
 #' # A single-level hierarchy
 #' vtree(FakeData,"Severity")
@@ -357,7 +363,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
   showempty = FALSE, rounded = TRUE,
   nodefunc = NULL, nodeargs = NULL, 
   choicechecklist = TRUE,
-  pxwidth,pxheight,imagewidth,imageheight,folder,pngknit=TRUE,
+  pxwidth,pxheight,imagewidth,imageheight,folder,pngknit=TRUE,as.if.knit=FALSE,
   parent = 1, last = 1, root = TRUE)
 {
 
@@ -1643,38 +1649,40 @@ vtree <- function (z, vars, splitspaces=TRUE,
         return(flowchart)
       }
       
-      if (!isTRUE(getOption('knitr.in.progress'))) {
+      if (!isTRUE(getOption('knitr.in.progress')) && !as.if.knit) {
         print(flowchart)
         return(invisible(NULL))
       }  
       
-      if (!exists("vtcount")) {
-        vtcount <<- 0
+      if (is.null(getOption("vtree_count"))) {
+        options("vtree_count"=0)
         if (missing(folder)) {
-          vtfolder <<- tempdir()
+          options("vtree_folder"=tempdir())
         } else {
-          vtfolder <<- folder
-        }
+          options("vtree_folder"=folder)
+        }        
       }
+      
+      #browser()
+      options("vtree_count"=getOption("vtree_count")+1)
 
-      vtcount <<- vtcount+1
-      filename <- paste0("vtree",vtcount,".png")
+      filename <- paste0("vtree",getOption("vtree_count"),".png")
       
       if (missing(pxheight)) {
         if (missing(pxwidth)) {
-          grVizToPNG(flowchart,width=3000,filename=filename,folder=vtfolder)
+          grVizToPNG(flowchart,width=3000,filename=filename,folder=getOption("vtree_folder"))
         } else {
-          grVizToPNG(flowchart,width=pxwidth,filename=filename,folder=vtfolder)
+          grVizToPNG(flowchart,width=pxwidth,filename=filename,folder=getOption("vtree_folder"))
         }
       } else {
         if (missing(pxwidth)) {
-          grVizToPNG(flowchart,height=pxheight,filename=filename,folder=vtfolder)
+          grVizToPNG(flowchart,height=pxheight,filename=filename,folder=getOption("vtree_folder"))
         } else {
-          grVizToPNG(flowchart,width=pxwidth,height=pxheight,filename=filename,folder=vtfolder)
+          grVizToPNG(flowchart,width=pxwidth,height=pxheight,filename=filename,folder=getOption("vtree_folder"))
         }
       }  
       
-      fullpath <- file.path(vtfolder,filename)
+      fullpath <- file.path(folder=getOption("vtree_folder"),filename)
     
       embedded <- paste0("![](",fullpath,")")
     
