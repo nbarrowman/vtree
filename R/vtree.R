@@ -937,7 +937,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
       select <- PATTERN %in% PATTERN_levels
       PATTERN <- PATTERN[select]
       
-      z <- z[select,]
+      z <- z[select,,drop=FALSE]
       
       #PATTERN[!(PATTERN) %in% PATTERN_levels] <- "Other"
       #PATTERN_levels <- c(PATTERN_levels,"Other")
@@ -946,8 +946,9 @@ vtree <- function (z, vars, splitspaces=TRUE,
 
       names(PATTERN_values) <- vars
       for (i in 1:length(PATTERN_levels)) {
-        patternRow <- z[PATTERN==PATTERN_levels[i],]
+        patternRow <- z[PATTERN==PATTERN_levels[i],,drop=FALSE]
         for (j in 1:length(vars)) {
+          #browser()
           PATTERN_values[[vars[j]]][i] <- as.character(patternRow[[vars[j]]][1])
         }
       }

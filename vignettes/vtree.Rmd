@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 2.1.8"
+title: "Introduction to vtree 2.1.9"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -30,6 +30,8 @@ Variable trees display information about nested subsets of a data frame.
 `vtree` provides an intuitive way to explore a data set, 
 construct flow diagrams for reports and publications,
 and to double-check an analysis to ensure that subsetting has been performed correctly.
+
+## Examples
 
 *Subsets* play an important role in almost any data analysis.
 Imagine a data set of countries,
