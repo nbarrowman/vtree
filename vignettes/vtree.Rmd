@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 2.1.6"
+title: "Introduction to vtree 2.1.8"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -24,6 +24,12 @@ PNGdir <- tempdir()
 ```
 
 # Introduction
+
+`vtree` is a flexible tool for drawing variable trees.
+Variable trees display information about nested subsets of a data frame.
+`vtree` provides an intuitive way to explore a data set, 
+construct flow diagrams for reports and publications,
+and to double-check an analysis to ensure that subsetting has been performed correctly.
 
 *Subsets* play an important role in almost any data analysis.
 Imagine a data set of countries,
@@ -61,15 +67,10 @@ and displaying information about them is presented here.
 The idea is to represent nested subsets of a data set
 (where the subsets are defined by specific variables in the data set),
 using a tree structure, which we call a *variable tree*.
-`vtree` is a flexible tool for calculating and drawing variable trees.
-It can be used to explore a data set,
-to construct figures for reports and publications,
-and to double-check code to ensure that subsetting has been performed correctly.
-
 
 ## Basic features of a variable tree
 
-The examples that follow use a data set of `r nrow(FakeData)` fictitious patients called `FakeData`.
+The examples that follow use a data set called `FakeData` which represents `r nrow(FakeData)` fictitious patients.
 Based on this data set, the variable tree below depicts subsets defined by `Sex` (M or F)
 nested within subsets defined by disease `Severity` (Mild, Moderate, Severe, or NA).
 Later we'll see how variable trees with more than two variables are particularly useful.
