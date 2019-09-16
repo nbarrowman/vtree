@@ -436,6 +436,11 @@ vtree <- function (z, vars, splitspaces=TRUE,
         vars <- argname
     }
     
+    # Special case where vars is not provided
+    if (is.data.frame(z) && missing(vars)) {
+      vars <- names(z)
+    }
+    
     # Process * tag in variable names to expand list of variables
     findstar <- grep("\\*$",vars)
     if (length(findstar)>0) {
