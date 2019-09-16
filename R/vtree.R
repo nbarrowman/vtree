@@ -197,12 +197,20 @@
 #' @param mincount         Minimum count to include in a pattern tree or pattern table.
 #' @param maxcount         Maximum count to include in a pattern tree or pattern table.
 #'                         (Overrides mincount.)
-#' @param pxwidth          Width in pixels of the PNG bitmap
-#' @param pxheight         Height in pixels of the PNG bitmap
+#' @param pxwidth          Width in pixels of the PNG bitmap to be rendered
+#'                         when \code{vtree} is called from R Markdown.
+#'                         If neither \code{pxwidth} nor \code{pxheight} is specified,
+#'                         \code{pxwidth} is automatically set to 2000 pixels.
+#' @param pxheight         Height in pixels of the PNG bitmap to be rendered
+#'                         when \code{vtree} is called from R Markdown.
 #' @param imagewidth       A character string specifying the width of the PNG image
-#'                         to be rendered through R Markdown, e.g. \code{"3in"}
+#'                         to be rendered when \code{vtree} is called from R Markdown,
+#'                         e.g. \code{"4in"}
 #' @param imageheight      A character string specifying the height of the PNG image
-#'                         to be rendered through R Markdown, e.g. \code{"3in"}
+#'                         to be rendered when \code{vtree} is called from R Markdown,
+#'                         e.g. \code{"5in"}.
+#'                         If neither \code{imageheight} nor \code{imagewidth} is specified,
+#'                         \code{imageheight} is set to 3 inches.
 #' @param folder           Optional path to a folder where the PNG file should stored
 #' @param as.if.knit       Behave as if called while knitting?
 #' @param pngknit          Generate a PNG file when called during knit?
@@ -1685,7 +1693,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
       
       if (missing(pxheight)) {
         if (missing(pxwidth)) {
-          grVizToPNG(flowchart,width=3000,filename=filename,folder=getOption("vtree_folder"))
+          grVizToPNG(flowchart,width=2000,filename=filename,folder=getOption("vtree_folder"))
         } else {
           grVizToPNG(flowchart,width=pxwidth,filename=filename,folder=getOption("vtree_folder"))
         }

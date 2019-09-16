@@ -286,15 +286,23 @@ specified by \code{nodefunc}.}
 \item{choicechecklist}{When REDCap checklists are specified using the \code{stem:} syntax,
 automatically extract the names of choices and use them as variable names?}
 
-\item{pxwidth}{Width in pixels of the PNG bitmap}
+\item{pxwidth}{Width in pixels of the PNG bitmap to be rendered
+when \code{vtree} is called from R Markdown.
+If neither \code{pxwidth} nor \code{pxheight} is specified,
+\code{pxwidth} is automatically set to 2000 pixels.}
 
-\item{pxheight}{Height in pixels of the PNG bitmap}
+\item{pxheight}{Height in pixels of the PNG bitmap to be rendered
+when \code{vtree} is called from R Markdown.}
 
 \item{imagewidth}{A character string specifying the width of the PNG image
-to be rendered through R Markdown, e.g. \code{"3in"}}
+to be rendered when \code{vtree} is called from R Markdown,
+e.g. \code{"4in"}}
 
 \item{imageheight}{A character string specifying the height of the PNG image
-to be rendered through R Markdown, e.g. \code{"3in"}}
+to be rendered when \code{vtree} is called from R Markdown,
+e.g. \code{"5in"}.
+If neither \code{imageheight} nor \code{imagewidth} is specified,
+\code{imageheight} is set to 3 inches.}
 
 \item{folder}{Optional path to a folder where the PNG file should stored}
 
