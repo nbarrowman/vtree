@@ -26,7 +26,7 @@
 #' # and whether landlocked or not.
 #' # https://www.worldometers.info/geography/how-many-countries-in-africa/
 #' #
-#' df <- makedf(
+#' df <- build.data.frame(
 #'  c("continent","population","landlocked"),
 #'  list("Africa","Over 30 million","landlocked",2),
 #'  list("Africa","Over 30 million","not landlocked",12),
