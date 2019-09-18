@@ -678,7 +678,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
       # perhaps it's an expression that can be evaluated in z
       for (i in 1:length(codevar)) { 
         if (!(codevar[i] %in% names(z))) {
-          derivedvar <- with(z,eval(str2expression(codevar[i]))) 
+          derivedvar <- with(z,eval(parse(text=codevar[i],keep.source=FALSE))) 
           z[[codevar[i]]] <- derivedvar
         }
       }
