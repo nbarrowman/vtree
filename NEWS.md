@@ -1,3 +1,24 @@
+# vtree 2.2.3
+
+## Changes
+
+
+## New features
+
+* `prunesmaller` parameter to remove nodes with small counts.
+
+* In variable specifications, `*` matches multiple variable name endings and `#` matches variable names ending with numeric digits.
+
+* When called while knitting an R Markdown document, PNG files are now automatically generated and embedded.
+
+* `pngknit=FALSE` disables PNG generation while knitting. Returns an `htmlwidget` instead.
+
+* New function `Venntable`
+
+* New function `build.data.frame`
+
+* Calculations in the argument of the `summary` parameter.
+
 # vtree 2.0.0
 
 ## Changes
