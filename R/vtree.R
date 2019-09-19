@@ -449,6 +449,9 @@ vtree <- function (z, vars, splitspaces=TRUE,
       vars <- names(z)
     }
     
+    if (length(vars)>30) 
+      stop(paste0(length(vars)," variables exceeds the current maximum of 30."))
+    
     # Process * tag in variable names to expand list of variables
     findstar <- grep("\\*$",vars)
     if (length(findstar)>0) {
@@ -463,6 +466,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
         }
       }
       vars <- expanded_stem
+      if (length(vars)==0) stop("No variables match the specification.")
     }    
     
     # Process # tag in variable names to expand list of variables ending in numeric digits
@@ -479,8 +483,9 @@ vtree <- function (z, vars, splitspaces=TRUE,
         }
       }
       vars <- expanded_stem
+      if (length(vars)==0) stop("No variables match the specification.")
     }            
-    
+     
     # Process = tag in variable names 
     findequal <- grep("=",vars)
     if (length(findequal)>0) {

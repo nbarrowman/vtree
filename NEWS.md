@@ -2,8 +2,13 @@
 
 ## Changes
 
+## Bug fixes
+
+* Fixed a bug that occurred when `pattern=TRUE` and a single variable was specified.
 
 ## New features
+
+* There is a new summary code, `%sum%`, to show the sum of values.
 
 * `prunesmaller` parameter to remove nodes with small counts.
 
@@ -13,11 +18,14 @@
 
 * `pngknit=FALSE` disables PNG generation while knitting. Returns an `htmlwidget` instead.
 
-* New function `Venntable`
+* The new function `VennTable` reformats a "pattern table" output by `vtree` for indicator (0/1) variables.
 
-* New function `build.data.frame`
+* The new function `build.data.frame` makes it easy to create a data frame for use with vtree.
 
-* Calculations in the argument of the `summary` parameter.
+* If no variable names are provided, `vtree` will use, in order, all of the variables in the data frame.
+
+* Multi-variable calculations like `x/y` can be used in the argument of the `summary` parameter.
+
 
 # vtree 2.0.0
 

@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 2.2.3"
+title: "Introduction to vtree 2.2.4"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
