@@ -10,9 +10,13 @@
 #' (which will not in general add to 100\%).
 #' Also, optionally, does some additional formatting for pandoc markdown.
 #'  
-#' @param x         Pattern table produced by \code{vtree} for indicator (i.e 0/1) variables
+#' @param x         Required: Pattern table produced by \code{vtree} for indicator (i.e 0/1) variables
 #' @param markdown  Format nicely for markdown (see Details).
 #' @param NAcode    Code to use to represent NAs in markdown formatting
+#' @param checked   Vector of character strings that represent checked values;
+#'                  by default: c("1","TRUE","Yes","yes")
+#' @param unchecked Vector of character strings that represent unchecked values;
+#'                  by default: c("0","FALSE","No","no")
 #' 
 #' @details
 #' The column totals ignore missing values.
@@ -38,19 +42,20 @@
 #'
 #' @export
 #'
-VennTable <- function(x,markdown=FALSE,NAcode="-") {
+VennTable <- function(x,markdown=FALSE,NAcode="-",
+  unchecked=c("0","FALSE","No","no"),checked=c("1","TRUE","Yes","yes")) {
   mat <- as.matrix(x[,-c(1,2)])
-  # Convert logical values to 1's and 0's
-  mat[mat=="TRUE"] <- "1"
-  mat[mat=="FALSE"] <- "0"  
+  # Convert logical values to 0's and 1's
+  mat[mat %in% unchecked] <- "0"  
+  mat[mat %in% checked] <- "1"
   mode(mat) <- "numeric"
   mat <- mat*x$n  # Note that this relies on column recycling
   count <- apply(mat,2,sum,na.rm=TRUE)
   xmat <- as.matrix(x)
   if (markdown) {
     xmat[,-(1:2)][is.na(xmat[,-(1:2)])] <- NAcode
-    xmat[,-(1:2)][xmat[,-(1:2)]=="0"] <- ""
-    xmat[,-(1:2)][xmat[,-(1:2)]=="1"] <- "&#10004;"
+    xmat[,-(1:2)][xmat[,-(1:2)] %in% unchecked] <- ""
+    xmat[,-(1:2)][xmat[,-(1:2)] %in% checked] <- "&#10004;"
   }
   xmat <- rbind(xmat,c("","",count))
   xmat <- rbind(xmat,c("","",round(100*count/sum(x[,1]))))

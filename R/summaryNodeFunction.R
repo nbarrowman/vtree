@@ -82,6 +82,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
       na.rm <- args$na.rm
 
       missingNum <- sum(is.na(y))
+      nonmissingNum <- sum(!is.na(y))
       if (na.rm) {
         x <- y[!is.na(y)]
         if (is.null(x)) x <- NA
@@ -175,6 +176,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
         result <- gsub("%list%",listOutput,result)
         result <- gsub("%listlines%",listLinesOutput,result)
         result <- gsub("%mv%",paste0(missingNum),result)
+        result <- gsub("%nonmv%",paste0(nonmissingNum),result)
         if (is.numeric(x) | is.logical(x)) {
           # Note that y is used in the call to nAndpct
           # so that missing values can be handled as desired

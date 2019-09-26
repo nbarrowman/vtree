@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 2.2.4"
+title: "Introduction to vtree 2.2.5"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -762,6 +762,7 @@ code            | result
 `%list%`        |  list of individual values, separated by commas
 `%listlines%`   |  list of individual values, each on a separate line
 `%mv%`          |  the number of missing values
+`%nonmv%`       |  the number of non-missing values
 `%v%`           |  the name of the variable
 
 The `summary` argument can use any number of these codes,

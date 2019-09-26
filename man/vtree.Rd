@@ -372,6 +372,7 @@ are named \code{vtree1.png}, \code{vtree2.png}, etc.
  \item{\code{\%npct\%} }{number and percentage of \code{TRUE} values}
  \item{\code{\%list\%} }{list of the individual values}
  \item{\code{\%mv\%} }{the number of missing values}
+ \item{\code{\%nonmv\%} }{the number of non-missing values}
  \item{\code{\%v\%} }{the name of the variable}
  \item{\code{\%noroot\%} }{flag: Do not show summary in the root node.}
  \item{\code{\%leafonly\%} }{flag: Only show summary in leaf nodes.}
