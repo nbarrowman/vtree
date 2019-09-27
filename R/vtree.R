@@ -609,6 +609,38 @@ vtree <- function (z, vars, splitspaces=TRUE,
       vars <- expandedvars
     }
     
+    # Process rc: tag in variable names to handle single REDCap checklist items automatically
+    findtag <- grep("^rc:",vars)
+    if (length(findtag)>0) {
+      expandedvars <- c()
+      for (i in 1:length(vars)) {
+        if (i %in% findtag) {
+          rcvar <- sub("^rc:([^ ]+)$","\\1",vars[i])
+          if (choicechecklist) {
+            rexp1 <- ".+\\(choice=(.+)\\)"
+            rexp2 <- ".+: (.+)"
+            lab <- attributes(z[[rcvar]])$label
+            if (length(grep(rexp1,lab))>0) {
+              choice <- sub(rexp1,"\\1",lab)
+            } else
+            if (length(grep(rexp2,lab))>0) {
+              choice <- sub(rexp2,"\\1",lab)
+            } else {
+              stop("Could not find value of checklist item")
+            }
+            z[[choice]] <- z[[rcvar]]
+            expandedvars <- c(expandedvars,choice)
+          } else {
+            expandedvars <- c(expandedvars,rcvar)
+          }
+        } else {
+          expandedvars <- c(expandedvars,vars[i])
+        }
+      }
+      vars <- expandedvars
+    }    
+    
+    
     if (!missing(showlevels)) showvarnames <- showlevels
 
     allvars <- vars

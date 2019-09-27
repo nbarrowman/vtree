@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 2.2.5"
+title: "Introduction to vtree 2.2.6"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -1021,9 +1021,17 @@ adds some additional totals, and does some formatting:
 print(VennTable(vtree(FakeData,"Ind1 Ind2",ptable=TRUE)),quote=FALSE)
 ```
 
-(In the example above, quotation marks are suppressed.
+(In the example above, in the call to `print`, quotation marks are suppressed.
 This is done because ordinarily a matrix of character strings is shown with
 quotation marks, which are a bit distracting.)
+
+`VennTable` has some additional parameters.
+The `checked` parameter is used to specify values that should be interpreted as affirmative.
+By default, it is set to `c("1","TRUE","Yes","yes")`.
+Similarly, the `unchecked` parameter is used to specify values that should be interpreted as negative,
+with default `c("0","FALSE","No","no")`.
+To generate a table including markdown codes for checkmarks and other features,
+specify `markdown=TRUE`.
 
 Summaries can be very useful in pattern tables.
 If a single summary is requested, it appears in the `summary_1` variable in the data frame.
