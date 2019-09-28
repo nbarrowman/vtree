@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 2.2.6"
+title: "Introduction to vtree 2.2.7"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -190,7 +190,7 @@ including a variety of summary statistics;
 [patterns](#patterns) of values, and
 [missing value patterns](#missingValues);
 
-* support for [checkbox variables](#REDCapCheckboxes) from [REDCap](https://www.project-redcap.org) databases ; and
+* support for [checkbox variables](#REDCapCheckboxes) from [REDCap](https://www.project-redcap.org) databases; and
 
 * features for [dichotomizing variables](#dichotomizing) and [checking for outliers](#detectingOutliers).
 
@@ -366,9 +366,8 @@ but also at any of the following characters: . - + _ = /
 ### And more ...
 
 This concludes the mini-tutorial.
-The rest of this vignette details the many features of `vtree`.
-There is also a section of [examples](#RdatasetExamples) using data from the built-in R datasets package.
- 
+`vtree` has many more features, described in the following sections.
+
  
 ## Pruning {#pruning}
 
@@ -448,7 +447,7 @@ vtree(FakeData,"Severity Sex Age Category",sameline=TRUE,prunesmaller=3)
 ```
 
 
-## Changing how variables and nodes are labeled {#labeling}
+## Labels for variables and nodes {#labeling}
 
 By default, `vtree` labels variables and nodes exactly as they are in the data frame.
 For presentation purposes it is often useful to change these labels.
@@ -634,7 +633,7 @@ that variable will be replaced by a missing value indicator in the variable tree
 which is used to replace *all* of the specified variables with missing value indicators.)
 
 
-### prefix `stem:`
+### prefixes `stem:` and `rc:`
 
 In datasets exported from [REDCap](https://www.project-redcap.org/),
 checkboxes are represented using multiple variables.
@@ -786,7 +785,7 @@ vtree(FakeData,"Severity",horiz=FALSE,showvarnames=FALSE,splitwidth=Inf,sameline
   width=650,height=350,pxwidth=1000,imageheight="1.5in",folder=PNGdir)`
   
 
-### The %list% code
+### The `%list%` code
 
 It is sometimes convenient to see individual values of a variable in each node.
 For example it is often convenient to see ID numbers.
@@ -937,13 +936,15 @@ vtree(FakeData,"Sex Category",sameline=TRUE,splitwidth=150,varminwidth=c(Categor
 
 ## Pattern trees {#patterns}
 
-Each leaf node in a tree provides the frequency of a particular pattern (combination)
+Each node in a variable tree provides the frequency of a particular combination
 of values of the variables.
+The leaf nodes represent all the observed combinations of *all* of the variables.
 For example, in a variable tree for `Severity` and `Sex`,
 the leaf nodes correspond to Mild F, Mild M, Moderate F, Moderate M, etc.
-If these patterns themselves are used as the first variable in a tree,
-then the tree will be "detangled";
-that is, each branch of the tree will represent a unique pattern.
+These combinations, or "patterns", can be considered as an additional variable.
+If this new pattern variable is used as the first variable in a tree,
+then the branches of the tree will be greatly simplified:
+each branch will represent a unique pattern, with no sub-branches.
 A "pattern tree" can be easily produced by specifying `pattern=TRUE`:
 
 ```{r, eval=FALSE}
@@ -964,26 +965,25 @@ cat(vtree(FakeData,"Severity Sex",pattern=TRUE,
 ```
 
 
-
-Pattern trees are easier to read,
-but they involve a considerable a loss of information,
+Pattern trees are easier to read than ordinary variable trees,
+but they involve a considerable loss of information,
 since they only represent the *n*th-level subsets
-(where *n* is the number of variables)..
+(where *n* is the number of variables).
 
-Note that, by default, the root node is not shown when `pattern=TRUE` is specified,
-because this simplifies the display
+Note that by default, when `pattern=TRUE` is specified,
+the root node is not shown in order to further simplify the display
 (in fact, without the root node, it is no longer a tree!).
 A disadvantage of this is that the total sample size is not shown.
 The root node can be shown by specifying `showroot=TRUE`.
 
-This tree has two other special characteristics.
+A pattern tree has two other special characteristics.
 First, note that after the first level (representing `pattern`),
 counts and percentages are not shown,
 since they are not informative:
 by definition, all nodes within a branch have the same count.
 Second, note that in place of arrows, undirected line segments are shown.
 This is because, without percentages, arrows have no particular significance.
-That being said, in some cases there is a natural ordering to the variables
+That being said, in some cases the variables have a natural ordering
 (as is the case with longitudinal variables).
 To show arrows, specify `seq=TRUE` instead of `pattern=TRUE`,
 and a "sequence" (i.e. an ordered pattern) will be shown.
@@ -995,7 +995,8 @@ Summaries can be shown in pattern trees
 
 ### Pattern tables
 
-When `pattern=TRUE` is specified, the variable tree looks a lot like a table.
+A pattern tree looks a lot like a table.
+Instead of showing a pattern tree, it may be more convenient to produce a table.
 In fact a data frame containing the information from the pattern tree 
 can be exported by specifying `ptable=TRUE`:
 
@@ -1005,8 +1006,12 @@ vtree(FakeData,"Severity Sex",ptable=TRUE)
 
 This compact representation may be convenient for display in a manuscript.
 
-When a pattern table is created for indicator variables,
-it provides all the information of a Venn Diagram.
+### Indicator variables
+
+Pattern trees are useful for indicator variables
+(such as variables that take values 0/1, no/yes, FALSE/TRUE, etc.).
+When a pattern table is created for indicator variables
+it provides all the information that a Venn Diagram shows.
 For example:
 
 ```{r}
@@ -1210,6 +1215,8 @@ individual variables `IceCream___1` (representing Chocolate),
 When the dataset is read into R,
 the names of the flavours are embedded in the `attributes` of these variables.
 
+### prefix `stem:`
+
 `vtree` includes a feature designed to make REDCap checkbox variables easier to use.
 Instead of typing:
 
@@ -1231,6 +1238,16 @@ An especially convenient way to display checkbox variables with `vtree` is:
 
 ```{r eval=FALSE}
 vtree(MyREDCapData,"stem:IceCream",pattern=TRUE,showroot=FALSE)
+```
+
+### prefix `rc:`
+
+Alternatively, if you wish to only examine specific REDCap checkbox items,
+the `rc:` prefix can be used.
+For example to examine results for just Chocolate and Strawberry:
+
+```{r, eval=FALSE}
+vtree(MyREDCapData,"rc:IceCream___1 rc:IceCream___3",pattern=TRUE,showroot=FALSE)
 ```
 
 
