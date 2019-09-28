@@ -190,7 +190,7 @@ including a variety of summary statistics;
 [patterns](#patterns) of values, and
 [missing value patterns](#missingValues);
 
-* support for REDCap [checkbox variables](#REDCapCheckboxes); and
+* support for [checkbox variables](#REDCapCheckboxes) from [REDCap](https://www.project-redcap.org) databases ; and
 
 * features for [dichotomizing variables](#dichotomizing) and [checking for outliers](#detectingOutliers).
 
