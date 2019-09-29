@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 2.2.7"
+title: "Introduction to vtree 2.2.8"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -315,7 +315,7 @@ vtree(FakeData,"Severity Sex",showlegend=TRUE,shownodelabels=FALSE)
 ```
 
 `r vtree(FakeData,"Severity Sex",showlegend=TRUE,shownodelabels=FALSE,
-  width=550,height=450,pxwidth=1200,imageheight="4in",folder=PNGdir)`
+  width=550,height=450,pxwidth=1200,imageheight="4in")`
   
 The legend shows how colors are assigned to the different values of each variable,
 and additionally provides marginal (that is, overall) counts and percentages for each variable.
@@ -392,7 +392,7 @@ vtree(FakeData,"Severity Sex",prune=list(Severity=c("Mild","Moderate")))
 ```
 
 `r vtree(FakeData,"Severity Sex",prune=list(Severity=c("Mild","Moderate")),
-  width=500,height=300,pxwidth=600,imageheight="2.5in",folder=PNGdir)`
+  width=500,height=300,pxwidth=600,imageheight="2.5in")`
 
 
 **Caution**: Once a variable tree has been pruned,
@@ -422,7 +422,7 @@ vtree(FakeData,"Severity Sex",prunebelow=list(Severity=c("Mild","Moderate")))
 ```
 
 `r vtree(FakeData,"Severity Sex",prunebelow=list(Severity=c("Mild","Moderate")),
-  width=500,height=300,pxwidth=600,imageheight="3in",folder=PNGdir)`
+  width=500,height=300,pxwidth=600,imageheight="3in")`
 
 
 ### The `keep` and `follow` parameters
@@ -467,7 +467,7 @@ vtree(FakeData,"Severity Sex",horiz=FALSE,labelvar=c(Severity="Initial severity"
 
 `r vtree(FakeData,"Severity Sex",horiz=FALSE,
   labelvar=c(Severity="Initial severity"),
-  width=700,height=250,pxwidth=1200,imageheight="2.2in",folder=PNGdir)`
+  width=700,height=250,pxwidth=1200,imageheight="2.2in")`
   
   
 ### Changing node labels with the `labelnode` parameter
@@ -488,7 +488,7 @@ vtree(FakeData,"Group Sex",horiz=FALSE,labelnode=list(Sex=c(Male="M",Female="F")
 ```
 
 `r vtree(FakeData,"Group Sex",horiz=FALSE,labelnode=list(Sex=c(Male="M",Female="F")),
-  width=700,height=250,pxwidth=800,imageheight="2.2in",folder=PNGdir)`
+  width=700,height=250,pxwidth=800,imageheight="2.2in")`
 
 
 ### Targeted node labels using the `tlabelnode` parameter
@@ -518,7 +518,7 @@ vtree(FakeData,"Group Sex",horiz=FALSE,
     c(Group="A",Sex="M",label="boy"),
     c(Group="B",Sex="F",label="woman"),
     c(Group="B",Sex="M",label="man")),
-  width=700,height=250,pxwidth=1000,imageheight="2.2in",folder=PNGdir)`
+  width=700,height=250,pxwidth=1000,imageheight="2.2in")`
 
 
 ## Text and text formatting {#textFormatting}
@@ -582,7 +582,7 @@ vtree(FakeData,"Group Severity",horiz=FALSE,showvarnames=FALSE,
 
 `r vtree(FakeData,"Group Severity",horiz=FALSE,showvarnames=FALSE,
   text=list(Severity=c(Mild="\n*Excluding\nnew diagnoses*")),
-  width=450,height=150,pxwidth=1200,imageheight="2.5in",folder=PNGdir)`
+  width=450,height=150,pxwidth=1200,imageheight="2.5in")`
   
 
 ### Targeted text using the `ttext` parameter
@@ -610,7 +610,7 @@ vtree(FakeData,"Group Severity",horiz=FALSE,showvarnames=FALSE,
 `r vtree(FakeData,"Group Severity",horiz=FALSE,showvarnames=FALSE,
   ttext=list(c(Group="B",Severity="Mild",text="\n*Excluding\nnew diagnoses*"),
     c(Group="A",text="\nSweden"),c(Group="B",text="\nNorway")),
-  width=450,height=150,pxwidth=1000,imageheight="2.5in",folder=PNGdir)`
+  width=450,height=150,pxwidth=1000,imageheight="2.5in")`
   
 
 ## Specification of variables {#VariableSpecification}
@@ -732,7 +732,7 @@ vtree(FakeData,"Severity",summary="Score \nmean score: %mean%",sameline=TRUE,hor
 
 `r vtree(FakeData,"Severity",summary="Score \nmean score: %mean%",
   sameline=TRUE,horiz=FALSE,
-  width=450,height=150,pxwidth=1000,imageheight="1.6in",folder=PNGdir)`
+  width=450,height=150,pxwidth=1000,imageheight="1.6in")`
   
 
 To see the means without any decimals, the `cdigits` parameter can be used;
@@ -782,7 +782,7 @@ vtree(FakeData,"Severity",horiz=FALSE,showvarnames=FALSE,splitwidth=Inf,sameline
   summary=c(
     "Score \nScore: mean (SD) %mean% (%SD%)",
     "Pre \nPre: range %min%, %max%"),
-  width=650,height=350,pxwidth=1000,imageheight="1.5in",folder=PNGdir)`
+  width=650,height=350,pxwidth=1000,imageheight="1.5in")`
   
 
 ### The `%list%` code
@@ -828,7 +828,7 @@ vtree(FakeData,"Severity",summary="Category=single \n%pct% single",sameline=TRUE
 
 `r vtree(FakeData,"Severity",summary="Category=single \n%pct% single", 
   horiz=FALSE,sameline=TRUE,
-  width=450,height=150,pxwidth=800,imageheight="1.3in",folder=PNGdir)`
+  width=450,height=150,pxwidth=800,imageheight="1.3in")`
   
 
 Continuous variables such as `Score` can be dichotomized using
@@ -848,7 +848,7 @@ vtree(FakeData,"Severity Category",
 
 `r vtree(FakeData,"Severity Category",
   summary="(Post-Pre)/Pre \nmean = %mean%",sameline=TRUE,horiz=FALSE,cdigits=1,
-  width=450,height=150,pxwidth=1000,imageheight="2in",folder=PNGdir)`
+  width=450,height=150,pxwidth=1000,imageheight="2in")`
 
 Expressions involving functions can also be used; for example `sqrt(abs(Post/Pre))`.
 
@@ -888,7 +888,7 @@ vtree(FakeData,"Sex Category",sameline=TRUE,splitwidth=150,varminwidth=c(Categor
     "Viral \nviral: %npct%%leafonly%",
     "Feature1 , F1: %npct%%leafonly%",
     "Feature2 , F2: %npct%%leafonly%"),
-  pxwidth=800,imageheight="3in",folder=PNGdir)`
+  pxwidth=800,imageheight="3in")`
 
 But note that in two of the nodes there are no viral infections,
 so in these nodes there are no virus features to describe.
@@ -931,7 +931,7 @@ vtree(FakeData,"Sex Category",sameline=TRUE,splitwidth=150,varminwidth=c(Categor
     function(x) TRUE,
     function(x) any(x$Viral,na.rm=TRUE),
     function(x) any(x$Viral,na.rm=TRUE)),
-  pxwidth=800,imageheight="3in",folder=PNGdir)`
+  pxwidth=800,imageheight="3in")`
   
 
 ## Pattern trees {#patterns}
@@ -953,14 +953,14 @@ vtree(FakeData,"Severity Sex",pattern=TRUE)
 ```
 ```{r, echo=FALSE,results="asis"}
 cat(vtree(FakeData,"Severity Sex",
-  width=650,height=650,pxwidth=600,imageheight="4in",folder=PNGdir))
-#filepath <- grVizToPNG(v14,folder=PNGdir,width=800))
+  width=650,height=650,pxwidth=600,imageheight="4in"))
+#filepath <- grVizToPNG(v14,width=800))
 
 cat("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")
 
 cat(vtree(FakeData,"Severity Sex",pattern=TRUE,
-  width=650,height=650,pxwidth=600,imageheight="4in",folder=PNGdir))
-#filepath2 <- grVizToPNG(v15,folder=PNGdir,width=800)
+  width=650,height=650,pxwidth=600,imageheight="4in"))
+#filepath2 <- grVizToPNG(v15,width=800)
 #![](`r filepath`){ height=4in } &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ![](`r filepath2`){ height=4in }
 ```
 
@@ -1010,8 +1010,21 @@ This compact representation may be convenient for display in a manuscript.
 
 Pattern trees are useful for indicator variables
 (such as variables that take values 0/1, no/yes, FALSE/TRUE, etc.).
-When a pattern table is created for indicator variables
-it provides all the information that a Venn Diagram shows.
+For example, the variables `Ind1` through `Ind4` in `FakeData` are 0/1 variables.
+If these variables are interpreted as representing set membership
+(0 = member, 1 = non-member), then a pattern tree is an alternative representation of a Venn diagram.
+There are convenient settings in `vtree` for indicator variables
+
+Convenient settings for such variables can be requested by specifying `Venn=TRUE`:
+
+```{r, eval=FALSE}
+vtree(FakeData,"Ind1 Ind2 Ind3 Ind4",Venn=TRUE,pattern=TRUE)
+```
+
+`r vtree(FakeData,"Ind1 Ind2 Ind3 Ind4",Venn=TRUE,pattern=TRUE,
+  width=650,height=650,pxwidth=800,imageheight="6in")`
+
+A pattern table for indicator variables provides all the information that a Venn diagram represents.
 For example:
 
 ```{r}
@@ -1032,13 +1045,13 @@ quotation marks, which are a bit distracting.)
 
 `VennTable` has some additional parameters.
 The `checked` parameter is used to specify values that should be interpreted as affirmative.
-By default, it is set to `c("1","TRUE","Yes","yes")`.
+By default, it is set to `c("1","TRUE","Yes","yes","N/A")`.
 Similarly, the `unchecked` parameter is used to specify values that should be interpreted as negative,
-with default `c("0","FALSE","No","no")`.
+with default `c("0","FALSE","No","no","not N/A")`.
 To generate a table including markdown codes for checkmarks and other features,
 specify `markdown=TRUE`.
 
-Summaries can be very useful in pattern tables.
+Summaries can be useful in pattern tables.
 If a single summary is requested, it appears in the `summary_1` variable in the data frame.
 If additional summaries are requested they appear as `summary_2`, `summary_3`, etc.
 
@@ -1046,6 +1059,42 @@ If additional summaries are requested they appear as `summary_2`, `summary_3`, e
 vtree(FakeData,"Severity Sex",summary=c("Score %mean%","Pre %mean%"),ptable=TRUE)
 ```
 
+### Checking for missing values with the `check.is.na` parameter {#missingValues}
+
+If `check.is.na=TRUE` is specified,
+each variable is replaced by an indicator of whether or not it is missing,
+and `pattern=TRUE` is automatically set.
+Except for the pattern node, all the other nodes are blank,
+and only their shade indicates missing (dark) or not (light).
+Whereas the variables used to build a variable tree are normally categorical,
+this is a situation where non-categorical variables can be used,
+because their missingness is represented instead of their actual values.
+
+```{r,eval=FALSE}
+vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE)
+```
+
+`r vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,
+  width=700,height=370,pxwidth=600,imageheight="3in")`
+
+Specifying `ptable=TRUE` produces this information in a data frame,
+and calling `VennTable` shows additional information:
+
+```{r}
+print(VennTable(vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,ptable=TRUE)),quote=FALSE)
+```
+
+Note that the columns `n` and `pct` represent the frequency and percentage
+of the total number of cases for each pattern of missingness,
+and the rows `N` and `pct` at the bottom represent the frequency and percentage
+of missingness for each variable.
+
+It may be useful to identify the ids for these patterns. Here the results are truncated to 15 characters:
+
+```{r}
+vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,summary="id %list%%trunc=15%",
+  ptable=TRUE)
+```
 
 
 ## Special variable trees
@@ -1067,7 +1116,7 @@ vtree(FakeData,"Ind1 Ind2 Ind3 Ind4",Venn=TRUE)
 ```
 
 `r vtree(FakeData,"Ind1 Ind2 Ind3 Ind4",Venn=TRUE,
-  width=650,height=650,pxwidth=800,imageheight="6in",folder=PNGdir)`
+  width=650,height=650,pxwidth=800,imageheight="6in")`
 
 Note that for simplicity, node labels are not shown.
 Instead, dark colors indicate set membership,
@@ -1091,7 +1140,7 @@ vtree(FakeData,"Ind1 Ind2 Ind3 Ind4",Venn=TRUE,pattern=TRUE,
 
 `r vtree(FakeData,"Ind1 Ind2 Ind3 Ind4",Venn=TRUE,pattern=TRUE,
   palette=c(Ind1=1,Ind2=2,Ind3=3,Ind4=4),
-  pxwidth=600,imageheight="4.5in",folder=PNGdir)`
+  pxwidth=600,imageheight="4.5in")`
   
 
 Note that in the call to `vtree` above,
@@ -1105,36 +1154,6 @@ it is more easily interpreted.
 This kind of tree is also useful for investigating incomplete longitudinal data.
 
 
-### Checking for missing values with the `check.is.na` parameter {#missingValues}
-
-The `check.is.na` parameter is used to produce a tree that only shows whether
-the specified variables are missing or not.
-By default, `pattern=TRUE` is also set when `check.is.na=TRUE`.
-Whereas the variables that `vtree` uses to build variable trees are usually categorical,
-this is a situation where non-categorical variables can be used,
-because their missingness is represented instead of their actual values.
-
-```{r,eval=FALSE}
-vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE)
-```
-
-`r vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,
-  width=700,height=370,pxwidth=600,imageheight="3in",folder=PNGdir)`
-
-Specifying `ptable=TRUE` produces this information in a data frame:
-
-```{r}
-vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,ptable=TRUE)
-```
-
-Note that the columns `n` and `pct` represent the frequency and percentage of the total number of cases.
-
-It may be useful to identify the ids for these patterns. Here the results are truncated to 15 characters:
-
-```{r}
-vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,summary="id %list%%trunc=15%",
-  ptable=TRUE)
-```
 
 
 ### Rudimentary CONSORT diagrams
@@ -1160,7 +1179,7 @@ vtree(FakeRCT,"eligible randomized group followup analyzed",plain=TRUE,
 `r vtree(FakeRCT,"eligible randomized group followup analyzed",plain=TRUE,
   keep=list(eligible="Eligible",randomized="Randomized",followup="Followed up"),
   horiz=FALSE,showvarnames=FALSE,title="Assessed for eligibility",
-  width=230,height=500,pxwidth=500,imageheight="6in",folder=PNGdir)`
+  width=230,height=500,pxwidth=500,imageheight="6in")`
   
 
 Note that this does not include all of the additional information for a full CONSORT diagram
@@ -1181,7 +1200,7 @@ vtree(FakeRCT,"eligible randomized group followup analyzed",plain=TRUE,
 `r vtree(FakeRCT,"eligible randomized group followup analyzed",plain=TRUE,
   follow=list(eligible="Eligible",randomized="Randomized",followup="Followed up"),
   horiz=FALSE,showvarnames=FALSE,title="Assessed for eligibility",
-  width=400,height=500,pxwidth=800,imageheight="6in",folder=PNGdir)`
+  width=400,height=500,pxwidth=800,imageheight="6in")`
 
 Finally, it may be useful to see the identification numbers in each node.
 This can be done using the `summary` parameter with the `%list%` code.
@@ -1198,7 +1217,7 @@ vtree(FakeRCT,"eligible randomized group followup analyzed",plain=TRUE,
   follow=list(eligible="Eligible",randomized="Randomized",followup="Followed up"),
   horiz=FALSE,showvarnames=FALSE,title="Assessed for eligibility",
   summary="id \nid: %list% %noroot%",
-  width=500,height=600,pxwidth=700,imageheight="6in",folder=PNGdir)`
+  width=500,height=600,pxwidth=700,imageheight="6in")`
 
 ## REDCap checkboxes {#REDCapCheckboxes}
 

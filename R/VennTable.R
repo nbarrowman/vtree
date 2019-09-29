@@ -14,9 +14,9 @@
 #' @param markdown  Format nicely for markdown (see Details).
 #' @param NAcode    Code to use to represent NAs in markdown formatting
 #' @param checked   Vector of character strings that represent checked values;
-#'                  by default: c("1","TRUE","Yes","yes")
+#'                  by default: c("1","TRUE","Yes","yes","N/A")
 #' @param unchecked Vector of character strings that represent unchecked values;
-#'                  by default: c("0","FALSE","No","no")
+#'                  by default: c("0","FALSE","No","no","not N/A")
 #' 
 #' @details
 #' The column totals ignore missing values.
@@ -43,7 +43,7 @@
 #' @export
 #'
 VennTable <- function(x,markdown=FALSE,NAcode="-",
-  unchecked=c("0","FALSE","No","no"),checked=c("1","TRUE","Yes","yes")) {
+  unchecked=c("0","FALSE","No","no","not N/A"),checked=c("1","TRUE","Yes","yes","N/A")) {
   mat <- as.matrix(x[,-c(1,2)])
   # Convert logical values to 0's and 1's
   mat[mat %in% unchecked] <- "0"  

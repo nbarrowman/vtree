@@ -5,7 +5,8 @@
 \title{VennTable}
 \usage{
 VennTable(x, markdown = FALSE, NAcode = "-", unchecked = c("0",
-  "FALSE", "No", "no"), checked = c("1", "TRUE", "Yes", "yes"))
+  "FALSE", "No", "no", "not N/A"), checked = c("1", "TRUE", "Yes", "yes",
+  "N/A"))
 }
 \arguments{
 \item{x}{Required: Pattern table produced by \code{vtree} for indicator (i.e 0/1) variables}
@@ -15,10 +16,10 @@ VennTable(x, markdown = FALSE, NAcode = "-", unchecked = c("0",
 \item{NAcode}{Code to use to represent NAs in markdown formatting}
 
 \item{unchecked}{Vector of character strings that represent unchecked values;
-by default: c("0","FALSE","No","no")}
+by default: c("0","FALSE","No","no","not N/A")}
 
 \item{checked}{Vector of character strings that represent checked values;
-by default: c("1","TRUE","Yes","yes")}
+by default: c("1","TRUE","Yes","yes","N/A")}
 }
 \value{
 Returns a character matrix with extra rows containing indicator sums.
