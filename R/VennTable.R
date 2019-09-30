@@ -44,6 +44,21 @@
 #'
 VennTable <- function(x,markdown=FALSE,NAcode="-",
   unchecked=c("0","FALSE","No","no","not N/A"),checked=c("1","TRUE","Yes","yes","N/A")) {
+  
+  # {m}ark{d}own {t}able function
+  mdt <- function(x) {
+    cn <- colnames(x)
+    cn[cn==""] <- "&nbsp;"
+    rn <- rownames(x)
+    rn[rn==""] <- "&nbsp;" 
+    x <- cbind(rn,x)
+    header <- paste0(cn,collapse="|")
+    dashes <- paste0(rep("-",length(cn)+1),collapse="|")
+    x[x==""] <- "&nbsp;"
+    body <- paste0(apply(x,1,paste0,collapse="|"),collapse="\n")
+    paste0("&nbsp;|",header,"\n",dashes,"\n",body,collapse="\n")
+  }
+  
   mat <- as.matrix(x[,-c(1,2)])
   # Convert logical values to 0's and 1's
   mat[mat %in% unchecked] <- "0"  
@@ -66,8 +81,9 @@ VennTable <- function(x,markdown=FALSE,NAcode="-",
     rownames(xmat)[rownames(xmat)=="pct"] <- "%"
     rownames(xmat)[rownames(xmat)==""] <- "&nbsp;"
     xmat <- t(xmat) 
+    mdt(xmat)
+  } else {
+    xmat
   }
-  
-  xmat
 }
 

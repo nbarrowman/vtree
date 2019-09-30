@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 2.2.9"
+title: "Introduction to vtree 2.3.0"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -194,7 +194,7 @@ including a variety of summary statistics;
 
 * features for [dichotomizing variables](#dichotomizing) and [checking for outliers](#detectingOutliers).
 
-* automatic generation of PNG image files and [embedding in R Markdown](#embeddingPNG) documents.
+* automatic generation of PNG image files and [embedding in R Markdown](#embeddingInRmarkdown) documents.
 
 There is a collection of [examples using R datasets](#RdatasetExamples) later in this vignette.
 There is also a [helper function](#GeneratingDataFrames) to easily construct
@@ -1004,7 +1004,8 @@ can be exported by specifying `ptable=TRUE`:
 vtree(FakeData,"Severity Sex",ptable=TRUE)
 ```
 
-This compact representation may be convenient for display in a manuscript.
+Compared to a variable tree, this table representation is much more compact,
+and may be more suitable for a manuscript.
 
 ### Indicator variables
 
@@ -1012,10 +1013,12 @@ Pattern trees are useful for indicator variables
 (such as variables that take values 0/1, no/yes, FALSE/TRUE, etc.).
 For example, the variables `Ind1` through `Ind4` in `FakeData` are 0/1 variables.
 If these variables are interpreted as representing set membership
-(0 = member, 1 = non-member), then a pattern tree is an alternative representation of a Venn diagram.
-There are convenient settings in `vtree` for indicator variables
-
-Convenient settings for such variables can be requested by specifying `Venn=TRUE`:
+(0 = non-member, 1 = member),
+then a pattern tree is an alternative representation of a Venn diagram.
+If you specify `Venn=TRUE`,
+the nodes (except for the pattern nodes) will be blank,
+with only their shade indicating their value
+(dark = 1, light = 0, white = missing).
 
 ```{r, eval=FALSE}
 vtree(FakeData,"Ind1 Ind2 Ind3 Ind4",Venn=TRUE,pattern=TRUE)
@@ -1024,16 +1027,18 @@ vtree(FakeData,"Ind1 Ind2 Ind3 Ind4",Venn=TRUE,pattern=TRUE)
 `r vtree(FakeData,"Ind1 Ind2 Ind3 Ind4",Venn=TRUE,pattern=TRUE,
   width=650,height=650,pxwidth=600,imageheight="6in")`
 
-A pattern table for indicator variables provides all the information that a Venn diagram represents.
-For example:
+A pattern tree for indicator variables provides all the information that a Venn diagram represents,
+but unlike a Venn diagram, missing values are also represented.
+This can also be shown as a pattern table.
+Consider, for example:
 
 ```{r}
 vtree(FakeData,"Ind1 Ind2",ptable=TRUE)
 ```
 
 For indicator variables, there is an extra function, `VennTable`,
-which converts the pattern table to a matrix of character strings,
-adds some additional totals, and does some formatting:
+which converts the pattern table to a matrix of character string
+and adds some additional totals.
 
 ```{r}
 VennTable(vtree(FakeData,"Ind1 Ind2",ptable=TRUE))
@@ -1046,13 +1051,23 @@ around each element, it is preferable to call `print` and specify `quote=FALSE`:
 print(VennTable(vtree(FakeData,"Ind1 Ind2",ptable=TRUE)),quote=FALSE)
 ```
 
+The `VennTable` function can also be used in R Markdown.
+Specifying `markdown=TRUE` generates a pandoc markdown pipetable,
+with checkmarks and other features.
+Note that when `markdown=TRUE`,
+the rows and columns of the table are transposed.
+
+```{r, eval=FALSE}
+`r VennTable(vtree(FakeData,"Ind1 Ind2",ptable=TRUE),markdown=TRUE)`
+```
+
+`r VennTable(vtree(FakeData,"Ind1 Ind2",ptable=TRUE),markdown=TRUE)`
+
 `VennTable` has some additional parameters.
 The `checked` parameter is used to specify values that should be interpreted as affirmative.
 By default, it is set to `c("1","TRUE","Yes","yes","N/A")`.
 Similarly, the `unchecked` parameter is used to specify values that should be interpreted as negative,
 with default `c("0","FALSE","No","no","not N/A")`.
-To generate a table including markdown codes for checkmarks and other features,
-specify `markdown=TRUE`.
 
 Summaries can be useful in pattern tables.
 If a single summary is requested, it appears in the `summary_1` variable in the data frame.
@@ -1067,7 +1082,7 @@ vtree(FakeData,"Severity Sex",summary=c("Score %mean%","Pre %mean%"),ptable=TRUE
 If `check.is.na=TRUE` is specified,
 each variable is replaced by an indicator of whether or not it is missing,
 and `pattern=TRUE` is automatically set.
-Except for the pattern node, all the other nodes are blank,
+As when `Venn=TRUE` is specified, all nodes except for the pattern node are blank,
 and only their shade indicates missing (dark) or not (light).
 Whereas the variables used to build a variable tree are normally categorical,
 this is a situation where non-categorical variables can be used,
@@ -1083,10 +1098,11 @@ vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE)
 Specifying `ptable=TRUE` produces this information in a data frame,
 and calling `VennTable` shows additional information:
 
-```{r}
-print(VennTable(vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,ptable=TRUE)),
-  quote=FALSE)
+```{r, eval=FALSE}
+`r VennTable(vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,ptable=TRUE),markdown=TRUE)`
 ```
+
+`r VennTable(vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,ptable=TRUE),markdown=TRUE)`
 
 Note that the columns `n` and `pct` represent the frequency and percentage
 of the total number of cases for each pattern of missingness,
@@ -1171,9 +1187,11 @@ https://dreampuf.github.io/GraphvizOnline
 http://magjac.com/graphviz-visual-editor/
 
 
+
 # Ways to call vtree
 
 `vtree` behaves differently depending on how it is called.
+
 
 ## Calling vtree interactively 
 
@@ -1181,9 +1199,28 @@ http://magjac.com/graphviz-visual-editor/
 
 * If `vtree` is called interactively from the R console, it displays the variable tree in a browser window.
 
-## Calling vtree from R Markdown {#embeddingPNG}
 
-If `vtree` is called while an R Markdown file is being knitted, it generates a PNG file and automatically embeds it into the knitted document.
+## Calling vtree from R Markdown {#embeddingInRmarkdown}
+
+`vtree` has a number of special features for use with R Markdown.
+
+Note that `vtree` uses the `DiagrammeR` package
+(which in turn is built on the open source graph visualization software,  `Graphviz`).
+DiagrammeR (and hence `vtree`) automatically generates an htmwidget for display in HTML,
+using the [htmlwidgets](https://www.htmlwidgets.org/) framework
+(for example, in the RStudio Viewer pane, or from R in a browser window).
+
+However, by default, when `vtree` is called from R Markdown,
+it instead automatically converts the htmlwidget to a PNG file.
+
+### Generating PNG files
+
+PNG files are useful because they allow you to display variable trees in Microsoft Word documents,
+and also because HTML files that use `htmlwidgets` can be large,
+and if they contain several widgets they can be slow to load.
+
+If `vtree` is called while an R Markdown file is being knitted,
+it generates a PNG file and automatically embeds it into the knitted document.
 The resolution of the PNG file is determined by parameters `pxwidth` and `pxheight`.
 If neither is specified, `pxwidth` is automatically set to 2000.
 The height of the image in the R Markdown output document can be specified 
@@ -1191,32 +1228,6 @@ using the `imageheight` parameter,
 for example `imageheight="4in"` for a 4-inch image.
 There is also an `imagewidth` parameter.
 If neither is specified, `imageheight` is automatically set to 3 inches.
-
-### htmlwidgets
-
-When knitting to an HTML document, 
-an htmlwidget can used rather than embedding a PNG file.
-(In fact the PNG files are generated from SVG files obtained from htmlwidgets.)
-To use an htmlwidget instead of a PNG file, you can use inline code:
-
-```{r, eval=FALSE}
-`r vtree(FakeData,"Severity Sex",pngknit=FALSE)`
-```
-
-Or a code chunk:
-
-````
-`r ''````{r}
-vtree(FakeData,"Severity Sex",pngknit=FALSE)
-```
-````
-
-However when multiple htmlwidgets are included in an HTML file,
-browsers may not perform well.
-Furthermore, when knitting to a .docx file rather than an HTML file,
-htmlwidgets are not an option.
-
-### PNG files
 
 The PNG file is stored in the folder specified by the `folder` parameter,
 or if a folder is not specified, a temporary folder will be used.
@@ -1240,6 +1251,32 @@ cat(vtree(FakeData,"Sex Severity"))
 
 One advantage of code chunks is that they can also be run interactively
 (for example within RStudio, by clicking of the green arrow at the right-hand side of a code chunk).
+
+
+### Generating an htmlwidget in an HTML document
+
+When knitting to an HTML document, 
+an htmlwidget can used rather than embedding a PNG file.
+(In fact the PNG files are generated from SVG files obtained from htmlwidgets.)
+To use an htmlwidget instead of a PNG file, you can use inline code:
+
+```{r, eval=FALSE}
+`r vtree(FakeData,"Severity Sex",pngknit=FALSE)`
+```
+
+Or a code chunk:
+
+````
+`r ''````{r}
+cat(vtree(FakeData,"Severity Sex",pngknit=FALSE))
+```
+````
+
+However when multiple htmlwidgets are included in an HTML file,
+browsers may not perform well.
+Furthermore, when knitting to a .docx file rather than an HTML file,
+htmlwidgets are not an option.
+
 
 
 # Generating a data frame by specifying subset sizes {#GeneratingDataFrames}
@@ -1559,7 +1596,7 @@ vtree(ToothGrowth,"supp dose",summary="len>20 \n%pct% length > 20",
 ```
 
 
-# Generating PNG files directly
+# Generating PNG files directly {#GeneratingPNGdirectly}
 
 `vtree` can automatically generate PNG files when called in an
 R Markdown file that is being knitted.
