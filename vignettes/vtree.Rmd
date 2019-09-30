@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 2.2.8"
+title: "Introduction to vtree 2.2.9"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -130,7 +130,7 @@ while `Sex` has been assigned blue hues (light blue for females, dark blue for m
 The node representing missing values of `Severity` is colored white to draw attention to it.
 
 
-## Variable trees vs. contingency tables
+## Variable trees compared to contingency tables
 
 A tree with two variables is similar to a two-way contingency table.
 In the example above, `Sex` is shown within levels of `Severity`.
@@ -153,16 +153,16 @@ multi-way contingency tables can be used.
 These are typically displayed using several two-way tables.
 In this situation, variable trees are generally easier to interpret.
 
-It is also noteworthy that contingency tables are not *always* more compact than variable trees.
+Contingency tables are not *always* more compact than variable trees.
 When most cells of a large contingency table are empty (in which case the table is said to be *sparse*),
 the corresponding variable tree may be more compact since empty-nodes are not shown.
  
-Variable trees are thus an appealing alternative to multi-way contingency tables
+Variable trees thus provide an alternative to multi-way contingency tables
 and can also be used to display a wide variety of information including:
 
-* multi-way intersections (often shown in Venn diagrams),
+* multi-way intersections (often shown in Venn diagrams)
 
-* flow diagrams involving a sequence of inclusion/exclusion steps,
+* study-participant flow diagrams
 
 * longitudinal events.
 
@@ -266,7 +266,7 @@ vtree(FakeData,"Severity Sex",horiz=FALSE,plain=TRUE)
 ```
 
 `r vtree(FakeData,"Severity Sex",horiz=FALSE,plain=TRUE,
-  width=550,height=200,pxwidth=1600,imageheight="1.9in")`
+  width=450,height=200,pxwidth=1600,imageheight="1.9in")`
 
 At the top, the root node represents the entire data frame.
 Moving down, each subsequent level of the tree corresponds to a different variable (first `Severity`, then `Sex`).
@@ -1022,7 +1022,7 @@ vtree(FakeData,"Ind1 Ind2 Ind3 Ind4",Venn=TRUE,pattern=TRUE)
 ```
 
 `r vtree(FakeData,"Ind1 Ind2 Ind3 Ind4",Venn=TRUE,pattern=TRUE,
-  width=650,height=650,pxwidth=800,imageheight="6in")`
+  width=650,height=650,pxwidth=600,imageheight="6in")`
 
 A pattern table for indicator variables provides all the information that a Venn diagram represents.
 For example:
@@ -1036,12 +1036,15 @@ which converts the pattern table to a matrix of character strings,
 adds some additional totals, and does some formatting:
 
 ```{r}
-print(VennTable(vtree(FakeData,"Ind1 Ind2",ptable=TRUE)),quote=FALSE)
+VennTable(vtree(FakeData,"Ind1 Ind2",ptable=TRUE))
 ```
 
-(In the example above, in the call to `print`, quotation marks are suppressed.
-This is done because ordinarily a matrix of character strings is shown with
-quotation marks, which are a bit distracting.)
+Since a matrix of character strings is ordinarily displayed with quotation marks
+around each element, it is preferable to call `print` and specify `quote=FALSE`:
+
+```{r}
+print(VennTable(vtree(FakeData,"Ind1 Ind2",ptable=TRUE)),quote=FALSE)
+```
 
 `VennTable` has some additional parameters.
 The `checked` parameter is used to specify values that should be interpreted as affirmative.
@@ -1081,7 +1084,8 @@ Specifying `ptable=TRUE` produces this information in a data frame,
 and calling `VennTable` shows additional information:
 
 ```{r}
-print(VennTable(vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,ptable=TRUE)),quote=FALSE)
+print(VennTable(vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,ptable=TRUE)),
+  quote=FALSE)
 ```
 
 Note that the columns `n` and `pct` represent the frequency and percentage
@@ -1089,135 +1093,14 @@ of the total number of cases for each pattern of missingness,
 and the rows `N` and `pct` at the bottom represent the frequency and percentage
 of missingness for each variable.
 
-It may be useful to identify the ids for these patterns. Here the results are truncated to 15 characters:
+It may be useful to identify the ids for these patterns.
+Here the results are truncated to 15 characters:
 
 ```{r}
 vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,summary="id %list%%trunc=15%",
   ptable=TRUE)
 ```
 
-
-## Special variable trees
-
-### Multi-way intersections {#Venn}
-
-A Venn diagram is used to show all intersections between several sets.
-When there are more than three sets, Venn diagrams are hard to construct and to read.
-Additionally, Venn diagrams cannot represent missing values.
-
-One alternative is to use variable trees.
-In the following example,
-the variables `Ind1` through `Ind4` are indicators of set membership
-(0 = not a member of the set, 1 = member).
-Convenient settings for such variables are requested by specifying `Venn=TRUE`:
-
-```{r, eval=FALSE}
-vtree(FakeData,"Ind1 Ind2 Ind3 Ind4",Venn=TRUE)
-```
-
-`r vtree(FakeData,"Ind1 Ind2 Ind3 Ind4",Venn=TRUE,
-  width=650,height=650,pxwidth=800,imageheight="6in")`
-
-Note that for simplicity, node labels are not shown.
-Instead, dark colors indicate set membership,
-while light colors indicate non-membership.
-Also, percentages are not shown by default.
-Specifying `showpct=TRUE` displays percentages.
-
-In contrast to a Venn diagram, which shows all intersections,
-a variable tree only shows information on specific intersections,
-determined by the ordering of the variables.
- 
-Specifying `pattern=TRUE` produces an even simpler representation,
-since only the full *n*-way intersections (where *n* is the number of variables)
-are represented:
-
-
-```{r,eval=FALSE}
-vtree(FakeData,"Ind1 Ind2 Ind3 Ind4",Venn=TRUE,pattern=TRUE,
-  palette=c(Ind1=1,Ind2=2,Ind3=3,Ind4=4))
-```
-
-`r vtree(FakeData,"Ind1 Ind2 Ind3 Ind4",Venn=TRUE,pattern=TRUE,
-  palette=c(Ind1=1,Ind2=2,Ind3=3,Ind4=4),
-  pxwidth=600,imageheight="4.5in")`
-  
-
-Note that in the call to `vtree` above,
-the `palette` parameter is specified so that the color palettes match
-with the preceding variable tree.
-(Otherwise, `pattern` gets palette number 1,
-and then `Ind1` gets  palette number 2, and so on.)
-
-Although this tree provides less information than the branching-style tree,
-it is more easily interpreted.
-This kind of tree is also useful for investigating incomplete longitudinal data.
-
-
-
-
-### Rudimentary CONSORT diagrams
-
-Consider the following fictitious data about a randomized controlled trial (RCT):
-
-```{r}
-FakeRCT
-```
-
-The CONSORT diagram (http://www.consort-statement.org/) shows the flow of patients through the study starting with
-those who meet eligibility criteria, then those who are randomized to each group, etc.
-It is easy to produce a rudimentary version of a CONSORT diagram in `vtree`.
-The key step is to prune branches for those who are *not* eligible, *not* randomized, etc.
-This can be done using the `keep` parameter:
-
-```{r,eval=FALSE}
-vtree(FakeRCT,"eligible randomized group followup analyzed",plain=TRUE,
-  keep=list(eligible="Eligible",randomized="Randomized",followup="Followed up"),
-  horiz=FALSE,showvarnames=FALSE,title="Assessed for eligibility")
-```
-
-`r vtree(FakeRCT,"eligible randomized group followup analyzed",plain=TRUE,
-  keep=list(eligible="Eligible",randomized="Randomized",followup="Followed up"),
-  horiz=FALSE,showvarnames=FALSE,title="Assessed for eligibility",
-  width=230,height=500,pxwidth=500,imageheight="6in")`
-  
-
-Note that this does not include all of the additional information for a full CONSORT diagram
-(exclusion reasons and counts,
-as well as numbers of patients who received their allocated interventions,
-who discontinued intervention, and who were excluded from analysis).
-It does, however, provide the main flow information.
-
-Additional information can be obtained by examining the nodes for patients in the pruned branches.
-The `follow` parameter allows that:
-
-```{r,eval=FALSE}
-vtree(FakeRCT,"eligible randomized group followup analyzed",plain=TRUE,
-  follow=list(eligible="Eligible",randomized="Randomized",followup="Followed up"),
-  horiz=FALSE,showvarnames=FALSE,title="Assessed for eligibility")
-```
-
-`r vtree(FakeRCT,"eligible randomized group followup analyzed",plain=TRUE,
-  follow=list(eligible="Eligible",randomized="Randomized",followup="Followed up"),
-  horiz=FALSE,showvarnames=FALSE,title="Assessed for eligibility",
-  width=400,height=500,pxwidth=800,imageheight="6in")`
-
-Finally, it may be useful to see the identification numbers in each node.
-This can be done using the `summary` parameter with the `%list%` code.
-Since IDs are not as useful in the root note, the `%noroot%` code is also specified here:
-
-```{r, eval=FALSE}
-vtree(FakeRCT,"eligible randomized group followup analyzed",plain=TRUE,
-  follow=list(eligible="Eligible",randomized="Randomized",followup="Followed up"),
-  horiz=FALSE,showvarnames=FALSE,title="Assessed for eligibility",
-  summary="id \nid: %list% %noroot%")
-```
-
-`r vtree(FakeRCT,"eligible randomized group followup analyzed",plain=TRUE,
-  follow=list(eligible="Eligible",randomized="Randomized",followup="Followed up"),
-  horiz=FALSE,showvarnames=FALSE,title="Assessed for eligibility",
-  summary="id \nid: %list% %noroot%",
-  width=500,height=600,pxwidth=700,imageheight="6in")`
 
 ## REDCap checkboxes {#REDCapCheckboxes}
 
@@ -1270,27 +1153,6 @@ vtree(MyREDCapData,"rc:IceCream___1 rc:IceCream___3",pattern=TRUE,showroot=FALSE
 ```
 
 
-## Additional Graphviz customization
-
-`vtree` has three additional parameters to access GraphViz attributes: `graphattr` (for graph attributes), `nodeattr` (node attributes), and `edgeatttr` (edge attributes).
-A full list of Graphviz attributes is [available](https://www.graphviz.org/doc/info/attrs.html).
-
-For example, two edge attributes are `arrowhead`,
-which specifies the type of arrow,
-and `penwidth`, which specifies the thickness of the edge (in points).
-(Note that `penwidth` is also a node attribute.)
-To draw a variable tree without any arrows on the edges and with thick edges, use:
-```{r,eval=FALSE}
-vtree(FakeData,"Severity",edgeattr="arrowhead=none penwidth=4",sameline=TRUE)
-```
- 
-The minimum width of nodes (in inches) can be specified using the node attribute `width`:
-```{r,eval=FALSE}
-vtree(FakeData,"Severity",nodeattr="width=2",sameline=TRUE)
-```
- 
-
-
 ## Examining the DOT script generated by `vtree`
 
 Specifying `getscript=TRUE` lets you capture the DOT script representing a flowchart.
@@ -1309,7 +1171,7 @@ https://dreampuf.github.io/GraphvizOnline
 http://magjac.com/graphviz-visual-editor/
 
 
-# Different ways to call vtree
+# Ways to call vtree
 
 `vtree` behaves differently depending on how it is called.
 
@@ -1431,7 +1293,73 @@ df <- build.data.frame(
 
 `r vtree(df,imagewidth="4in",pxwidth=800)`
 
-# Examples using R datasets {#RdatasetExamples}
+# Examples
+
+## Rudimentary CONSORT diagrams
+
+Consider the following fictitious data about a randomized controlled trial (RCT):
+
+```{r}
+FakeRCT
+```
+
+The CONSORT diagram (http://www.consort-statement.org/) shows the flow of patients through the study starting with
+those who meet eligibility criteria, then those who are randomized to each group, etc.
+It is easy to produce a rudimentary version of a CONSORT diagram in `vtree`.
+The key step is to prune branches for those who are *not* eligible, *not* randomized, etc.
+This can be done using the `keep` parameter:
+
+```{r,eval=FALSE}
+vtree(FakeRCT,"eligible randomized group followup analyzed",plain=TRUE,
+  keep=list(eligible="Eligible",randomized="Randomized",followup="Followed up"),
+  horiz=FALSE,showvarnames=FALSE,title="Assessed for eligibility")
+```
+
+`r vtree(FakeRCT,"eligible randomized group followup analyzed",plain=TRUE,
+  keep=list(eligible="Eligible",randomized="Randomized",followup="Followed up"),
+  horiz=FALSE,showvarnames=FALSE,title="Assessed for eligibility",
+  width=230,height=500,pxwidth=500,imageheight="6in")`
+  
+
+Note that this does not include all of the additional information for a full CONSORT diagram
+(exclusion reasons and counts,
+as well as numbers of patients who received their allocated interventions,
+who discontinued intervention, and who were excluded from analysis).
+It does, however, provide the main flow information.
+
+Additional information can be obtained by examining the nodes for patients in the pruned branches.
+The `follow` parameter allows that:
+
+```{r,eval=FALSE}
+vtree(FakeRCT,"eligible randomized group followup analyzed",plain=TRUE,
+  follow=list(eligible="Eligible",randomized="Randomized",followup="Followed up"),
+  horiz=FALSE,showvarnames=FALSE,title="Assessed for eligibility")
+```
+
+`r vtree(FakeRCT,"eligible randomized group followup analyzed",plain=TRUE,
+  follow=list(eligible="Eligible",randomized="Randomized",followup="Followed up"),
+  horiz=FALSE,showvarnames=FALSE,title="Assessed for eligibility",
+  width=400,height=500,pxwidth=800,imageheight="6in")`
+
+Finally, it may be useful to see the identification numbers in each node.
+This can be done using the `summary` parameter with the `%list%` code.
+Since IDs are not as useful in the root note, the `%noroot%` code is also specified here:
+
+```{r, eval=FALSE}
+vtree(FakeRCT,"eligible randomized group followup analyzed",plain=TRUE,
+  follow=list(eligible="Eligible",randomized="Randomized",followup="Followed up"),
+  horiz=FALSE,showvarnames=FALSE,title="Assessed for eligibility",
+  summary="id \nid: %list% %noroot%")
+```
+
+`r vtree(FakeRCT,"eligible randomized group followup analyzed",plain=TRUE,
+  follow=list(eligible="Eligible",randomized="Randomized",followup="Followed up"),
+  horiz=FALSE,showvarnames=FALSE,title="Assessed for eligibility",
+  summary="id \nid: %list% %noroot%",
+  width=500,height=600,pxwidth=700,imageheight="6in")`
+
+
+## Examples using R datasets {#RdatasetExamples}
 
 The R datasets package is loaded in R by default.
 In what follows, `vtree` is applied to some of these data sets for illustrative purposes.
@@ -1440,7 +1368,7 @@ The reader can try these commands to see what the variable trees look like,
 and experiment with many other possibilities.
 
 
-## Esophageal cancer
+### Esophageal cancer
 
 The `esoph` data set
 (data from a case-control study of esophageal cancer in Ille-et-Vilaine, France), 
@@ -1454,7 +1382,7 @@ vtree(esoph,"agegp=75+",sameline=TRUE,cdigits=0,
 ```
 
 
-## Hair and eye color
+### Hair and eye color
 
 The `HairEyeColor` data set is an array representing a contingency table
 (also called a crosstab or crosstabulation).
@@ -1476,7 +1404,7 @@ vtree(hec,"Hair Eye=Green Sex",sameline=TRUE)
 ```
 
 
-## Titanic
+### Titanic
 
 The `Titanic` dataset is a 4-dimensional array of counts.
 First, let's convert it to a dataframe of individuals:
@@ -1490,7 +1418,7 @@ vtree(titanic,"Class Sex Age",summary="Survived=Yes \n%pct% survived",sameline=T
 ```
 
 
-## mtcars
+### mtcars
 
 The `mtcars` data set was extracted from the 1974 Motor Trend US magazine,
 and comprises fuel consumption and 10 aspects of automobile design and
@@ -1543,7 +1471,7 @@ vtree(mt,"gear carb",summary="name \n%list%%noroot%",splitwidth=50,sameline=TRUE
 ```
   
 
-## UCBAdmissions
+### UCBAdmissions
 
 The `UCBAdmissions` data is consists of aggregate data on
 applicants to graduate school at Berkeley for the six largest departments in 1973
@@ -1572,7 +1500,7 @@ vtree(ucb,"Dept Gender",summary="Admit=Admitted \n%pct% admitted",sameline=TRUE)
 ```
 
 
-## ChickWeight
+### ChickWeight
 
 The `ChickWeight` data set is from an experiment on the effect of diet on early growth of chicks.
 Let's look at the mean weight of chicks at birth (0 days of age) and 4 days of age,
@@ -1595,7 +1523,7 @@ vtree(ChickWeight,"Diet Time",keep=list(Time=c("0","4")),
 ```
 
 
-## InsectSprays
+### InsectSprays
 
 The `InsectSprays` data set contains
 counts of insects in agricultural experimental units treated with different insecticides.
@@ -1607,7 +1535,7 @@ vtree(InsectSprays,"spray",splitwidth=80,sameline=TRUE,
 ```
 
 
-## ToothGrowth
+### ToothGrowth
 
 The `ToothGrowth` data set contains
 the length of odontoblasts (cells responsible for tooth growth) in 60 guinea pigs.
@@ -1629,7 +1557,6 @@ vtree(ToothGrowth,"supp dose",summary="len>20 \n%pct% length > 20",
   labelvar=c("supp"="Supplement type","dose"="Dose (mg/day)"),
   labelnode=list(supp=c("Vitamin C"="VC","Orange Juice"="OJ")))
 ```
-
 
 
 # Generating PNG files directly
