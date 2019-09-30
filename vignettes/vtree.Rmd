@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 2.3.0"
+title: "Introduction to vtree 2.3.1"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -33,8 +33,7 @@ can also be used to produce customized figures for reports and publications.
 
 *Subsets* play an important role in almost any data analysis.
 Imagine a data set of countries,
-with variables named `population`, `continent`, `landlocked`,
-and a variety of other variables representing economic and political characteristics.
+with variables named `population`, `continent`, `landlocked`, etc.
 We might wish to examine subsets of the data set based on the `continent` variable.
 Within each of these subsets,
 we might wish to examine *nested* subsets based on the `population` variable,
@@ -57,14 +56,23 @@ df <- build.data.frame(
 
 Even in simple situations like this,
 it can be a chore to keep track of nested subsets and to calculate percentages.
-And as the number of subsetting variables increases,
+Two factors make the task more tedious.
+First, the presence of missing values makes it harder to determine denominators.
+Second, as the number of variables increases,
 the number of nested subsets grows rapidly.
-When there are missing values in the data set,
-the task becomes even more complicated.
-For these reasons, it is best not to perform nested subsetting by hand.
+When performed by hand, nested subsetting is taxing and error prone.
 
 Nested subsets arise in many situations.
-Consider, for example, flow diagrams for clinical studies.
+Consider, for example, flow diagrams for clinical studies,
+such as the following rudimentary [CONSORT](http://www.consort-statement.org) diagram.
+
+`r 
+vtree(FakeRCT,"eligible randomized group followup",plain=TRUE,
+  keep=list(eligible="Eligible",randomized="Randomized",followup="Followed up"),
+  horiz=FALSE,showvarnames=FALSE,title="Assessed for eligibility",
+  width=230,height=500,pxwidth=500,imageheight="4.5in")
+`
+  
 In a typical study, 
 participants are a subset of
 eligible patients who in turn are a subset of 
