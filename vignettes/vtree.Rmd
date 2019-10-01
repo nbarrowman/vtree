@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 2.3.1"
+title: "Introduction to vtree 2.3.2"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -26,8 +26,11 @@ options(width=90)
 diagrams that display information about nested subsets of a data frame.
 `vtree` automatically produces these diagrams and labels them with
 counts, percentages, and other summaries.
-`vtree` can be used interactively to explore a data set and
-can also be used to produce customized figures for reports and publications.
+`vtree` can be used:
+
+* to explore a data set interactively, and
+
+* to produce customized figures for reports and publications.
 
 ## Some examples
 
@@ -56,7 +59,7 @@ df <- build.data.frame(
 
 Even in simple situations like this,
 it can be a chore to keep track of nested subsets and to calculate percentages.
-Two factors make the task more tedious.
+The task often becomes more tedious, for two reasons.
 First, the presence of missing values makes it harder to determine denominators.
 Second, as the number of variables increases,
 the number of nested subsets grows rapidly.
@@ -73,26 +76,23 @@ vtree(FakeRCT,"eligible randomized group followup",plain=TRUE,
   width=230,height=500,pxwidth=500,imageheight="4.5in")
 `
   
-In a typical study, 
-participants are a subset of
-eligible patients who in turn are a subset of 
-patients who were assessed.
-Because mistakes inevitably arise during manual calculation and transcription,
-it is not uncommon for flow diagrams in published studies to contain errors.
+Mistakes in flow diagrams are all too common in published studies 
+because manual calculation and transcription are so error-prone.
 And although the errors that make it to publication are often small,
-they can occasionally be disastrous.
+they can sometimes be disastrous.
 
-A solution to the problem of calculating nested subsets
-and displaying information about them is presented here.
+`vtree` is a solution to the problem of calculating nested subsets
+and displaying information about them.
 The idea is to represent nested subsets of a data set
-(where the subsets are defined by specific variables in the data set),
 using a tree structure, which we call a *variable tree*.
 
 ## Basic features of a variable tree
 
-The examples that follow use a data set called `FakeData` which represents `r nrow(FakeData)` fictitious patients.
-Based on this data set, the variable tree below depicts subsets defined by `Sex` (M or F)
-nested within subsets defined by disease `Severity` (Mild, Moderate, Severe, or NA).
+The examples that follow use a data set called `FakeData` which represents
+`r nrow(FakeData)` fictitious patients.
+The variable tree below depicts subsets defined by `Sex` (M or F)
+nested within subsets defined by disease `Severity`
+(Mild, Moderate, Severe, or NA).
 Later we'll see how variable trees with more than two variables are particularly useful.
 
 ```{r, echo=FALSE, results="asis"}
@@ -108,8 +108,8 @@ Note that this highlights one difference between variable trees
 and some other kinds of trees:
 at each level of a variable tree, regardless of the branch,
 the nodes represent values of the same variable.
-In contrast, consider *decision trees*, which can have
-splits on different variables at the same level.
+(*Decision trees*, in contrast,
+can have splits on different variables at the same level.)
  
 Continuing with the variable tree above,
 the nodes immediately below the root represent values of `Severity` and
@@ -122,9 +122,8 @@ Note that, by default, `vtree` displays "valid" percentages,
 i.e. the denominator used to calculate the percentage is the total number of non-missing values,
 `r sum(!is.na(FakeData$Severity))`.
 
-The nodes in the next level (which is the final level for this tree)
-correspond to values of `Sex`.
-These nodes represent males and females within subsets defined by each value of `Severity`.
+The final level of the tree corresponds to values of `Sex`.
+These nodes represent males and females *within subsets* defined by each value of `Severity`.
 In each of these nodes the percentage is calculated in terms of
 the number of patients in its parent node.
 
@@ -379,7 +378,7 @@ This concludes the mini-tutorial.
  
 ## Pruning {#pruning}
 
-*Pruning* a tree means removing specified nodes along with their descendants.
+*Pruning* a tree means removing nodes along with their descendants.
 This is useful when a variable tree gets too big,
 or when you are only interested in certain parts of the tree.
 For convenience, `vtree` provides several different ways to prune a tree,
@@ -458,16 +457,13 @@ vtree(FakeData,"Severity Sex Age Category",sameline=TRUE,prunesmaller=3)
 ## Labels for variables and nodes {#labeling}
 
 By default, `vtree` labels variables and nodes exactly as they are in the data frame.
-For presentation purposes it is often useful to change these labels.
+But it is often useful to change these labels.
 
 ### Changing variable labels with the `labelvar` parameter
 
-If `Severity` in fact represents severity on day 1,
-you might want it to appear that way in the variable tree.
-To do this, use the `labelvar` parameter,
-which is specified as a vector whose element names are variable names.
-As an example, if `Severity` in fact represents initial severity,
-you can specify `labelvar=c(Severity="Initial severity")`.
+Suppose `Severity` in fact represents initial severity.
+To label it that way in the variable tree,
+specify `labelvar=c(Severity="Initial severity")`.
 
 ```{r,eval=FALSE}
 vtree(FakeData,"Severity Sex",horiz=FALSE,labelvar=c(Severity="Initial severity"))
@@ -637,7 +633,7 @@ to change the way that variables are represented in a tree.
 
 If an individual variable name is preceded by `is.na:`,
 that variable will be replaced by a missing value indicator in the variable tree.
-(This differs from the `check.is.na` parameter, described below,
+(This differs from the `check.is.na` parameter, described later,
 which is used to replace *all* of the specified variables with missing value indicators.)
 
 
@@ -659,15 +655,14 @@ which take effect at the level of the entire data frame,
 the `tri:` prefix takes effect within each node.
 
 The effect of this variable specification
-is to trichotomize a numeric variable within a node
-based on the median and the IQR, both computed within that node.
-The result is three categories:
+is to *trichotomize* the values of a numeric variable,
+i.e. to divide them into three groups:
+ 
+* "mid": values within plus or minus 1.5&times;IQR of the median,
 
-* "mid": namely values within plus or minus 1.5&times;IQR of the median,
+* "high": values more than 1.5&times;IQR above the median,
 
-* "high": namely values more than 1.5&times;IQR above the median,
-
-* "low": namely values more than 1.5&times;IQR below the median.
+* "low": values more than 1.5&times;IQR below the median.
 
 
 ### suffix `*`
@@ -861,97 +856,16 @@ vtree(FakeData,"Severity Category",
 Expressions involving functions can also be used; for example `sqrt(abs(Post/Pre))`.
 
 
-### Showing/hiding summaries on a node-by-node basis depending on the data in the node using the `runsummary` parameter
-
-Sometimes it is desirable to show summaries only in nodes with certain characteristics.
-Consider the following example:
-suppose that in patients with a viral infection,
-the presence or absence of two features of the virus
-(Feature 1 and Feature 2) is recorded.
-To simulate this situation,
-let's make up variables `Feature1` and `Feature2` but set them to NA if the `Viral` variable is FALSE or NA.
-
-```{r}
-set.seed(1234)
-FakeData$Feature1 <- rbinom(nrow(FakeData),1,0.5)
-FakeData$Feature1[!FakeData$Viral | is.na(FakeData$Viral)] <- NA
-FakeData$Feature2 <- rbinom(nrow(FakeData),1,0.5)
-FakeData$Feature2[!FakeData$Viral | is.na(FakeData$Viral)] <- NA
-```
-
-Here is a tree for `Sex` and `Category` showing three summaries in each leaf node:
-the number and percent of patients with viral infections
-and number and percent of viruses with Feature 1 and with Feature 2.
-
-```{r,eval=FALSE,results="asis"}
-vtree(FakeData,"Sex Category",sameline=TRUE,splitwidth=150,varminwidth=c(Category=6),
-  summary=c(
-    "Viral \nviral: %npct%%leafonly%",
-    "Feature1 , F1: %npct%%leafonly%",
-    "Feature2 , F2: %npct%%leafonly%"))
-```
-
-`r vtree(FakeData,"Sex Category",sameline=TRUE,splitwidth=150,varminwidth=c(Category=6),
-  summary=c(
-    "Viral \nviral: %npct%%leafonly%",
-    "Feature1 , F1: %npct%%leafonly%",
-    "Feature2 , F2: %npct%%leafonly%"),
-  pxwidth=800,imageheight="3in")`
-
-But note that in two of the nodes there are no viral infections,
-so in these nodes there are no virus features to describe.
-The tree would be improved if we could turn off the summaries in nodes where there are no viral infections.
-We can do this by specifying, for each of the three summaries,
-a function that returns TRUE or FALSE for each node.
-The first function always returns TRUE:
-
-```{r, eval=FALSE}
-function(x) TRUE
-```
-
-The next two functions return TRUE if there is at least one viral infection in the node:
-
-```{r, eval=FALSE}
-function(x) any(x$Viral,na.rm=TRUE)
-```
-
-These three functions are specified (in a list) using the `runsummary` parameter:
-
-```{r,eval=FALSE}
-vtree(FakeData,"Sex Category",sameline=TRUE,splitwidth=150,varminwidth=c(Category=6),
-  summary=c(
-    "Viral \nviral: %npct%%leafonly%",
-    "Feature1 , F1: %npct%%leafonly%",
-    "Feature2 , F2: %npct%%leafonly%"),
-  runsummary=list(
-    function(x) TRUE,
-    function(x) any(x$Viral,na.rm=TRUE),
-    function(x) any(x$Viral,na.rm=TRUE)))
-```
-
-`r vtree(FakeData,"Sex Category",sameline=TRUE,splitwidth=150,varminwidth=c(Category=6),
-  width=950,height=900,
-  summary=c(
-    "Viral \nviral: %npct%%leafonly%",
-    "Feature1 , F1: %npct%%leafonly%",
-    "Feature2 , F2: %npct%%leafonly%"),
-  runsummary=list(
-    function(x) TRUE,
-    function(x) any(x$Viral,na.rm=TRUE),
-    function(x) any(x$Viral,na.rm=TRUE)),
-  pxwidth=800,imageheight="3in")`
-  
-
-## Pattern trees {#patterns}
+## Pattern trees and pattern tables {#patterns}
 
 Each node in a variable tree provides the frequency of a particular combination
 of values of the variables.
-The leaf nodes represent all the observed combinations of *all* of the variables.
+The leaf nodes represent *all* the observed combinations of values of all of the variables.
 For example, in a variable tree for `Severity` and `Sex`,
 the leaf nodes correspond to Mild F, Mild M, Moderate F, Moderate M, etc.
 These combinations, or "patterns", can be considered as an additional variable.
 If this new pattern variable is used as the first variable in a tree,
-then the branches of the tree will be greatly simplified:
+then the branches of the tree will be simplified:
 each branch will represent a unique pattern, with no sub-branches.
 A "pattern tree" can be easily produced by specifying `pattern=TRUE`:
 
@@ -979,10 +893,10 @@ since they only represent the *n*th-level subsets
 (where *n* is the number of variables).
 
 Note that by default, when `pattern=TRUE` is specified,
-the root node is not shown in order to further simplify the display
-(in fact, without the root node, it is no longer a tree!).
+in order to simplify the display the root node is not shown.
+(Technically, lacking a root node, the result is no longer a tree.) 
 A disadvantage of this is that the total sample size is not shown.
-The root node can be shown by specifying `showroot=TRUE`.
+You can override this behavior by specifying `showroot=TRUE`.
 
 A pattern tree has two other special characteristics.
 First, note that after the first level (representing `pattern`),
@@ -1004,21 +918,23 @@ Summaries can be shown in pattern trees
 ### Pattern tables
 
 A pattern tree looks a lot like a table.
-Instead of showing a pattern tree, it may be more convenient to produce a table.
-In fact a data frame containing the information from the pattern tree 
+Indeed, it may be more convenient to produce a table rather than a tree.
+A data frame containing the information from the pattern tree 
 can be exported by specifying `ptable=TRUE`:
 
 ```{r}
 vtree(FakeData,"Severity Sex",ptable=TRUE)
 ```
 
-Compared to a variable tree, this table representation is much more compact,
-and may be more suitable for a manuscript.
+Compared to a variable tree, this table is much more compact,
+and may be more suitable for use in a manuscript.
 
 ### Indicator variables
 
-Pattern trees are useful for indicator variables
-(such as variables that take values 0/1, no/yes, FALSE/TRUE, etc.).
+Pattern trees are useful for variables take values 0/1, no/yes, FALSE/TRUE, etc.,
+i.e. *indicator variables*.
+For convenience we'll refer to 0 (or no, FALSE, etc.) a *negative*
+and 1 (or yes, TRUE, etc.) as an *affirmative*.
 For example, the variables `Ind1` through `Ind4` in `FakeData` are 0/1 variables.
 If these variables are interpreted as representing set membership
 (0 = non-member, 1 = member),
@@ -1038,7 +954,7 @@ vtree(FakeData,"Ind1 Ind2 Ind3 Ind4",Venn=TRUE,pattern=TRUE)
 A pattern tree for indicator variables provides all the information that a Venn diagram represents,
 but unlike a Venn diagram, missing values are also represented.
 This can also be shown as a pattern table.
-Consider, for example:
+For example:
 
 ```{r}
 vtree(FakeData,"Ind1 Ind2",ptable=TRUE)
@@ -1053,7 +969,8 @@ VennTable(vtree(FakeData,"Ind1 Ind2",ptable=TRUE))
 ```
 
 Since a matrix of character strings is ordinarily displayed with quotation marks
-around each element, it is preferable to call `print` and specify `quote=FALSE`:
+around each element, the result is ... unattractive.
+Instead it's helpful to call `print` and specify `quote=FALSE`:
 
 ```{r}
 print(VennTable(vtree(FakeData,"Ind1 Ind2",ptable=TRUE)),quote=FALSE)
@@ -1061,7 +978,9 @@ print(VennTable(vtree(FakeData,"Ind1 Ind2",ptable=TRUE)),quote=FALSE)
 
 The `VennTable` function can also be used in R Markdown.
 Specifying `markdown=TRUE` generates a pandoc markdown pipetable,
-with checkmarks and other features.
+where a checkmark represents affirmative, a space representing negative,
+and a dash represents missing
+(which can be changed with the `NAcode` parameter).
 Note that when `markdown=TRUE`,
 the rows and columns of the table are transposed.
 
@@ -1077,9 +996,10 @@ By default, it is set to `c("1","TRUE","Yes","yes","N/A")`.
 Similarly, the `unchecked` parameter is used to specify values that should be interpreted as negative,
 with default `c("0","FALSE","No","no","not N/A")`.
 
-Summaries can be useful in pattern tables.
-If a single summary is requested, it appears in the `summary_1` variable in the data frame.
-If additional summaries are requested they appear as `summary_2`, `summary_3`, etc.
+The `summary` parameter can also be used in pattern tables.
+If a single summary is requested,
+it appears in the `summary_1` variable in the data frame.
+Additional summaries appear as `summary_2`, `summary_3`, etc.
 
 ```{r}
 vtree(FakeData,"Severity Sex",summary=c("Score %mean%","Pre %mean%"),ptable=TRUE)
@@ -1093,7 +1013,7 @@ and `pattern=TRUE` is automatically set.
 As when `Venn=TRUE` is specified, all nodes except for the pattern node are blank,
 and only their shade indicates missing (dark) or not (light).
 Whereas the variables used to build a variable tree are normally categorical,
-this is a situation where non-categorical variables can be used,
+in this situation non-categorical variables can be used,
 because their missingness is represented instead of their actual values.
 
 ```{r,eval=FALSE}
@@ -1107,7 +1027,8 @@ Specifying `ptable=TRUE` produces this information in a data frame,
 and calling `VennTable` shows additional information:
 
 ```{r, eval=FALSE}
-`r VennTable(vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,ptable=TRUE),markdown=TRUE)`
+`r VennTable(vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,ptable=TRUE),
+   markdown=TRUE)`
 ```
 
 `r VennTable(vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,ptable=TRUE),markdown=TRUE)`
@@ -1188,7 +1109,8 @@ cat(dotscript)
 ```
 
 If you wish to directly edit this code,
-it can can be pasted into one of these online Graphviz editors:
+it can can be pasted into an online Graphviz editors,
+for example:
 
 https://dreampuf.github.io/GraphvizOnline
 
@@ -1205,12 +1127,14 @@ http://magjac.com/graphviz-visual-editor/
 
 * If `vtree` is called interactively in RStudio, it displays the variable tree in the Viewer window.
 
-* If `vtree` is called interactively from the R console, it displays the variable tree in a browser window.
+* If `vtree` is called interactively from the RGui console
+(i.e. from R outside of RStudio),
+it displays the variable tree in a browser window.
 
 
 ## Calling vtree from R Markdown {#embeddingInRmarkdown}
 
-`vtree` has a number of special features for use with R Markdown.
+`vtree` has a number of special features when called from R Markdown.
 
 Note that `vtree` uses the `DiagrammeR` package
 (which in turn is built on the open source graph visualization software,  `Graphviz`).
