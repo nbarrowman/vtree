@@ -1335,31 +1335,31 @@ vtree <- function (z, vars, splitspaces=TRUE,
 
   findvars <- names(labelvar) %in% z_names
   if (any(!findvars)) {
-      stop("The following variables named in labelvar were not found in the data frame: ",
-          paste(vars[!findvars], collapse = ", "))
+      stop("The following variables named in labelvar were not found in vars: ",
+          paste(names(labelvar)[!findvars], collapse = ", "))
   }
 
   findvars <- names(prunebelow) %in% z_names
   if (any(!findvars)) {
-      stop("The following variables named in prunebelow were not found in the data frame: ",
+      stop("The following variables named in prunebelow were not found in vars: ",
           paste(names(prunebelow)[!findvars], collapse = ", "))
   }
 
   findvars <- names(prune) %in% z_names
   if (any(!findvars)) {
-      stop("The following variables named in prune were not found in the data frame: ",
+      stop("The following variables named in prune were not found in vars: ",
           paste(names(prune)[!findvars], collapse = ", "))
   }
 
   findvars <- names(follow) %in% z_names
   if (any(!findvars)) {
-      stop("The following variables named in follow were not found in the data frame: ",
+      stop("The following variables named in follow were not found in vars: ",
           paste(names(follow)[!findvars], collapse = ", "))
   }
 
   findvars <- names(keep) %in% z_names
   if (any(!findvars)) {
-      stop("The following variables named in keep were not found in the data frame: ",
+      stop("The following variables named in keep were not found in vars: ",
           paste(names(keep)[!findvars], collapse = ", "))
   }
 
@@ -1447,6 +1447,15 @@ vtree <- function (z, vars, splitspaces=TRUE,
     vp = vp, rounded = rounded, showroot=showroot)
   
   if (root & ptable) {
+    if (length(labelvar)>0) {
+      for (CNP in colnames(PATTERN_values)) {
+        if (CNP %in% names(labelvar)) {
+          for (i in 1:length(labelvar)) {
+            colnames(PATTERN_values)[colnames(PATTERN_values)==names(labelvar)[i]] <- labelvar[i]
+          }
+        }
+      }
+    }
     if (vars[1]=="pattern" | vars[1]=="sequence") {
       patternTable <- data.frame(n=fc$n,pct=fc$pct,PATTERN_values,check.names=FALSE)
       if (length(summarytext)>0) {
