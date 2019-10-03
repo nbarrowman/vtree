@@ -45,6 +45,8 @@
 VennTable <- function(x,markdown=FALSE,NAcode="-",
   unchecked=c("0","FALSE","No","no","not N/A"),checked=c("1","TRUE","Yes","yes","N/A")) {
   
+  TotalSampleSize <- sum(x$n)
+  
   # {m}ark{d}own {t}able function
   mdt <- function(x) {
     cn <- colnames(x)
@@ -72,9 +74,10 @@ VennTable <- function(x,markdown=FALSE,NAcode="-",
     xmat[,-(1:2)][xmat[,-(1:2)] %in% unchecked] <- ""
     xmat[,-(1:2)][xmat[,-(1:2)] %in% checked] <- "&#10004;"
   }
+  xmat <- rbind(xmat,c(TotalSampleSize,100,rep("",ncol(mat))))
   xmat <- rbind(xmat,c("","",count))
   xmat <- rbind(xmat,c("","",round(100*count/sum(x[,1]))))
-  rownames(xmat) <- c(rep("",nrow(x)),"N","pct")
+  rownames(xmat) <- c(rep("",nrow(x)),"Total","N","pct")
   
   if (markdown) {
     colnames(xmat)[colnames(xmat)=="pct"] <- "%"

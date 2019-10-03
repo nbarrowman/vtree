@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 2.3.5"
+title: "Introduction to vtree 2.3.6"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -926,6 +926,8 @@ can be exported by specifying `ptable=TRUE`:
 vtree(FakeData,"Severity Sex",ptable=TRUE)
 ```
 
+The pattern table includes a column for the counts from the pattern nodes,
+and a column for percentage.
 Compared to a variable tree, this table is much more compact,
 and may be more suitable for use in a manuscript.
 
@@ -976,13 +978,24 @@ Instead it's helpful to call `print` and specify `quote=FALSE`:
 print(VennTable(vtree(FakeData,"Ind1 Ind2",ptable=TRUE)),quote=FALSE)
 ```
 
+`VennTable` adds:
+
+* the total sample size (`r nrow(FakeData)`) and percentage (100).
+
+* the total number (N) of affirmatives for each variable, together with a percentage.
+
 The `VennTable` function can also be used in R Markdown.
 Specifying `markdown=TRUE` generates a pandoc markdown pipetable,
-where a checkmark represents affirmative, a space representing negative,
-and a dash represents missing
-(which can be changed with the `NAcode` parameter).
-Note that when `markdown=TRUE`,
-the rows and columns of the table are transposed.
+with various formatting tweaks:
+
+* the rows and columns of the table are transposed
+
+* affirmatives are represented by checkmarks
+
+* negatives are represented by spaces
+
+* missing values are represented by dashes (which can be changed with the `NAcode` parameter).
+
 
 ```{r, eval=FALSE}
 `r VennTable(vtree(FakeData,"Ind1 Ind2",ptable=TRUE),markdown=TRUE)`

@@ -6,3 +6,4 @@ cheatsheets
 README.md
 .git.*
 
+^cran-comments\.md$
