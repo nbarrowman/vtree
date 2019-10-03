@@ -1721,7 +1721,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
       
       if (!isTRUE(getOption('knitr.in.progress')) && !as.if.knit) {
         print(flowchart)
-        return(invisible(NULL))
+        return(invisible(flowchart))
       }  
       
       if (is.null(getOption("vtree_count"))) {

@@ -29,6 +29,9 @@
 #'
 
 grVizToPNG <- function (g, width=NULL, height=NULL, folder = ".",filename) {
+  if (!("htmlwidget" %in% class(g)))
+    stop("Argument must be of class htmlwidget.")
+    
   if (missing(filename)) {
     filename <- paste0(sapply(as.list(substitute({g})[-1]), deparse),".png")
   }
