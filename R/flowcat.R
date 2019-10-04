@@ -5,7 +5,7 @@ labelvar=NULL,
 varminwidth=NULL,varminheight=NULL,varlabelloc=NULL,
 shownodelabels=TRUE,sameline=FALSE,
 prunefull=NULL,
-prunelone=NULL,prunesmaller=NULL,
+prunelone=NULL,prunesmaller=NULL,prunesmallerNA=FALSE,
 keep=NULL,
 text=NULL,ttext=NULL,TopText="",showempty=FALSE,digits=0,cdigits=2,
 showpct=TRUE,
@@ -36,8 +36,14 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
   categoryCounts <- table(z,exclude=NULL)
   names(categoryCounts)[is.na(names(categoryCounts))] <- "NA"
   
+  sampleSize <- sum(categoryCounts[names(categoryCounts)!="NA"])
+  
   if (!is.null(prunesmaller)) {
-    selectcount <- categoryCounts>=prunesmaller  
+    if (prunesmallerNA) {
+      selectcount <- categoryCounts>=prunesmaller  
+    } else {
+      selectcount <- categoryCounts>=prunesmaller | names(categoryCounts)=="NA"  
+    }
     categoryCounts <- categoryCounts[selectcount]
   }
   
@@ -61,7 +67,7 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
         npctString <- cc
         if (showpct) npctString <- paste0(npctString," ")
       }
-      pctString <- around(100*cc/sum(cc),digits)
+      pctString <- around(100*cc/sampleSize,digits)   # used to be sum(cc) rather than sampleSize
       if (showpct) {
         npctString <- paste0(npctString,"(",pctString,"%)")
       }

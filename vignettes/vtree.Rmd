@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 2.3.7"
+title: "Introduction to vtree 2.3.8"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -436,6 +436,11 @@ you can specify `prunesmaller=3` as in this example:
 vtree(FakeData,"Severity Sex Age Category",sameline=TRUE,prunesmaller=3)
 ```
 
+By default, `prunesmaller` will not prune missing value nodes,
+because percentages can be confusing when missing values are not shown.
+You can override this behavior
+(to permit `prunesmaller` to prune missing value nodes)
+by specifying `prunesmallerNA=TRUE`.
 
 ## Labels for variables and nodes {#labeling}
 
