@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 2.3.8"
+title: "Introduction to vtree 2.3.9"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -426,15 +426,28 @@ Instead, those nodes that are not "followed" will be pruned at the next level.
 
 ### The `prunesmaller` parameter
 
-When the number of nodes in a variable tree gets very large,
-it may be hard to see where most of the observations actually are.
+As the number of nodes in a variable tree gets very large it becomes difficult, 
+if you'll pardon the pun, to see the forest for the tree.
+For example, consider the following tree:
+
+```{r, eval=FALSE}
+vtree(FakeData,"Severity Sex Age Category",sameline=TRUE)
+```
+
+`r vtree(FakeData,"Severity Sex Age Category",sameline=TRUE,imageheight="5in")`
+
 One solution is to prune nodes that contain small numbers of observations.
+As with other types of pruning, the result is an incomplete tree,
+but one that may be more helpful.
 For example if you want to only see nodes with at least 3 observations,
 you can specify `prunesmaller=3` as in this example:
 
 ```{r, eval=FALSE}
 vtree(FakeData,"Severity Sex Age Category",sameline=TRUE,prunesmaller=3)
 ```
+
+`r vtree(FakeData,"Severity Sex Age Category",sameline=TRUE,prunesmaller=3,
+  imageheight="5in")`
 
 By default, `prunesmaller` will not prune missing value nodes,
 because percentages can be confusing when missing values are not shown.
