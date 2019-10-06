@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 2.3.9"
+title: "Introduction to vtree 2.4.0"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -361,7 +361,7 @@ This concludes the mini-tutorial.
  
 ## Pruning {#pruning}
 
-*Pruning* a tree means removing nodes along with their descendants.
+*Pruning* a tree means removing certain nodes along with their descendants.
 This is useful when a variable tree gets too big,
 or when you are only interested in certain parts of the tree.
 For convenience, `vtree` provides several different ways to prune a tree,
@@ -370,12 +370,8 @@ described below.
 ### The `prune` parameter
 
 Suppose you don't want the tree to include individuals whose disease is Mild or Moderate.
-You can use the `prune` parameter to remove those nodes,
-and all of their descendants.
-
-The `prune` parameter is specified as a list with an element named for each variable you wish to prune.
-In the example below the list has one element, named `Severity`.
-That element in turn is a vector `c("Mild","Moderate")` indicating the values to prune.
+Specifying `prune=list(Severity=c("Mild","Moderate"))`
+removes those nodes, and all of their descendants:
 
 ```{r,eval=FALSE}
 vtree(FakeData,"Severity Sex",prune=list(Severity=c("Mild","Moderate")))
@@ -384,11 +380,16 @@ vtree(FakeData,"Severity Sex",prune=list(Severity=c("Mild","Moderate")))
 `r vtree(FakeData,"Severity Sex",prune=list(Severity=c("Mild","Moderate")),
   width=500,height=300,pxwidth=600,imageheight="2.5in")`
 
+In general,
+the argument of the `prune` parameter is a list with an element named for each variable you wish to prune.
+In the example above the list has a single element, named `Severity`.
+That element in turn is a vector `c("Mild","Moderate")`
+indicating the values of `Severity` to prune.
 
 **Caution**: Once a variable tree has been pruned,
 it is no longer complete.
 This can sometimes be confusing since not all observations
-are present at some levels of the tree.
+are represented at certain levels of the tree.
 **It is particularly important to avoid pruning missing value nodes**,
 since this makes it hard to interpret "valid" percentages (i.e. percentages calculated
 using the number of non-missing observations as denominator).
@@ -399,14 +400,17 @@ using the number of non-missing observations as denominator).
 A disadvantage of the `prune` parameter is that in the resulting tree,
 the counts shown in child nodes may not add up to the counts shown in the parent node.
 For example in the variable tree above,
-of a total of 46 patients,
-5 have Severe disease and `Severity` is unknown for 6.
-One might wonder what happened to the other 35 patients.
+of a total of `r nrow(FakeData)` patients,
+`r sum(!is.na(FakeData$Severity) & FakeData$Severity=="Severe")`
+have Severe disease and `Severity` is unknown for `r sum(is.na(FakeData$Severity))`.
+One might wonder what happened to the other `r sum(!is.na(FakeData$Severity) & FakeData$Severity!="Severe")` patients.
 
 An alternative is to prune *below* the specified nodes.
-In this case, this means that the Mild and Moderate nodes will be shown,
+In the present example, this means that the Mild and Moderate nodes will be shown,
 but not their descendants.
-
+The `prunebelow` parameter does this,
+and uses the same type of argument as the `prune` parameter. 
+ 
 ```{r,eval=FALSE}
 vtree(FakeData,"Severity Sex",prunebelow=list(Severity=c("Mild","Moderate")))
 ```
@@ -417,30 +421,30 @@ vtree(FakeData,"Severity Sex",prunebelow=list(Severity=c("Mild","Moderate")))
 
 ### The `keep` and `follow` parameters
 
-Instead of specifying the nodes that should be discarded,
-sometimes it is more convenient to specify the nodes that should be *retained*.
-The `keep` parameter is used to specify nodes that should *not* be pruned
-(all other nodes at that level of the tree will be pruned).
-The `follow` parameter is like the `keep` parameter except that no nodes at that level of the tree will be pruned.
-Instead, those nodes that are not "followed" will be pruned at the next level.
+Sometimes it is more convenient to specify the nodes that should be *retained*
+rather than those that should be discarded.
+The `keep` parameter is used for this purpose,
+and can thus be considered the opposite of the `prune` parameter.
+
+The opposite of the `prunebelow` function is the `follow` function.
+The descendants of nodes that are followed will be included in the tree,
+whereas the descendants of the other nodes will be pruned.
+
 
 ### The `prunesmaller` parameter
 
-As the number of nodes in a variable tree gets very large it becomes difficult, 
-if you'll pardon the pun, to see the forest for the tree.
-For example, consider the following tree:
+As a variable tree grows it can become difficult to see the forest for the tree.
+For example, consider the following variable tree:
 
 ```{r, eval=FALSE}
 vtree(FakeData,"Severity Sex Age Category",sameline=TRUE)
 ```
 
-`r vtree(FakeData,"Severity Sex Age Category",sameline=TRUE,imageheight="5in")`
+`r vtree(FakeData,"Severity Sex Age Category",sameline=TRUE,imageheight="6in")`
 
 One solution is to prune nodes that contain small numbers of observations.
-As with other types of pruning, the result is an incomplete tree,
-but one that may be more helpful.
 For example if you want to only see nodes with at least 3 observations,
-you can specify `prunesmaller=3` as in this example:
+you can specify `prunesmaller=3`, as in this example:
 
 ```{r, eval=FALSE}
 vtree(FakeData,"Severity Sex Age Category",sameline=TRUE,prunesmaller=3)
@@ -449,11 +453,12 @@ vtree(FakeData,"Severity Sex Age Category",sameline=TRUE,prunesmaller=3)
 `r vtree(FakeData,"Severity Sex Age Category",sameline=TRUE,prunesmaller=3,
   imageheight="5in")`
 
-By default, `prunesmaller` will not prune missing value nodes,
+By default, `prunesmaller` does not prune missing value nodes,
 because percentages can be confusing when missing values are not shown.
 You can override this behavior
-(to permit `prunesmaller` to prune missing value nodes)
+(i.e. permit `prunesmaller` to prune missing value nodes)
 by specifying `prunesmallerNA=TRUE`.
+
 
 ## Labels for variables and nodes {#labeling}
 
