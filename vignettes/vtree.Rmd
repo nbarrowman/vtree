@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 2.4.0"
+title: "Introduction to vtree 2.4.1"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -25,13 +25,13 @@ options(width=90)
 `vtree` is a flexible tool for generating *variable trees* &mdash;
 diagrams that display information about nested subsets of a data frame.
 Given simple specifications,
-`vtree` produces these diagrams and labels them with counts, percentages,
-and other summaries.
-`vtree` can be used:
+`vtree` produces these diagrams and automatically labels them with counts,
+percentages, and other summaries.
+With `vtree`, you can:
 
-* to explore a data set interactively, and
+* explore a data set interactively, and
 
-* to produce customized figures for reports and publications.
+* produce customized figures for reports and publications.
 
 ## Two examples
 
@@ -63,15 +63,20 @@ df <- build.data.frame(
 
 Even in simple situations like this,
 it can be a chore to keep track of nested subsets and to calculate percentages.
-In many situations the case becomes more tedious, for two reasons.
+But it's often even more tedious&mdash;and there are two reasons why. 
 First, the presence of missing values makes it harder to determine denominators.
 Second, as the number of variables increases,
 the number of nested subsets grows rapidly.
-When performed by hand, nested subsetting is taxing and error prone.
+In spite of these difficulties,
+people often calculate nested subsets by hand 
+(along with percentages and other summaries).
+Not only is this tiresome work, it is extremely error prone.
 
 Nested subsets arise in all kinds of situations.
 Consider, for example, flow diagrams for clinical studies,
-such as the following rudimentary [CONSORT](http://www.consort-statement.org) diagram.
+such as the following rudimentary
+[CONSORT](http://www.consort-statement.org) diagram,
+which is also a variable tree.
 
 `r 
 vtree(FakeRCT,"eligible randomized group followup",plain=TRUE,
@@ -85,6 +90,7 @@ mistakes in published flow diagrams are all too common.
 And although the errors that make it to publication are often small,
 they can sometimes be disastrous.
 
+Note that at the end of this vignette, there is a collection of [examples using R datasets](#RdatasetExamples) that you can try.
 
 ## Basic features of a variable tree
 
@@ -155,18 +161,17 @@ Likewise, a tree with `Severity` shown within levels of `Sex` corresponds to
 a contingency table with *row percentages*.
 
 The contingency table above is more compact than the corresponding variable tree,
-but the variable tree may be easier for some people to interpret.
+but some people may find the variable tree easier to interpret.
 When three of more variables are of interest,
-multi-way contingency tables can be used.
+multi-way contingency tables are often used.
 These are typically displayed using several two-way tables.
 In this situation, variable trees are generally easier to interpret.
 
-Contingency tables are not *always* more compact than variable trees.
+It is also worth noting that
+contingency tables are not *always* more compact than variable trees.
 When most cells of a large contingency table are empty (in which case the table is said to be *sparse*),
 the corresponding variable tree may be more compact since empty-nodes are not shown.
  
-Thus one use of variable trees is as an alternative to contingency tables.
-
 
 ## Features of vtree
 
@@ -189,17 +194,19 @@ including a variety of summary statistics;
 
 * special displays for [indicator variables](#Venn),
 [patterns](#patterns) of values, and
-[missing value patterns](#missingValues);
+[missingness](#missingValues);
 
-* support for [checkbox variables](#REDCapCheckboxes) from [REDCap](https://www.project-redcap.org) databases; and
+* support for [checkbox variables](#REDCapCheckboxes) from [REDCap](https://www.project-redcap.org) databases;
 
-* features for [dichotomizing variables](#dichotomizing) and [checking for outliers](#detectingOutliers).
+* features for [dichotomizing variables](#dichotomizing) and [checking for outliers](#detectingOutliers); and
 
 * automatic generation of PNG image files and [embedding in R Markdown](#embeddingInRmarkdown) documents.
 
-There is a collection of [examples using R datasets](#RdatasetExamples) later in this vignette.
-There is also a [helper function](#GeneratingDataFrames) to easily construct
-data frames to use with `vtree`.
+In many cases, you may wish to generate several different variable trees to
+investigate a collection of variables in a data frame.
+For example, it is often useful to change the order of variables,
+prune parts of the tree, etc.
+
 
 ## Technical overview
 
@@ -265,7 +272,7 @@ vtree(FakeData,"Severity Sex",horiz=FALSE,plain=TRUE)
 ```
 
 `r vtree(FakeData,"Severity Sex",horiz=FALSE,plain=TRUE,
-  width=450,height=200,pxwidth=1600,imageheight="1.9in")`
+  width=450,height=200,pxwidth=1600,imageheight="1.8in")`
 
 
 ### Percentages
@@ -280,18 +287,19 @@ and `r sum(FakeData$Severity %in% "Mild")`/`r nrow(FakeData) - sum(is.na(FakeDat
 `r sum(FakeData$Severity %in% "Mild")/(nrow(FakeData) - sum(is.na(FakeData$Severity)))` so the percentage shown is 48%.
 No percentage is shown in the NA node since missing values are not included in the denominator.
 
-Alternatively, if you don't want to use valid percentages, specify `vp=FALSE`,
-and the denominator will be the total number of observations,
-*including* any missing values.
-In this case, a percentage is shown in each of the nodes, including any NA nodes.
+If you prefer that the denominator represent the complete set of observations
+(*including* any missing values),
+specify `vp=FALSE`.
+With this setting, a percentage will be shown in each of the nodes,
+including any NA nodes.
 
 If you don't wish to see percentages, specify `showpct=FALSE`,
-or if you don't need to see counts, specify `showcount=FALSE`.
+and if you don't wish to see counts, specify `showcount=FALSE`.
 
 
 ### Displaying a legend and hiding node labels {#legends}
 
-To include a legend, specify `showlegend=TRUE`.
+To display a legend, specify `showlegend=TRUE`.
 Next to each level of the tree,
 the variable name is displayed together with color discs and the values they correspond to.
 For each of the values, overall (*marginal*) counts are shown, together with percentages.
@@ -355,15 +363,16 @@ Also note that in the legend,
 text wrapping can take place not only at spaces,
 but also at any of the following characters: . - + _ = /
 
-This concludes the mini-tutorial.
+*This concludes the mini-tutorial.*
 `vtree` has many more features, described in the following sections.
 
  
 ## Pruning {#pruning}
 
-*Pruning* a tree means removing certain nodes along with their descendants.
-This is useful when a variable tree gets too big,
-or when you are only interested in certain parts of the tree.
+When a variable tree gets too big,
+or you are only interested in certain parts of the tree,
+it may be useful to remove some nodes along with their descendants.
+This is known as *pruning*.
 For convenience, `vtree` provides several different ways to prune a tree,
 described below.
 
@@ -426,7 +435,8 @@ rather than those that should be discarded.
 The `keep` parameter is used for this purpose,
 and can thus be considered the opposite of the `prune` parameter.
 
-The opposite of the `prunebelow` function is the `follow` function.
+In the same way,
+the opposite of the `prunebelow` function is the `follow` function.
 The descendants of nodes that are followed will be included in the tree,
 whereas the descendants of the other nodes will be pruned.
 
@@ -440,7 +450,7 @@ For example, consider the following variable tree:
 vtree(FakeData,"Severity Sex Age Category",sameline=TRUE)
 ```
 
-`r vtree(FakeData,"Severity Sex Age Category",sameline=TRUE,imageheight="6in")`
+`r vtree(FakeData,"Severity Sex Age Category",sameline=TRUE,imageheight="7in")`
 
 One solution is to prune nodes that contain small numbers of observations.
 For example if you want to only see nodes with at least 3 observations,
@@ -538,11 +548,25 @@ the open source graph visualization software that `vtree` is built on,
 supports a variety of text formatting (including boldface, colors, etc.).
 This is used in `vtree` to control formatting of text such as node labels.
 
+
+### Markdown-style codes for text formatting
+
+By default, the `vtree` package uses markdown-style codes for text formatting.
+
+* `\n` means insert a line break
+* `\n*l` means make the preceding line left-justified and insert a line break
+* `*...*` means display text in italics
+* `**...**` means display text in bold
+* `^...^` means display text in superscript (using 10 point font)
+* `~...~` means display text in subscript (using 10 point font)
+* `%%red ...%%` means display text in red (or whichever color is specified)
+
+
 ### HTML-like codes for text formatting
 
-**NOTE: The section after this one shows how to use an easy alternative to HTML-like codes.**
-
-`Graphviz` implements "HTML-like labels", including:
+As an alternative,
+if you specify `HTMLtext=TRUE` you can use "HTML-like labels"
+(implemented in `Graphviz`), including:
 
 * `<BR/>` means insert a line break
 * `<BR ALIGN='LEFT'/>` means make the preceding line left-justified and insert a line break
@@ -557,21 +581,6 @@ This is used in `vtree` to control formatting of text such as node labels.
 * `<FONT COLOR='red'> ... </FONT>` means set font to red
 
 See <https://www.graphviz.org/doc/info/shapes.html#html> for more details.
-
-**Note**: To use these HTML-like codes, it is necessary to specify `HTMLtext=TRUE`.
-
-
-### Markdown-style codes for text formatting
-
-By default, the `vtree` package uses markdown-style codes for text formatting.
-
-* `\n` means insert a line break
-* `\n*l` means make the preceding line left-justified and insert a line break
-* `*...*` means display text in italics
-* `**...**` means display text in bold
-* `^...^` means display text in superscript (using 10 point font)
-* `~...~` means display text in subscript (using 10 point font)
-* `%%red ...%%` means display text in red (or whichever color is specified)
 
 
 ### Adding text to nodes using the `text` parameter
@@ -626,7 +635,7 @@ vtree(FakeData,"Group Severity",horiz=FALSE,showvarnames=FALSE,
 ## Specification of variables {#VariableSpecification}
  
 For convenience,
-`vtree` allows you to specify the variable names (separated by whitespace)
+`vtree` allows you to specify the names of the variables of interest (separated by whitespace)
 in a single character string.
 If, however, any of the variable names have internal spaces,
 the variable names must be specified as a vector of character strings.
@@ -690,11 +699,11 @@ and end with a numeric digit, namely `Ind1`, `Ind2`, and `Ind3`.
 ### specification `variable=value` {#dichotomizing}
 
 When a variable takes on a large number of different values,
-it will result in a very large variable tree.
+the resulting variable tree will very large.
 One solution is to prune the tree,
 for example by keeping just one node.
-An alternative is to specify the value of the variable that is of primary interest.
-The result will be to dichotomize the variable at that value.
+An alternative is to specify the value of the variable that is of primary interest and 
+`vtree` will dichotomize the variable at that value.
 For example if `Severity=Mild` is specified,
 the `Severity` variable will be dichotomized between `Mild` and `Not Mild`.
 
@@ -713,7 +722,7 @@ It is often useful to display information about other variables
 This is particularly useful for numeric variables,
 which generally cannot be used to build the tree since they have too many distinct values.
 For example, we might wish to display the mean age for individuals in each node.
-Or we might wish to list the ID numbers for individuals in each node.
+Or we might wish to list the ID numbers of the individuals in each node.
 The `summary` argument can be used to flexibly specify additional information to display.
 
 
@@ -797,7 +806,7 @@ vtree(FakeData,"Severity",horiz=FALSE,showvarnames=FALSE,splitwidth=Inf,sameline
 ### The `%list%` code
 
 It is sometimes convenient to see individual values of a variable in each node.
-For example it is often convenient to see ID numbers.
+For example you might want to see ID numbers.
 To do this, use the `%list%` code.
 By default this information will be displayed in each node.
 When a value occurs more than once in the subset,
@@ -806,9 +815,8 @@ The `%list%` code separates values by commas.
 Alternatively, the `%listlines%` code can be used to put each value on a new line.
 
 When there are many IDs, it is often convenient to truncate the output.
-The `%trunc=`*N*`%` code specifies that, after *N* characters, summary information
-should be truncated with "...".
-
+If you specify `%trunc=`*N*`%`, summary information
+will be truncated after *N* characters with "...".
 
 ### The `%noroot%`, `%leafonly%`, `%var=`*v*`%`, and `%node=`*n*`%` codes
 
@@ -870,7 +878,7 @@ The leaf nodes represent *all* the observed combinations of values of all of the
 For example, in a variable tree for `Severity` and `Sex`,
 the leaf nodes correspond to Mild F, Mild M, Moderate F, Moderate M, etc.
 These combinations, or "patterns", can be treated as an additional variable.
-If this new pattern variable is used as the first variable in a tree,
+And if this new pattern variable is used as the first variable in a tree,
 then the branches of the tree will be simplified:
 each branch will represent a unique pattern, with no sub-branches.
 A "pattern tree" can be easily produced by specifying `pattern=TRUE`:
@@ -899,8 +907,7 @@ since they only represent the *n*th-level subsets
 (where *n* is the number of variables).
 
 Note that by default, when `pattern=TRUE` is specified,
-in order to simplify the display the root node is not shown.
-(Admittedly, lacking a root node, the result is no longer technically a tree.) 
+the root node is not shown (in order to simplify the display).
 A disadvantage of this is that the total sample size is not shown.
 You can override this behavior by specifying `showroot=TRUE`.
 
@@ -939,8 +946,8 @@ and may be more suitable for use in a manuscript.
 
 ### Indicator variables
 
-Pattern trees are useful for variables take values 0/1, no/yes, FALSE/TRUE, etc.,
-i.e. *indicator variables*.
+Pattern trees are useful for *indicator variables*,
+i.e. variables that take values like 0/1, no/yes, FALSE/TRUE, etc.
 For convenience we'll refer to 0 (or no, FALSE, etc.) a *negative*
 and 1 (or yes, TRUE, etc.) as an *affirmative*.
 For example, the variables `Ind1` through `Ind4` in `FakeData` are 0/1 variables.
@@ -968,7 +975,7 @@ For example:
 vtree(FakeData,"Ind1 Ind2",ptable=TRUE)
 ```
 
-#### `VennTable`
+#### The `VennTable` function
 
 For indicator variables, there is an extra function, `VennTable`,
 which converts the pattern table to a matrix of character strings
@@ -987,13 +994,13 @@ Instead it's helpful to call the `print` function and specify `quote=FALSE`:
 print(VennTable(vtree(FakeData,"Ind1 Ind2",ptable=TRUE)),quote=FALSE)
 ```
 
-`VennTable` adds:
+Without all those quotation marks, it's easier to see what `VennTable` adds:
 
-* the total sample size (`r nrow(FakeData)`) and percentage (100).
+* the total sample size (`r nrow(FakeData)`) and percentage (100), and
 
 * the total number (N) of affirmatives for each variable, together with a percentage.
 
-The `VennTable` function can also be used in R Markdown.
+The `VennTable` function can also be used in an R Markdown document.
 Specifying `markdown=TRUE` generates a pandoc markdown pipetable,
 with several formatting tweaks:
 
@@ -1126,7 +1133,8 @@ vtree(MyREDCapData,"rc:IceCream___1 rc:IceCream___3",pattern=TRUE,showroot=FALSE
 
 ## Examining the DOT script generated by `vtree`
 
-Specifying `getscript=TRUE` lets you capture the DOT script representing a flowchart.
+Specifying `getscript=TRUE` lets you capture the DOT script representing a variable tree.
+(DOT is a graph description language used by Graphviz, which is used by DiagrammeR, which is used by `vtree`!).
 Here is an example:
 
 ```{r, comment=""}
@@ -1135,7 +1143,7 @@ cat(dotscript)
 ```
 
 If you wish to directly edit this code,
-it can can be pasted into an online Graphviz editors,
+it can can be pasted into an online Graphviz editor,
 for example:
 
 https://dreampuf.github.io/GraphvizOnline
@@ -1160,21 +1168,19 @@ it displays the variable tree in a browser window.
 
 ## Calling vtree from R Markdown {#embeddingInRmarkdown}
 
-`vtree` has a number of special features when called from R Markdown.
+`vtree` has a number of special features when called from R Markdown
+By default, when `vtree` is called from R Markdown,
+it generates a PNG image file.
 
-Note that `vtree` uses the `DiagrammeR` package
-(which in turn is built on the open source graph visualization software,  `Graphviz`).
-DiagrammeR (and hence `vtree`) automatically generates an htmwidget for display in HTML,
-using the [htmlwidgets](https://www.htmlwidgets.org/) framework
-(for example, in the RStudio Viewer pane, or from R in a browser window).
-
-However, by default, when `vtree` is called from R Markdown,
-it instead automatically converts the htmlwidget to a PNG file.
-
+Here's how it does that. `vtree` uses the `DiagrammeR` package,
+which automatically generates an htmlwidget for display in HTML,
+using the [htmlwidgets](https://www.htmlwidgets.org/) framework.
+Then `vtree` converts the htmlwidget into a PNG. 
+ 
 ### Generating PNG files
 
 PNG files are useful because they allow you to display variable trees in Microsoft Word documents,
-and also because HTML files that use `htmlwidgets` can be large,
+and also because HTML files that use htmlwidgets can get large,
 and if they contain several widgets they can be slow to load.
 
 If `vtree` is called while an R Markdown file is being knitted,
@@ -1191,8 +1197,9 @@ If neither is specified, `imageheight` is automatically set to 3 inches.
 The PNG file is stored in the folder specified by the `folder` parameter,
 or if a folder is not specified, a temporary folder will be used.
 Successive PNG files are named `vtree1.png`, `vtree2.png`, and so forth and are stored in the  folder.
-During knitting, `vtree` uses a global counting variable called `vtcount` to count the PNG files,
-and a global folder called `vtfolder` to identify where to store them.
+During knitting, `vtree` uses the `options` function to keep track of
+a counting variable called `vtcount` to count the PNG files,
+and a folder variable called `vtfolder` to identify where to store them.
 
 To call `vtree` in R Markdown, you can use inline code:
 
@@ -1209,7 +1216,7 @@ cat(vtree(FakeData,"Sex Severity"))
 ````
 
 One advantage of code chunks is that they can also be run interactively
-(for example within RStudio, by clicking of the green arrow at the right-hand side of a code chunk).
+(for example within RStudio, by clicking on the green arrow at the right-hand side of a code chunk).
 
 
 ### Generating an htmlwidget in an HTML document
@@ -1227,15 +1234,15 @@ Or a code chunk:
 
 ````
 `r ''````{r}
-cat(vtree(FakeData,"Severity Sex",pngknit=FALSE))
+vtree(FakeData,"Severity Sex",pngknit=FALSE)
 ```
 ````
 
-However when multiple htmlwidgets are included in an HTML file,
-browsers may not perform well.
-Furthermore, when knitting to a .docx file rather than an HTML file,
-htmlwidgets are not an option.
-
+Note the differences between this and the code chunk to produce a PNG file
+(in the previous section):
+(1) you specify `pngknit=FALSE`,
+(2) you don't specify the chunk option `results="asis"`,
+and (3) you don't put `cat` around the call to `vtree`.
 
 
 # Generating a data frame by specifying subset sizes {#GeneratingDataFrames}
@@ -1332,7 +1339,7 @@ vtree(FakeRCT,"eligible randomized group followup analyzed",plain=TRUE,
 
 Finally, it may be useful to see the ID numbers in each node.
 This can be done using the `summary` parameter with the `%list%` code.
-Since IDs are not as useful in the root note,
+Since IDs are less useful in the root note,
 the `%noroot%` code is also specified here:
 
 ```{r, eval=FALSE}
@@ -1547,69 +1554,4 @@ and the `Time` variable:
 vtree(ToothGrowth,"supp dose",summary="len>20 \n%pct% length > 20",
   labelvar=c("supp"="Supplement type","dose"="Dose (mg/day)"),
   labelnode=list(supp=c("Vitamin C"="VC","Orange Juice"="OJ")))
-```
-
-
-# Generating PNG files directly {#GeneratingPNGdirectly}
-
-`vtree` can automatically generate PNG files when called in an
-R Markdown file that is being knitted.
-But you may wish to generate PNG files directly.
-
-`vtree` uses the `DiagrammeR` package (which in turn is built on the open source graph visualization software,  `Graphviz`).
-DiagrammeR (and hence `vtree`) automatically renders to HTML
-using the [htmlwidgets](https://www.htmlwidgets.org/) framework
-(for example, in the RStudio Viewer pane, or from R in a browser window).
-However it is sometimes useful to generate a graphics file.
-For example, to include a variable tree in a Microsoft Word document,
-you need to create a PNG file.
-Another reason to generate a PNG file is that HTML files that use `htmlwidgets` can be large,
-and if they contain several widgets they can be slow to load.
-The function `grVizToPNG` solves this problem by converting a variable tree into a PNG file.
-
-## The `grVizToPNG` function
-
-Suppose you saved the output of a call to `vtree` to an object called `example1`:
-
-```{r, eval=FALSE}
-example1 <- vtree(FakeData,"Severity Sex",pngknit=FALSE)
-```
-
-You can use `grVizToPNG` to create a PNG file called `example1.png` like this:
-
-```{r, eval=FALSE}
-grVizToPNG(example1)
-```
-
-Notes:
-
-* The name of the graphics file (`example1.png`) is automatically derived from the name of the object (`example1`).
-
-* The `width` or `height` arguments can be used to override the default resolution. For example, specifying `width=3000` results in a fairly high-resolution image.
-
-* Before creating the PNG file, `grVizToPNG` first creates an SVG file. But Microsoft Word cannot handle SVG files, which is why a PNG file must be created.
-
-* To keep things tidy, you can also specify a folder (say a subfolder of the working directory) where the PNG and SVG files will be stored. To do this, specify this argument: `folder="MyFolder"`.
-
-
-## Embedding a PNG image into R Markdown output
-
-*The steps described in this section are not usually necessary,
-since `vtree` automatically embeds PNG images into R Markdown output.*
-
-Suppose you are using R Markdown,
-and wish to embed the PNG image generated by calling `grVizToPNG` into your output
-(for example a Word document).
-If you want the image scaled to, say, 3 inches tall, add this code inline (i.e. *not* in a code chunk):
-
-```{r, highlight=FALSE, eval=FALSE}
-![](example1.png){ height=3in }
-```
-
-If, in your call to `grVizToPNG`,
-you specified that graphics files should be stored in a subfolder called `MyFolder`,
-use the following code:
-
-```{r, highlight=FALSE, eval=FALSE}
-![](MyFolder/example1.png){ height=3in }
 ```
