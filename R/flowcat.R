@@ -210,14 +210,14 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
     }
   }
 
-  # Relabel the nodes if labelvar has been specified
-  if (!showvarnames) {
-    if (!is.null(labelvar)) {
-      if (!is.na(labelvar)) {
-        displayCAT[-1] <- paste0(labelvar,sepN,displayCAT[-1])
-      }
-    }
-  }
+  # # Relabel the nodes if labelvar has been specified
+  # if (!showvarnames) {
+  #   if (!is.null(labelvar)) {
+  #     if (!is.na(labelvar)) {
+  #       displayCAT[-1] <- paste0(labelvar,sepN,displayCAT[-1])
+  #     }
+  #   }
+  # }
 
   # Write DOT code for the edges
   if (showroot) {
