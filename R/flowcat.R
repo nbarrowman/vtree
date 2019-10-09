@@ -5,7 +5,7 @@ labelvar=NULL,
 varminwidth=NULL,varminheight=NULL,varlabelloc=NULL,
 shownodelabels=TRUE,sameline=FALSE,
 prunefull=NULL,
-prunelone=NULL,prunesmaller=NULL,prunesmallerNA=FALSE,
+prunelone=NULL,prunesmaller=NULL,prunesmallerNA=FALSE,removeNA=FALSE,
 keep=NULL,
 text=NULL,ttext=NULL,TopText="",showempty=FALSE,digits=0,cdigits=2,
 showpct=TRUE,
@@ -124,6 +124,20 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
     } else {      
       matching <- match(keep,names(categoryCounts)[-1])
       matching <- matching[!is.na(matching)]
+      removed <- categoryCounts[-1][-matching]
+      npctremoved <- npctString[-1][-matching]
+      if (removeNA) {
+        if (any(names(removed)=="NA")) {
+          NAremoved <- names(removed)=="NA"
+          nr <- npctremoved[NAremoved]
+          if (nr>1) description <- "NAs" else description <- "NA"
+          warning(paste0(var,": keep removed ",npctremoved[NAremoved]," ",description),call.=FALSE)
+        }  
+      } else {
+        newkeep <- c(keep,"NA")
+        matching <- match(newkeep,names(categoryCounts)[-1])
+        matching <- matching[!is.na(matching)]        
+      }
       categoryCounts <- c(categoryCounts[1],categoryCounts[-1][matching])
       npctString <- c(npctString[1],npctString[-1][matching])
     }
