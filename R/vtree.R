@@ -66,7 +66,6 @@
 #' @param pruneNA          Prune all missing values?
 #'                         This should be used carefully because "valid" percentages
 #'                         are hard to interpret when NAs are pruned.
-#' @param removeNA         Remove NA node if they are pruned?
 #' @param sameline         Display node labels on the same line as the count and percentage?
 #' @param gradient         Use gradients of fill color across the values of each variable?
 #'                         A single value (with no names) specifies the setting for all variables.
@@ -350,7 +349,7 @@
 
 vtree <- function (z, vars, splitspaces=TRUE,
   prune=list(), prunebelow = list(), keep=list(), follow=list(),
-  prunelone=NULL,pruneNA=FALSE,removeNA=FALSE,prunesmaller=NULL,prunesmallerNA=FALSE,
+  prunelone=NULL,pruneNA=FALSE,prunesmaller=NULL,prunesmallerNA=FALSE,
   labelnode = list(),tlabelnode=NULL,labelvar = NULL,
   varminwidth=NULL,varminheight=NULL,varlabelloc=NULL,
   fillcolor = NULL, fillnodes = TRUE,
@@ -1445,7 +1444,6 @@ vtree <- function (z, vars, splitspaces=TRUE,
     HTMLtext = HTMLtext, showvarnames = showvarnames,
     keep=keep[[vars[1]]],
     pruneNA=pruneNA,
-    removeNA=removeNA,
     text = ThisLevelText, ttext=ttext,TopText = TopText, digits = digits, cdigits = cdigits,
     splitwidth = splitwidth, showempty = showempty, topcolor = color[1],
     color = color[2], topfillcolor = rootfillcolor, fillcolor = fillcolor[[vars[1]]],
@@ -1532,7 +1530,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
     condition_to_follow <- 
       !(varlevel %in% prunebelowlevels) & 
       (is.null(followlevels) | (varlevel %in% followlevels)) &
-      !(varlevel=="NA" & !removeNA & length(keep)>0 & !("NA" %in% keep[[CurrentVar]]))
+      !(varlevel=="NA" & length(keep)>0 & !("NA" %in% keep[[CurrentVar]]))
 
     if (condition_to_follow) {
       if (varlevel == "NA") {
@@ -1561,7 +1559,6 @@ vtree <- function (z, vars, splitspaces=TRUE,
           keep=keep,
           follow=follow,
           pruneNA=pruneNA,
-          removeNA=removeNA,
           pattern=pattern,seq=seq,
           text = text, ttext=TTEXT,gradient=gradient,
           colornodes = colornodes, color = color[-1], fillnodes = fillnodes,

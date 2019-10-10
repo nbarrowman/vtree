@@ -6,25 +6,25 @@
 \usage{
 vtree(z, vars, splitspaces = TRUE, prune = list(),
   prunebelow = list(), keep = list(), follow = list(),
-  prunelone = NULL, pruneNA = FALSE, removeNA = FALSE,
-  prunesmaller = NULL, prunesmallerNA = FALSE, labelnode = list(),
-  tlabelnode = NULL, labelvar = NULL, varminwidth = NULL,
-  varminheight = NULL, varlabelloc = NULL, fillcolor = NULL,
-  fillnodes = TRUE, NAfillcolor = "white", rootfillcolor = "#EFF3FF",
-  palette = NULL, gradient = TRUE, revgradient = FALSE,
-  singlecolor = 2, colorvarlabels = TRUE, title = "",
-  sameline = FALSE, Venn = FALSE, check.is.na = FALSE, seq = FALSE,
-  pattern = FALSE, ptable = FALSE, showroot = TRUE, text = list(),
-  ttext = list(), plain = FALSE, squeeze = 1,
-  shownodelabels = TRUE, showvarnames = TRUE, showlevels = TRUE,
-  showpct = TRUE, showlpct = TRUE, showcount = TRUE,
-  showlegend = FALSE, varnamepointsize = 18, HTMLtext = FALSE,
-  digits = 0, cdigits = 1, splitwidth = 20, lsplitwidth = 15,
-  getscript = FALSE, nodesep = 0.5, ranksep = 0.5, margin = 0.2,
-  vp = TRUE, horiz = TRUE, summary = "", runsummary = NULL,
-  retain = NULL, width = NULL, height = NULL, graphattr = "",
-  nodeattr = "", edgeattr = "", color = c("blue", "forestgreen",
-  "red", "orange", "pink"), colornodes = FALSE, mincount = 1, maxcount,
+  prunelone = NULL, pruneNA = FALSE, prunesmaller = NULL,
+  prunesmallerNA = FALSE, labelnode = list(), tlabelnode = NULL,
+  labelvar = NULL, varminwidth = NULL, varminheight = NULL,
+  varlabelloc = NULL, fillcolor = NULL, fillnodes = TRUE,
+  NAfillcolor = "white", rootfillcolor = "#EFF3FF", palette = NULL,
+  gradient = TRUE, revgradient = FALSE, singlecolor = 2,
+  colorvarlabels = TRUE, title = "", sameline = FALSE,
+  Venn = FALSE, check.is.na = FALSE, seq = FALSE, pattern = FALSE,
+  ptable = FALSE, showroot = TRUE, text = list(), ttext = list(),
+  plain = FALSE, squeeze = 1, shownodelabels = TRUE,
+  showvarnames = TRUE, showlevels = TRUE, showpct = TRUE,
+  showlpct = TRUE, showcount = TRUE, showlegend = FALSE,
+  varnamepointsize = 18, HTMLtext = FALSE, digits = 0, cdigits = 1,
+  splitwidth = 20, lsplitwidth = 15, getscript = FALSE,
+  nodesep = 0.5, ranksep = 0.5, margin = 0.2, vp = TRUE,
+  horiz = TRUE, summary = "", runsummary = NULL, retain = NULL,
+  width = NULL, height = NULL, graphattr = "", nodeattr = "",
+  edgeattr = "", color = c("blue", "forestgreen", "red", "orange",
+  "pink"), colornodes = FALSE, mincount = 1, maxcount,
   showempty = FALSE, rounded = TRUE, nodefunc = NULL,
   nodeargs = NULL, choicechecklist = TRUE, pxwidth, pxheight,
   imagewidth, imageheight, folder, pngknit = TRUE, as.if.knit = FALSE,
@@ -64,8 +64,6 @@ A lone node is a node that has no siblings (an "only child").}
 \item{pruneNA}{Prune all missing values?
 This should be used carefully because "valid" percentages
 are hard to interpret when NAs are pruned.}
-
-\item{removeNA}{Remove NA node if they are pruned?}
 
 \item{prunesmaller}{Prune any nodes with count less than specified number.}
 

@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 2.4.4"
+title: "Introduction to vtree 2.4.5"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -428,14 +428,61 @@ vtree(FakeData,"Severity Sex",prunebelow=list(Severity=c("Mild","Moderate")))
   width=500,height=300,pxwidth=600,imageheight="3in")`
 
 
-### The `keep` and `follow` parameters
+### The `keep` parameter
 
-Sometimes it is more convenient to specify the nodes that should be *retained*
-rather than those that should be discarded.
+Sometimes it is more convenient to specify which nodes should be *retained*
+rather than which ones should be discarded.
 The `keep` parameter is used for this purpose,
 and can thus be considered the opposite of the `prune` parameter.
-Note that when `keep` is used, missing value nodes will always be retained,
-since if they were not, valid percentages would be confusing.
+
+For example, to retain patients whose `Severity` is Moderate:
+```{r,eval=FALSE}
+vtree(FakeData,"Severity",keep=list(Severity="Moderate"))
+```
+
+#### Missing value nodes and the `keep` parameter
+
+It is important to note how the `keep` parameter functions
+when missing values are present.
+Consider a variable tree for the `Severity` variable,
+shown on the left with so-called valid percentages
+(i.e. excluding the number of missing values from the denominator,
+which is the default)
+and on the right using percentages that include the number of missing values in the denominator.
+
+```{r,eval=FALSE}
+vtree(FakeData,"Severity")
+vtree(FakeData,"Severity",vp=FALSE)
+```
+
+`r vtree(FakeData,"Severity",imagewidth="1.5in")`
+`r vtree(FakeData,"Severity",vp=FALSE,imagewidth="1.5in")`
+
+Suppose we use `keep` to retain only Moderate cases.
+
+```{r,eval=FALSE}
+vtree(FakeData,"Severity",keep=list(Severity="Moderate"))
+vtree(FakeData,"Severity",vp=FALSE,keep=list(Severity="Moderate"))
+```
+
+`r vtree(FakeData,"Severity",keep=list(Severity="Moderate"),imagewidth="1.5in")`
+`r vtree(FakeData,"Severity",vp=FALSE,keep=list(Severity="Moderate"),imagewidth="1.5in")`
+
+Note that in the tree on the left (which uses valid percentages),
+the NA node is retained.
+This is done so that the percentage of Moderate cases can be interpreted
+(given the number of NAs).
+To be specific,
+there are `r sum(FakeData$Severity=="Moderate",na.rm=TRUE)` Moderate cases,
+and a total of `r sum(!is.na(FakeData$Severity))` non-missing cases,
+which is
+`r round(100*sum(FakeData$Severity=="Moderate",na.rm=TRUE)/sum(!is.na(FakeData$Severity)))`%.
+
+On the right, the NA node has been removed.
+This is done because the denominator being used here is `r nrow(FakeData)`,
+regardless of the number of missing values.
+ 
+### The `follow` parameter
  
 In the same way,
 the opposite of the `prunebelow` function is the `follow` function.
