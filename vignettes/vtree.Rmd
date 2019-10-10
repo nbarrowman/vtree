@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 2.4.3"
+title: "Introduction to vtree 2.4.4"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -434,7 +434,9 @@ Sometimes it is more convenient to specify the nodes that should be *retained*
 rather than those that should be discarded.
 The `keep` parameter is used for this purpose,
 and can thus be considered the opposite of the `prune` parameter.
-
+Note that when `keep` is used, missing value nodes will always be retained,
+since if they were not, valid percentages would be confusing.
+ 
 In the same way,
 the opposite of the `prunebelow` function is the `follow` function.
 The descendants of nodes that are followed will be included in the tree,

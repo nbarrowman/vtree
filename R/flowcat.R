@@ -4,7 +4,7 @@ check.is.na=FALSE,
 labelvar=NULL,
 varminwidth=NULL,varminheight=NULL,varlabelloc=NULL,
 shownodelabels=TRUE,sameline=FALSE,
-prunefull=NULL,
+prune=NULL,
 prunelone=NULL,prunesmaller=NULL,prunesmallerNA=FALSE,removeNA=FALSE,
 keep=NULL,
 text=NULL,ttext=NULL,TopText="",showempty=FALSE,digits=0,cdigits=2,
@@ -106,12 +106,20 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
     npctString <- npctString[s]
   }
 
-  if (!is.null(prunefull)) {
-    if (is.numeric(prunefull)) {
-      categoryCounts <- c(categoryCounts[1],categoryCounts[-1][-prunefull])
-      npctString <- c(npctString[1],npctString[-1][-prunefull])
+  if (!is.null(prune)) {
+    if (is.numeric(prune)) {
+      categoryCounts <- c(categoryCounts[1],categoryCounts[-1][-prune])
+      npctString <- c(npctString[1],npctString[-1][-prune])
     } else {
-      matching <- names(categoryCounts)[-1] %in% prunefull
+      matching <- names(categoryCounts)[-1] %in% prune
+      removed <- categoryCounts[-1][matching]
+      npctremoved <- npctString[-1][matching]
+      if (any(names(removed)=="NA")) {
+        NAremoved <- names(removed)=="NA"
+        nr <- npctremoved[NAremoved]
+        if (nr>1) description <- "NAs" else description <- "NA"
+        warning(paste0(var,": prune removed ",npctremoved[NAremoved]," ",description),call.=FALSE)
+      }  
       categoryCounts <- c(categoryCounts[1],categoryCounts[-1][!matching])
       npctString <- c(npctString[1],npctString[-1][!matching])
     }

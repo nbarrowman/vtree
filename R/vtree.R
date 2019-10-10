@@ -62,7 +62,7 @@
 #' @param follow           Like \code{keep} but specifies which nodes to "follow",
 #'                         i.e. which nodes' \emph{descendants} to keep.
 #' @param prunelone        A vector of values specifying "lone nodes" (of \emph{any} variable) to prune.
-#'                         A lone node is a node that has no siblings.
+#'                         A lone node is a node that has no siblings (an "only child").
 #' @param pruneNA          Prune all missing values?
 #'                         This should be used carefully because "valid" percentages
 #'                         are hard to interpret when NAs are pruned.
@@ -1438,7 +1438,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
     shownodelabels=shownodelabels[vars[1]],
     showpct=showpct[vars[1]],
     showcount=showcount[vars[1]],
-    prunefull=prune[[vars[1]]],
+    prune=prune[[vars[1]]],
     prunelone=prunelone,
     prunesmaller=prunesmaller,
     prunesmallerNA=prunesmallerNA,
@@ -1532,8 +1532,8 @@ vtree <- function (z, vars, splitspaces=TRUE,
     condition_to_follow <- 
       !(varlevel %in% prunebelowlevels) & 
       (is.null(followlevels) | (varlevel %in% followlevels)) &
-      !(varlevel=="NA" & !removeNA & !is.null(keep) & !("NA" %in% keep[[CurrentVar]]))
-    
+      !(varlevel=="NA" & !removeNA & length(keep)>0 & !("NA" %in% keep[[CurrentVar]]))
+
     if (condition_to_follow) {
       if (varlevel == "NA") {
           select <- is.na(z[[CurrentVar]])
