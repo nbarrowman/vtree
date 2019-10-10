@@ -5,7 +5,7 @@ labelvar=NULL,
 varminwidth=NULL,varminheight=NULL,varlabelloc=NULL,
 shownodelabels=TRUE,sameline=FALSE,
 prune=NULL,
-prunelone=NULL,prunesmaller=NULL,prunesmallerNA=FALSE,
+prunelone=NULL,prunesmaller=NULL,
 keep=NULL,
 text=NULL,ttext=NULL,TopText="",showempty=FALSE,digits=0,cdigits=2,
 showpct=TRUE,
@@ -39,10 +39,10 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
   sampleSize <- sum(categoryCounts[names(categoryCounts)!="NA"])
   
   if (!is.null(prunesmaller)) {
-    if (prunesmallerNA) {
-      selectcount <- categoryCounts>=prunesmaller  
-    } else {
+    if (vp) {
       selectcount <- categoryCounts>=prunesmaller | names(categoryCounts)=="NA"  
+    } else {
+      selectcount <- categoryCounts>=prunesmaller
     }
     categoryCounts <- categoryCounts[selectcount]
   }

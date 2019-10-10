@@ -56,7 +56,6 @@
 #' @param prunebelow       Like \code{prune} but instead of pruning the specified nodes,
 #'                         their descendants are pruned.
 #' @param prunesmaller     Prune any nodes with count less than specified number.
-#' @param prunesmallerNA   Prune missing values when \code{prunesmaller} is applied?
 #' @param keep             Like \code{prune} but specifies which nodes to \emph{keep}.
 #'                         The other nodes will be pruned.
 #' @param follow           Like \code{keep} but specifies which nodes to "follow",
@@ -349,7 +348,7 @@
 
 vtree <- function (z, vars, splitspaces=TRUE,
   prune=list(), prunebelow = list(), keep=list(), follow=list(),
-  prunelone=NULL,pruneNA=FALSE,prunesmaller=NULL,prunesmallerNA=FALSE,
+  prunelone=NULL,pruneNA=FALSE,prunesmaller=NULL,
   labelnode = list(),tlabelnode=NULL,labelvar = NULL,
   varminwidth=NULL,varminheight=NULL,varlabelloc=NULL,
   fillcolor = NULL, fillnodes = TRUE,
@@ -1440,7 +1439,6 @@ vtree <- function (z, vars, splitspaces=TRUE,
     prune=prune[[vars[1]]],
     prunelone=prunelone,
     prunesmaller=prunesmaller,
-    prunesmallerNA=prunesmallerNA,
     HTMLtext = HTMLtext, showvarnames = showvarnames,
     keep=keep[[vars[1]]],
     pruneNA=pruneNA,
@@ -1550,7 +1548,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
           showpct=showpct,
           showcount=showcount,
           sameline=sameline, showempty = showempty,
-          root = FALSE, prune=prune, prunebelow = prunebelow, prunesmaller=prunesmaller,prunesmallerNA=prunesmallerNA,
+          root = FALSE, prune=prune, prunebelow = prunebelow, prunesmaller=prunesmaller,
           labelvar = labelvar,
           varminwidth = varminwidth, varminheight = varminheight, varlabelloc=varlabelloc,
           prunelone=prunelone,

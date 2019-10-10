@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 2.4.5"
+title: "Introduction to vtree 2.4.6"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -391,8 +391,8 @@ vtree(FakeData,"Severity Sex",prune=list(Severity=c("Mild","Moderate")))
 
 In general,
 the argument of the `prune` parameter is a list with an element named for each variable you wish to prune.
-In the example above the list has a single element, named `Severity`.
-That element in turn is a vector `c("Mild","Moderate")`
+In the example above, the list has a single element, named `Severity`.
+In turn, that element is a vector `c("Mild","Moderate")`
 indicating the values of `Severity` to prune.
 
 **Caution**: Once a variable tree has been pruned,
@@ -404,38 +404,14 @@ since this makes it hard to interpret "valid" percentages (i.e. percentages calc
 using the number of non-missing observations as denominator).
 
 
-### The `prunebelow` parameter
-
-A disadvantage of the `prune` parameter is that in the resulting tree,
-the counts shown in child nodes may not add up to the counts shown in the parent node.
-For example in the variable tree above,
-of a total of `r nrow(FakeData)` patients,
-`r sum(!is.na(FakeData$Severity) & FakeData$Severity=="Severe")`
-have Severe disease and `Severity` is unknown for `r sum(is.na(FakeData$Severity))`.
-One might wonder what happened to the other `r sum(!is.na(FakeData$Severity) & FakeData$Severity!="Severe")` patients.
-
-An alternative is to prune *below* the specified nodes.
-In the present example, this means that the Mild and Moderate nodes will be shown,
-but not their descendants.
-The `prunebelow` parameter does this,
-and uses the same type of argument as the `prune` parameter. 
- 
-```{r,eval=FALSE}
-vtree(FakeData,"Severity Sex",prunebelow=list(Severity=c("Mild","Moderate")))
-```
-
-`r vtree(FakeData,"Severity Sex",prunebelow=list(Severity=c("Mild","Moderate")),
-  width=500,height=300,pxwidth=600,imageheight="3in")`
-
-
 ### The `keep` parameter
 
 Sometimes it is more convenient to specify which nodes should be *retained*
 rather than which ones should be discarded.
 The `keep` parameter is used for this purpose,
-and can thus be considered the opposite of the `prune` parameter.
+and can thus be considered the complement of the `prune` parameter.
 
-For example, to retain patients whose `Severity` is Moderate:
+For example, to retain only the Moderate `Severity` node:
 ```{r,eval=FALSE}
 vtree(FakeData,"Severity",keep=list(Severity="Moderate"))
 ```
@@ -445,9 +421,9 @@ vtree(FakeData,"Severity",keep=list(Severity="Moderate"))
 It is important to note how the `keep` parameter functions
 when missing values are present.
 Consider a variable tree for the `Severity` variable,
-shown on the left with so-called valid percentages
-(i.e. excluding the number of missing values from the denominator,
-which is the default)
+shown on the left with so-called "valid" percentages
+(i.e. percentages calculated using the number of non-missing observations as denominator,
+which is the default, specified by `vp=TRUE`)
 and on the right using percentages that include the number of missing values in the denominator.
 
 ```{r,eval=FALSE}
@@ -458,7 +434,7 @@ vtree(FakeData,"Severity",vp=FALSE)
 `r vtree(FakeData,"Severity",imagewidth="1.5in")`
 `r vtree(FakeData,"Severity",vp=FALSE,imagewidth="1.5in")`
 
-Suppose we use `keep` to retain only Moderate cases.
+Suppose we use `keep` to retain only the Moderate node.
 
 ```{r,eval=FALSE}
 vtree(FakeData,"Severity",keep=list(Severity="Moderate"))
@@ -472,22 +448,44 @@ Note that in the tree on the left (which uses valid percentages),
 the NA node is retained.
 This is done so that the percentage of Moderate cases can be interpreted
 (given the number of NAs).
-To be specific,
-there are `r sum(FakeData$Severity=="Moderate",na.rm=TRUE)` Moderate cases,
+(There are `r sum(FakeData$Severity=="Moderate",na.rm=TRUE)` Moderate cases,
 and a total of `r sum(!is.na(FakeData$Severity))` non-missing cases,
 which is
-`r round(100*sum(FakeData$Severity=="Moderate",na.rm=TRUE)/sum(!is.na(FakeData$Severity)))`%.
+`r round(100*sum(FakeData$Severity=="Moderate",na.rm=TRUE)/sum(!is.na(FakeData$Severity)))`%.)
 
-On the right, the NA node has been removed.
-This is done because the denominator being used here is `r nrow(FakeData)`,
-regardless of the number of missing values.
+On the right, the NA node has been removed, 
+because the denominator (`r nrow(FakeData)`) doesn't depend on the number of missing values.
+
+
+### The `prunebelow` parameter
+
+A disadvantage of the `prune` parameter is that in the resulting tree,
+the counts shown in child nodes may not add up to the counts shown in the parent node.
+For example in the variable tree above,
+of a total of `r nrow(FakeData)` patients,
+`r sum(!is.na(FakeData$Severity) & FakeData$Severity=="Severe")`
+have Severe disease and `Severity` is unknown for `r sum(is.na(FakeData$Severity))`.
+One might wonder what happened to the other `r sum(!is.na(FakeData$Severity) & FakeData$Severity!="Severe")` patients.
+
+A solution to this problem is to retain the specified nodes,
+but to prune *below* them.
+In the present example, this means that the Mild and Moderate nodes will be shown,
+but not their descendants.
+The `prunebelow` parameter does this,
+and uses the same type of argument as the `prune` parameter. 
  
+```{r,eval=FALSE}
+vtree(FakeData,"Severity Sex",prunebelow=list(Severity=c("Mild","Moderate")))
+```
+
+`r vtree(FakeData,"Severity Sex",prunebelow=list(Severity=c("Mild","Moderate")),
+  width=500,height=300,pxwidth=600,imageheight="3in")`
+
 ### The `follow` parameter
  
-In the same way,
-the opposite of the `prunebelow` function is the `follow` function.
-The descendants of nodes that are followed will be included in the tree,
-whereas the descendants of the other nodes will be pruned.
+The complement of the `prunebelow` function is the `follow` function.
+Instead of specifying which nodes should be pruned below,
+this allows you to specify which nodes should be "followed" (that is, *not* pruned below).
 
 
 ### The `prunesmaller` parameter
@@ -512,11 +510,13 @@ vtree(FakeData,"Severity Sex Age Category",sameline=TRUE,prunesmaller=3)
 `r vtree(FakeData,"Severity Sex Age Category",sameline=TRUE,prunesmaller=3,
   imageheight="5in")`
 
-By default, `prunesmaller` does not prune missing value nodes,
-because percentages can be confusing when missing values are not shown.
-You can override this behavior
-(i.e. permit `prunesmaller` to prune missing value nodes)
-by specifying `prunesmallerNA=TRUE`.
+As with the `keep` parameter,
+when `vp=TRUE`
+(meaning that valid percentages are shown, which is the default), 
+nodes represent missing values will not be pruned.
+(As noted in the section on the `keep` parameter,
+this is because percentages are confusing when missing values are not shown.)
+When `vp=FALSE`, missing nodes may be pruned (if they are small).
 
 
 ## Labels for variables and nodes {#labeling}
