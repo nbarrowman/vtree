@@ -1,4 +1,4 @@
-# vtree 2.2.3
+# vtree 2.4.6
 
 ## Changes
 
