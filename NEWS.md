@@ -6,7 +6,11 @@
 
 * Fixed a bug that occurred when `pattern=TRUE` and a single variable was specified.
 
+* Fixed a bug that occurred when `showvarnames=FALSE` but `labelvar` was set.
+
 ## New features
+
+* The `keep` parameter will not prune missing value nodes when `vp=TRUE`.
 
 * There is a new summary code, `%sum%`, to show the sum of values.
 
