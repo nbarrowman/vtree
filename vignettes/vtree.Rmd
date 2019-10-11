@@ -431,8 +431,8 @@ vtree(FakeData,"Severity")
 vtree(FakeData,"Severity",vp=FALSE)
 ```
 
-`r vtree(FakeData,"Severity",imagewidth="1.5in")`
-`r vtree(FakeData,"Severity",vp=FALSE,imagewidth="1.5in")`
+`r vtree(FakeData,"Severity",imagewidth="1.5in",pxwidth=400)`
+`r vtree(FakeData,"Severity",vp=FALSE,imagewidth="1.5in",pxwidth=400)`
 
 Suppose we use `keep` to retain only the Moderate node.
 
@@ -441,8 +441,8 @@ vtree(FakeData,"Severity",keep=list(Severity="Moderate"))
 vtree(FakeData,"Severity",vp=FALSE,keep=list(Severity="Moderate"))
 ```
 
-`r vtree(FakeData,"Severity",keep=list(Severity="Moderate"),imagewidth="1.5in")`
-`r vtree(FakeData,"Severity",vp=FALSE,keep=list(Severity="Moderate"),imagewidth="1.5in")`
+`r vtree(FakeData,"Severity",keep=list(Severity="Moderate"),imagewidth="1.5in",pxwidth=400)`
+`r vtree(FakeData,"Severity",vp=FALSE,keep=list(Severity="Moderate"),imagewidth="1.5in",pxwidth=400)`
 
 Note that in the tree on the left (which uses valid percentages),
 the NA node is retained.
@@ -497,7 +497,7 @@ For example, consider the following variable tree:
 vtree(FakeData,"Severity Sex Age Category",sameline=TRUE)
 ```
 
-`r vtree(FakeData,"Severity Sex Age Category",sameline=TRUE,imageheight="7in")`
+`r vtree(FakeData,"Severity Sex Age Category",sameline=TRUE,imageheight="7in",pxwidth=1000)`
 
 One solution is to prune nodes that contain small numbers of observations.
 For example if you want to only see nodes with at least 3 observations,
@@ -508,7 +508,7 @@ vtree(FakeData,"Severity Sex Age Category",sameline=TRUE,prunesmaller=3)
 ```
 
 `r vtree(FakeData,"Severity Sex Age Category",sameline=TRUE,prunesmaller=3,
-  imageheight="5in")`
+  imageheight="5in",pxwidth=1200)`
 
 As with the `keep` parameter,
 when `vp=TRUE`
