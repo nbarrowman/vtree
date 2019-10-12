@@ -315,7 +315,7 @@ vtree(FakeData,"Severity Sex",showlegend=TRUE,shownodelabels=FALSE)
 ```
 
 `r vtree(FakeData,"Severity Sex",showlegend=TRUE,shownodelabels=FALSE,
-  width=550,height=450,pxwidth=1200,imageheight="4in")`
+  width=550,height=450,pxwidth=800,imageheight="4in")`
   
 The legend shows how colors are assigned to the different values of each variable,
 and additionally provides marginal (that is, overall) counts and percentages for each variable.
@@ -421,10 +421,11 @@ vtree(FakeData,"Severity",keep=list(Severity="Moderate"))
 It is important to note how the `keep` parameter functions
 when missing values are present.
 Consider a variable tree for the `Severity` variable,
-shown on the left with so-called "valid" percentages
-(i.e. percentages calculated using the number of non-missing observations as denominator,
-which is the default, specified by `vp=TRUE`)
-and on the right using percentages that include the number of missing values in the denominator.
+shown on the left with so-called "valid" percentages.
+These are percentages calculated using the number of non-missing observations as denominator
+(which is the default, specified by `vp=TRUE`).
+On the right is the same tree,
+but with percentages calculated using the total number of observations as the denominator.
 
 ```{r,eval=FALSE}
 vtree(FakeData,"Severity")
@@ -446,8 +447,7 @@ vtree(FakeData,"Severity",vp=FALSE,keep=list(Severity="Moderate"))
 
 Note that in the tree on the left (which uses valid percentages),
 the NA node is retained.
-This is done so that the percentage of Moderate cases can be interpreted
-(given the number of NAs).
+This is done so that the percentage of Moderate cases can be interpreted..
 (There are `r sum(FakeData$Severity=="Moderate",na.rm=TRUE)` Moderate cases,
 and a total of `r sum(!is.na(FakeData$Severity))` non-missing cases,
 which is
@@ -468,11 +468,11 @@ have Severe disease and `Severity` is unknown for `r sum(is.na(FakeData$Severity
 One might wonder what happened to the other `r sum(!is.na(FakeData$Severity) & FakeData$Severity!="Severe")` patients.
 
 A solution to this problem is to retain the specified nodes,
-but to prune *below* them.
+but to prune *below* them (i.e. to prune their descendants).
 In the present example, this means that the Mild and Moderate nodes will be shown,
 but not their descendants.
-The `prunebelow` parameter does this,
-and uses the same type of argument as the `prune` parameter. 
+The `prunebelow` parameter is used to do this,
+and its argument has the same form as for the `prune` parameter. 
  
 ```{r,eval=FALSE}
 vtree(FakeData,"Severity Sex",prunebelow=list(Severity=c("Mild","Moderate")))
@@ -497,7 +497,7 @@ For example, consider the following variable tree:
 vtree(FakeData,"Severity Sex Age Category",sameline=TRUE)
 ```
 
-`r vtree(FakeData,"Severity Sex Age Category",sameline=TRUE,imageheight="7in",pxwidth=1000)`
+`r vtree(FakeData,"Severity Sex Age Category",sameline=TRUE,imageheight="7in",pxwidth=800)`
 
 One solution is to prune nodes that contain small numbers of observations.
 For example if you want to only see nodes with at least 3 observations,
@@ -511,12 +511,11 @@ vtree(FakeData,"Severity Sex Age Category",sameline=TRUE,prunesmaller=3)
   imageheight="5in",pxwidth=1200)`
 
 As with the `keep` parameter,
-when `vp=TRUE`
-(meaning that valid percentages are shown, which is the default), 
+when `vp=TRUE` (which is the default, and means that valid percentages are shown), 
 nodes represent missing values will not be pruned.
 (As noted in the section on the `keep` parameter,
 this is because percentages are confusing when missing values are not shown.)
-When `vp=FALSE`, missing nodes may be pruned (if they are small).
+When `vp=FALSE`, missing nodes will be pruned (if they are small enough).
 
 
 ## Labels for variables and nodes {#labeling}
@@ -547,10 +546,6 @@ using the values of the variable in question.
 Sometimes it is convenient to instead specify custom labels for nodes.
 You can use the `labelnode` argument to relabel the values.
 For example, you might want to use "Male" and "Female" instead of "M" and "F".
-The `labelnode` argument argument is specified as a list whose element names are variable names.
-To substitute `New label` for `Old label`,
-the syntax is: `"New label"="Old label"`.
-Thus the full specification is: `labelnode=list(Sex=c(Male="M",Female="F"))`.
 
 ```{r,eval=FALSE}
 vtree(FakeData,"Group Sex",horiz=FALSE,labelnode=list(Sex=c(Male="M",Female="F")))
@@ -559,6 +554,10 @@ vtree(FakeData,"Group Sex",horiz=FALSE,labelnode=list(Sex=c(Male="M",Female="F")
 `r vtree(FakeData,"Group Sex",horiz=FALSE,labelnode=list(Sex=c(Male="M",Female="F")),
   width=700,height=250,pxwidth=800,imageheight="2.2in")`
 
+The `labelnode` argument argument is specified as a list whose element names are variable names.
+To substitute `New label` for `Old label`,
+the syntax is: `"New label"="Old label"`.
+Thus the full specification is: `labelnode=list(Sex=c(Male="M",Female="F"))`.
 
 ### Targeted node labels using the `tlabelnode` parameter
 
@@ -587,7 +586,7 @@ vtree(FakeData,"Group Sex",horiz=FALSE,
     c(Group="A",Sex="M",label="boy"),
     c(Group="B",Sex="F",label="woman"),
     c(Group="B",Sex="M",label="man")),
-  width=700,height=250,pxwidth=1000,imageheight="2.2in")`
+  width=700,height=250,pxwidth=800,imageheight="2.2in")`
 
 
 ## Text and text formatting {#textFormatting}
@@ -684,13 +683,13 @@ vtree(FakeData,"Group Severity",horiz=FALSE,showvarnames=FALSE,
 ## Specification of variables {#VariableSpecification}
  
 For convenience,
-`vtree` allows you to specify the names of the variables of interest (separated by whitespace)
+`vtree` allows you to specify variable names (separated by whitespace)
 in a single character string.
 If, however, any of the variable names have internal spaces,
 the variable names must be specified as a vector of character strings.
  
 Additionally, there are several modifiers that can be used
-to change the way that variables are represented in a tree.
+to change the way variables are represented in a tree.
  
  
 ### prefix `is.na:`
@@ -731,9 +730,8 @@ i.e. to divide them into three groups:
 
 ### suffix `*`
 
-In `FakeData`,
-specifying `Ind*` matches all variable names that start with `Ind`,
-namely `Ind1`, `Ind2`, and `Ind3`.
+Specifying `Ind*` matches all variable names that start with `Ind`.
+In `FakeData` these are `Ind1`, `Ind2`, and `Ind3`.
 
 The `*` suffix matches all variable names
 
@@ -742,7 +740,7 @@ The `*` suffix matches all variable names
 
 Specifying `Ind#` matches all variable names that start with `Ind`
 and end with a numeric digit, namely `Ind1`, `Ind2`, and `Ind3`.
-(In this case this is the same result as using `Ind*`).
+(In this particular case, this is the same result as using `Ind*`).
 
 
 ### specification `variable=value` {#dichotomizing}
@@ -750,7 +748,7 @@ and end with a numeric digit, namely `Ind1`, `Ind2`, and `Ind3`.
 When a variable takes on a large number of different values,
 the resulting variable tree will very large.
 One solution is to prune the tree,
-for example by keeping just one node.
+for example by keeping just the node corresponding to one value of a particular variable.
 An alternative is to specify the value of the variable that is of primary interest and 
 `vtree` will dichotomize the variable at that value.
 For example if `Severity=Mild` is specified,
@@ -783,7 +781,8 @@ The argument of the `summary` parameter is a character string with the following
 
 * Next there is a space.
 
-* The remainder of the string specifies what to display, with special codes to indicate the type of summary desired and to control which nodes display the summary, etc.
+* The remainder of the string specifies what to display,
+with text as well as special codes to indicate the type of summary desired and to control which nodes display the summary, etc.
 
 For example `%mean%` indicates that the mean of the specified variable should be shown.
 Thus to display the mean of the numeric variable `Score`,
@@ -938,7 +937,7 @@ vtree(FakeData,"Severity Sex",pattern=TRUE)
 ```
 ```{r, echo=FALSE,results="asis"}
 cat(vtree(FakeData,"Severity Sex",
-  width=650,height=650,pxwidth=600,imageheight="4in"))
+  width=650,height=650,pxwidth=500,imageheight="4in"))
 #filepath <- grVizToPNG(v14,width=800))
 
 cat("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")
@@ -966,9 +965,10 @@ counts and percentages are not shown,
 since they are not informative:
 by definition, all nodes within a branch have the same count.
 Second, note that in place of arrows, undirected line segments are shown.
-This is because, without percentages, arrows have no particular significance.
-That being said, in some cases the variables have a natural ordering
-(as is the case with longitudinal variables).
+This is because, unlike in a regular variable tree,
+the order of variables is irrelevant in a pattern tree.
+Sometimes, however, the variables do have a natural ordering,
+as in the case of longitudinal variables.
 To show arrows, specify `seq=TRUE` instead of `pattern=TRUE`,
 and a "sequence" (i.e. an ordered pattern) will be shown.
 
@@ -979,7 +979,7 @@ Summaries can be shown in pattern trees
 
 ### Pattern tables
 
-A pattern tree looks a lot like a table.
+A pattern tree has the same structure as a table.
 Indeed, it may be more convenient to produce a table rather than a tree.
 A data frame containing the information from the pattern tree 
 can be exported by specifying `ptable=TRUE`:
@@ -989,7 +989,7 @@ vtree(FakeData,"Severity Sex",ptable=TRUE)
 ```
 
 The pattern table includes a column for the counts from the pattern nodes,
-and a column for percentage.
+and a column for percentages.
 Compared to a variable tree, this table is much more compact,
 and may be more suitable for use in a manuscript.
 
@@ -997,9 +997,11 @@ and may be more suitable for use in a manuscript.
 
 Pattern trees are useful for *indicator variables*,
 i.e. variables that take values like 0/1, no/yes, FALSE/TRUE, etc.
-For convenience we'll refer to 0 (or no, FALSE, etc.) a *negative*
+For convenience in this section,
+we'll refer to 0 (or no, FALSE, etc.) as a *negative*
 and 1 (or yes, TRUE, etc.) as an *affirmative*.
-For example, the variables `Ind1` through `Ind4` in `FakeData` are 0/1 variables.
+
+The variables `Ind1` through `Ind4` in `FakeData` are 0/1 indicator variables.
 If these variables are interpreted as representing set membership
 (0 = non-member, 1 = member),
 then a pattern tree is an alternative representation of a Venn diagram.
@@ -1115,12 +1117,12 @@ To display the table in R Markdown, use this inline call:
 
 `r VennTable(vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,ptable=TRUE),markdown=TRUE)`
 
-Note that the rows `n` and `pct` represent the frequency and percentage
+The rows `n` and `pct` represent the frequency and percentage
 of the total number of cases for each pattern of missingness,
-and the columns `N` and `pct` at the bottom represent the frequency and percentage
+and the columns `N` and `pct` on the right-hand side represent the frequency and percentage
 of missingness for each variable.
 
-It may be useful to identify the ids for these patterns.
+It may be useful to identify the ID numbers for these patterns.
 Here the results are truncated to 15 characters:
 
 ```{r}
@@ -1203,7 +1205,7 @@ http://magjac.com/graphviz-visual-editor/
 
 # Ways to call vtree
 
-`vtree` behaves differently depending on how it is called.
+`vtree` behaves differently depending on the context in which it is called.
 
 
 ## Calling vtree interactively 
@@ -1234,9 +1236,9 @@ and if they contain several widgets they can be slow to load.
 
 If `vtree` is called while an R Markdown file is being knitted,
 it generates a PNG file and automatically embeds it into the knitted document.
-The resolution of the PNG file is determined by parameters `pxwidth` and `pxheight`.
+The resolution of the PNG file in pixels is determined by parameters `pxwidth` and `pxheight`.
 If neither is specified, `pxwidth` is automatically set to 2000,
-which is an adequate resolution for ordinary usage.
+which provides good resolution for a printed page.
 The height of the image in the R Markdown output document can be specified 
 using the `imageheight` parameter,
 for example `imageheight="4in"` for a 4-inch image.
@@ -1244,11 +1246,12 @@ There is also an `imagewidth` parameter.
 If neither is specified, `imageheight` is automatically set to 3 inches.
 
 The PNG file is stored in the folder specified by the `folder` parameter,
-or if a folder is not specified, a temporary folder will be used.
-Successive PNG files are named `vtree1.png`, `vtree2.png`, and so forth and are stored in the  folder.
-During knitting, `vtree` uses the `options` function to keep track of
-a counting variable called `vtcount` to count the PNG files,
-and a folder variable called `vtfolder` to identify where to store them.
+or if not specified, a temporary folder will be used.
+Successive PNG files are named `vtree1.png`, `vtree2.png`, 
+and so forth and are stored in the  folder.
+During knitting, `vtree` uses the `options` function in base R to store
+a variable called `vtcount` to count the PNG files,
+and a variable called `vtfolder` to identify the fodler where they will be stored.
 
 To call `vtree` in R Markdown, you can use inline code:
 
@@ -1265,7 +1268,7 @@ cat(vtree(FakeData,"Sex Severity"))
 ````
 
 One advantage of code chunks is that they can also be run interactively
-(for example within RStudio, by clicking on the green arrow at the right-hand side of a code chunk).
+(for example within RStudio, by clicking on the green arrow at the top right of a code chunk).
 
 
 ### Generating an htmlwidget in an HTML document
@@ -1287,8 +1290,7 @@ vtree(FakeData,"Severity Sex",pngknit=FALSE)
 ```
 ````
 
-Note the differences between this and the code chunk to produce a PNG file
-(in the previous section):
+Note the differences between this and the code chunk (in the previous section) to produce a PNG file:
 (1) you specify `pngknit=FALSE`,
 (2) you don't specify the chunk option `results="asis"`,
 and (3) you don't put `cat` around the call to `vtree`.
@@ -1362,7 +1364,7 @@ vtree(FakeRCT,"eligible randomized group followup analyzed",plain=TRUE,
 `r vtree(FakeRCT,"eligible randomized group followup analyzed",plain=TRUE,
   keep=list(eligible="Eligible",randomized="Randomized",followup="Followed up"),
   horiz=FALSE,showvarnames=FALSE,title="Assessed for eligibility",
-  width=230,height=500,pxwidth=500,imageheight="6in")`
+  width=230,height=500,pxwidth=400,imageheight="6in")`
   
 
 Note that this does not include all of the additional information for a full CONSORT diagram
@@ -1384,7 +1386,7 @@ vtree(FakeRCT,"eligible randomized group followup analyzed",plain=TRUE,
 `r vtree(FakeRCT,"eligible randomized group followup analyzed",plain=TRUE,
   follow=list(eligible="Eligible",randomized="Randomized",followup="Followed up"),
   horiz=FALSE,showvarnames=FALSE,title="Assessed for eligibility",
-  width=400,height=500,pxwidth=800,imageheight="6in")`
+  width=400,height=500,pxwidth=600,imageheight="6in")`
 
 Finally, it may be useful to see the ID numbers in each node.
 This can be done using the `summary` parameter with the `%list%` code.
