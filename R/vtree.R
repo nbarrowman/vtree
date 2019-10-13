@@ -60,10 +60,10 @@
 #'                         The other nodes will be pruned.
 #' @param follow           Like \code{keep} but specifies which nodes to "follow",
 #'                         i.e. which nodes' \emph{descendants} to keep.
-#' @param prunelone        A vector of values specifying "lone nodes" (of \emph{any} variable) to prune.
+#' @param prunelone        (Deprecated) A vector of values specifying "lone nodes" (of \emph{any} variable) to prune.
 #'                         A lone node is a node that has no siblings (an "only child").
-#' @param pruneNA          Prune all missing values?
-#'                         This should be used carefully because "valid" percentages
+#' @param pruneNA          (Deprecated) Prune all missing values?
+#'                         This is problematic because "valid" percentages
 #'                         are hard to interpret when NAs are pruned.
 #' @param sameline         Display node labels on the same line as the count and percentage?
 #' @param gradient         Use gradients of fill color across the values of each variable?

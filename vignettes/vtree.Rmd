@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 2.4.6"
+title: "Introduction to vtree 3.0.0"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
 output:
@@ -1144,7 +1144,7 @@ but when the dataset is exported,
 individual variables `IceCream___1` (representing Chocolate), 
 `IceCream___2` (Vanilla), and `IceCream___3` (Strawberry) are created.
 When the dataset is read into R,
-the names of the flavours are embedded in the `attributes` of these variables.
+the names of the flavors are embedded in the `attributes` of these variables.
 
 ### prefix `stem:`
 

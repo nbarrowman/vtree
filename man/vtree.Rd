@@ -57,11 +57,11 @@ The other nodes will be pruned.}
 \item{follow}{Like \code{keep} but specifies which nodes to "follow",
 i.e. which nodes' \emph{descendants} to keep.}
 
-\item{prunelone}{A vector of values specifying "lone nodes" (of \emph{any} variable) to prune.
+\item{prunelone}{(Deprecated) A vector of values specifying "lone nodes" (of \emph{any} variable) to prune.
 A lone node is a node that has no siblings (an "only child").}
 
-\item{pruneNA}{Prune all missing values?
-This should be used carefully because "valid" percentages
+\item{pruneNA}{(Deprecated) Prune all missing values?
+This is problematic because "valid" percentages
 are hard to interpret when NAs are pruned.}
 
 \item{prunesmaller}{Prune any nodes with count less than specified number.}
