@@ -1,6 +1,8 @@
-# vtree 2.4.6
+# vtree 3.0.0
 
 ## Changes
+
+* Extensive revision of vignette.
 
 ## Bug fixes
 
@@ -22,7 +24,7 @@
 
 * `pngknit=FALSE` disables PNG generation while knitting. Returns an `htmlwidget` instead.
 
-* The new function `VennTable` reformats a "pattern table" output by `vtree` for indicator (0/1) variables.
+* The new function `VennTable` reformats a pattern table output by `vtree` for indicator (0/1) variables.
 
 * The new function `build.data.frame` makes it easy to create a data frame for use with vtree.
 
