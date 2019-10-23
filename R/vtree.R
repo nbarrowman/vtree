@@ -995,7 +995,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
       #PATTERN_levels <- c(PATTERN_levels,"Other")
       PATTERN_values <- data.frame(matrix("",nrow=length(PATTERN_levels),ncol=length(vars)),
         stringsAsFactors=FALSE)
-
+      
       names(PATTERN_values) <- vars
       for (i in 1:length(PATTERN_levels)) {
         patternRow <- z[PATTERN==PATTERN_levels[i],,drop=FALSE]
@@ -1005,6 +1005,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
         }
       }
       PATTERN <- factor(PATTERN,levels=PATTERN_levels)
+      
       if (pattern) {
         z$pattern <- PATTERN
         vars <- c("pattern",vars)
@@ -1427,6 +1428,9 @@ vtree <- function (z, vars, splitspaces=TRUE,
   if (pattern & vars[1]!="pattern") ThisLevelText <- ""
   if (seq  & vars[1]!="sequence") ThisLevelText <- ""
   
+  # cat("Right before call to flowcat\n")
+  # browser()
+  
   fc <- flowcat(z[[vars[1]]], root = root, title = title, parent = parent,
     var=vars[[1]],
     last = last, labels = labelnode[[vars[1]]], tlabelnode=tlabelnode, labelvar = labelvar[vars[1]],
@@ -1530,9 +1534,11 @@ vtree <- function (z, vars, splitspaces=TRUE,
       (is.null(followlevels) | (varlevel %in% followlevels)) &
       !(varlevel=="NA" & length(keep)>0 & !("NA" %in% keep[[CurrentVar]]))
 
+    #browser()
+    
     if (condition_to_follow) {
       if (varlevel == "NA") {
-          select <- is.na(z[[CurrentVar]])
+          select <- is.na(z[[CurrentVar]]) | (!is.na(z[[CurrentVar]]) & z[[CurrentVar]]=="NA")
       }
       else {
           select <- which(z[[CurrentVar]] == varlevel)
