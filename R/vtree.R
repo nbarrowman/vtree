@@ -1532,10 +1532,8 @@ vtree <- function (z, vars, splitspaces=TRUE,
     condition_to_follow <- 
       !(varlevel %in% prunebelowlevels) & 
       (is.null(followlevels) | (varlevel %in% followlevels)) &
-      !(varlevel=="NA" & length(keep)>0 & !("NA" %in% keep[[CurrentVar]]))
+      !(varlevel=="NA" & length(keep)>0 & (!is.null(keep[[CurrentVar]]) & !("NA" %in% keep[[CurrentVar]])))
 
-    #browser()
-    
     if (condition_to_follow) {
       if (varlevel == "NA") {
           select <- is.na(z[[CurrentVar]]) | (!is.na(z[[CurrentVar]]) & z[[CurrentVar]]=="NA")
