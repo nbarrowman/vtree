@@ -2,7 +2,7 @@
 % Please edit documentation in R/vtree.R
 \name{vtree}
 \alias{vtree}
-\title{vtree: Draw a variable tree}
+\title{Draw a variable tree}
 \usage{
 vtree(z, vars, splitspaces = TRUE, prune = list(),
   prunebelow = list(), keep = list(), follow = list(),
@@ -343,7 +343,7 @@ When knitting \emph{is} taking place, the return value is as follows:
 }
 }
 \description{
-vtree is a tool for drawing variable trees.
+\code{vtree} is a tool for drawing variable trees.
 Variable trees display information about nested subsets of a data frame,
 in which the subsetting is defined by the values of categorical variables.
 }

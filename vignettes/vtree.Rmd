@@ -1,7 +1,7 @@
 ---
-title: "Introduction to vtree 3.0.3"
+title: "Introduction to vtree 3.0.4"
 author: "Nick Barrowman"
-date: '`r strftime(Sys.time(),format="%d-%b-%Y at %H:%M")`'
+date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
 output:
   rmarkdown::html_vignette:
     css: vtreeVignette.css
@@ -1224,9 +1224,9 @@ By default, when `vtree` is called from R Markdown,
 it generates a PNG image file.
 
 Here's how it does that. `vtree` uses the `DiagrammeR` package,
-which automatically generates an htmlwidget for display in HTML,
+which automatically generates an `htmlwidget` object for display in HTML,
 using the [htmlwidgets](https://www.htmlwidgets.org/) framework.
-Then `vtree` converts the htmlwidget into a PNG. 
+Then `vtree` converts the `htmlwidget` object into a PNG file. 
  
 ### Generating PNG files
 
@@ -1263,7 +1263,7 @@ Or you can use a code chunk:
 
 ````
 `r ''````{r, results="asis"}
-cat(vtree(FakeData,"Sex Severity"))
+vtree(FakeData,"Sex Severity")
 ```
 ````
 
@@ -1274,9 +1274,9 @@ One advantage of code chunks is that they can also be run interactively
 ### Generating an htmlwidget in an HTML document
 
 When knitting to an HTML document, 
-an htmlwidget can be used rather than embedding a PNG file.
-(In fact PNG files are generated from htmlwidgets via SVG format.)
-To use an htmlwidget instead of a PNG file, you can use inline code:
+htmlwidgets can be used rather than embedding a PNG file.
+(In fact PNG files are generated from `htmlwidget` objects via SVG format.)
+To use htmlwidgets instead of a PNG file, you can use inline code:
 
 ```{r, eval=FALSE}
 `r vtree(FakeData,"Severity Sex",pngknit=FALSE)`
@@ -1292,8 +1292,7 @@ vtree(FakeData,"Severity Sex",pngknit=FALSE)
 
 Note the differences between this and the code chunk (in the previous section) to produce a PNG file:
 (1) you specify `pngknit=FALSE`,
-(2) you don't specify the chunk option `results="asis"`,
-and (3) you don't put `cat` around the call to `vtree`.
+(2) you don't specify the chunk option `results="asis"`.
 
 
 # Generating a data frame by specifying subset sizes {#GeneratingDataFrames}

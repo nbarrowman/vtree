@@ -3,7 +3,7 @@
 \docType{data}
 \name{FakeData}
 \alias{FakeData}
-\title{Fake Clinical Dataset}
+\title{Fake clinical dataset}
 \format{A small data frame in which the rows represent (imaginary) patients and
 the columns represent variables of possible clinical relevance.
 

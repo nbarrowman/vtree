@@ -1,11 +1,11 @@
-#' @title grVizToPNG
+#' @title Export an htmlwidget object into a PNG file
 #'
 #' @author Nick Barrowman
 #'
 #' @description
-#'  \code{grVizToPNG} Export a grViz object into a PNG file.
+#' Export an \code{htmlwidget} object (produced by \code{DiagrammerR::grViz}) into a PNG file
 #'
-#' @param g        an object produced by the grViz function from the DiagrammmeR package
+#' @param g        an object produced by the \code{grViz} function from the DiagrammmeR package
 #' @param width    the width in pixels of the bitmap
 #' @param height   the height in pixels of the bitmap
 #' @param folder   path to folder where the PNG file should stored
@@ -14,7 +14,7 @@
 #'                 of the argument of \code{g}.
 #'
 #' @details
-#'   First the grViz object is exported to an SVG file (using \code{DiagrammeRsvg::export_svg}).
+#'   First the \code{grViz} object is exported to an SVG file (using \code{DiagrammeRsvg::export_svg}).
 #'   Then the SVG file is converted to a bitmap (using \code{rsvg::rsvg}).
 #'   Then the bitmap is exported as a PNG file (using \code{png::writePNG}).
 #'   Note that the SVG file and the PNG file will be named using the name of the \code{g} parameter

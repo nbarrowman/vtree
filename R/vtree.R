@@ -1,8 +1,40 @@
-#'
-#' vtree: Draw a variable tree
+ 
+#' vtree: a tool for calculating and drawing variable trees.
 #'
 #' @description
-#' vtree is a tool for drawing variable trees.
+#' vtree is a flexible tool for generating variable trees —
+#' diagrams that display information about nested subsets of a data frame.
+#' Given simple specifications,
+#' the \code{vtree} function produces these diagrams and automatically
+#' labels them with counts, percentages, and other summaries.
+#' 
+#' With vtree, you can:
+#' \itemize{
+#'   \item explore a data set interactively, and 
+#'   \item produce customized figures for reports and publications.
+#' }
+#' 
+#' For a comprehensive introduction, type: \code{vignette("vtree")}
+#' 
+#' @author Nick Barrowman <nbarrowman@cheo.on.ca>
+#' 
+#' @seealso 
+#' \itemize{
+#'   \item GitHub page: \url{https://github.com/nbarrowman/vtree}
+#'   \item Report bugs at \url{https://github.com/nbarrowman/vtree/issues}
+#' }
+#' 
+#' @docType package
+#' @name vtree-package
+NULL 
+
+
+
+#'
+#' Draw a variable tree
+#'
+#' @description
+#' \code{vtree} is a tool for drawing variable trees.
 #' Variable trees display information about nested subsets of a data frame,
 #' in which the subsetting is defined by the values of categorical variables.
 #'

@@ -38,6 +38,19 @@ structure(list(x = list(diagram = "digraph vtree {\ngraph [layout = dot, compoun
             figure = TRUE)), dependencies = NULL, elementId = NULL, 
     preRenderHook = NULL, jsHooks = list()), class = c("grViz", 
 "htmlwidget"), package = "DiagrammeR"))    
+  
+  expect_identical(vtree(FakeData[is.na(FakeData$Severity),],"Group Severity Sex",keep=list(Group="B")),
+structure(list(x = list(diagram = "digraph vtree {\ngraph [layout = dot, compound=true, nodesep=0.1, ranksep=0.5, fontsize=12]\nnode [fontname = Helvetica, fontcolor = black,shape = rectangle, color = black,margin=0.1]\nrankdir=LR;\nNode_L0[style=invisible]\nNode_L1[label=<<FONT POINT-SIZE=\"18\"><FONT COLOR=\"#DE2D26\"><B>Group  </B></FONT></FONT><BR/>> shape=none margin=0]\nNode_L2[label=<<FONT POINT-SIZE=\"18\"><FONT COLOR=\"#3182BD\"><B>Severity  </B></FONT></FONT><BR/>> shape=none margin=0]\nNode_L3[label=<<FONT POINT-SIZE=\"18\"><FONT COLOR=\"#31A354\"><B>Sex  </B></FONT></FONT><BR/>> shape=none margin=0]\n\nedge[style=invis];\nNode_L0->Node_L1->Node_L2->Node_L3\n\nedge[style=solid]\nNode_1->Node_2\nNode_2->Node_3\nNode_3->Node_4 Node_3->Node_5\n\nNode_1[label=<6> color=black style=\"rounded,filled\" fillcolor=<#EFF3FF>]\nNode_2[label=<B<BR/>4 (67%)> color=black style=\"rounded,filled\" fillcolor=<#DE2D26>  ]\nNode_3[label=<NA<BR/>4> color=black style=\"rounded,filled\" fillcolor=<white>  ]\nNode_4[label=<F<BR/>2 (50%)> color=black style=\"rounded,filled\" fillcolor=<#E5F5E0>  ]\nNode_5[label=<M<BR/>2 (50%)> color=black style=\"rounded,filled\" fillcolor=<#31A354>  ]\n\n}\n", 
+    config = list(engine = "dot", options = NULL)), width = NULL, 
+    height = NULL, sizingPolicy = list(defaultWidth = NULL, defaultHeight = NULL, 
+        padding = NULL, viewer = list(defaultWidth = NULL, defaultHeight = NULL, 
+            padding = NULL, fill = TRUE, suppress = FALSE, paneHeight = NULL), 
+        browser = list(defaultWidth = NULL, defaultHeight = NULL, 
+            padding = NULL, fill = FALSE, external = FALSE), 
+        knitr = list(defaultWidth = NULL, defaultHeight = NULL, 
+            figure = TRUE)), dependencies = NULL, elementId = NULL, 
+    preRenderHook = NULL, jsHooks = list()), class = c("grViz", 
+"htmlwidget"), package = "DiagrammeR"))    
 })
 
 

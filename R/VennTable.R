@@ -1,4 +1,4 @@
-#' @title VennTable
+#' @title Format an indicator-based pattern table
 #'
 #' @author Nick Barrowman
 #'
@@ -14,9 +14,9 @@
 #' @param markdown  Format nicely for markdown (see Details).
 #' @param NAcode    Code to use to represent NAs in markdown formatting
 #' @param checked   Vector of character strings that represent checked values;
-#'                  by default: c("1","TRUE","Yes","yes","N/A")
+#'                  by default: \code{c("1","TRUE","Yes","yes","N/A")}
 #' @param unchecked Vector of character strings that represent unchecked values;
-#'                  by default: c("0","FALSE","No","no","not N/A")
+#'                  by default: \code{c("0","FALSE","No","no","not N/A")}
 #' 
 #' @details
 #' The column totals ignore missing values.
