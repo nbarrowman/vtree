@@ -18,7 +18,7 @@ You can install the current version of vtree (version 3.0.0) from CRAN
 install.packages("vtree")
 ```
 
-Or the get the latest release candidate from github (also version 3.0.4)
+Or install the latest release candidate from github (version 3.0.4)
 
 ```
 remotes::install_github("nbarrowman/vtree@v3.0.4")
