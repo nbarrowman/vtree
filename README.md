@@ -6,7 +6,7 @@ status](http://www.r-pkg.org/badges/version/vtree)](https://cran.r-project.org/p
 [![CRAN
 downloads](https://cranlogs.r-pkg.org/badges/grand-total/vtree)](https://cranlogs.r-pkg.org/badges/grand-total/vtree)
 
-*Variable trees display information about nested subsets of a data frame, in which the subsetting is defined by the values of categorical variables.*
+*Variable trees are diagrams that display information about nested subsets of a data frame.*
 
 <img src="https://github.com/nbarrowman/vtree/blob/master/cheatsheets/png/v1.png" width="250">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/nbarrowman/vtree/blob/master/cheatsheets/png/t7.png" width="200">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/nbarrowman/vtree/blob/master/cheatsheets/png/t1.png" width="300">
 
@@ -18,16 +18,16 @@ You can install the current version of vtree (version 3.0.0) from CRAN
 install.packages("vtree")
 ```
 
-Or the get the latest release candidate from github (also version 3.0.0)
+Or the get the latest release candidate from github (also version 3.0.4)
 
 ```
-remotes::install_github("nbarrowman/vtree@v3.0.0")
+remotes::install_github("nbarrowman/vtree@v3.0.4")
 ```
 
-To get the vignette as well you need to use this longer command:
+To get the vignette as well you need to specify `build_vignettes=TRUE`:
 
 ```
-remotes::install_github("nbarrowman/vtree@v3.0.0",build_opts = c("--no-resave-data", "--no-manual"))
+remotes::install_github("nbarrowman/vtree@v3.0.4",build_vignettes=TRUE)
 ```
 
 # More information
@@ -36,7 +36,7 @@ remotes::install_github("nbarrowman/vtree@v3.0.0",build_opts = c("--no-resave-da
 
 * A comprehensive introduction to vtree is available in the [vignette](https://cran.r-project.org/web/packages/vtree/vignettes/vtree.html)
 
-* A [cheat sheet](https://github.com/nbarrowman/vtree/blob/master/cheatsheets/vtree_cheatsheet_2.pdf) (pdf) is available: 
+* A [cheat sheet](https://github.com/rstudio/cheatsheets/raw/master/vtree.pdf) (pdf) is available: 
 
 * Examples: 
     * https://rpubs.com/nbarrowman/Data_exploration_with_vtree
