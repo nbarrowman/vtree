@@ -16,7 +16,7 @@ See installation details below.
 
 Important notes about the current version of vtree (version 3.0.0) on CRAN:
 
-* Compared to earlier versions, there are changes in how vtree supports R Markdown. By default when `vtree` is called from R Markdown, a PNG file is automatically generated and markdown code to embed it is generated. To generate an htmlwidget instead (as in older versions of vtree), specify `pngknit=FALSE`.
+* Compared to earlier versions, there are changes in how vtree supports R Markdown. By default when `vtree` is called from R Markdown, a PNG file is automatically generated and markdown code to embed it is generated. To generate an htmlwidget instead (as in older versions of vtree), specify `pngknit=FALSE`. For more information see: https://cran.r-project.org/web/packages/vtree/vignettes/vtree.html#embeddingInRmarkdown
 
 * The latest vtree release candidate (version 3.0.4) streamlines this functionality and corrects a bug.
 
