@@ -10,6 +10,18 @@ downloads](https://cranlogs.r-pkg.org/badges/grand-total/vtree)](https://cranlog
 
 <img src="https://github.com/nbarrowman/vtree/blob/master/cheatsheets/png/v1.png" width="250">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/nbarrowman/vtree/blob/master/cheatsheets/png/t7.png" width="200">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/nbarrowman/vtree/blob/master/cheatsheets/png/t1.png" width="300">
 
+# Notes
+
+See installation details below.
+
+Important notes about the current version of vtree (version 3.0.0) on CRAN:
+
+* Compared to earlier versions, there are changes in how vtree supports R Markdown. By default when `vtree` is called from R Markdown, a PNG file is automatically generated and markdown code to embed it is generated. To generate an htmlwidget instead (as in older versions of vtree), specify `pngknit=FALSE`.
+
+* The latest vtree release candidate (version 3.0.4) streamlines this functionality and corrects a bug.
+
+* The latest vtree release candidate (version 3.0.4) also corrects a bug related to pruning with missing values.
+
 # Installation
 
 You can install the current version of vtree (version 3.0.0) from CRAN
@@ -43,3 +55,5 @@ remotes::install_github("nbarrowman/vtree@v3.0.4",build_vignettes=TRUE)
     * https://rpubs.com/nbarrowman/missing_values_vtree
     * https://rpubs.com/nbarrowman/pruning_a_variable_tree
     * https://rpubs.com/nbarrowman/CONSORTvtree
+
+* Please report bugs or other issues [here](https://github.com/nbarrowman/vtree/issues).
