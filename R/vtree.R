@@ -244,13 +244,18 @@ NULL
 #'                         If neither \code{imageheight} nor \code{imagewidth} is specified,
 #'                         \code{imageheight} is set to 3 inches.
 #' @param folder           Optional path to a folder where the PNG file should stored
+#' @param asis             Should markdown code be displayed? 
+#'                         Whenever \code{vtree} is called within an R Markdown chunk with
+#'                         chunk option \code{results="asis"}, you must set \code{asis=TRUE}.
 #' @param as.if.knit       Behave as if called while knitting?
 #' @param pngknit          Generate a PNG file when called during knit?
 #'
 #' @return
-#' The value returned by \code{vtree} (as well as its side effects) vary
+#' The value returned by \code{vtree} -- as well as its side effects -- vary
 #' depending on both the parameter values specified
 #' and the context in which \code{vtree} is called.
+#' 
+#' First, there are two special cases where \code{vtree} does not show a variable tree:
 #'  
 #' \itemize{
 #'   \item If \code{ptable=TRUE}, a data frame representing a pattern table is returned.
@@ -258,13 +263,18 @@ NULL
 #'         consisting of a DOT script that describes the variable tree.
 #' }
 #' 
-#' Otherwise, if knitting is \emph{not} taking place (or \code{pngknit=FALSE}),
-#' the value returned is  
-#' an object of class \code{htmlwidget} (see \link[DiagrammeR]{DiagrammeR}).
-#' It will intelligently print itself into HTML in a variety of contexts
-#' including the R console, within R Markdown documents, and within Shiny output bindings.
+#' Otherwise, when \code{vtree} is used \strong{interactively} (i.e. knitting is \emph{not} taking place),
+#' the value returned is
+#' \itemize{
+#'   \item an object of class \code{htmlwidget} (see \link[DiagrammeR]{DiagrammeR}).
+#'         It will intelligently print itself into HTML in a variety of contexts
+#'         including the R console, within R Markdown documents,
+#'         and within Shiny output bindings.
+#' }
+#' (This also applies when knitting \emph{is} taking place but \code{pngknit=FALSE} is specified.)
 #' 
-#' When knitting \emph{is} taking place, the return value is as follows:
+#' When knitting \emph{is} taking place,
+#' the return value is as follows:
 #' \itemize{
 #'   \item If \code{pngknit=TRUE}, the return value is \code{invisible(NULL)},
 #'         but as a side effect there is output consisting of 
@@ -425,7 +435,8 @@ vtree <- function (z, vars, splitspaces=TRUE,
   showempty = FALSE, rounded = TRUE,
   nodefunc = NULL, nodeargs = NULL, 
   choicechecklist = TRUE,
-  pxwidth,pxheight,imagewidth,imageheight,folder,pngknit=TRUE,as.if.knit=FALSE,
+  pxwidth,pxheight,imagewidth,imageheight,folder,
+  pngknit=TRUE,as.if.knit=FALSE,asis=FALSE,
   parent = 1, last = 1, root = TRUE)
 {
 
@@ -1774,8 +1785,9 @@ vtree <- function (z, vars, splitspaces=TRUE,
       }
       
       if (!isTRUE(getOption('knitr.in.progress')) && !as.if.knit) {
-        print(flowchart)
-        return(invisible(flowchart))
+        #print(flowchart)
+        #return(invisible(flowchart))
+        return(flowchart)
       }  
       
       if (is.null(getOption("vtree_count"))) {
@@ -1787,7 +1799,6 @@ vtree <- function (z, vars, splitspaces=TRUE,
         }        
       }
       
-      #browser()
       options("vtree_count"=getOption("vtree_count")+1)
 
       filename <- paste0("vtree",getOption("vtree_count"),".png")
@@ -1824,8 +1835,12 @@ vtree <- function (z, vars, splitspaces=TRUE,
         }
       }
       
-      cat(result)
-      invisible(NULL)
+      if (asis) {
+        cat(result)
+        invisible(NULL)
+      } else {
+        result
+      }
     }
   } else {
       fc

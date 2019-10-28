@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 3.0.4"
+title: "Introduction to vtree 3.0.6"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
 output:
@@ -1259,11 +1259,13 @@ To call `vtree` in R Markdown, you can use inline code:
 `r vtree(FakeData,"Sex Severity")`
 ```
 
-Or you can use a code chunk:
+Or you can use a code chunk,
+but you need to (1) use the chunk option `results="asis"`,
+and (2) specify `asis=TRUE` in the `vtree` call:
 
 ````
 `r ''````{r, results="asis"}
-vtree(FakeData,"Sex Severity")
+vtree(FakeData,"Sex Severity",asis=TRUE)
 ```
 ````
 
@@ -1282,7 +1284,8 @@ To use htmlwidgets instead of a PNG file, you can use inline code:
 `r vtree(FakeData,"Severity Sex",pngknit=FALSE)`
 ```
 
-Or a code chunk:
+Or you can use a code chunk,
+but you need to (1) specify `pngknit=FALSE` in the `vtree` call:
 
 ````
 `r ''````{r}
@@ -1290,10 +1293,12 @@ vtree(FakeData,"Severity Sex",pngknit=FALSE)
 ```
 ````
 
-Note the differences between this and the code chunk (in the previous section) to produce a PNG file:
-(1) you specify `pngknit=FALSE`,
-(2) you don't specify the chunk option `results="asis"`.
+To review, when calling `vtree` from a code chunk,
 
+*  when you want to generate an `htmlwidget`, specify `pngknit=FALSE`
+
+*  when you want to generate a PNG file, specify `asis=TRUE` and also use the chunk option `results="asis"`
+ 
 
 # Generating a data frame by specifying subset sizes {#GeneratingDataFrames}
 
