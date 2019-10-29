@@ -1,8 +1,40 @@
-#'
-#' vtree: Draw a variable tree
+ 
+#' vtree: a tool for calculating and drawing variable trees.
 #'
 #' @description
-#' vtree is a tool for drawing variable trees.
+#' vtree is a flexible tool for generating variable trees —
+#' diagrams that display information about nested subsets of a data frame.
+#' Given simple specifications,
+#' the \code{vtree} function produces these diagrams and automatically
+#' labels them with counts, percentages, and other summaries.
+#' 
+#' With vtree, you can:
+#' \itemize{
+#'   \item explore a data set interactively, and 
+#'   \item produce customized figures for reports and publications.
+#' }
+#' 
+#' For a comprehensive introduction, type: \code{vignette("vtree")}
+#' 
+#' @author Nick Barrowman <nbarrowman@cheo.on.ca>
+#' 
+#' @seealso 
+#' \itemize{
+#'   \item GitHub page: \url{https://github.com/nbarrowman/vtree}
+#'   \item Report bugs at \url{https://github.com/nbarrowman/vtree/issues}
+#' }
+#' 
+#' @docType package
+#' @name vtree-package
+NULL 
+
+
+
+#'
+#' Draw a variable tree
+#'
+#' @description
+#' \code{vtree} is a tool for drawing variable trees.
 #' Variable trees display information about nested subsets of a data frame,
 #' in which the subsetting is defined by the values of categorical variables.
 #'
@@ -212,22 +244,44 @@
 #'                         If neither \code{imageheight} nor \code{imagewidth} is specified,
 #'                         \code{imageheight} is set to 3 inches.
 #' @param folder           Optional path to a folder where the PNG file should stored
+#' @param asis             Should markdown code be displayed? 
+#'                         Whenever \code{vtree} is called within an R Markdown chunk with
+#'                         chunk option \code{results="asis"}, you must set \code{asis=TRUE}.
 #' @param as.if.knit       Behave as if called while knitting?
 #' @param pngknit          Generate a PNG file when called during knit?
 #'
 #' @return
+#' The value returned by \code{vtree} -- as well as its side effects -- vary
+#' depending on both the parameter values specified
+#' and the context in which \code{vtree} is called.
+#' 
+#' First, there are two special cases where \code{vtree} does not show a variable tree:
+#'  
 #' \itemize{
 #'   \item If \code{ptable=TRUE}, a data frame representing a pattern table is returned.
 #'   \item Otherwise, if \code{getscript=TRUE}, a character string is returned,
 #'         consisting of a DOT script that describes the variable tree.
-#'   \item If \code{getscript=FALSE}, and knitting is not taking place
-#'         (or knitting is taking place and \code{pngknit=FALSE}),
-#'         an object of class \code{htmlwidget} is returned (see \link[DiagrammeR]{DiagrammeR}).
+#' }
+#' 
+#' Otherwise, when \code{vtree} is used \strong{interactively} (i.e. knitting is \emph{not} taking place),
+#' the value returned is:
+#' \itemize{
+#'   \item an object of class \code{htmlwidget} (see \link[DiagrammeR]{DiagrammeR}).
 #'         It will intelligently print itself into HTML in a variety of contexts
-#'         including the R console, within R Markdown documents, and within Shiny output bindings.
-#'   \item If \code{getscript=FALSE} and knitting is taking place and \code{pngknit=TRUE},
-#'         pandoc markdown code is returned, 
-#'         consisting of a command to embed a PNG file with fully-specified path.
+#'         including the R console, within R Markdown documents,
+#'         and within Shiny output bindings.
+#' }
+#' 
+#' When knitting \emph{is} taking place, the return value is as follows:
+#' \itemize{
+#'   \item If \code{pngknit=TRUE} (the default),
+#'         the return value is a character string of
+#'         pandoc markdown code to embed a PNG file with fully-specified path. 
+#'   \item If \code{pngknit=FALSE}, the return value is the same as when knitting is not
+#'         taking place, i.e. an object of class \code{htmlwidget}.
+#'   \item If \code{asis=TRUE}, the return value is \code{invisible(NULL)},
+#'         but as a side effect there is output consisting of 
+#'         pandoc markdown code to embed a PNG file with fully-specified path. 
 #' }
 #'
 #' @section R Markdown:
@@ -239,16 +293,16 @@
 #' This feature is needed when knitting to a \code{.docx} file.
 #' When knitting to an HTML file, it is not necessary to generate PNG files.
 #' Rather, HTML can directly display htmlwidgets.
-#' To prevent generation of PNG files, specify \code{pngknit=FALSE}.
+#' To generate htmlwidgets rather than PNG files, specify \code{pngknit=FALSE}.
 #' Note, however, that there are some advantages to embedding PNG files in HTML.
 #' For example, with HTML files including multiple htmlwidgets, some browsers poorly.
 #'
 #' When PNG files are generated, they are stored by default in a temporary folder.
 #' The folder can also be specified using the \code{folder} parameter.
-#' (The option \code{vtree_folder} is used to automatically keep track of this.)
+#' (A custom R option \code{vtree_folder} is used to automatically keep track of this.)
 #' Successive PNG files generated by an R Markdown file
 #' are named \code{vtree1.png}, \code{vtree2.png}, etc.
-#' (The option \code{vtree_count} is used to automatically keep track of this.)
+#' (A custom R option \code{vtree_count} is used to automatically keep track of this.)
 #' 
 #' @section Summary codes:
 #' \itemize{
@@ -382,7 +436,8 @@ vtree <- function (z, vars, splitspaces=TRUE,
   showempty = FALSE, rounded = TRUE,
   nodefunc = NULL, nodeargs = NULL, 
   choicechecklist = TRUE,
-  pxwidth,pxheight,imagewidth,imageheight,folder,pngknit=TRUE,as.if.knit=FALSE,
+  pxwidth,pxheight,imagewidth,imageheight,folder,
+  pngknit=TRUE,as.if.knit=FALSE,asis=FALSE,
   parent = 1, last = 1, root = TRUE)
 {
 
@@ -995,7 +1050,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
       #PATTERN_levels <- c(PATTERN_levels,"Other")
       PATTERN_values <- data.frame(matrix("",nrow=length(PATTERN_levels),ncol=length(vars)),
         stringsAsFactors=FALSE)
-
+      
       names(PATTERN_values) <- vars
       for (i in 1:length(PATTERN_levels)) {
         patternRow <- z[PATTERN==PATTERN_levels[i],,drop=FALSE]
@@ -1005,6 +1060,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
         }
       }
       PATTERN <- factor(PATTERN,levels=PATTERN_levels)
+      
       if (pattern) {
         z$pattern <- PATTERN
         vars <- c("pattern",vars)
@@ -1427,6 +1483,9 @@ vtree <- function (z, vars, splitspaces=TRUE,
   if (pattern & vars[1]!="pattern") ThisLevelText <- ""
   if (seq  & vars[1]!="sequence") ThisLevelText <- ""
   
+  # cat("Right before call to flowcat\n")
+  # browser()
+  
   fc <- flowcat(z[[vars[1]]], root = root, title = title, parent = parent,
     var=vars[[1]],
     last = last, labels = labelnode[[vars[1]]], tlabelnode=tlabelnode, labelvar = labelvar[vars[1]],
@@ -1528,11 +1587,11 @@ vtree <- function (z, vars, splitspaces=TRUE,
     condition_to_follow <- 
       !(varlevel %in% prunebelowlevels) & 
       (is.null(followlevels) | (varlevel %in% followlevels)) &
-      !(varlevel=="NA" & length(keep)>0 & !("NA" %in% keep[[CurrentVar]]))
+      !(varlevel=="NA" & length(keep)>0 & (!is.null(keep[[CurrentVar]]) & !("NA" %in% keep[[CurrentVar]])))
 
     if (condition_to_follow) {
       if (varlevel == "NA") {
-          select <- is.na(z[[CurrentVar]])
+          select <- is.na(z[[CurrentVar]]) | (!is.na(z[[CurrentVar]]) & z[[CurrentVar]]=="NA")
       }
       else {
           select <- which(z[[CurrentVar]] == varlevel)
@@ -1727,8 +1786,9 @@ vtree <- function (z, vars, splitspaces=TRUE,
       }
       
       if (!isTRUE(getOption('knitr.in.progress')) && !as.if.knit) {
-        print(flowchart)
-        return(invisible(flowchart))
+        #print(flowchart)
+        #return(invisible(flowchart))
+        return(flowchart)
       }  
       
       if (is.null(getOption("vtree_count"))) {
@@ -1740,7 +1800,6 @@ vtree <- function (z, vars, splitspaces=TRUE,
         }        
       }
       
-      #browser()
       options("vtree_count"=getOption("vtree_count")+1)
 
       filename <- paste0("vtree",getOption("vtree_count"),".png")
@@ -1777,7 +1836,12 @@ vtree <- function (z, vars, splitspaces=TRUE,
         }
       }
       
-      result        
+      if (asis) {
+        cat(result)
+        invisible(NULL)
+      } else {
+        result
+      }
     }
   } else {
       fc
