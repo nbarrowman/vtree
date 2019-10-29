@@ -334,23 +334,24 @@ First, there are two special cases where \code{vtree} does not show a variable t
 }
 
 Otherwise, when \code{vtree} is used \strong{interactively} (i.e. knitting is \emph{not} taking place),
-the value returned is
+the value returned is:
 \itemize{
   \item an object of class \code{htmlwidget} (see \link[DiagrammeR]{DiagrammeR}).
         It will intelligently print itself into HTML in a variety of contexts
         including the R console, within R Markdown documents,
         and within Shiny output bindings.
 }
-(This also applies when knitting \emph{is} taking place but \code{pngknit=FALSE} is specified.)
 
-When knitting \emph{is} taking place,
-the return value is as follows:
+When knitting \emph{is} taking place, the return value is as follows:
 \itemize{
-  \item If \code{pngknit=TRUE}, the return value is \code{invisible(NULL)},
-        but as a side effect there is output consisting of 
+  \item If \code{pngknit=TRUE} (the default),
+        the return value is a character string of
         pandoc markdown code to embed a PNG file with fully-specified path. 
   \item If \code{pngknit=FALSE}, the return value is the same as when knitting is not
-        taking place, i.e. an object of class \code{htmlwidget} is returned.
+        taking place, i.e. an object of class \code{htmlwidget}.
+  \item If \code{asis=TRUE}, the return value is \code{invisible(NULL)},
+        but as a side effect there is output consisting of 
+        pandoc markdown code to embed a PNG file with fully-specified path. 
 }
 }
 \description{
