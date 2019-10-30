@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 3.0.7"
+title: "Introduction to vtree 3.0.8"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
 output:
@@ -1244,6 +1244,13 @@ using the `imageheight` parameter,
 for example `imageheight="4in"` for a 4-inch image.
 There is also an `imagewidth` parameter.
 If neither is specified, `imageheight` is automatically set to 3 inches.
+
+*Note*: You may notice a warning in the R Markdown rendering
+(in RStudio, the R Markdown pane) like this:
+```{r, eval=FALSE,echo=TRUE}
+<unknown>:1919791: Invalid asm.js: Function definition doesn't match use
+```
+Although distracting, this message is irrelevant.
 
 The PNG file is stored in the folder specified by the `folder` parameter,
 or if not specified, a temporary folder will be used.
