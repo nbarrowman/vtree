@@ -8,7 +8,7 @@
 #'
 #' @param varnames A vector of variable names.
 #' @param ...      Lists of patterns and the frequency of each pattern.
-#'                 When a pattern is shorted than the list of variable names
+#'                 When a pattern is shorter than the list of variable names
 #'                 (for example, 3 variable names but only 2 values in the pattern),
 #'                 \code{NA}'s are substituted for the missing variable names.
 #' 
