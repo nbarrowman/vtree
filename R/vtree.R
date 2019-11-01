@@ -1289,7 +1289,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
         FC[[vars[i]]] <- valuecolors
       }
       fillcolor <- FC
-      colorIndex <- rep(1:numPalettes,length=numvars)
+      colorIndex <- rep(1:numPalettes,length.out=numvars)
       names(varlabelcolors) <- vars
       if (check.is.na) {
         names(varlabelcolors) <- OLDVARS
