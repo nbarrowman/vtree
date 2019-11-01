@@ -6,7 +6,7 @@ around <- function (x, digits = 2, tooLong = 10) {
     as.character(x)
   } else
   if (is.data.frame(x)) {
-      for (i in 1:ncol(x)) {
+      for (i in seq_len(ncol(x))) {
           x[[i]] <- around(x[[i]], digits = digits)
       }
       x

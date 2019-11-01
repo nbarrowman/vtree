@@ -11,7 +11,7 @@ splitlines <- function (x, width = 10, sp = "\n", at = c(" ", "-", "+", "_", "="
   result <- rep("", length(x))
   splits <- rep(0, length(x))
   if (is.null(x) || (length(x)==0)) return(NULL)
-  for (i in 1:length(x)) {
+  for (i in seq_len(length(x))) {
       count <- 0
       start <- 1
       for (j in 1:(n[i])) {
@@ -43,7 +43,7 @@ splitlines <- function (x, width = 10, sp = "\n", at = c(" ", "-", "+", "_", "="
   }
   if (same) {
       maxsplits <- max(splits)
-      for (i in 1:length(x)) {
+      for (i in seq_len(length(x))) {
           while (splits[i] < maxsplits) {
               result[i] <- paste0(result[i], sp)
               splits[i] <- splits[i] + 1
