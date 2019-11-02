@@ -39,14 +39,14 @@ build.data.frame <- function(varnames,...) {
   input <- list(...)
   nvar <- length(varnames)
   count <- NULL
-  for (i in 1:length(input)) {
+  for (i in seq_len(length(input))) {
     m <- length(input[[i]])
     if ((m-1)>nvar) stop("Number of input in a list cannot exceed number of variable names")
     count <- c(count,input[[i]][[m]])
   }
   listit <- vector("list",length=length(input[[1]])-1)
   names(listit) <- varnames
-  for (i in 1:length(input)) {
+  for (i in seq_len(length(input))) {
     for (j in 1:(length(input[[i]])-1)) {
       listit[[j]] <- c(listit[[j]],rep(input[[i]][[j]],count[i]))
     }
