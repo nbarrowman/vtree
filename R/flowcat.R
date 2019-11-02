@@ -193,7 +193,7 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
   }
 
   if (length(ttext)>0) {
-    for (j in 1:length(ttext)) {
+    for (j in seq_len(length(ttext))) {
       if (length(ttext[[j]])==2 && any(names(ttext[[j]])==var)) {
         TTEXTposition <- CAT[-1] == ttext[[j]][names(ttext[[j]])==var]
         extraText[-1][TTEXTposition] <- ttext[[j]]["text"]
@@ -202,7 +202,7 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
   }
 
   if (length(tlabelnode)>0) {
-    for (j in 1:length(tlabelnode)) {
+    for (j in seq_len(length(tlabelnode))) {
       if (length(tlabelnode[[j]])==2 && any(names(tlabelnode[[j]])==var)) {
         tlabelnode_position <- CAT[-1] == tlabelnode[[j]][names(tlabelnode[[j]])==var]
         CAT[-1][tlabelnode_position] <- tlabelnode[[j]]["label"]
@@ -259,13 +259,13 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
   
   # Glue a space or a line break onto the non-empty elements of CAT
   if (sameline) {
-    for (i in 1:length(displayCAT)) {
+    for (i in seq_len(length(displayCAT))) {
       if (showcount || showpct || extraText[i]!="") {
         if (displayCAT[i]!="") displayCAT[i] <- paste0(displayCAT[i],", ")
       }
     }
   } else {
-    for (i in 1:length(displayCAT)) {
+    for (i in seq_len(length(displayCAT))) {
       if (displayCAT[i]!="") displayCAT[i] <- paste0(displayCAT[i],sepN)
     }
   }
