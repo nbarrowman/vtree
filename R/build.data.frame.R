@@ -1,5 +1,5 @@
 #'
-#' Build a data frame to display with vtree
+#' @title Build a data frame to display with vtree
 #'
 #' @description
 #' Build a data frame by specifying variable names and patterns of values together with frequencies.

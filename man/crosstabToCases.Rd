@@ -2,7 +2,7 @@
 % Please edit documentation in R/crosstabToCases.R
 \name{crosstabToCases}
 \alias{crosstabToCases}
-\title{crosstabToCases}
+\title{Convert a crosstabulation into a data frame of cases.}
 \usage{
 crosstabToCases(x)
 }
@@ -13,7 +13,7 @@ crosstabToCases(x)
 Returns a data frame of cases.
 }
 \description{
-Convert a crosstabulation into a data frame of cases.
+Convert a table of crosstabulated counts into a data frame of cases.
 }
 \examples{
 # The Titanic data set is in the datasets package.

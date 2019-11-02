@@ -1,4 +1,4 @@
-#' Fake Clinical Dataset
+#' Fake clinical dataset
 #'
 #' A dataset consisting of made-up clinical data.
 #' Note that some observations are missing (i.e. NAs).
@@ -29,7 +29,7 @@
 #' }
 "FakeData"
 
-#' Fake Randomized Controlled Trial (RCT) Data
+#' Fake Randomized Controlled Trial (RCT) data
 #'
 #' A dataset consisting of made-up RCT data.
 #'

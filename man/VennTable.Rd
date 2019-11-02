@@ -2,7 +2,7 @@
 % Please edit documentation in R/VennTable.R
 \name{VennTable}
 \alias{VennTable}
-\title{VennTable}
+\title{Format an indicator-based pattern table}
 \usage{
 VennTable(x, markdown = FALSE, NAcode = "-", unchecked = c("0",
   "FALSE", "No", "no", "not N/A"), checked = c("1", "TRUE", "Yes", "yes",
@@ -16,10 +16,10 @@ VennTable(x, markdown = FALSE, NAcode = "-", unchecked = c("0",
 \item{NAcode}{Code to use to represent NAs in markdown formatting}
 
 \item{unchecked}{Vector of character strings that represent unchecked values;
-by default: c("0","FALSE","No","no","not N/A")}
+by default: \code{c("0","FALSE","No","no","not N/A")}}
 
 \item{checked}{Vector of character strings that represent checked values;
-by default: c("1","TRUE","Yes","yes","N/A")}
+by default: \code{c("1","TRUE","Yes","yes","N/A")}}
 }
 \value{
 Returns a character matrix with extra rows containing indicator sums.

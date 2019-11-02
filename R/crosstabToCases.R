@@ -1,9 +1,9 @@
-#' @title crosstabToCases
+#' @title Convert a crosstabulation into a data frame of cases.
 #'
 #' @author Nick Barrowman, based on the \code{countsToCases} function at \url{http://www.cookbook-r.com/Manipulating_data/Converting_between_data_frames_and_contingency_tables/#countstocases-function}
 #'
 #' @description
-#' Convert a crosstabulation into a data frame of cases.
+#' Convert a table of crosstabulated counts into a data frame of cases.
 #'
 #' @param x  a matrix or table of frequencies representing a crosstabulation.
  

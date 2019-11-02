@@ -51,54 +51,43 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
   categoryCounts <- c(length(z),categoryCounts)
   names(categoryCounts)[1] <- title
 
-  # Use npct to calculate percentages, but don't use "valid percentages"
-  # since the denominator should always be the number in the parent node.
-  # npctString <- npct(z,includemiss=TRUE,vp=FALSE,pcs="%")
-  # If there are no missing values, don't include the NA category
-  # if (sum(is.na(z))==0) npctString <- npct(z,pcs="%")
-
-    if (vp & any(names(categoryCounts)=="NA")) { 
+  if (vp & any(names(categoryCounts)=="NA")) { 
     cc <- categoryCounts[-1]
-    cc <- cc[names(cc)!="NA"]
+    #cc <- cc[names(cc)!="NA"]
     if (length(cc)>0) {
       npctString <- rep("",length(cc))
       nString <- cc
       if (showcount) {
         npctString <- cc
-        if (showpct) npctString <- paste0(npctString," ")
+        #if (showpct) npctString <- paste0(npctString," ")
       }
-      pctString <- around(100*cc/sampleSize,digits)   # used to be sum(cc) rather than sampleSize
+      pctString <- ifelse(names(cc)=="NA","",around(100*cc/sampleSize,digits))
       if (showpct) {
-        npctString <- paste0(npctString,"(",pctString,"%)")
+        npctString <- ifelse(names(cc)=="NA",npctString,paste0(npctString," (",pctString,"%)"))
       }
     } else {
       npctString <- NULL
       nString <- NULL
       pctString <- NULL
     }
-    nString <- c(nString,categoryCounts["NA"])
-    if (showcount) {
-      npctString <- c(npctString,categoryCounts["NA"])
-    } else {
-      npctString <- c(npctString,"")
-    }
   } else {
     npctString <- rep("",length(categoryCounts[-1]))
     nString <- categoryCounts[-1]
     if (showcount) {
       npctString <- categoryCounts[-1]
-      if (showpct) npctString <- paste0(npctString," ")
+      #if (showpct) npctString <- paste0(npctString," ")
     }
     pctString <- around(100*categoryCounts[-1]/length(z),digits)
     if (showpct) {
-      npctString <- paste0(npctString,"(",pctString,"%)")
+      npctString <- paste0(npctString," (",pctString,"%)")
     }
   }
+  
+  #browser()
   
   npctString <- c(length(z),npctString)
   nString <- c(length(z),nString)
   pctString <- c("",pctString)
-  #names(npctString)[1] <- title
   
   if (!showempty) {
     s <- categoryCounts>0
@@ -302,6 +291,8 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
       nodenames[-1],'[label=<',displayCAT[-1],npctString[-1],extraText[-1],'> color=',color,styleString,
       ' fillcolor=<',FILLCOLOR,'>',VARLABELLOC,' ',VARMINWIDTH,' ',VARMINHEIGHT,']'),collapse='\n')
   }
+  
+  #browser()
 
   return(list(
     value=CAT[-1],

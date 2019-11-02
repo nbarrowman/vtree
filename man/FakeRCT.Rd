@@ -3,7 +3,7 @@
 \docType{data}
 \name{FakeRCT}
 \alias{FakeRCT}
-\title{Fake Randomized Controlled Trial (RCT) Data}
+\title{Fake Randomized Controlled Trial (RCT) data}
 \format{A small data frame in which the rows represent (imaginary) patients and
 the columns represent variables of possible clinical relevance.
 
