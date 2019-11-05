@@ -16,7 +16,7 @@ Suggests:
     rmarkdown,
     ggplot2,
     testthat (>= 2.1.0)
-Imports: DiagrammeR, DiagrammeRsvg, rsvg, htmlwidgets
+Imports: DiagrammeR, DiagrammeRsvg, rsvg, htmlwidgets, shiny
 NeedsCompilation: no
 Packaged: 2019-01-06 17:54:29 UTC; Nick
 Repository: CRAN
