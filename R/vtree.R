@@ -71,6 +71,7 @@ NULL
 #'                         for nodes of each variable.
 #'                         (Sets the Graphviz \code{labelloc} attribute.)
 #' @param title            Optional title for the root node of the tree.
+#' @param showvarinnode    Show the variable name in each node?
 #' @param shownodelabels   Show node labels?
 #'                         A single value (with no names) specifies the setting for all variables.
 #'                         A logical vector of \code{TRUE} values for named variables is interpreted as
@@ -418,7 +419,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
   showroot=TRUE,
   text = list(),ttext=list(),
   plain = FALSE, squeeze = 1,
-  shownodelabels=TRUE,
+  showvarinnode=FALSE,shownodelabels=TRUE,
   showvarnames = TRUE, showlevels = TRUE,
   showpct=TRUE, showlpct=TRUE,
   showcount=TRUE, showlegend=FALSE,
@@ -1492,7 +1493,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
     varminwidth=varminwidth[vars[1]],varminheight=varminheight[vars[1]],varlabelloc=varlabelloc[vars[1]],
     check.is.na=check.is.na,
     sameline=sameline,
-    shownodelabels=shownodelabels[vars[1]],
+    showvarinnode=showvarinnode,shownodelabels=shownodelabels[vars[1]],
     showpct=showpct[vars[1]],
     showcount=showcount[vars[1]],
     prune=prune[[vars[1]]],
@@ -1603,7 +1604,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
           tlabelnode = TLABELNODE,
           colorvarlabels=colorvarlabels,
           check.is.na=check.is.na,
-          shownodelabels=shownodelabels,
+          showvarinnode=showvarinnode,shownodelabels=shownodelabels,
           showpct=showpct,
           showcount=showcount,
           sameline=sameline, showempty = showempty,

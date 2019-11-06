@@ -15,19 +15,20 @@ vtree(z, vars, splitspaces = TRUE, prune = list(),
   title = "", sameline = FALSE, Venn = FALSE, check.is.na = FALSE,
   seq = FALSE, pattern = FALSE, ptable = FALSE, showroot = TRUE,
   text = list(), ttext = list(), plain = FALSE, squeeze = 1,
-  shownodelabels = TRUE, showvarnames = TRUE, showlevels = TRUE,
-  showpct = TRUE, showlpct = TRUE, showcount = TRUE,
-  showlegend = FALSE, varnamepointsize = 18, HTMLtext = FALSE,
-  digits = 0, cdigits = 1, splitwidth = 20, lsplitwidth = 15,
-  getscript = FALSE, nodesep = 0.5, ranksep = 0.5, margin = 0.2,
-  vp = TRUE, horiz = TRUE, summary = "", runsummary = NULL,
-  retain = NULL, width = NULL, height = NULL, graphattr = "",
-  nodeattr = "", edgeattr = "", color = c("blue", "forestgreen",
-  "red", "orange", "pink"), colornodes = FALSE, mincount = 1, maxcount,
-  showempty = FALSE, rounded = TRUE, nodefunc = NULL,
-  nodeargs = NULL, choicechecklist = TRUE, pxwidth, pxheight,
-  imagewidth, imageheight, folder, pngknit = TRUE, as.if.knit = FALSE,
-  asis = FALSE, parent = 1, last = 1, root = TRUE)
+  showvarinnode = FALSE, shownodelabels = TRUE, showvarnames = TRUE,
+  showlevels = TRUE, showpct = TRUE, showlpct = TRUE,
+  showcount = TRUE, showlegend = FALSE, varnamepointsize = 18,
+  HTMLtext = FALSE, digits = 0, cdigits = 1, splitwidth = 20,
+  lsplitwidth = 15, getscript = FALSE, nodesep = 0.5,
+  ranksep = 0.5, margin = 0.2, vp = TRUE, horiz = TRUE,
+  summary = "", runsummary = NULL, retain = NULL, width = NULL,
+  height = NULL, graphattr = "", nodeattr = "", edgeattr = "",
+  color = c("blue", "forestgreen", "red", "orange", "pink"),
+  colornodes = FALSE, mincount = 1, maxcount, showempty = FALSE,
+  rounded = TRUE, nodefunc = NULL, nodeargs = NULL,
+  choicechecklist = TRUE, pxwidth, pxheight, imagewidth, imageheight,
+  folder, pngknit = TRUE, as.if.knit = FALSE, asis = FALSE,
+  parent = 1, last = 1, root = TRUE)
 }
 \arguments{
 \item{z}{Required: Data frame, or a single vector.}
@@ -173,6 +174,8 @@ all variable labels are black; and the \code{squeeze} parameter is set to 0.6.}
 
 \item{squeeze}{The degree (between 0 and 1) to which the tree will be "squeezed".
 This controls two Graphviz parameters: \code{margin} and \code{nodesep}.}
+
+\item{showvarinnode}{Show the variable name in each node?}
 
 \item{shownodelabels}{Show node labels?
 A single value (with no names) specifies the setting for all variables.
