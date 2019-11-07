@@ -3,7 +3,7 @@ var,
 check.is.na=FALSE,
 labelvar=NULL,
 varminwidth=NULL,varminheight=NULL,varlabelloc=NULL,
-shownodelabels=TRUE,sameline=FALSE,
+showvarinnode=FALSE,shownodelabels=TRUE,sameline=FALSE,
 prune=NULL,
 prunelone=NULL,prunesmaller=NULL,
 keep=NULL,
@@ -221,15 +221,6 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
     }
   }
 
-  # # Relabel the nodes if labelvar has been specified
-  # if (!showvarnames) {
-  #   if (!is.null(labelvar)) {
-  #     if (!is.na(labelvar)) {
-  #       displayCAT[-1] <- paste0(labelvar,sepN,displayCAT[-1])
-  #     }
-  #   }
-  # }
-
   # Write DOT code for the edges
   if (showroot) {
     edgeVector <- paste0(nodenames[1],"->",nodenames[-1])
@@ -244,8 +235,6 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
     styleString <- ' style=filled'
   }
 
-  #displayCAT <- CAT
-  
   # Glue a space or a line break onto the non-empty elements of CAT
   if (sameline) {
     for (i in seq_len(length(displayCAT))) {
@@ -261,6 +250,15 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
 
   if (!shownodelabels) {
     for (i in 2:length(displayCAT)) displayCAT[i] <- ""
+  }
+  
+  # Relabel the nodes if showvarinnode is TRUE
+  if (showvarinnode) {
+    if (is.null(labelvar)) {
+      displayCAT[-1] <- paste0(var,sepN,displayCAT[-1])
+    } else {
+      displayCAT[-1] <- paste0(labelvar,sepN,displayCAT[-1])
+    }
   }
   
   if (!HTMLtext) {
