@@ -27,8 +27,8 @@ vtree(z, vars, splitspaces = TRUE, prune = list(),
   colornodes = FALSE, mincount = 1, maxcount, showempty = FALSE,
   rounded = TRUE, nodefunc = NULL, nodeargs = NULL,
   choicechecklist = TRUE, pxwidth, pxheight, imagewidth, imageheight,
-  folder, pngknit = TRUE, as.if.knit = FALSE, asis = FALSE,
-  parent = 1, last = 1, root = TRUE)
+  folder, pngknit = TRUE, as.if.knit = FALSE, parent = 1, last = 1,
+  root = TRUE)
 }
 \arguments{
 \item{z}{Required: Data frame, or a single vector.}
@@ -313,10 +313,6 @@ If neither \code{imageheight} nor \code{imagewidth} is specified,
 
 \item{as.if.knit}{Behave as if called while knitting?}
 
-\item{asis}{Should markdown code be displayed? 
-Whenever \code{vtree} is called within an R Markdown chunk with
-chunk option \code{results="asis"}, you must set \code{asis=TRUE}.}
-
 \item{parent}{Parent node number (Internal use only.)}
 
 \item{last}{Last node number (Internal use only.)}
@@ -352,9 +348,6 @@ When knitting \emph{is} taking place, the return value is as follows:
         pandoc markdown code to embed a PNG file with fully-specified path. 
   \item If \code{pngknit=FALSE}, the return value is the same as when knitting is not
         taking place, i.e. an object of class \code{htmlwidget}.
-  \item If \code{asis=TRUE}, the return value is \code{invisible(NULL)},
-        but as a side effect there is output consisting of 
-        pandoc markdown code to embed a PNG file with fully-specified path. 
 }
 }
 \description{
@@ -454,11 +447,6 @@ vtree(FakeData,"Sex Severity")
 
 # R Markdown inline call to vtree
 # `r vtree(FakeData,"Sex Severity")`
-
-# R Markdown call to vtree in a code chunk 
-# ```{r, results="asis"}
-# cat(vtree(z,"Sex Severity"))
-# ```
 
 # A single-level hierarchy
 vtree(FakeData,"Severity")

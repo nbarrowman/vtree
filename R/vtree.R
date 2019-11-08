@@ -245,9 +245,6 @@ NULL
 #'                         If neither \code{imageheight} nor \code{imagewidth} is specified,
 #'                         \code{imageheight} is set to 3 inches.
 #' @param folder           Optional path to a folder where the PNG file should stored
-#' @param asis             Should markdown code be displayed? 
-#'                         Whenever \code{vtree} is called within an R Markdown chunk with
-#'                         chunk option \code{results="asis"}, you must set \code{asis=TRUE}.
 #' @param as.if.knit       Behave as if called while knitting?
 #' @param pngknit          Generate a PNG file when called during knit?
 #'
@@ -280,9 +277,6 @@ NULL
 #'         pandoc markdown code to embed a PNG file with fully-specified path. 
 #'   \item If \code{pngknit=FALSE}, the return value is the same as when knitting is not
 #'         taking place, i.e. an object of class \code{htmlwidget}.
-#'   \item If \code{asis=TRUE}, the return value is \code{invisible(NULL)},
-#'         but as a side effect there is output consisting of 
-#'         pandoc markdown code to embed a PNG file with fully-specified path. 
 #' }
 #'
 #' @section R Markdown:
@@ -367,11 +361,6 @@ NULL
 #' 
 #' # R Markdown inline call to vtree
 #' # `r vtree(FakeData,"Sex Severity")`
-#' 
-#' # R Markdown call to vtree in a code chunk 
-#' # ```{r, results="asis"}
-#' # cat(vtree(z,"Sex Severity"))
-#' # ```
 #'
 #' # A single-level hierarchy
 #' vtree(FakeData,"Severity")
@@ -438,7 +427,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
   nodefunc = NULL, nodeargs = NULL, 
   choicechecklist = TRUE,
   pxwidth,pxheight,imagewidth,imageheight,folder,
-  pngknit=TRUE,as.if.knit=FALSE,asis=FALSE,
+  pngknit=TRUE,as.if.knit=FALSE,
   parent = 1, last = 1, root = TRUE)
 {
 
@@ -1782,15 +1771,9 @@ vtree <- function (z, vars, splitspaces=TRUE,
         width=width,height=height,
         graphattr=graphattr,nodeattr=nodeattr,edgeattr=edgeattr)
       
-      if (getscript || !pngknit) {
+      if (getscript || !pngknit || (!isTRUE(getOption('knitr.in.progress')) && !as.if.knit)) {
         return(flowchart)
       }
-      
-      if (!isTRUE(getOption('knitr.in.progress')) && !as.if.knit) {
-        #print(flowchart)
-        #return(invisible(flowchart))
-        return(flowchart)
-      }  
       
       if (is.null(getOption("vtree_count"))) {
         options("vtree_count"=0)
@@ -1837,12 +1820,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
         }
       }
       
-      if (asis) {
-        cat(result)
-        invisible(NULL)
-      } else {
-        result
-      }
+      knitr::asis_output(result)
     }
   } else {
       fc

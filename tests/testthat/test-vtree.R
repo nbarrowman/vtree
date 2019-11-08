@@ -1,7 +1,7 @@
 test_that("knitr",{
   # Note that knitting to PNG a temporary folder is used by default,
   # so I'm using a regular expression to partially match it.
-  expect_output(vtree(FakeData,"Severity Sex",asis=TRUE,as.if.knit=TRUE),
+  expect_match(vtree(FakeData,"Severity Sex",as.if.knit=TRUE),
     "!\\[\\].+\\.png\\).*")
   
   expect_identical(vtree(FakeData,"Severity Sex",as.if.knit=TRUE,pngknit=FALSE),
