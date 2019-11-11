@@ -484,20 +484,32 @@ vtree <- function (z, vars, splitspaces=TRUE,
 
     # Special case where z is provided as a vector instead of a data frame
     if (!is.data.frame(z)) {
-        z <- data.frame(z)
-        if (!missing(vars))
-            argname <- vars
-        colnames(z)[1] <- argname
-        vars <- argname
+      z <- data.frame(z)
+      if (!missing(vars))
+          argname <- vars
+      colnames(z)[1] <- argname
+      vars <- argname
     }
     
-    # Special case where vars is not provided
+    # Special case where vars is not provided.
+    #
+    # ---> Include all variables with fewer than 5 levels.
+    # ---> Set showvarinnode=TRUE
+    #
+    no_variables_specified <- FALSE
     if (is.data.frame(z) && missing(vars)) {
-      vars <- names(z)
+      no_variables_specified <- TRUE
+      if (missing(showvarinnode)) showvarinnode <- TRUE
+      vars <- c()
+      excluded_vars <- c()
+      for (candidate in names(z)) {
+        if (length(unique(z[[candidate]]))<5) {
+          vars <- c(vars,candidate)
+        } else {
+          excluded_vars <- c(excluded_vars,candidate)
+        }
+      }
     }
-    
-    if (length(vars)>30) 
-      stop(paste0(length(vars)," variables exceeds the current maximum of 30."))
     
     # Process * tag in variable names to expand list of variables
     findstar <- grep("\\*$",vars)
@@ -959,7 +971,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
     # Use a data frame that *only* contains the variables of interest.
     # This greatly speeds things up!
     z <- z[ALLVARS]
-
+    
     if (Venn) {
       if (missing(shownodelabels)) shownodelabels <- FALSE
       if (missing(showpct)) showpct <- FALSE
@@ -1045,7 +1057,6 @@ vtree <- function (z, vars, splitspaces=TRUE,
       for (i in 1:length(PATTERN_levels)) {
         patternRow <- z[PATTERN==PATTERN_levels[i],,drop=FALSE]
         for (j in 1:length(vars)) {
-          #browser()
           PATTERN_values[[vars[j]]][i] <- as.character(patternRow[[vars[j]]][1])
         }
       }
@@ -1356,6 +1367,25 @@ vtree <- function (z, vars, splitspaces=TRUE,
       fillcolor <- FC
     }
     
+    if (no_variables_specified) {
+      message("Variables included: ",paste(vars,collapse=" "))
+      message("Variables excluded: ",paste(excluded_vars,collapse=" "))
+    }
+    
+    nodes <- 0
+    level <- 1
+    while (level>0 && level<=length(vars)) {
+      tab <- table(z[,vars[seq_len(level)],drop=FALSE],exclude=NULL)
+      nodes <- nodes + sum(is.na(tab)) + sum(!is.na(tab) & tab>0)
+      if (nodes>1000) stop(
+        paste0("This variable tree has over 1000 nodes. ",
+          ifelse(no_variables_specified,"",
+          paste0("Variables included: ",paste(vars,collapse=" ")))))
+      level <- level+1
+    }
+
+    
+    
   }
 
   ### ----------- End code for root only ------------
@@ -1623,6 +1653,8 @@ vtree <- function (z, vars, splitspaces=TRUE,
   # If desired, show variable levels and legend
 
   if (root) {
+    #message("Total nodes:",max(fc$nodenum),"\n")
+
     if (showvarnames) {
       # Special case for check.is.na
       if (check.is.na) {
