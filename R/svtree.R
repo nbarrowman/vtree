@@ -1,4 +1,4 @@
-#' @title Create a shiny vtree.
+#' @title Create a shiny vtree, with svg-pan-zoom functionality.
 #' 
 #' @param ... parameters to be passed to `vtree`
 #'

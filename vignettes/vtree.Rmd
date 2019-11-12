@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 3.1.1"
+title: "Introduction to vtree 3.1.2"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
 output:
@@ -244,8 +244,14 @@ vtree(df,"v1 v2")
 For additional details about how variables can be specified,
 see the section on [specification of variables](#VariableSpecification) below.
 Note that if `vtree` is called without a list of variables,
-it uses *all* of the variables in the data frame
-in the order in which they appear.
+it uses as many discrete variables from the data frame as possible,
+starting with the first column.
+
+```{r, eval=FALSE}
+NOTES:
+1. Discrete variables are operationally defined here as variables with at most 4 distinct values.
+2. Variables are included until the total number of nodes exceeds 200.
+```
 
 Numerous additional parameters can be supplied.
 For example, by default `vtree` produces a horizontal tree

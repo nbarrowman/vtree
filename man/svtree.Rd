@@ -2,7 +2,7 @@
 % Please edit documentation in R/svtree.R
 \name{svtree}
 \alias{svtree}
-\title{Create a shiny vtree.}
+\title{Create a shiny vtree, with svg-pan-zoom functionality.}
 \usage{
 svtree(...)
 }
@@ -10,5 +10,5 @@ svtree(...)
 \item{...}{parameters to be passed to `vtree`}
 }
 \description{
-Create a shiny vtree.
+Create a shiny vtree, with svg-pan-zoom functionality.
 }

@@ -501,12 +501,12 @@ vtree <- function (z, vars, splitspaces=TRUE,
       no_variables_specified <- TRUE
       if (missing(showvarinnode)) showvarinnode <- TRUE
       vars <- c()
-      excluded_vars <- c()
+      non_discrete_vars <- c()
       for (candidate in names(z)) {
         if (length(unique(z[[candidate]]))<5) {
           vars <- c(vars,candidate)
         } else {
-          excluded_vars <- c(excluded_vars,candidate)
+          non_discrete_vars <- c(non_discrete_vars,candidate)
         }
       }
     }
@@ -1367,16 +1367,18 @@ vtree <- function (z, vars, splitspaces=TRUE,
       fillcolor <- FC
     }
     
-    if (no_variables_specified) {
-      message("Variables included: ",paste(vars,collapse=" "))
-      message("Variables excluded: ",paste(excluded_vars,collapse=" "))
-    }
-    
     nodes <- 0
     level <- 1
+    excluded_discrete_vars <- c()
     while (level>0 && level<=length(vars)) {
       tab <- table(z[,vars[seq_len(level)],drop=FALSE],exclude=NULL)
       nodes <- nodes + sum(is.na(tab)) + sum(!is.na(tab) & tab>0)
+      if (nodes>200 && no_variables_specified) {
+        ev <- vars[-seq_len(level)]
+        vars <- vars[seq_len(level)]
+        excluded_discrete_vars <- c(ev,excluded_discrete_vars)
+        break
+      }
       if (nodes>1000) stop(
         paste0("This variable tree has over 1000 nodes. ",
           ifelse(no_variables_specified,"",
@@ -1384,7 +1386,13 @@ vtree <- function (z, vars, splitspaces=TRUE,
       level <- level+1
     }
 
-    
+    if (no_variables_specified) {
+      message("--Discrete variables included: ",paste(vars,collapse=" "))
+      if (length(excluded_discrete_vars)>0) 
+        message("--Discrete variables excluded: ",paste(excluded_discrete_vars,collapse=" "))
+      if (length(non_discrete_vars)>0)
+        message("Additional variables excluded: ",paste(non_discrete_vars,collapse=" "))
+    }
     
   }
 
