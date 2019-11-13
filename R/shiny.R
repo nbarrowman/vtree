@@ -189,7 +189,7 @@ $(document).on('keydown', function(e) {
   }
 }
 
-#' Vtree widget
+#' vtree widget
 #'
 #' Shiny bindings for vtree. It is actually a wrapper around \code{\link[DiagrammeR]{grViz}}.
 #' @param outputId output variable to read from
@@ -221,11 +221,11 @@ vtreeOutput <- function(outputId, width = "100%", height = "100%"){
                                  package = 'DiagrammeR')
 }
 
-#' Vtree widget
+#' vtree widget
 #'
 #' Shiny bindings for vtree
 #'
-#' @param expr an expression that generates an vtree
+#' @param expr an expression that generates a variable tree
 #' @param env the environment in which to evaluate \code{expr}.
 #' @param quoted is \code{expr} a quoted expression (with \code{quote()})? This
 #'  is useful if you want to save an expression in a variable.

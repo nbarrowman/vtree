@@ -2,7 +2,7 @@
 % Please edit documentation in R/svtree.R
 \name{svtree}
 \alias{svtree}
-\title{Create a shiny vtree, with svg-pan-zoom functionality.}
+\title{Create a Shiny vtree, with svg-pan-zoom functionality.}
 \usage{
 svtree(...)
 }
@@ -10,5 +10,12 @@ svtree(...)
 \item{...}{parameters to be passed to `vtree`}
 }
 \description{
-Create a shiny vtree, with svg-pan-zoom functionality.
+`svtree` uses Shiny and the svg-pan-zoom JavaScript library to 
+create a variable tree with panning and zooming functionality. 
+The mousewheel allows you to zoom in or out.
+The variable tree can also be dragged to a different position.
+}
+\details{
+The svg-pan-zoom library webpage is
+https://github.com/ariutta/svg-pan-zoom
 }

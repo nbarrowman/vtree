@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 3.1.2"
+title: "Introduction to vtree 3.1.3"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
 output:
@@ -174,13 +174,12 @@ the corresponding variable tree may be more compact since empty-nodes are not sh
 
 ## Features of vtree
 
-`vtree` is designed to be quick and easy to use,
+vtree is designed to be quick and easy to use,
 so that it is convenient for data exploration,
 but also flexible enough that it can be used to prepare publication-ready figures.
 To generate a basic variable tree,
-it is only necessary to provide `vtree` with a data frame and some variable names.
-However extra features make `vtree` much more useful. 
-`vtree` provides:
+it is only necessary to specify a data frame and some variable names.
+However extra features extend this basic functionality to provide:
 
 * control over [labeling](#labeling), colors, [legends](#legends), [line wrapping](#wrapping),
 [text formatting](#textFormatting) and other customization features;
@@ -197,9 +196,11 @@ including a variety of summary statistics;
 
 * support for [checkbox variables](#REDCapCheckboxes) from [REDCap](https://www.project-redcap.org) databases;
 
-* features for [dichotomizing variables](#dichotomizing) and [checking for outliers](#detectingOutliers); and
+* features for [dichotomizing variables](#dichotomizing) and [checking for outliers](#detectingOutliers);
 
-* automatic generation of PNG image files and [embedding in R Markdown](#embeddingInRmarkdown) documents.
+* automatic generation of PNG image files and [embedding in R Markdown](#embeddingInRmarkdown) documents; and
+
+* interactive panning and zooming using the `svtree` function to launch a [Shiny app](#svtree).
 
 In many cases, you may wish to generate several different variable trees to
 investigate a collection of variables in a data frame.
@@ -209,12 +210,18 @@ prune parts of the tree, etc.
 
 ## Technical overview
 
-`vtree` is built on open-source software:
+vtree is built on open-source software:
 in particular Richard Iannone's
 [DiagrammeR](http://rich-iannone.github.io/DiagrammeR/) package,
 which provides an interface to the
 [Graphviz](https://www.graphviz.org/) software using the
 [htmlwidgets](https://www.htmlwidgets.org/) framework.
+Additionally,
+vtree makes use of the
+[Shiny](https://rstudio.com/products/shiny/) package,
+and the
+[svg-pan-zoom](https://github.com/ariutta/svg-pan-zoom) JavaScript library.
+
 A formal description of variable trees follows.
 
 The root node of the variable tree represents the entire data frame.
@@ -1315,7 +1322,25 @@ To review, when calling `vtree` from a code chunk,
 *  when you want to generate an `htmlwidget`, specify `pngknit=FALSE`
 
 *  when you want to generate a PNG file, specify `asis=TRUE` and also use the chunk option `results="asis"`
+
  
+## `svtree`: Using vtree in Shiny {#svtree}
+
+Thanks to Shiny and the svg-pan-zoom JavaScript library,
+interactive panning and zooming of a variable tree is possible
+with the `svtree` function.
+The syntax of `svtree` is the same as that of `vtree`,
+but instead of generating a static variable tree, it launches a Shiny app.
+The mousewheel allows you to zoom in or out.
+The variable tree can also be dragged to a different position.
+
+Thanks to the panning and zooming functionality in `svtree`,
+it is possible to examine larger variable trees than with `vtree`.
+In large variable trees it is often useful to show the variable name in each node,
+since the variable labels (which are shown at the bottom or left-hand margin)
+may not be visible after zooming.
+To show the variable name in each node, specify `showvarinnode=TRUE`.
+
 
 # Generating a data frame by specifying subset sizes {#GeneratingDataFrames}
 

@@ -1,11 +1,11 @@
 Package: vtree
 Type: Package
 Title: Display Information About Nested Subsets of a Data Frame
-Version: 3.1.2
+Version: 3.1.3
 Depends: R (>= 2.10)
 Author: 
   Nick Barrowman [aut, cre]
-  trafficonese [aut] (Shiny interface)
+  Sebastian Gatscha <kona1@gmx.at> [aut] (Shiny interface)
   Andrea Leofreddi <a.leofreddi@vleo.net> [cph] (svg-pan-zoom library)
 Maintainer: Nick Barrowman <nbarrowman@cheo.on.ca>
 Description: A tool for calculating and drawing "variable trees". Variable trees display information about hierarchical subsets of a data frame defined by values of categorical variables.
