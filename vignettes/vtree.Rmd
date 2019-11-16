@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 3.1.4"
+title: "Introduction to vtree 3.1.5"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
 output:
@@ -1278,17 +1278,10 @@ To call `vtree` in R Markdown, you can use inline code:
 `r vtree(FakeData,"Sex Severity")`
 ```
 
-Or you can use a code chunk, with the following additional settings:
-
-1. use the chunk option `results="asis"`
-
-2. specify `asis=TRUE` in the `vtree` call
-
-For example:
-
+Or you can use a code chunk:
 ````
-`r ''````{r, results="asis"}
-vtree(FakeData,"Sex Severity",asis=TRUE)
+`r ''````{r}
+vtree(FakeData,"Sex Severity")
 ```
 ````
 
@@ -1301,27 +1294,7 @@ One advantage of code chunks is that they can also be run interactively
 When knitting to an HTML document, 
 htmlwidgets can be used rather than embedding a PNG file.
 (In fact PNG files are generated from `htmlwidget` objects via SVG format.)
-To use htmlwidgets instead of a PNG file,
-you can use inline code, with `pngknit=FALSE`:
-
-```{r, eval=FALSE}
-`r vtree(FakeData,"Severity Sex",pngknit=FALSE)`
-```
-
-Or you can use a code chunk,
-again with `pngknit=FALSE`:
- 
-````
-`r ''````{r}
-vtree(FakeData,"Severity Sex",pngknit=FALSE)
-```
-````
-
-To review, when calling `vtree` from a code chunk,
-
-*  when you want to generate an `htmlwidget`, specify `pngknit=FALSE`
-
-*  when you want to generate a PNG file, specify `asis=TRUE` and also use the chunk option `results="asis"`
+To use htmlwidgets instead of a PNG file simply specify `pngknit=FALSE`.
 
  
 ## `svtree`: Using vtree in Shiny {#svtree}
@@ -1341,21 +1314,6 @@ since the variable labels (which are shown at the bottom or left-hand margin)
 may not be visible after zooming.
 To show the variable name in each node, specify `showvarinnode=TRUE`.
 
-As an example, if you call `svtree` without specifying any variables,
-it uses as many discrete variables from the data frame as possible,
-and it also sets `showvarinnode=TRUE` by default:
-
-```{r, eval=FALSE}
-svtree(FakeData)
-```
-
-A message is displayed indicating which variables have been included and excluded:
-
-```{r, eval=FALSE}
---Discrete variables included: Group Severity Sex Age Male Category Event Ind1 Ind2
---Discrete variables excluded: Ind3 Ind4 Viral
-Additional variables excluded: id Score Pre Post Post2 Time
-```
 
 # Generating a data frame by specifying subset sizes {#GeneratingDataFrames}
 
