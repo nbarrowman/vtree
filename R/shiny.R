@@ -11,6 +11,7 @@
 #'
 #' @importFrom shiny HTML
 #' @seealso \code{\link{use_svgzoom}}
+#' @keywords internal
 #' @family Shiny Functions
 inlineCssSetup <- function(minheight, cursor_all, overflow, position, 
                            fill, cursor_text) {
@@ -103,6 +104,7 @@ use_svgzoom <-  function(minheight = "200px",
 #' @param shortcuts Should Keyboard shortcuts be used to control the SVG?
 #' Default is \code{TRUE}.
 #' @family Shiny Functions
+#' @keywords internal
 init_js <- function(init_event, onwindow_resize, shortcuts) {
   
   ## Text snippets ######################## 
