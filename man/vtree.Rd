@@ -27,8 +27,8 @@ vtree(z, vars, splitspaces = TRUE, prune = list(),
   colornodes = FALSE, mincount = 1, maxcount, showempty = FALSE,
   rounded = TRUE, nodefunc = NULL, nodeargs = NULL,
   choicechecklist = TRUE, pxwidth, pxheight, imagewidth, imageheight,
-  folder, pngknit = TRUE, as.if.knit = FALSE, parent = 1, last = 1,
-  root = TRUE)
+  folder, pngknit = TRUE, as.if.knit = FALSE, maxNodes = 1000,
+  parent = 1, last = 1, root = TRUE)
 }
 \arguments{
 \item{z}{Required: Data frame, or a single vector.}
@@ -312,6 +312,9 @@ If neither \code{imageheight} nor \code{imagewidth} is specified,
 \item{pngknit}{Generate a PNG file when called during knit?}
 
 \item{as.if.knit}{Behave as if called while knitting?}
+
+\item{maxNodes}{An error occurs if the number of nodes exceeds \code{maxNodes},
+which defaults to 1000.}
 
 \item{parent}{Parent node number (Internal use only.)}
 

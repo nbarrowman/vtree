@@ -244,6 +244,8 @@ NULL
 #'                         e.g. \code{"5in"}.
 #'                         If neither \code{imageheight} nor \code{imagewidth} is specified,
 #'                         \code{imageheight} is set to 3 inches.
+#' @param maxNodes         An error occurs if the number of nodes exceeds \code{maxNodes},
+#'                         which defaults to 1000.                         
 #' @param folder           Optional path to a folder where the PNG file should stored
 #' @param as.if.knit       Behave as if called while knitting?
 #' @param pngknit          Generate a PNG file when called during knit?
@@ -426,6 +428,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
   choicechecklist = TRUE,
   pxwidth,pxheight,imagewidth,imageheight,folder,
   pngknit=TRUE,as.if.knit=FALSE,
+  maxNodes=1000,
   parent = 1, last = 1, root = TRUE)
 {
 
@@ -1365,26 +1368,22 @@ vtree <- function (z, vars, splitspaces=TRUE,
       fillcolor <- FC
     }
     
-    nodes <- 0
-    level <- 1
-    excluded_discrete_vars <- c()
-    while (level>0 && level<=length(vars)) {
-      tab <- table(z[,vars[seq_len(level)],drop=FALSE],exclude=NULL)
-      nodes <- nodes + sum(is.na(tab)) + sum(!is.na(tab) & tab>0)
-      if (nodes>200 && no_variables_specified) {
-        ev <- vars[-seq_len(level)]
-        vars <- vars[seq_len(level)]
-        excluded_discrete_vars <- c(ev,excluded_discrete_vars)
-        break
-      }
-      if (nodes>1000) stop(
-        paste0("This variable tree has over 1000 nodes. ",
-          ifelse(no_variables_specified,"",
-          paste0("Variables included: ",paste(vars,collapse=" ")))))
-      level <- level+1
-    }
-
     if (no_variables_specified) {
+      nodes <- 0
+      level <- 1
+      excluded_discrete_vars <- c()
+      while (level>0 && level<=length(vars)) {
+        tab <- table(z[,vars[seq_len(level)],drop=FALSE],exclude=NULL)
+        nodes <- nodes + sum(is.na(tab)) + sum(!is.na(tab) & tab>0)
+        if (nodes>200) {
+          ev <- vars[-seq_len(level)]
+          vars <- vars[seq_len(level)]
+          excluded_discrete_vars <- c(ev,excluded_discrete_vars)
+          break
+        }
+        level <- level+1
+      }
+  
       message("--Discrete variables included: ",paste(vars,collapse=" "))
       if (length(excluded_discrete_vars)>0) 
         message("--Discrete variables excluded: ",paste(excluded_discrete_vars,collapse=" "))
@@ -1531,6 +1530,10 @@ vtree <- function (z, vars, splitspaces=TRUE,
     splitwidth = splitwidth, showempty = showempty, topcolor = color[1],
     color = color[2], topfillcolor = rootfillcolor, fillcolor = fillcolor[[vars[1]]],
     vp = vp, rounded = rounded, showroot=showroot)
+  
+  if (length(fc$nodenum)>0 && fc$nodenum[length(fc$nodenum)]>maxNodes) {
+    stop("The number of nodes exceeds the setting of maxNodes=",maxNodes)
+  }
   
   if (root & ptable) {
     if (length(labelvar)>0) {
