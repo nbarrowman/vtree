@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 3.1.6"
+title: "Introduction to vtree 3.1.7"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
 output:
@@ -257,7 +257,7 @@ starting with the first column.
 ```{r, eval=FALSE}
 NOTES:
 1. Discrete variables are operationally defined here as variables with at most 4 distinct values.
-2. Variables are included until the total number of nodes exceeds 200.
+2. Variables are included until the maximum number of nodes exceeds the maxNodes parameter value.
 ```
 
 Numerous additional parameters can be supplied.

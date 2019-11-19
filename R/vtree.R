@@ -1369,13 +1369,12 @@ vtree <- function (z, vars, splitspaces=TRUE,
     }
     
     if (no_variables_specified) {
-      nodes <- 0
+      nodes <- 1
       level <- 1
       excluded_discrete_vars <- c()
-      while (level>0 && level<=length(vars)) {
-        tab <- table(z[,vars[seq_len(level)],drop=FALSE],exclude=NULL)
-        nodes <- nodes + sum(is.na(tab)) + sum(!is.na(tab) & tab>0)
-        if (nodes>200) {
+      while (level<=length(vars)) {
+        nodes <- nodes*length(unique(z[[vars[i]]]))
+        if (nodes>maxNodes) {
           ev <- vars[-seq_len(level)]
           vars <- vars[seq_len(level)]
           excluded_discrete_vars <- c(ev,excluded_discrete_vars)
@@ -1383,7 +1382,6 @@ vtree <- function (z, vars, splitspaces=TRUE,
         }
         level <- level+1
       }
-  
       message("--Discrete variables included: ",paste(vars,collapse=" "))
       if (length(excluded_discrete_vars)>0) 
         message("--Discrete variables excluded: ",paste(excluded_discrete_vars,collapse=" "))
@@ -1532,7 +1530,10 @@ vtree <- function (z, vars, splitspaces=TRUE,
     vp = vp, rounded = rounded, showroot=showroot)
   
   if (length(fc$nodenum)>0 && fc$nodenum[length(fc$nodenum)]>maxNodes) {
-    stop("The number of nodes exceeds the setting of maxNodes=",maxNodes)
+    stop(
+      "Too many nodes. ",
+      "Specify different variables ",
+      "or change maxNodes parameter (currently set to ",maxNodes,").")
   }
   
   if (root & ptable) {
