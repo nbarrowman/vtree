@@ -31,3 +31,4 @@ Other Shiny Functions: \code{\link{init_js}},
   \code{\link{vtreeOutput}}
 }
 \concept{Shiny Functions}
+\keyword{internal}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/shiny.R
 \name{vtreeOutput}
 \alias{vtreeOutput}
-\title{Vtree widget}
+\title{vtree widget}
 \usage{
 vtreeOutput(outputId, width = "100\%", height = "100\%")
 }

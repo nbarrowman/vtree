@@ -24,3 +24,4 @@ Other Shiny Functions: \code{\link{inlineCssSetup}},
   \code{\link{vtreeOutput}}
 }
 \concept{Shiny Functions}
+\keyword{internal}

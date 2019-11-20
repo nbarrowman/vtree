@@ -255,7 +255,7 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
   # Relabel the nodes if showvarinnode is TRUE
   if (showvarinnode) {
     if (is.null(labelvar)) {
-      displayCAT[-1] <- paste0(var,sepN,displayCAT[-1])
+      displayCAT[-1] <- paste0(var,": ",displayCAT[-1])
     } else {
       displayCAT[-1] <- paste0(labelvar,sepN,displayCAT[-1])
     }

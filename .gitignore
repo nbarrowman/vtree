@@ -3,6 +3,7 @@
 .RData
 .Ruserdata
 source.R
+localstuff
 vignettes/vtree.R
 vignettes/vtree.html
 Thumbs.db

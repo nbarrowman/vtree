@@ -2,12 +2,12 @@
 % Please edit documentation in R/shiny.R
 \name{renderVtree}
 \alias{renderVtree}
-\title{Vtree widget}
+\title{vtree widget}
 \usage{
 renderVtree(expr, env = parent.frame(), quoted = FALSE)
 }
 \arguments{
-\item{expr}{an expression that generates an vtree}
+\item{expr}{an expression that generates a variable tree}
 
 \item{env}{the environment in which to evaluate \code{expr}.}
 

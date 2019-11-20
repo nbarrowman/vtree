@@ -1,3 +1,11 @@
+# vtree 3.1.4
+
+## Changes
+
+* Sebastian Gatscha added Shiny functionality and the svg-pan-zoom JavaScript library. The following funcitons were added: `init_js`, `inlineCssSetup`, `renderVtree`, `use_svgzoom`, `vtreeOutput`.
+
+* New function `svtree` uses Shiny functionality.
+
 # vtree 3.0.0
 
 ## Changes

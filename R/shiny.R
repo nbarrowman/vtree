@@ -11,6 +11,7 @@
 #'
 #' @importFrom shiny HTML
 #' @seealso \code{\link{use_svgzoom}}
+#' @keywords internal
 #' @family Shiny Functions
 inlineCssSetup <- function(minheight, cursor_all, overflow, position, 
                            fill, cursor_text) {
@@ -103,6 +104,7 @@ use_svgzoom <-  function(minheight = "200px",
 #' @param shortcuts Should Keyboard shortcuts be used to control the SVG?
 #' Default is \code{TRUE}.
 #' @family Shiny Functions
+#' @keywords internal
 init_js <- function(init_event, onwindow_resize, shortcuts) {
   
   ## Text snippets ######################## 
@@ -189,7 +191,7 @@ $(document).on('keydown', function(e) {
   }
 }
 
-#' Vtree widget
+#' vtree widget
 #'
 #' Shiny bindings for vtree. It is actually a wrapper around \code{\link[DiagrammeR]{grViz}}.
 #' @param outputId output variable to read from
@@ -221,11 +223,11 @@ vtreeOutput <- function(outputId, width = "100%", height = "100%"){
                                  package = 'DiagrammeR')
 }
 
-#' Vtree widget
+#' vtree widget
 #'
 #' Shiny bindings for vtree
 #'
-#' @param expr an expression that generates an vtree
+#' @param expr an expression that generates a variable tree
 #' @param env the environment in which to evaluate \code{expr}.
 #' @param quoted is \code{expr} a quoted expression (with \code{quote()})? This
 #'  is useful if you want to save an expression in a variable.
