@@ -103,18 +103,16 @@ structure(list(n = c(1, 1, 1, 1, 2, 4, 4, 32), pct = c(2, 2,
   )})
 
 test_that("vtree test ptable VennTable",{
-  expect_identical(VennTable(vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,ptable=TRUE)),
-structure(c(" 1", " 1", " 1", " 1", " 2", " 4", " 4", "32", "46", 
-"", "", " 2", " 2", " 2", " 2", " 4", " 9", " 9", "70", "100", 
-"", "", "not N/A", "not N/A", "not N/A", "not N/A", "N/A", "N/A", 
-"not N/A", "not N/A", "", "6", "13", "N/A", "not N/A", "not N/A", 
-"not N/A", "N/A", "not N/A", "N/A", "not N/A", "", "7", "15", 
-"N/A", "N/A", "N/A", "not N/A", "not N/A", "not N/A", "not N/A", 
-"not N/A", "", "3", "7", "not N/A", "N/A", "not N/A", "N/A", 
-"not N/A", "not N/A", "not N/A", "not N/A", "", "2", "4"), .Dim = c(11L, 
-6L), .Dimnames = list(c("", "", "", "", "", "", "", "", "Total", 
-"N", "pct"), c("n", "pct", "MISSING_Severity", "MISSING_Age", 
-"MISSING_Pre", "MISSING_Post")))
+  expect_identical(VennTable(vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,ptable=TRUE),sort=FALSE),
+structure(c("1", "1", "1", "1", "2", "4", "4", "32", "46", "", 
+"", "2", "2", "2", "2", "4", "9", "9", "70", "100", "", "", "0", 
+"0", "0", "0", "2", "4", "0", "0", "", "6", "13", "1", "0", "0", 
+"0", "2", "0", "4", "0", "", "7", "15", "1", "1", "1", "0", "0", 
+"0", "0", "0", "", "3", "7", "0", "1", "0", "1", "0", "0", "0", 
+"0", "", "2", "4"), .Dim = c(11L, 6L), .Dimnames = list(c("", 
+"", "", "", "", "", "", "", "Total", "N", "pct"), c("n", "pct", 
+"MISSING_Severity", "MISSING_Age", "MISSING_Pre", "MISSING_Post"
+)))
   )})
 
 
@@ -125,14 +123,13 @@ test_that("vtree pattern tree test",{
   )})
 
 test_that("VennTable",{
-  expect_identical(VennTable(vtree(FakeData,"Severity Age Group",check.is.na=TRUE,ptable=TRUE)),
-  structure(c(" 2", " 4", " 5", "35", "46", "", "", " 4", " 9", 
-"11", "76", "100", "", "", "N/A", "N/A", "not N/A", "not N/A", 
-"", "6", "13", "N/A", "not N/A", "N/A", "not N/A", "", "7", "15", 
-"not N/A", "not N/A", "not N/A", "not N/A", "", "0", "0"), .Dim = c(7L, 
-5L), .Dimnames = list(c("", "", "", "", "Total", "N", "pct"), 
-    c("n", "pct", "MISSING_Severity", "MISSING_Age", "MISSING_Group"
-    ))))
+  expect_identical(VennTable(vtree(FakeData,"Severity Age Group",check.is.na=TRUE,ptable=TRUE),sort=FALSE),
+  structure(c("2", "4", "5", "35", "46", "", "", "4", "9", "11", 
+"76", "100", "", "", "2", "4", "0", "0", "", "6", "13", "2", 
+"0", "5", "0", "", "7", "15", "0", "0", "0", "0", "", "0", "0"
+), .Dim = c(7L, 5L), .Dimnames = list(c("", "", "", "", "Total", 
+"N", "pct"), c("n", "pct", "MISSING_Severity", "MISSING_Age", 
+"MISSING_Group"))))
 })
 
 test_that("CONSORT",{
