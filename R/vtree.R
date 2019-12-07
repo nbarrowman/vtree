@@ -500,7 +500,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
     no_variables_specified <- FALSE
     if (is.data.frame(z) && missing(vars)) {
       no_variables_specified <- TRUE
-      if (missing(showvarinnode)) showvarinnode <- TRUE
+      if (missing(showvarinnode) & !check.is.na) showvarinnode <- TRUE
       vars <- c()
       non_discrete_vars <- c()
       for (candidate in names(z)) {
@@ -510,6 +510,27 @@ vtree <- function (z, vars, splitspaces=TRUE,
           non_discrete_vars <- c(non_discrete_vars,candidate)
         }
       }
+    }
+    
+    if (no_variables_specified) {
+      nodes <- 1
+      level <- 1
+      excluded_discrete_vars <- c()
+      while (level<=length(vars)) {
+        nodes <- nodes*length(unique(z[[vars[level]]]))
+        if (nodes>maxNodes) {
+          ev <- vars[-seq_len(level)]
+          vars <- vars[seq_len(level)]
+          excluded_discrete_vars <- c(ev,excluded_discrete_vars)
+          break
+        }
+        level <- level+1
+      }
+      message("--Discrete variables included: ",paste(vars,collapse=" "))
+      if (length(excluded_discrete_vars)>0) 
+        message("--Discrete variables excluded: ",paste(excluded_discrete_vars,collapse=" "))
+      if (length(non_discrete_vars)>0)
+        message("Additional variables excluded: ",paste(non_discrete_vars,collapse=" "))
     }
     
     # Process * tag in variable names to expand list of variables
@@ -1366,27 +1387,6 @@ vtree <- function (z, vars, splitspaces=TRUE,
         FC[[vars[i]]] <- valuecolors
       }
       fillcolor <- FC
-    }
-    
-    if (no_variables_specified) {
-      nodes <- 1
-      level <- 1
-      excluded_discrete_vars <- c()
-      while (level<=length(vars)) {
-        nodes <- nodes*length(unique(z[[vars[i]]]))
-        if (nodes>maxNodes) {
-          ev <- vars[-seq_len(level)]
-          vars <- vars[seq_len(level)]
-          excluded_discrete_vars <- c(ev,excluded_discrete_vars)
-          break
-        }
-        level <- level+1
-      }
-      message("--Discrete variables included: ",paste(vars,collapse=" "))
-      if (length(excluded_discrete_vars)>0) 
-        message("--Discrete variables excluded: ",paste(excluded_discrete_vars,collapse=" "))
-      if (length(non_discrete_vars)>0)
-        message("Additional variables excluded: ",paste(non_discrete_vars,collapse=" "))
     }
     
   }

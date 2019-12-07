@@ -70,21 +70,24 @@ VennTable <- function(x,markdown=FALSE,NAcode="-",
   mode(mat) <- "numeric"
   mat <- mat*x$n  # Note that this relies on column recycling
 
-  count <- apply(mat,2,sum,na.rm=TRUE)
+  countByVar <- apply(mat,2,sum,na.rm=TRUE)
   if (sort) {
-    o <- rev(order(count))
+    o <- rev(order(countByVar))
     mat <- mat[,o,drop=FALSE]
-    count <- count[o]
+    countByVar <- countByVar[o]
   }     
-  xmat <- as.matrix(cbind(x[,c(1,2),drop=FALSE],mat))
+  varsorted_mat <- as.matrix(cbind(x[,c(1,2),drop=FALSE],mat))
+  mode(mat) <- "character"
   if (markdown) {
-    xmat[,-(1:2)][is.na(xmat[,-(1:2)])] <- NAcode
-    xmat[,-(1:2)][xmat[,-(1:2)] %in% unchecked] <- ""
-    xmat[,-(1:2)][xmat[,-(1:2)] %in% checked] <- "&#10004;"
+    varsorted_mat[,-(1:2)][is.na(varsorted_mat[,-(1:2)])] <- NAcode
+    varsorted_mat[,-(1:2)][varsorted_mat[,-(1:2)]=="0"] <- ""
+    varsorted_mat[,-(1:2)][
+      varsorted_mat[,-(1:2)]!="" & varsorted_mat[,-(1:2)]!=NAcode] <- "&#10004;"
   }
-  xmat <- rbind(xmat,c(TotalSampleSize,100,rep("",ncol(mat))))
-  xmat <- rbind(xmat,c("","",count))
-  xmat <- rbind(xmat,c("","",round(100*count/sum(x[,1]))))
+  #browser()
+  xmat <- rbind(varsorted_mat,c(TotalSampleSize,100,rep("",ncol(mat))))
+  xmat <- rbind(xmat,c("","",countByVar))
+  xmat <- rbind(xmat,c("","",round(100*countByVar/sum(x[,1]))))
   rownames(xmat) <- c(rep("",nrow(x)),"Total","N","pct")
 
   if (markdown) {
