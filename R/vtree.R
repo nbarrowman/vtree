@@ -539,7 +539,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
       expandedvars <- c()
       for (i in 1:length(vars)) {
         if (i %in% findstar) {
-          stem <- sub("([^ ]+)\\*$","\\1",vars[i])
+          stem <- sub("(\\S+)\\*$","\\1",vars[i])
           expanded_stem <- names(z)[grep(paste0(stem,".*$"),names(z))]
           expandedvars <- c(expandedvars,expanded_stem)
         } else {
@@ -556,7 +556,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
       expandedvars <- c()
       for (i in 1:length(vars)) {
         if (i %in% findstar) {
-          stem <- sub("([^ ]+)\\#$","\\1",vars[i])
+          stem <- sub("(\\S+)\\#$","\\1",vars[i])
           expanded_stem <- names(z)[grep(paste0(stem,"[0-9]+$"),names(z))]
           expandedvars <- c(expandedvars,expanded_stem)
         } else {
@@ -572,10 +572,10 @@ vtree <- function (z, vars, splitspaces=TRUE,
     if (length(findequal)>0) {
       for (i in 1:length(vars)) {    
         if (i %in% findequal) {
-          equalvar <- sub("([^ ]+)(=)([^ ]+)","\\1",vars[i])
+          equalvar <- sub("(\\S+)(=)(\\S+)","\\1",vars[i])
           if (is.null(z[[equalvar]]))
             stop(paste("Unknown variable:",equalvar))                    
-          equalval <- sub("([^ ]+)(=)([^ ]+)","\\3",vars[i])
+          equalval <- sub("(\\S+)(=)(\\S+)","\\3",vars[i])
           # Check to see if any of the values of the specified variable contain spaces
           # If they do, replace underscores in the specified value with spaces.
           if (any(length(grep(" ",names(table(z[[equalvar]]))))>0)) {
@@ -594,10 +594,10 @@ vtree <- function (z, vars, splitspaces=TRUE,
     if (length(findgt)>0) {
       for (i in 1:length(vars)) {    
         if (i %in% findgt) {
-          gtvar <- sub("([^ ]+)(>)([^ ]+)","\\1",vars[i])
+          gtvar <- sub("(\\S+)(>)(\\S+)","\\1",vars[i])
           if (is.null(z[[gtvar]]))
             stop(paste("Unknown variable:",gtvar))                    
-          gtval <- sub("([^ ]+)(>)([^ ]+)","\\3",vars[i])
+          gtval <- sub("(\\S+)(>)(\\S+)","\\3",vars[i])
           # Check to see if any of the values of the specified variable contain spaces
           # If they do, replace underscores in the specified value with spaces.
           if (any(length(grep(" ",names(table(z[[gtvar]]))))>0)) {
@@ -616,10 +616,10 @@ vtree <- function (z, vars, splitspaces=TRUE,
     if (length(findlt)>0) {
       for (i in 1:length(vars)) {    
         if (i %in% findlt) {
-          ltvar <- sub("([^ ]+)(<)([^ ]+)","\\1",vars[i])
+          ltvar <- sub("(\\S+)(<)(\\S+)","\\1",vars[i])
           if (is.null(z[[ltvar]]))
             stop(paste("Unknown variable:",ltvar))                    
-          ltval <- sub("([^ ]+)(<)([^ ]+)","\\3",vars[i])
+          ltval <- sub("(\\S+)(<)(\\S+)","\\3",vars[i])
           # Check to see if any of the values of the specified variable contain spaces
           # If they do, replace underscores in the specified value with spaces.
           if (any(length(grep(" ",names(table(z[[ltvar]]))))>0)) {
@@ -638,7 +638,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
     if (length(findna)>0) {
       for (i in 1:length(vars)) {
         if (i %in% findna) {
-          navar <- sub("^is\\.na:([^ ]+)$","\\1",vars[i])
+          navar <- sub("^is\\.na:(\\S+)$","\\1",vars[i])
           if (is.null(z[[navar]]))
             stop(paste("Unknown variable:",navar))
           m <- is.na(z[[navar]])
@@ -658,7 +658,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
       expandedvars <- c()
       for (i in 1:length(vars)) {
         if (i %in% findstem) {
-          stem <- sub("^stem:([^ ]+)$","\\1",vars[i])
+          stem <- sub("^stem:(\\S+)$","\\1",vars[i])
           expanded_stem <- names(z)[grep(paste0("^",stem,"___[0-9]+$"),names(z))]
           if (length(expanded_stem)==0) {
             stop(paste0("Could not find variables with names matching the specified stem: ",stem))
@@ -695,7 +695,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
       expandedvars <- c()
       for (i in 1:length(vars)) {
         if (i %in% findtag) {
-          rcvar <- sub("^rc:([^ ]+)$","\\1",vars[i])
+          rcvar <- sub("^rc:(\\S+)$","\\1",vars[i])
           if (choicechecklist) {
             rexp1 <- ".+\\(choice=(.+)\\)"
             rexp2 <- ".+: (.+)"
@@ -727,17 +727,39 @@ vtree <- function (z, vars, splitspaces=TRUE,
 
     # Set up summaries if requested
     if (!all(summary=="")) {
-      codevar <- gsub("^([^ ]+) (.+)$", "\\1", summary)
+      codevar <- gsub("^(\\S+)\\s(.+)$", "\\1", summary)
+
+      # Process != tag in variable names in summary argument
+      # (Note that this comes before the = tag so that it doesn't match first.)
+      findequal <- grep("!=",codevar)
+      if (length(findequal)>0) {
+        for (i in 1:length(codevar)) {    
+          if (i %in% findequal) {
+            thevar <- sub("^(\\S+)(\\!=)(\\S+)","\\1",codevar[i])
+            if (is.null(z[[thevar]]))
+              stop(paste("Unknown variable in summary:",thevar))                      
+            theval <- sub("^(\\S+)(\\!=)(\\S+)","\\3",codevar[i])
+            # Check to see if any of the values of the specified variable contain spaces
+            # If they do, replace underscores in the specified value with spaces.
+            if (any(length(grep(" ",names(table(z[[thevar]]))))>0)) {
+              theval <- gsub("_"," ",equalval)
+            }
+            m <- z[[thevar]]!=theval
+            z[[thevar]] <- m
+            codevar[i] <- thevar
+          }
+        }
+      }
       
       # Process = tag in variable names in summary argument
       findequal <- grep("=",codevar)
       if (length(findequal)>0) {
         for (i in 1:length(codevar)) {    
           if (i %in% findequal) {
-            equalvar <- sub("([^ ]+)(=)([^ ]+)","\\1",codevar[i])
+            equalvar <- sub("^(\\S+)(=)(\\S+)","\\1",codevar[i])
             if (is.null(z[[equalvar]]))
-              stop(paste("Unknown variable:",equalvar))                      
-            equalval <- sub("([^ ]+)(=)([^ ]+)","\\3",codevar[i])
+              stop(paste("Unknown variable in summary:",equalvar))                      
+            equalval <- sub("^(\\S+)(=)(\\S+)","\\3",codevar[i])
             # Check to see if any of the values of the specified variable contain spaces
             # If they do, replace underscores in the specified value with spaces.
             if (any(length(grep(" ",names(table(z[[equalvar]]))))>0)) {
@@ -755,10 +777,10 @@ vtree <- function (z, vars, splitspaces=TRUE,
       if (length(findgt)>0) {
         for (i in 1:length(codevar)) {    
           if (i %in% findgt) {
-            gtvar <- sub("([^ ]+)(>)([^ ]+)","\\1",codevar[i])
+            gtvar <- sub("(\\S+)(>)(\\S+)","\\1",codevar[i])
             if (is.null(z[[gtvar]]))
-              stop(paste("Unknown variable:",gtvar))                             
-            gtval <- sub("([^ ]+)(>)([^ ]+)","\\3",codevar[i])
+              stop(paste("Unknown variable in summary:",gtvar))                             
+            gtval <- sub("(\\S+)(>)(\\S+)","\\3",codevar[i])
             # Check to see if any of the values of the specified variable contain spaces
             # If they do, replace underscores in the specified value with spaces.
             if (any(length(grep(" ",names(table(z[[gtvar]]))))>0)) {
@@ -776,10 +798,10 @@ vtree <- function (z, vars, splitspaces=TRUE,
       if (length(findlt)>0) {
         for (i in 1:length(codevar)) {    
           if (i %in% findlt) {
-            ltvar <- sub("([^ ]+)(<)([^ ]+)","\\1",codevar[i])
+            ltvar <- sub("(\\S+)(<)(\\S+)","\\1",codevar[i])
             if (is.null(z[[ltvar]]))
-              stop(paste("Unknown variable:",ltvar))                             
-            ltval <- sub("([^ ]+)(<)([^ ]+)","\\3",codevar[i])
+              stop(paste("Unknown variable in summary:",ltvar))                             
+            ltval <- sub("(\\S+)(<)(\\S+)","\\3",codevar[i])
             # Check to see if any of the values of the specified variable contain spaces
             # If they do, replace underscores in the specified value with spaces.
             if (any(length(grep(" ",names(table(z[[ltvar]]))))>0)) {
@@ -813,7 +835,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
           stop("runsummary argument is not the same length as summary argument.")
         }
       }
-      codecode <- gsub("^([^ ]+) (.+)$", "\\2", summary)
+      codecode <- gsub("^(\\S+) (.+)$", "\\2", summary)
       nodefunc <- summaryNodeFunction
       nodeargs <- list(var = codevar, format = codecode, sf = runsummary, digits = digits, cdigits = cdigits, sepN=sepN)
       # allvars <- c(allvars,codevar)
@@ -977,7 +999,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
       tri.variable[findtri] <- TRUE
       for (i in 1:length(allvars)) {    
         if (i %in% findtri) {
-          trivar <- sub("^tri:([^ ]+)$","\\1",allvars[i])
+          trivar <- sub("^tri:(\\S+)$","\\1",allvars[i])
           ALLVARS[i] <- trivar
         }
       }
@@ -1457,7 +1479,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
   actualvarname <- vars[1]
   findtri <- grep("tri:",vars[1])
   if (length(findtri)>0) {
-    trivar <- sub("^tri:([^ ]+)$","\\1",vars[1])
+    trivar <- sub("^tri:(\\S+)$","\\1",vars[1])
     med <- median(z[[trivar]],na.rm=TRUE)
     iqrange <- 
       quantile(z[[trivar]],0.75,na.rm=TRUE)-

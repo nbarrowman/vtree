@@ -150,6 +150,7 @@ test_that("CONSORT",{
 })
 
 test_that("summary",{
+  
   expect_identical(vtree(FakeData,"Severity",horiz=FALSE,showvarnames=FALSE,splitwidth=Inf,sameline=TRUE,
   summary=c("Score \nScore: mean (SD) %mean% (%SD%)","Pre \nPre: range %min%, %max%")),
   structure(list(x = list(diagram = "digraph vtree {\ngraph [layout = dot, compound=true, nodesep=0.1, ranksep=0.5, fontsize=12]\nnode [fontname = Helvetica, fontcolor = black,shape = rectangle, color = black,margin=0.1]\n\nedge[style=solid]\nNode_1->Node_2 Node_1->Node_3 Node_1->Node_4 Node_1->Node_5\n\nNode_1[label=<46<BR/>Score: mean (SD) 17.1 (20.2)<BR/>Pre: range -2.5, 2.1> color=black style=\"rounded,filled\" fillcolor=<#EFF3FF>]\nNode_2[label=<Mild, 19 (48%)<BR/>Score: mean (SD) 12.1 (14.6)<BR/>Pre: range -2.5, 1.9> color=black style=\"rounded,filled\" fillcolor=<#FEE0D2>  ]\nNode_1[label=<46<BR/>Score: mean (SD) 17.1 (20.2)<BR/>Pre: range -2.5, 2.1> color=black style=\"rounded,filled\" fillcolor=<#EFF3FF>]\nNode_3[label=<Moderate, 16 (40%)<BR/>Score: mean (SD) 17.1 (24.4)<BR/>Pre: range -1.5, 2.1> color=black style=\"rounded,filled\" fillcolor=<#FC9272>  ]\nNode_1[label=<46<BR/>Score: mean (SD) 17.1 (20.2)<BR/>Pre: range -2.5, 2.1> color=black style=\"rounded,filled\" fillcolor=<#EFF3FF>]\nNode_4[label=<Severe, 5 (12%)<BR/>Score: mean (SD) 37.6 (16.8)<BR/>Pre: range -1.4, 0.5> color=black style=\"rounded,filled\" fillcolor=<#DE2D26>  ]\nNode_1[label=<46<BR/>Score: mean (SD) 17.1 (20.2)<BR/>Pre: range -2.5, 2.1> color=black style=\"rounded,filled\" fillcolor=<#EFF3FF>]\nNode_5[label=<NA, 6<BR/>Score: mean (SD) 15.0 (19.4)<BR/>Pre: range -1.5, 0.8> color=black style=\"rounded,filled\" fillcolor=<white>  ]\n\n}\n", 
@@ -163,6 +164,20 @@ test_that("summary",{
             figure = TRUE)), dependencies = NULL, elementId = NULL, 
     preRenderHook = NULL, jsHooks = list()), class = c("grViz", 
 "htmlwidget"), package = "DiagrammeR"))
+  
+  expect_identical(vtree(FakeData,"Sex",summary="Severity=Mild \nMild: %npct%%leafonly%"),
+structure(list(x = list(diagram = "digraph vtree {\ngraph [layout = dot, compound=true, nodesep=0.1, ranksep=0.5, fontsize=12]\nnode [fontname = Helvetica, fontcolor = black,shape = rectangle, color = black,margin=0.1]\nrankdir=LR;\nNode_L0[style=invisible]\nNode_L1[label=<<FONT POINT-SIZE=\"18\"><FONT COLOR=\"#DE2D26\"><B>Sex  </B></FONT></FONT><BR/>> shape=none margin=0]\n\nedge[style=invis];\nNode_L0->Node_L1\n\nedge[style=solid]\nNode_1->Node_2 Node_1->Node_3\n\nNode_1[label=<46> color=black style=\"rounded,filled\" fillcolor=<#EFF3FF>]\nNode_2[label=<F<BR/>27 (59%)<BR/>Mild: 11 (46%) mv=3> color=black style=\"rounded,filled\" fillcolor=<#FEE0D2>  ]\nNode_1[label=<46> color=black style=\"rounded,filled\" fillcolor=<#EFF3FF>]\nNode_3[label=<M<BR/>19 (41%)<BR/>Mild: 8 (50%) mv=3> color=black style=\"rounded,filled\" fillcolor=<#DE2D26>  ]\n\n}\n", 
+    config = list(engine = "dot", options = NULL)), width = NULL, 
+    height = NULL, sizingPolicy = list(defaultWidth = NULL, defaultHeight = NULL, 
+        padding = NULL, viewer = list(defaultWidth = NULL, defaultHeight = NULL, 
+            padding = NULL, fill = TRUE, suppress = FALSE, paneHeight = NULL), 
+        browser = list(defaultWidth = NULL, defaultHeight = NULL, 
+            padding = NULL, fill = FALSE, external = FALSE), 
+        knitr = list(defaultWidth = NULL, defaultHeight = NULL, 
+            figure = TRUE)), dependencies = NULL, elementId = NULL, 
+    preRenderHook = NULL, jsHooks = list()), class = c("grViz", 
+"htmlwidget"), package = "DiagrammeR"))
+  
 })
 
 test_that("labelnode",{
