@@ -307,7 +307,8 @@ e.g. \code{"5in"}.
 If neither \code{imageheight} nor \code{imagewidth} is specified,
 \code{imageheight} is set to 3 inches.}
 
-\item{folder}{Optional path to a folder where the PNG file should stored}
+\item{folder}{Optional path to a folder where the PNG file should stored
+when called during knit}
 
 \item{pngknit}{Generate a PNG file when called during knit?}
 

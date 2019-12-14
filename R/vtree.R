@@ -247,6 +247,7 @@ NULL
 #' @param maxNodes         An error occurs if the number of nodes exceeds \code{maxNodes},
 #'                         which defaults to 1000.                         
 #' @param folder           Optional path to a folder where the PNG file should stored
+#'                         when called during knit
 #' @param as.if.knit       Behave as if called while knitting?
 #' @param pngknit          Generate a PNG file when called during knit?
 #'
@@ -497,12 +498,11 @@ vtree <- function (z, vars, splitspaces=TRUE,
     # ---> Include all variables with fewer than 5 levels.
     # ---> Set showvarinnode=TRUE
     #
-    no_variables_specified <- FALSE
     if (is.data.frame(z) && missing(vars)) {
-      no_variables_specified <- TRUE
       if (missing(showvarinnode) & !check.is.na) showvarinnode <- TRUE
       vars <- c()
       non_discrete_vars <- c()
+      
       for (candidate in names(z)) {
         if (length(unique(z[[candidate]]))<5) {
           vars <- c(vars,candidate)
@@ -510,9 +510,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
           non_discrete_vars <- c(non_discrete_vars,candidate)
         }
       }
-    }
-    
-    if (no_variables_specified) {
+  
       nodes <- 1
       level <- 1
       excluded_discrete_vars <- c()
