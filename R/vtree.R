@@ -244,6 +244,8 @@ NULL
 #'                         e.g. \code{"5in"}.
 #'                         If neither \code{imageheight} nor \code{imagewidth} is specified,
 #'                         \code{imageheight} is set to 3 inches.
+#' @param arrowhead        DOT arrowhead style. Defaults to \code{"normal"}.
+#'                         Other choices include \code{"none"}, \code{"vee"}.
 #' @param maxNodes         An error occurs if the number of nodes exceeds \code{maxNodes},
 #'                         which defaults to 1000.                         
 #' @param folder           Optional path to a folder where the PNG file should stored
@@ -427,12 +429,13 @@ vtree <- function (z, vars, splitspaces=TRUE,
   showempty = FALSE, rounded = TRUE,
   nodefunc = NULL, nodeargs = NULL, 
   choicechecklist = TRUE,
+  arrowhead="normal",
   pxwidth,pxheight,imagewidth,imageheight,folder,
   pngknit=TRUE,as.if.knit=FALSE,
   maxNodes=1000,
   parent = 1, last = 1, root = TRUE)
 {
-
+  
   makeHTML <- function(x) {
     if (is.list(x)) {
       lapply(x, convertToHTML)
@@ -1124,7 +1127,11 @@ vtree <- function (z, vars, splitspaces=TRUE,
         if (missing(showpct)) showpct <- c(sequence=TRUE)
         if (missing(shownodelabels)) shownodelabels <- c(sequence=FALSE)
       }
-    }    
+    } else {
+      if (arrowhead!="normal") {
+        edgeattr <- paste(edgeattr,paste0("arrowhead=",arrowhead))
+      }
+    }
 
     if (is.null(names(gradient))) {
       gradient <- rep(gradient[1],numvars)
@@ -1524,10 +1531,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
   
   if (pattern & vars[1]!="pattern") ThisLevelText <- ""
   if (seq  & vars[1]!="sequence") ThisLevelText <- ""
-  
-  # cat("Right before call to flowcat\n")
-  # browser()
-  
+
   fc <- flowcat(z[[vars[1]]], root = root, title = title, parent = parent,
     var=vars[[1]],
     last = last, labels = labelnode[[vars[1]]], tlabelnode=tlabelnode, labelvar = labelvar[vars[1]],
@@ -1667,6 +1671,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
           pruneNA=pruneNA,
           pattern=pattern,seq=seq,
           text = text, ttext=TTEXT,gradient=gradient,
+          maxNodes=maxNodes,
           colornodes = colornodes, color = color[-1], fillnodes = fillnodes,
           fillcolor = fillcolor, splitwidth = splitwidth,
           vp = vp, rounded = rounded)

@@ -26,9 +26,9 @@ vtree(z, vars, splitspaces = TRUE, prune = list(),
   color = c("blue", "forestgreen", "red", "orange", "pink"),
   colornodes = FALSE, mincount = 1, maxcount, showempty = FALSE,
   rounded = TRUE, nodefunc = NULL, nodeargs = NULL,
-  choicechecklist = TRUE, pxwidth, pxheight, imagewidth, imageheight,
-  folder, pngknit = TRUE, as.if.knit = FALSE, maxNodes = 1000,
-  parent = 1, last = 1, root = TRUE)
+  choicechecklist = TRUE, arrowhead = "normal", pxwidth, pxheight,
+  imagewidth, imageheight, folder, pngknit = TRUE, as.if.knit = FALSE,
+  maxNodes = 1000, parent = 1, last = 1, root = TRUE)
 }
 \arguments{
 \item{z}{Required: Data frame, or a single vector.}
@@ -288,6 +288,9 @@ specified by \code{nodefunc}.}
 
 \item{choicechecklist}{When REDCap checklists are specified using the \code{stem:} syntax,
 automatically extract the names of choices and use them as variable names?}
+
+\item{arrowhead}{DOT arrowhead style. Defaults to \code{"normal"}.
+Other choices include \code{"none"}, \code{"vee"}.}
 
 \item{pxwidth}{Width in pixels of the PNG bitmap to be rendered
 when \code{vtree} is called from R Markdown.
