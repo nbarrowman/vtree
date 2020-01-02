@@ -1,8 +1,8 @@
-# vtree 3.2.3
+# vtree 4.0.0
 
 ## Changes
 
-* Added a new paramater, `arrowhead`, to specify the type of arrowhead
+* Added a new parameter, `arrowhead`, to specify the type of arrowhead
 (or `none`).
 
 * Added summary variable specification `!=`

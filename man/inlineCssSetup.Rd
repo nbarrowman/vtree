@@ -4,8 +4,7 @@
 \alias{inlineCssSetup}
 \title{Setup for inline CSS}
 \usage{
-inlineCssSetup(minheight, cursor_all, overflow, position, fill,
-  cursor_text)
+inlineCssSetup(minheight, cursor_all, overflow, position, fill, cursor_text)
 }
 \arguments{
 \item{minheight}{minimum height in \code{"px"}. Default is "200px".}
@@ -26,9 +25,11 @@ Initial CSS setup for the SVG.
 \seealso{
 \code{\link{use_svgzoom}}
 
-Other Shiny Functions: \code{\link{init_js}},
-  \code{\link{renderVtree}}, \code{\link{use_svgzoom}},
-  \code{\link{vtreeOutput}}
+Other Shiny Functions: 
+\code{\link{init_js}()},
+\code{\link{renderVtree}()},
+\code{\link{use_svgzoom}()},
+\code{\link{vtreeOutput}()}
 }
 \concept{Shiny Functions}
 \keyword{internal}

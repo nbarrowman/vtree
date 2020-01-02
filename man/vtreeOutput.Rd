@@ -38,8 +38,10 @@ shinyApp(ui, server)
 \seealso{
 \code{\link{renderVtree}}
 
-Other Shiny Functions: \code{\link{init_js}},
-  \code{\link{inlineCssSetup}}, \code{\link{renderVtree}},
-  \code{\link{use_svgzoom}}
+Other Shiny Functions: 
+\code{\link{init_js}()},
+\code{\link{inlineCssSetup}()},
+\code{\link{renderVtree}()},
+\code{\link{use_svgzoom}()}
 }
 \concept{Shiny Functions}

@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 3.2.3"
+title: "Introduction to vtree 4.0.0"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
 output:
@@ -1270,7 +1270,7 @@ Successive PNG files are named `vtree1.png`, `vtree2.png`,
 and so forth and are stored in the  folder.
 During knitting, `vtree` uses the `options` function in base R to store
 a variable called `vtcount` to count the PNG files,
-and a variable called `vtfolder` to identify the fodler where they will be stored.
+and a variable called `vtfolder` to identify the folder where they will be stored.
 
 To call `vtree` in R Markdown, you can use inline code:
 
