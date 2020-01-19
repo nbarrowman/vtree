@@ -4,31 +4,94 @@
 \alias{vtree}
 \title{Draw a variable tree}
 \usage{
-vtree(z, vars, splitspaces = TRUE, prune = list(),
-  prunebelow = list(), keep = list(), follow = list(),
-  prunelone = NULL, pruneNA = FALSE, prunesmaller = NULL,
-  labelnode = list(), tlabelnode = NULL, labelvar = NULL,
-  varminwidth = NULL, varminheight = NULL, varlabelloc = NULL,
-  fillcolor = NULL, fillnodes = TRUE, NAfillcolor = "white",
-  rootfillcolor = "#EFF3FF", palette = NULL, gradient = TRUE,
-  revgradient = FALSE, singlecolor = 2, colorvarlabels = TRUE,
-  title = "", sameline = FALSE, Venn = FALSE, check.is.na = FALSE,
-  seq = FALSE, pattern = FALSE, ptable = FALSE, showroot = TRUE,
-  text = list(), ttext = list(), plain = FALSE, squeeze = 1,
-  showvarinnode = FALSE, shownodelabels = TRUE, showvarnames = TRUE,
-  showlevels = TRUE, showpct = TRUE, showlpct = TRUE,
-  showcount = TRUE, showlegend = FALSE, varnamepointsize = 18,
-  HTMLtext = FALSE, digits = 0, cdigits = 1, splitwidth = 20,
-  lsplitwidth = 15, getscript = FALSE, nodesep = 0.5,
-  ranksep = 0.5, margin = 0.2, vp = TRUE, horiz = TRUE,
-  summary = "", runsummary = NULL, retain = NULL, width = NULL,
-  height = NULL, graphattr = "", nodeattr = "", edgeattr = "",
+vtree(
+  z,
+  vars,
+  splitspaces = TRUE,
+  prune = list(),
+  prunebelow = list(),
+  keep = list(),
+  follow = list(),
+  prunelone = NULL,
+  pruneNA = FALSE,
+  prunesmaller = NULL,
+  labelnode = list(),
+  tlabelnode = NULL,
+  labelvar = NULL,
+  varminwidth = NULL,
+  varminheight = NULL,
+  varlabelloc = NULL,
+  fillcolor = NULL,
+  fillnodes = TRUE,
+  NAfillcolor = "white",
+  rootfillcolor = "#EFF3FF",
+  palette = NULL,
+  gradient = TRUE,
+  revgradient = FALSE,
+  singlecolor = 2,
+  colorvarlabels = TRUE,
+  title = "",
+  sameline = FALSE,
+  Venn = FALSE,
+  check.is.na = FALSE,
+  seq = FALSE,
+  pattern = FALSE,
+  ptable = FALSE,
+  showroot = TRUE,
+  text = list(),
+  ttext = list(),
+  plain = FALSE,
+  squeeze = 1,
+  showvarinnode = FALSE,
+  shownodelabels = TRUE,
+  showvarnames = TRUE,
+  showlevels = TRUE,
+  showpct = TRUE,
+  showlpct = TRUE,
+  showcount = TRUE,
+  showlegend = FALSE,
+  varnamepointsize = 18,
+  HTMLtext = FALSE,
+  digits = 0,
+  cdigits = 1,
+  splitwidth = 20,
+  lsplitwidth = 15,
+  getscript = FALSE,
+  nodesep = 0.5,
+  ranksep = 0.5,
+  margin = 0.2,
+  vp = TRUE,
+  horiz = TRUE,
+  summary = "",
+  runsummary = NULL,
+  retain = NULL,
+  width = NULL,
+  height = NULL,
+  graphattr = "",
+  nodeattr = "",
+  edgeattr = "",
   color = c("blue", "forestgreen", "red", "orange", "pink"),
-  colornodes = FALSE, mincount = 1, maxcount, showempty = FALSE,
-  rounded = TRUE, nodefunc = NULL, nodeargs = NULL,
-  choicechecklist = TRUE, pxwidth, pxheight, imagewidth, imageheight,
-  folder, pngknit = TRUE, as.if.knit = FALSE, maxNodes = 1000,
-  parent = 1, last = 1, root = TRUE)
+  colornodes = FALSE,
+  mincount = 1,
+  maxcount,
+  showempty = FALSE,
+  rounded = TRUE,
+  nodefunc = NULL,
+  nodeargs = NULL,
+  choicechecklist = TRUE,
+  arrowhead = "normal",
+  pxwidth,
+  pxheight,
+  imagewidth,
+  imageheight,
+  folder,
+  pngknit = TRUE,
+  as.if.knit = FALSE,
+  maxNodes = 1000,
+  parent = 1,
+  last = 1,
+  root = TRUE
+)
 }
 \arguments{
 \item{z}{Required: Data frame, or a single vector.}
@@ -289,6 +352,9 @@ specified by \code{nodefunc}.}
 \item{choicechecklist}{When REDCap checklists are specified using the \code{stem:} syntax,
 automatically extract the names of choices and use them as variable names?}
 
+\item{arrowhead}{DOT arrowhead style. Defaults to \code{"normal"}.
+Other choices include \code{"none"}, \code{"vee"}.}
+
 \item{pxwidth}{Width in pixels of the PNG bitmap to be rendered
 when \code{vtree} is called from R Markdown.
 If neither \code{pxwidth} nor \code{pxheight} is specified,
@@ -307,7 +373,8 @@ e.g. \code{"5in"}.
 If neither \code{imageheight} nor \code{imagewidth} is specified,
 \code{imageheight} is set to 3 inches.}
 
-\item{folder}{Optional path to a folder where the PNG file should stored}
+\item{folder}{Optional path to a folder where the PNG file should stored
+when called during knit}
 
 \item{pngknit}{Generate a PNG file when called during knit?}
 
@@ -466,12 +533,12 @@ vtree(FakeData,"Severity Sex",labelvar=c(Severity="How bad?"))
 vtree(FakeData,"Severity Sex Viral",sameline=TRUE,showlegend=TRUE)
 
 # Using the summary parameter to list ID numbers (truncated to 40 characters) in specified nodes
-vtree(FakeData,"Severity Sex",summary="id \\nid = \%list\% \%var=Severity\% \%trunc=40\%")
+vtree(FakeData,"Severity Sex",summary="id \nid = \%list\% \%var=Severity\% \%trunc=40\%")
 
 # Adding text to specified nodes of a tree ("targeted text")
 vtree(FakeData,"Severity Sex",ttext=list(
-  c(Severity="Severe",Sex="M",text="\\nMales with Severe disease"),
-  c(Severity="NA",text="\\nUnknown severity")))
+  c(Severity="Severe",Sex="M",text="\nMales with Severe disease"),
+  c(Severity="NA",text="\nUnknown severity")))
 
 }
 \author{

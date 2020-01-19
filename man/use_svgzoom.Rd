@@ -4,11 +4,17 @@
 \alias{use_svgzoom}
 \title{Setup for interactive Vtree}
 \usage{
-use_svgzoom(minheight = "200px", cursor_all = "all-scroll",
-  overflow = "inherit !important", position = "sticky",
-  fill = "transparent", cursor_text = "pointer",
+use_svgzoom(
+  minheight = "200px",
+  cursor_all = "all-scroll",
+  overflow = "inherit !important",
+  position = "sticky",
+  fill = "transparent",
+  cursor_text = "pointer",
   init_event = c("mouseenter", "click", "dblclick"),
-  onwindow_resize = TRUE, shortcuts = TRUE)
+  onwindow_resize = TRUE,
+  shortcuts = TRUE
+)
 }
 \arguments{
 \item{minheight}{minimum height in \code{"px"}. Default is "200px".}
@@ -23,7 +29,8 @@ use_svgzoom(minheight = "200px", cursor_all = "all-scroll",
 
 \item{cursor_text}{The cursor symbol for text nodes. Default is "pointer".}
 
-\item{init_event}{The mouse event to activate zooming and paning. Default is \code{mouseenter}.}
+\item{init_event}{The mouse event to activate zooming and panning.
+Default is \code{mouseenter}.}
 
 \item{onwindow_resize}{Should the SVG be resized when the window size changes?
 Default is \code{TRUE}.}
@@ -63,8 +70,10 @@ shinyApp(ui, server)
 \seealso{
 \code{\link{vtreeOutput}}, \code{\link{vtree}}
 
-Other Shiny Functions: \code{\link{init_js}},
-  \code{\link{inlineCssSetup}}, \code{\link{renderVtree}},
-  \code{\link{vtreeOutput}}
+Other Shiny Functions: 
+\code{\link{init_js}()},
+\code{\link{inlineCssSetup}()},
+\code{\link{renderVtree}()},
+\code{\link{vtreeOutput}()}
 }
 \concept{Shiny Functions}

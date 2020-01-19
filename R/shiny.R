@@ -98,7 +98,8 @@ use_svgzoom <-  function(minheight = "200px",
 }
 
 #' Initializing JS-Part
-#' @param init_event The mouse event to activate zooming and paning. Default is \code{mouseenter}.
+#' @param init_event The mouse event to activate zooming and panning.
+#' Default is \code{mouseenter}.
 #' @param onwindow_resize Should the SVG be resized when the window size changes?
 #' Default is \code{TRUE}.
 #' @param shortcuts Should Keyboard shortcuts be used to control the SVG?

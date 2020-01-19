@@ -4,9 +4,14 @@
 \alias{VennTable}
 \title{Format an indicator-based pattern table}
 \usage{
-VennTable(x, markdown = FALSE, NAcode = "-", unchecked = c("0",
-  "FALSE", "No", "no", "not N/A"), checked = c("1", "TRUE", "Yes", "yes",
-  "N/A"))
+VennTable(
+  x,
+  markdown = FALSE,
+  NAcode = "-",
+  unchecked = c("0", "FALSE", "No", "no", "not N/A"),
+  checked = c("1", "TRUE", "Yes", "yes", "N/A"),
+  sort = TRUE
+)
 }
 \arguments{
 \item{x}{Required: Pattern table produced by \code{vtree} for indicator (i.e 0/1) variables}
@@ -20,6 +25,8 @@ by default: \code{c("0","FALSE","No","no","not N/A")}}
 
 \item{checked}{Vector of character strings that represent checked values;
 by default: \code{c("1","TRUE","Yes","yes","N/A")}}
+
+\item{sort}{Sort variables by frequency?}
 }
 \value{
 Returns a character matrix with extra rows containing indicator sums.

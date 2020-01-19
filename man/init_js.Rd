@@ -7,7 +7,8 @@
 init_js(init_event, onwindow_resize, shortcuts)
 }
 \arguments{
-\item{init_event}{The mouse event to activate zooming and paning. Default is \code{mouseenter}.}
+\item{init_event}{The mouse event to activate zooming and panning.
+Default is \code{mouseenter}.}
 
 \item{onwindow_resize}{Should the SVG be resized when the window size changes?
 Default is \code{TRUE}.}
@@ -19,9 +20,11 @@ Default is \code{TRUE}.}
 Initializing JS-Part
 }
 \seealso{
-Other Shiny Functions: \code{\link{inlineCssSetup}},
-  \code{\link{renderVtree}}, \code{\link{use_svgzoom}},
-  \code{\link{vtreeOutput}}
+Other Shiny Functions: 
+\code{\link{inlineCssSetup}()},
+\code{\link{renderVtree}()},
+\code{\link{use_svgzoom}()},
+\code{\link{vtreeOutput}()}
 }
 \concept{Shiny Functions}
 \keyword{internal}

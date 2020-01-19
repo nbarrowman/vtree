@@ -244,9 +244,12 @@ NULL
 #'                         e.g. \code{"5in"}.
 #'                         If neither \code{imageheight} nor \code{imagewidth} is specified,
 #'                         \code{imageheight} is set to 3 inches.
+#' @param arrowhead        DOT arrowhead style. Defaults to \code{"normal"}.
+#'                         Other choices include \code{"none"}, \code{"vee"}.
 #' @param maxNodes         An error occurs if the number of nodes exceeds \code{maxNodes},
 #'                         which defaults to 1000.                         
 #' @param folder           Optional path to a folder where the PNG file should stored
+#'                         when called during knit
 #' @param as.if.knit       Behave as if called while knitting?
 #' @param pngknit          Generate a PNG file when called during knit?
 #'
@@ -426,12 +429,13 @@ vtree <- function (z, vars, splitspaces=TRUE,
   showempty = FALSE, rounded = TRUE,
   nodefunc = NULL, nodeargs = NULL, 
   choicechecklist = TRUE,
+  arrowhead="normal",
   pxwidth,pxheight,imagewidth,imageheight,folder,
   pngknit=TRUE,as.if.knit=FALSE,
   maxNodes=1000,
   parent = 1, last = 1, root = TRUE)
 {
-
+  
   makeHTML <- function(x) {
     if (is.list(x)) {
       lapply(x, convertToHTML)
@@ -497,12 +501,11 @@ vtree <- function (z, vars, splitspaces=TRUE,
     # ---> Include all variables with fewer than 5 levels.
     # ---> Set showvarinnode=TRUE
     #
-    no_variables_specified <- FALSE
     if (is.data.frame(z) && missing(vars)) {
-      no_variables_specified <- TRUE
-      if (missing(showvarinnode)) showvarinnode <- TRUE
+      if (missing(showvarinnode) & !check.is.na) showvarinnode <- TRUE
       vars <- c()
       non_discrete_vars <- c()
+      
       for (candidate in names(z)) {
         if (length(unique(z[[candidate]]))<5) {
           vars <- c(vars,candidate)
@@ -510,15 +513,35 @@ vtree <- function (z, vars, splitspaces=TRUE,
           non_discrete_vars <- c(non_discrete_vars,candidate)
         }
       }
+  
+      # Calculate a quick approximation to the cumulative number of nodes
+      nodes <- 1
+      level <- 1
+      excluded_discrete_vars <- c()
+      while (level<=length(vars)) {
+        nodes <- nodes*length(unique(z[[vars[level]]]))
+        if (nodes>maxNodes) {
+          ev <- vars[-seq_len(level)]
+          vars <- vars[seq_len(level)]
+          excluded_discrete_vars <- c(ev,excluded_discrete_vars)
+          break
+        }
+        level <- level+1
+      }
+      message("--Discrete variables included: ",paste(vars,collapse=" "))
+      if (length(excluded_discrete_vars)>0) 
+        message("--Discrete variables excluded: ",paste(excluded_discrete_vars,collapse=" "))
+      if (length(non_discrete_vars)>0)
+        message("Additional variables excluded: ",paste(non_discrete_vars,collapse=" "))
     }
     
     # Process * tag in variable names to expand list of variables
     findstar <- grep("\\*$",vars)
     if (length(findstar)>0) {
       expandedvars <- c()
-      for (i in 1:length(vars)) {
+      for (i in seq_len(length(vars))) {
         if (i %in% findstar) {
-          stem <- sub("([^ ]+)\\*$","\\1",vars[i])
+          stem <- sub("(\\S+)\\*$","\\1",vars[i])
           expanded_stem <- names(z)[grep(paste0(stem,".*$"),names(z))]
           expandedvars <- c(expandedvars,expanded_stem)
         } else {
@@ -533,9 +556,9 @@ vtree <- function (z, vars, splitspaces=TRUE,
     findstar <- grep("#$",vars)
     if (length(findstar)>0) {
       expandedvars <- c()
-      for (i in 1:length(vars)) {
+      for (i in seq_len(length(vars))) {
         if (i %in% findstar) {
-          stem <- sub("([^ ]+)\\#$","\\1",vars[i])
+          stem <- sub("(\\S+)\\#$","\\1",vars[i])
           expanded_stem <- names(z)[grep(paste0(stem,"[0-9]+$"),names(z))]
           expandedvars <- c(expandedvars,expanded_stem)
         } else {
@@ -549,12 +572,12 @@ vtree <- function (z, vars, splitspaces=TRUE,
     # Process = tag in variable names 
     findequal <- grep("=",vars)
     if (length(findequal)>0) {
-      for (i in 1:length(vars)) {    
+      for (i in seq_len(length(vars))) {    
         if (i %in% findequal) {
-          equalvar <- sub("([^ ]+)(=)([^ ]+)","\\1",vars[i])
+          equalvar <- sub("(\\S+)(=)(\\S+)","\\1",vars[i])
           if (is.null(z[[equalvar]]))
             stop(paste("Unknown variable:",equalvar))                    
-          equalval <- sub("([^ ]+)(=)([^ ]+)","\\3",vars[i])
+          equalval <- sub("(\\S+)(=)(\\S+)","\\3",vars[i])
           # Check to see if any of the values of the specified variable contain spaces
           # If they do, replace underscores in the specified value with spaces.
           if (any(length(grep(" ",names(table(z[[equalvar]]))))>0)) {
@@ -571,12 +594,12 @@ vtree <- function (z, vars, splitspaces=TRUE,
     # Process > tag in variable names
     findgt <- grep(">",vars)
     if (length(findgt)>0) {
-      for (i in 1:length(vars)) {    
+      for (i in seq_len(length(vars))) {    
         if (i %in% findgt) {
-          gtvar <- sub("([^ ]+)(>)([^ ]+)","\\1",vars[i])
+          gtvar <- sub("(\\S+)(>)(\\S+)","\\1",vars[i])
           if (is.null(z[[gtvar]]))
             stop(paste("Unknown variable:",gtvar))                    
-          gtval <- sub("([^ ]+)(>)([^ ]+)","\\3",vars[i])
+          gtval <- sub("(\\S+)(>)(\\S+)","\\3",vars[i])
           # Check to see if any of the values of the specified variable contain spaces
           # If they do, replace underscores in the specified value with spaces.
           if (any(length(grep(" ",names(table(z[[gtvar]]))))>0)) {
@@ -593,12 +616,12 @@ vtree <- function (z, vars, splitspaces=TRUE,
     # Process < tag in variable names
     findlt <- grep("<",vars)
     if (length(findlt)>0) {
-      for (i in 1:length(vars)) {    
+      for (i in seq_len(length(vars))) {    
         if (i %in% findlt) {
-          ltvar <- sub("([^ ]+)(<)([^ ]+)","\\1",vars[i])
+          ltvar <- sub("(\\S+)(<)(\\S+)","\\1",vars[i])
           if (is.null(z[[ltvar]]))
             stop(paste("Unknown variable:",ltvar))                    
-          ltval <- sub("([^ ]+)(<)([^ ]+)","\\3",vars[i])
+          ltval <- sub("(\\S+)(<)(\\S+)","\\3",vars[i])
           # Check to see if any of the values of the specified variable contain spaces
           # If they do, replace underscores in the specified value with spaces.
           if (any(length(grep(" ",names(table(z[[ltvar]]))))>0)) {
@@ -615,9 +638,9 @@ vtree <- function (z, vars, splitspaces=TRUE,
     # Process is.na: tag in variable names to handle individual missing value checks
     findna <- grep("^is\\.na:",vars)
     if (length(findna)>0) {
-      for (i in 1:length(vars)) {
+      for (i in seq_len(length(vars))) {
         if (i %in% findna) {
-          navar <- sub("^is\\.na:([^ ]+)$","\\1",vars[i])
+          navar <- sub("^is\\.na:(\\S+)$","\\1",vars[i])
           if (is.null(z[[navar]]))
             stop(paste("Unknown variable:",navar))
           m <- is.na(z[[navar]])
@@ -635,9 +658,9 @@ vtree <- function (z, vars, splitspaces=TRUE,
     findstem <- grep("^stem:",vars)
     if (length(findstem)>0) {
       expandedvars <- c()
-      for (i in 1:length(vars)) {
+      for (i in seq_len(length(vars))) {
         if (i %in% findstem) {
-          stem <- sub("^stem:([^ ]+)$","\\1",vars[i])
+          stem <- sub("^stem:(\\S+)$","\\1",vars[i])
           expanded_stem <- names(z)[grep(paste0("^",stem,"___[0-9]+$"),names(z))]
           if (length(expanded_stem)==0) {
             stop(paste0("Could not find variables with names matching the specified stem: ",stem))
@@ -672,9 +695,9 @@ vtree <- function (z, vars, splitspaces=TRUE,
     findtag <- grep("^rc:",vars)
     if (length(findtag)>0) {
       expandedvars <- c()
-      for (i in 1:length(vars)) {
+      for (i in seq_len(length(vars))) {
         if (i %in% findtag) {
-          rcvar <- sub("^rc:([^ ]+)$","\\1",vars[i])
+          rcvar <- sub("^rc:(\\S+)$","\\1",vars[i])
           if (choicechecklist) {
             rexp1 <- ".+\\(choice=(.+)\\)"
             rexp2 <- ".+: (.+)"
@@ -706,17 +729,39 @@ vtree <- function (z, vars, splitspaces=TRUE,
 
     # Set up summaries if requested
     if (!all(summary=="")) {
-      codevar <- gsub("^([^ ]+) (.+)$", "\\1", summary)
+      codevar <- gsub("^(\\S+)\\s(.+)$", "\\1", summary)
+
+      # Process != tag in variable names in summary argument
+      # (Note that this comes before the = tag so that it doesn't match first.)
+      findequal <- grep("!=",codevar)
+      if (length(findequal)>0) {
+        for (i in seq_len(length(codevar))) {    
+          if (i %in% findequal) {
+            thevar <- sub("^(\\S+)(\\!=)(\\S+)","\\1",codevar[i])
+            if (is.null(z[[thevar]]))
+              stop(paste("Unknown variable in summary:",thevar))                      
+            theval <- sub("^(\\S+)(\\!=)(\\S+)","\\3",codevar[i])
+            # Check to see if any of the values of the specified variable contain spaces
+            # If they do, replace underscores in the specified value with spaces.
+            if (any(length(grep(" ",names(table(z[[thevar]]))))>0)) {
+              theval <- gsub("_"," ",equalval)
+            }
+            m <- z[[thevar]]!=theval
+            z[[thevar]] <- m
+            codevar[i] <- thevar
+          }
+        }
+      }
       
       # Process = tag in variable names in summary argument
       findequal <- grep("=",codevar)
       if (length(findequal)>0) {
-        for (i in 1:length(codevar)) {    
+        for (i in seq_len(length(codevar))) {    
           if (i %in% findequal) {
-            equalvar <- sub("([^ ]+)(=)([^ ]+)","\\1",codevar[i])
+            equalvar <- sub("^(\\S+)(=)(\\S+)","\\1",codevar[i])
             if (is.null(z[[equalvar]]))
-              stop(paste("Unknown variable:",equalvar))                      
-            equalval <- sub("([^ ]+)(=)([^ ]+)","\\3",codevar[i])
+              stop(paste("Unknown variable in summary:",equalvar))                      
+            equalval <- sub("^(\\S+)(=)(\\S+)","\\3",codevar[i])
             # Check to see if any of the values of the specified variable contain spaces
             # If they do, replace underscores in the specified value with spaces.
             if (any(length(grep(" ",names(table(z[[equalvar]]))))>0)) {
@@ -732,12 +777,12 @@ vtree <- function (z, vars, splitspaces=TRUE,
       # Process > tag in variable names in summary argument
       findgt <- grep(">",codevar)
       if (length(findgt)>0) {
-        for (i in 1:length(codevar)) {    
+        for (i in seq_len(length(codevar))) {    
           if (i %in% findgt) {
-            gtvar <- sub("([^ ]+)(>)([^ ]+)","\\1",codevar[i])
+            gtvar <- sub("(\\S+)(>)(\\S+)","\\1",codevar[i])
             if (is.null(z[[gtvar]]))
-              stop(paste("Unknown variable:",gtvar))                             
-            gtval <- sub("([^ ]+)(>)([^ ]+)","\\3",codevar[i])
+              stop(paste("Unknown variable in summary:",gtvar))                             
+            gtval <- sub("(\\S+)(>)(\\S+)","\\3",codevar[i])
             # Check to see if any of the values of the specified variable contain spaces
             # If they do, replace underscores in the specified value with spaces.
             if (any(length(grep(" ",names(table(z[[gtvar]]))))>0)) {
@@ -753,12 +798,12 @@ vtree <- function (z, vars, splitspaces=TRUE,
       # Process < tag in variable names in summary argument
       findlt <- grep("<",codevar)
       if (length(findlt)>0) {
-        for (i in 1:length(codevar)) {    
+        for (i in seq_len(length(codevar))) {    
           if (i %in% findlt) {
-            ltvar <- sub("([^ ]+)(<)([^ ]+)","\\1",codevar[i])
+            ltvar <- sub("(\\S+)(<)(\\S+)","\\1",codevar[i])
             if (is.null(z[[ltvar]]))
-              stop(paste("Unknown variable:",ltvar))                             
-            ltval <- sub("([^ ]+)(<)([^ ]+)","\\3",codevar[i])
+              stop(paste("Unknown variable in summary:",ltvar))                             
+            ltval <- sub("(\\S+)(<)(\\S+)","\\3",codevar[i])
             # Check to see if any of the values of the specified variable contain spaces
             # If they do, replace underscores in the specified value with spaces.
             if (any(length(grep(" ",names(table(z[[ltvar]]))))>0)) {
@@ -773,7 +818,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
       
       # If an element of codevar is not the name of a variable in z,
       # perhaps it's an expression that can be evaluated in z
-      for (i in 1:length(codevar)) { 
+      for (i in seq_len(length(codevar))) { 
         if (!(codevar[i] %in% names(z))) {
           derivedvar <- with(z,eval(parse(text=codevar[i],keep.source=FALSE))) 
           z[[codevar[i]]] <- derivedvar
@@ -792,7 +837,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
           stop("runsummary argument is not the same length as summary argument.")
         }
       }
-      codecode <- gsub("^([^ ]+) (.+)$", "\\2", summary)
+      codecode <- gsub("^(\\S+) (.+)$", "\\2", summary)
       nodefunc <- summaryNodeFunction
       nodeargs <- list(var = codevar, format = codecode, sf = runsummary, digits = digits, cdigits = cdigits, sepN=sepN)
       # allvars <- c(allvars,codevar)
@@ -938,7 +983,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
     ))
     
     # Duplicate the color gradients 3 times to allow for huge trees.
-    for (i in 1:length(col)) {
+    for (i in seq_len(length(col))) {
       col[[i]] <- rbind(col[[i]],col[[i]],col[[i]])
     }
 
@@ -954,9 +999,9 @@ vtree <- function (z, vars, splitspaces=TRUE,
     ALLVARS <- allvars
     if (length(findtri)>0) {
       tri.variable[findtri] <- TRUE
-      for (i in 1:length(allvars)) {    
+      for (i in seq_len(length(allvars))) {    
         if (i %in% findtri) {
-          trivar <- sub("^tri:([^ ]+)$","\\1",allvars[i])
+          trivar <- sub("^tri:(\\S+)$","\\1",allvars[i])
           ALLVARS[i] <- trivar
         }
       }
@@ -994,7 +1039,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
     if (!missing(labelnode) && !is.list(labelnode)) stop("labelnode must be a list.")
 
     if (length(labelnode) > 0) {
-      for (i in 1:length(labelnode)) {
+      for (i in seq_len(length(labelnode))) {
         names(labelnode[[i]]) <- splitlines(names(labelnode[[i]]),splitwidth,sp =sepN, at=" ")
       }
     }
@@ -1035,8 +1080,6 @@ vtree <- function (z, vars, splitspaces=TRUE,
         TAB <- TAB[TAB>=mincount]
       }
       
-      #TAB <- as.numeric(tab)
-      #names(TAB) <- names(tab)
       if (showroot) {
         PATTERN_levels <- names(sort(TAB))
       } else {
@@ -1055,7 +1098,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
         stringsAsFactors=FALSE)
       
       names(PATTERN_values) <- vars
-      for (i in 1:length(PATTERN_levels)) {
+      for (i in seq_len(length(PATTERN_levels))) {
         patternRow <- z[PATTERN==PATTERN_levels[i],,drop=FALSE]
         for (j in 1:length(vars)) {
           PATTERN_values[[vars[j]]][i] <- as.character(patternRow[[vars[j]]][1])
@@ -1084,7 +1127,11 @@ vtree <- function (z, vars, splitspaces=TRUE,
         if (missing(showpct)) showpct <- c(sequence=TRUE)
         if (missing(shownodelabels)) shownodelabels <- c(sequence=FALSE)
       }
-    }    
+    } else {
+      if (arrowhead!="normal") {
+        edgeattr <- paste(edgeattr,paste0("arrowhead=",arrowhead))
+      }
+    }
 
     if (is.null(names(gradient))) {
       gradient <- rep(gradient[1],numvars)
@@ -1264,7 +1311,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
       FC <- vector("list",numvars)
       names(FC) <- vars
       numPalettes <- nrow(col[[1]])
-      for (i in 1:numvars) {
+      for (i in seq_len(numvars)) {
         if (tri.variable[i]) {
           thisvar <- factor(c("low","mid","high","NA"),levels=c("high","mid","low","NA"))
         } else {
@@ -1358,7 +1405,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
     if (!is.list(fillcolor)) {
       FC <- vector("list",numvars)
       names(FC) <- vars
-      for (i in 1:length(vars)) {
+      for (i in seq_len(length(vars))) {
         values <- names(table(z[[vars[i]]],exclude=NULL))
         values[is.na(values)] <- "NA"
         valuecolors <- rep(fillcolor[i],length(values))
@@ -1366,27 +1413,6 @@ vtree <- function (z, vars, splitspaces=TRUE,
         FC[[vars[i]]] <- valuecolors
       }
       fillcolor <- FC
-    }
-    
-    if (no_variables_specified) {
-      nodes <- 1
-      level <- 1
-      excluded_discrete_vars <- c()
-      while (level<=length(vars)) {
-        nodes <- nodes*length(unique(z[[vars[i]]]))
-        if (nodes>maxNodes) {
-          ev <- vars[-seq_len(level)]
-          vars <- vars[seq_len(level)]
-          excluded_discrete_vars <- c(ev,excluded_discrete_vars)
-          break
-        }
-        level <- level+1
-      }
-      message("--Discrete variables included: ",paste(vars,collapse=" "))
-      if (length(excluded_discrete_vars)>0) 
-        message("--Discrete variables excluded: ",paste(excluded_discrete_vars,collapse=" "))
-      if (length(non_discrete_vars)>0)
-        message("Additional variables excluded: ",paste(non_discrete_vars,collapse=" "))
     }
     
   }
@@ -1457,7 +1483,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
   actualvarname <- vars[1]
   findtri <- grep("tri:",vars[1])
   if (length(findtri)>0) {
-    trivar <- sub("^tri:([^ ]+)$","\\1",vars[1])
+    trivar <- sub("^tri:(\\S+)$","\\1",vars[1])
     med <- median(z[[trivar]],na.rm=TRUE)
     iqrange <- 
       quantile(z[[trivar]],0.75,na.rm=TRUE)-
@@ -1505,10 +1531,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
   
   if (pattern & vars[1]!="pattern") ThisLevelText <- ""
   if (seq  & vars[1]!="sequence") ThisLevelText <- ""
-  
-  # cat("Right before call to flowcat\n")
-  # browser()
-  
+
   fc <- flowcat(z[[vars[1]]], root = root, title = title, parent = parent,
     var=vars[[1]],
     last = last, labels = labelnode[[vars[1]]], tlabelnode=tlabelnode, labelvar = labelvar[vars[1]],
@@ -1648,6 +1671,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
           pruneNA=pruneNA,
           pattern=pattern,seq=seq,
           text = text, ttext=TTEXT,gradient=gradient,
+          maxNodes=maxNodes,
           colornodes = colornodes, color = color[-1], fillnodes = fillnodes,
           fillcolor = fillcolor, splitwidth = splitwidth,
           vp = vp, rounded = rounded)
@@ -1693,7 +1717,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
       colored_VARS <- paste0('<FONT POINT-SIZE="',varnamepointsize,'">',colored_VARS,'</FONT>')
       marginalText <- rep("",numvars)
       if (showlegend) {
-        for (i in 1:numvars) {
+        for (i in seq_len(numvars)) {
           thisvarname <- vars[i]
           thisvar <- z[[thisvarname]]
           if (is.logical(thisvar)) {
