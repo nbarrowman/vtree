@@ -215,7 +215,7 @@ NULL
 #'                         This provides an alternative to a Venn diagram.
 #'                         This sets \code{showpct=FALSE} and \code{shownodelabels=FALSE}.
 #'                         Assumption: all of the specified variables are logicals or 0/1 numeric variables.
-#' @param palette          A vector of palette numbers (which can range between 1 and 9).
+#' @param palette          A vector of palette numbers (which can range between 1 and 14).
 #'                         The names of the vector indicate the corresponding variable.
 #'                         See \strong{Palettes} below for more information.
 #' @param singlecolor      When a variable has a single value,
@@ -358,6 +358,11 @@ NULL
 #'  \item{PuBu}
 #'  \item{PuRd}
 #'  \item{YlOrBr}
+#'  \item{PuBuGn}
+#'  \item{BuPu}
+#'  \item{YlOrRd}
+#'  \item{RdYlGn}
+#'  \item{Set1}
 #' }
 #'
 #' @examples
@@ -855,132 +860,151 @@ vtree <- function (z, vars, splitspaces=TRUE,
     # The 2nd matrix is for a two-valued variable,
     # and so on.
     col <- list(
-      rbind(
-        "#DE2D26",
-        "#3182BD",
-        "#31A354",
-        "#E6550D",
-        "#756BB1",
-        "#31A354",
-        "#2B8CBE",
-        "#DD1C77",
-        "#D95F0E",
-        "#1C9099",
-        "#8856A7",
-        "#F03B20"
-      ),
-      rbind(
-        c("#FEE0D2","#DE2D26"),
-        c("#DEEBF7","#3182BD"),
-        c("#E5F5E0","#31A354"),
-        c("#FEE6CE","#E6550D"),
-        c("#EFEDF5","#756BB1"),
-        c("#F7FCB9","#31A354"),
-        c("#ECE7F2","#2B8CBE"),
-        c("#E7E1EF","#DD1C77"),
-        c("#FFF7BC","#D95F0E"),
-        c("#ECE2F0","#1C9099"),
-        c("#E0ECF4","#8856A7"),
-        c("#FFEDA0","#F03B20")
-      ),
-      rbind(
-        c("#FEE0D2","#FC9272","#DE2D26"),
-        c("#DEEBF7","#9ECAE1","#3182BD"),
-        c("#E5F5E0","#A1D99B","#31A354"),
-        c("#FEE6CE","#FDAE6B","#E6550D"),
-        c("#EFEDF5","#BCBDDC","#756BB1"),
-        c("#F7FCB9","#ADDD8E","#31A354"),
-        c("#ECE7F2","#A6BDDB","#2B8CBE"),
-        c("#E7E1EF","#C994C7","#DD1C77"),
-        c("#FFF7BC","#FEC44F","#D95F0E"),
-        c("#ECE2F0","#A6BDDB","#1C9099"),
-        c("#E0ECF4","#9EBCDA","#8856A7"),
-        c("#FFEDA0","#FEB24C","#F03B20")
-      ),
-      rbind(
-        c("#FEE5D9","#FCAE91","#FB6A4A","#CB181D"),
-        c("#EFF3FF","#BDD7E7","#6BAED6","#2171B5"),
-        c("#EDF8E9","#BAE4B3","#74C476","#238B45"),
-        c("#FEEDDE","#FDBE85","#FD8D3C","#D94701"),
-        c("#F2F0F7","#CBC9E2","#9E9AC8","#6A51A3"),
-        c("#FFFFCC","#C2E699","#78C679","#238443"),
-        c("#F1EEF6","#BDC9E1","#74A9CF","#0570B0"),
-        c("#F1EEF6","#D7B5D8","#DF65B0","#CE1256"),
-        c("#FFFFD4","#FED98E","#FE9929","#CC4C02"),
-        c("#F6EFF7","#BDC9E1","#67A9CF","#02818A"),
-        c("#EDF8FB","#B3CDE3","#8C96C6","#88419D"),
-        c("#FFFFB2","#FECC5C","#FD8D3C","#E31A1C")
-      ),
-      rbind(
-        c("#FEE5D9","#FCAE91","#FB6A4A","#DE2D26","#A50F15"),
-        c("#EFF3FF","#BDD7E7","#6BAED6","#3182BD","#08519C"),
-        c("#EDF8E9","#BAE4B3","#74C476","#31A354","#006D2C"),
-        c("#FEEDDE","#FDBE85","#FD8D3C","#E6550D","#A63603"),
-        c("#F2F0F7","#CBC9E2","#9E9AC8","#756BB1","#54278F"),
-        c("#FFFFCC","#C2E699","#78C679","#31A354","#006837"),
-        c("#F1EEF6","#BDC9E1","#74A9CF","#2B8CBE","#045A8D"),
-        c("#F1EEF6","#D7B5D8","#DF65B0","#DD1C77","#980043"),
-        c("#FFFFD4","#FED98E","#FE9929","#D95F0E","#993404"),
-        c("#F6EFF7","#BDC9E1","#67A9CF","#1C9099","#016C59"),
-        c("#EDF8FB","#B3CDE3","#8C96C6","#8856A7","#810F7C"),
-        c("#FFFFB2","#FECC5C","#FD8D3C","#F03B20","#BD0026")
-      ),
-      rbind(
-        c("#FEE5D9","#FCBBA1","#FC9272","#FB6A4A","#DE2D26","#A50F15"),
-        c("#EFF3FF","#C6DBEF","#9ECAE1","#6BAED6","#3182BD","#08519C"),
-        c("#EDF8E9","#C7E9C0","#A1D99B","#74C476","#31A354","#006D2C"),
-        c("#FEEDDE","#FDD0A2","#FDAE6B","#FD8D3C","#E6550D","#A63603"),
-        c("#F2F0F7","#DADAEB","#BCBDDC","#9E9AC8","#756BB1","#54278F"),
-        c("#FFFFCC","#D9F0A3","#ADDD8E","#78C679","#31A354","#006837"),
-        c("#F1EEF6","#D0D1E6","#A6BDDB","#74A9CF","#2B8CBE","#045A8D"),
-        c("#F1EEF6","#D4B9DA","#C994C7","#DF65B0","#DD1C77","#980043"),
-        c("#FFFFD4","#FEE391","#FEC44F","#FE9929","#D95F0E","#993404"),
-        c("#F6EFF7","#D0D1E6","#A6BDDB","#67A9CF","#1C9099","#016C59"),
-        c("#EDF8FB","#BFD3E6","#9EBCDA","#8C96C6","#8856A7","#810F7C"),
-        c("#FFFFB2","#FED976","#FEB24C","#FD8D3C","#F03B20","#BD0026")
-      ),
-      rbind(
-        c("#FEE5D9","#FCBBA1","#FC9272","#FB6A4A","#EF3B2C","#CB181D","#99000D"),
-        c("#EFF3FF","#C6DBEF","#9ECAE1","#6BAED6","#4292C6","#2171B5","#084594"),
-        c("#EDF8E9","#C7E9C0","#A1D99B","#74C476","#41AB5D","#238B45","#005A32"),
-        c("#FEEDDE","#FDD0A2","#FDAE6B","#FD8D3C","#F16913","#D94801","#8C2D04"),
-        c("#F2F0F7","#DADAEB","#BCBDDC","#9E9AC8","#807DBA","#6A51A3","#4A1486"),
-        c("#FFFFCC","#D9F0A3","#ADDD8E","#78C679","#41AB5D","#238443","#005A32"),
-        c("#F1EEF6","#D0D1E6","#A6BDDB","#74A9CF","#3690C0","#0570B0","#034E7B"),
-        c("#F1EEF6","#D4B9DA","#C994C7","#DF65B0","#E7298A","#CE1256","#91003F"),
-        c("#FFFFD4","#FEE391","#FEC44F","#FE9929","#EC7014","#CC4C02","#8C2D04"),
-        c("#F6EFF7","#D0D1E6","#A6BDDB","#67A9CF","#3690C0","#02818A","#016450"),
-        c("#EDF8FB","#BFD3E6","#9EBCDA","#8C96C6","#8C6BB1","#88419D","#6E016B"),
-        c("#FFFFB2","#FED976","#FEB24C","#FD8D3C","#FC4E2A","#E31A1C","#B10026")
-      ),
-      rbind(
-        c("#FFF5F0","#FEE0D2","#FCBBA1","#FC9272","#FB6A4A","#EF3B2C","#CB181D","#99000D"),
-        c("#F7FBFF","#DEEBF7","#C6DBEF","#9ECAE1","#6BAED6","#4292C6","#2171B5","#084594"),
-        c("#F7FCF5","#E5F5E0","#C7E9C0","#A1D99B","#74C476","#41AB5D","#238B45","#005A32"),
-        c("#FFF5EB","#FEE6CE","#FDD0A2","#FDAE6B","#FD8D3C","#F16913","#D94801","#8C2D04"),
-        c("#FCFBFD","#EFEDF5","#DADAEB","#BCBDDC","#9E9AC8","#807DBA","#6A51A3","#4A1486"),
-        c("#FFFFE5","#F7FCB9","#D9F0A3","#ADDD8E","#78C679","#41AB5D","#238443","#005A32"),
-        c("#FFF7FB","#ECE7F2","#D0D1E6","#A6BDDB","#74A9CF","#3690C0","#0570B0","#034E7B"),
-        c("#F7F4F9","#E7E1EF","#D4B9DA","#C994C7","#DF65B0","#E7298A","#CE1256","#91003F"),
-        c("#FFFFE5","#FFF7BC","#FEE391","#FEC44F","#FE9929","#EC7014","#CC4C02","#8C2D04"),
-        c("#FFF7FB","#ECE2F0","#D0D1E6","#A6BDDB","#67A9CF","#3690C0","#02818A","#016450"),
-        c("#F7FCFD","#E0ECF4","#BFD3E6","#9EBCDA","#8C96C6","#8C6BB1","#88419D","#6E016B"),
-        c("#FFFFCC","#FFEDA0","#FED976","#FEB24C","#FD8D3C","#FC4E2A","#E31A1C","#B10026")
-      ),
-      rbind(
-        c("#FFF5F0","#FEE0D2","#FCBBA1","#FC9272","#FB6A4A","#EF3B2C","#CB181D","#A50F15","#67000D"),
-        c("#F7FBFF","#DEEBF7","#C6DBEF","#9ECAE1","#6BAED6","#4292C6","#2171B5","#08519C","#08306B"),
-        c("#F7FCF5","#E5F5E0","#C7E9C0","#A1D99B","#74C476","#41AB5D","#238B45","#006D2C","#00441B"),
-        c("#FFF5EB","#FEE6CE","#FDD0A2","#FDAE6B","#FD8D3C","#F16913","#D94801","#A63603","#7F2704"),
-        c("#FCFBFD","#EFEDF5","#DADAEB","#BCBDDC","#9E9AC8","#807DBA","#6A51A3","#54278F","#3F007D"),
-        c("#FFFFE5","#F7FCB9","#D9F0A3","#ADDD8E","#78C679","#41AB5D","#238443","#006837","#004529"),
-        c("#FFF7FB","#ECE7F2","#D0D1E6","#A6BDDB","#74A9CF","#3690C0","#0570B0","#045A8D","#023858"),
-        c("#F7F4F9","#E7E1EF","#D4B9DA","#C994C7","#DF65B0","#E7298A","#CE1256","#980043","#67001F"),
-        c("#FFFFE5","#FFF7BC","#FEE391","#FEC44F","#FE9929","#EC7014","#CC4C02","#993404","#662506"),
-        c("#FFF7FB","#ECE2F0","#D0D1E6","#A6BDDB","#67A9CF","#3690C0","#02818A","#016C59","#014636"),
-        c("#F7FCFD","#E0ECF4","#BFD3E6","#9EBCDA","#8C96C6","#8C6BB1","#88419D","#810F7C","#4D004B"),
-        c("#FFFFCC","#FFEDA0","#FED976","#FEB24C","#FD8D3C","#FC4E2A","#E31A1C","#BD0026","#800026")
+    rbind(
+      c("#DE2D26"),
+      c("#3182BD"),
+      c("#31A354"),
+      c("#E6550D"),
+      c("#756BB1"),
+      c("#31A354"),
+      c("#2B8CBE"),
+      c("#DD1C77"),
+      c("#D95F0E"),
+      c("#1C9099"),
+      c("#8856A7"),
+      c("#F03B20"),
+      c("#91CF60"),
+      c("#4DAF4A")
+    ),
+    rbind(
+      c("#FEE0D2","#DE2D26"),
+      c("#DEEBF7","#3182BD"),
+      c("#E5F5E0","#31A354"),
+      c("#FEE6CE","#E6550D"),
+      c("#EFEDF5","#756BB1"),
+      c("#F7FCB9","#31A354"),
+      c("#ECE7F2","#2B8CBE"),
+      c("#E7E1EF","#DD1C77"),
+      c("#FFF7BC","#D95F0E"),
+      c("#ECE2F0","#1C9099"),
+      c("#E0ECF4","#8856A7"),
+      c("#FFEDA0","#F03B20"),
+      c("#FC8D59","#91CF60"),
+      c("#E41A1C","#4DAF4A")
+    ),
+    rbind(
+      c("#FEE0D2","#FC9272","#DE2D26"),
+      c("#DEEBF7","#9ECAE1","#3182BD"),
+      c("#E5F5E0","#A1D99B","#31A354"),
+      c("#FEE6CE","#FDAE6B","#E6550D"),
+      c("#EFEDF5","#BCBDDC","#756BB1"),
+      c("#F7FCB9","#ADDD8E","#31A354"),
+      c("#ECE7F2","#A6BDDB","#2B8CBE"),
+      c("#E7E1EF","#C994C7","#DD1C77"),
+      c("#FFF7BC","#FEC44F","#D95F0E"),
+      c("#ECE2F0","#A6BDDB","#1C9099"),
+      c("#E0ECF4","#9EBCDA","#8856A7"),
+      c("#FFEDA0","#FEB24C","#F03B20"),
+      c("#FC8D59","#FFFFBF","#91CF60"),
+      c("#E41A1C","#377EB8","#4DAF4A")
+    ),
+    rbind(
+      c("#FEE5D9","#FCAE91","#FB6A4A","#CB181D"),
+      c("#EFF3FF","#BDD7E7","#6BAED6","#2171B5"),
+      c("#EDF8E9","#BAE4B3","#74C476","#238B45"),
+      c("#FEEDDE","#FDBE85","#FD8D3C","#D94701"),
+      c("#F2F0F7","#CBC9E2","#9E9AC8","#6A51A3"),
+      c("#FFFFCC","#C2E699","#78C679","#238443"),
+      c("#F1EEF6","#BDC9E1","#74A9CF","#0570B0"),
+      c("#F1EEF6","#D7B5D8","#DF65B0","#CE1256"),
+      c("#FFFFD4","#FED98E","#FE9929","#CC4C02"),
+      c("#F6EFF7","#BDC9E1","#67A9CF","#02818A"),
+      c("#EDF8FB","#B3CDE3","#8C96C6","#88419D"),
+      c("#FFFFB2","#FECC5C","#FD8D3C","#E31A1C"),
+      c("#D7191C","#FDAE61","#A6D96A","#1A9641"),
+      c("#E41A1C","#377EB8","#4DAF4A","#984EA3")
+    ),
+    rbind(
+      c("#FEE5D9","#FCAE91","#FB6A4A","#DE2D26","#A50F15"),
+      c("#EFF3FF","#BDD7E7","#6BAED6","#3182BD","#08519C"),
+      c("#EDF8E9","#BAE4B3","#74C476","#31A354","#006D2C"),
+      c("#FEEDDE","#FDBE85","#FD8D3C","#E6550D","#A63603"),
+      c("#F2F0F7","#CBC9E2","#9E9AC8","#756BB1","#54278F"),
+      c("#FFFFCC","#C2E699","#78C679","#31A354","#006837"),
+      c("#F1EEF6","#BDC9E1","#74A9CF","#2B8CBE","#045A8D"),
+      c("#F1EEF6","#D7B5D8","#DF65B0","#DD1C77","#980043"),
+      c("#FFFFD4","#FED98E","#FE9929","#D95F0E","#993404"),
+      c("#F6EFF7","#BDC9E1","#67A9CF","#1C9099","#016C59"),
+      c("#EDF8FB","#B3CDE3","#8C96C6","#8856A7","#810F7C"),
+      c("#FFFFB2","#FECC5C","#FD8D3C","#F03B20","#BD0026"),
+      c("#D7191C","#FDAE61","#FFFFBF","#A6D96A","#1A9641"),
+      c("#E41A1C","#377EB8","#4DAF4A","#984EA3","#FF7F00")
+    ),
+    rbind(
+      c("#FEE5D9","#FCBBA1","#FC9272","#FB6A4A","#DE2D26","#A50F15"),
+      c("#EFF3FF","#C6DBEF","#9ECAE1","#6BAED6","#3182BD","#08519C"),
+      c("#EDF8E9","#C7E9C0","#A1D99B","#74C476","#31A354","#006D2C"),
+      c("#FEEDDE","#FDD0A2","#FDAE6B","#FD8D3C","#E6550D","#A63603"),
+      c("#F2F0F7","#DADAEB","#BCBDDC","#9E9AC8","#756BB1","#54278F"),
+      c("#FFFFCC","#D9F0A3","#ADDD8E","#78C679","#31A354","#006837"),
+      c("#F1EEF6","#D0D1E6","#A6BDDB","#74A9CF","#2B8CBE","#045A8D"),
+      c("#F1EEF6","#D4B9DA","#C994C7","#DF65B0","#DD1C77","#980043"),
+      c("#FFFFD4","#FEE391","#FEC44F","#FE9929","#D95F0E","#993404"),
+      c("#F6EFF7","#D0D1E6","#A6BDDB","#67A9CF","#1C9099","#016C59"),
+      c("#EDF8FB","#BFD3E6","#9EBCDA","#8C96C6","#8856A7","#810F7C"),
+      c("#FFFFB2","#FED976","#FEB24C","#FD8D3C","#F03B20","#BD0026"),
+      c("#D73027","#FC8D59","#FEE08B","#D9EF8B","#91CF60","#1A9850"),
+      c("#E41A1C","#377EB8","#4DAF4A","#984EA3","#FF7F00","#FFFF33")
+    ),
+    rbind(
+      c("#FEE5D9","#FCBBA1","#FC9272","#FB6A4A","#EF3B2C","#CB181D","#99000D"),
+      c("#EFF3FF","#C6DBEF","#9ECAE1","#6BAED6","#4292C6","#2171B5","#084594"),
+      c("#EDF8E9","#C7E9C0","#A1D99B","#74C476","#41AB5D","#238B45","#005A32"),
+      c("#FEEDDE","#FDD0A2","#FDAE6B","#FD8D3C","#F16913","#D94801","#8C2D04"),
+      c("#F2F0F7","#DADAEB","#BCBDDC","#9E9AC8","#807DBA","#6A51A3","#4A1486"),
+      c("#FFFFCC","#D9F0A3","#ADDD8E","#78C679","#41AB5D","#238443","#005A32"),
+      c("#F1EEF6","#D0D1E6","#A6BDDB","#74A9CF","#3690C0","#0570B0","#034E7B"),
+      c("#F1EEF6","#D4B9DA","#C994C7","#DF65B0","#E7298A","#CE1256","#91003F"),
+      c("#FFFFD4","#FEE391","#FEC44F","#FE9929","#EC7014","#CC4C02","#8C2D04"),
+      c("#F6EFF7","#D0D1E6","#A6BDDB","#67A9CF","#3690C0","#02818A","#016450"),
+      c("#EDF8FB","#BFD3E6","#9EBCDA","#8C96C6","#8C6BB1","#88419D","#6E016B"),
+      c("#FFFFB2","#FED976","#FEB24C","#FD8D3C","#FC4E2A","#E31A1C","#B10026"),
+      c("#D73027","#FC8D59","#FEE08B","#FFFFBF","#D9EF8B","#91CF60","#1A9850"),
+      c("#E41A1C","#377EB8","#4DAF4A","#984EA3","#FF7F00","#FFFF33","#A65628")
+    ),
+    rbind(
+      c("#FFF5F0","#FEE0D2","#FCBBA1","#FC9272","#FB6A4A","#EF3B2C","#CB181D","#99000D"),
+      c("#F7FBFF","#DEEBF7","#C6DBEF","#9ECAE1","#6BAED6","#4292C6","#2171B5","#084594"),
+      c("#F7FCF5","#E5F5E0","#C7E9C0","#A1D99B","#74C476","#41AB5D","#238B45","#005A32"),
+      c("#FFF5EB","#FEE6CE","#FDD0A2","#FDAE6B","#FD8D3C","#F16913","#D94801","#8C2D04"),
+      c("#FCFBFD","#EFEDF5","#DADAEB","#BCBDDC","#9E9AC8","#807DBA","#6A51A3","#4A1486"),
+      c("#FFFFE5","#F7FCB9","#D9F0A3","#ADDD8E","#78C679","#41AB5D","#238443","#005A32"),
+      c("#FFF7FB","#ECE7F2","#D0D1E6","#A6BDDB","#74A9CF","#3690C0","#0570B0","#034E7B"),
+      c("#F7F4F9","#E7E1EF","#D4B9DA","#C994C7","#DF65B0","#E7298A","#CE1256","#91003F"),
+      c("#FFFFE5","#FFF7BC","#FEE391","#FEC44F","#FE9929","#EC7014","#CC4C02","#8C2D04"),
+      c("#FFF7FB","#ECE2F0","#D0D1E6","#A6BDDB","#67A9CF","#3690C0","#02818A","#016450"),
+      c("#F7FCFD","#E0ECF4","#BFD3E6","#9EBCDA","#8C96C6","#8C6BB1","#88419D","#6E016B"),
+      c("#FFFFCC","#FFEDA0","#FED976","#FEB24C","#FD8D3C","#FC4E2A","#E31A1C","#B10026"),
+      c("#D73027","#F46D43","#FDAE61","#FEE08B","#D9EF8B","#A6D96A","#66BD63","#1A9850"),
+      c("#E41A1C","#377EB8","#4DAF4A","#984EA3","#FF7F00","#FFFF33","#A65628","#F781BF")
+    ),
+    rbind(
+      c("#FFF5F0","#FEE0D2","#FCBBA1","#FC9272","#FB6A4A","#EF3B2C","#CB181D","#A50F15","#67000D"),
+      c("#F7FBFF","#DEEBF7","#C6DBEF","#9ECAE1","#6BAED6","#4292C6","#2171B5","#08519C","#08306B"),
+      c("#F7FCF5","#E5F5E0","#C7E9C0","#A1D99B","#74C476","#41AB5D","#238B45","#006D2C","#00441B"),
+      c("#FFF5EB","#FEE6CE","#FDD0A2","#FDAE6B","#FD8D3C","#F16913","#D94801","#A63603","#7F2704"),
+      c("#FCFBFD","#EFEDF5","#DADAEB","#BCBDDC","#9E9AC8","#807DBA","#6A51A3","#54278F","#3F007D"),
+      c("#FFFFE5","#F7FCB9","#D9F0A3","#ADDD8E","#78C679","#41AB5D","#238443","#006837","#004529"),
+      c("#FFF7FB","#ECE7F2","#D0D1E6","#A6BDDB","#74A9CF","#3690C0","#0570B0","#045A8D","#023858"),
+      c("#F7F4F9","#E7E1EF","#D4B9DA","#C994C7","#DF65B0","#E7298A","#CE1256","#980043","#67001F"),
+      c("#FFFFE5","#FFF7BC","#FEE391","#FEC44F","#FE9929","#EC7014","#CC4C02","#993404","#662506"),
+      c("#FFF7FB","#ECE2F0","#D0D1E6","#A6BDDB","#67A9CF","#3690C0","#02818A","#016C59","#014636"),
+      c("#F7FCFD","#E0ECF4","#BFD3E6","#9EBCDA","#8C96C6","#8C6BB1","#88419D","#810F7C","#4D004B"),
+      c("#FFFFCC","#FFEDA0","#FED976","#FEB24C","#FD8D3C","#FC4E2A","#E31A1C","#BD0026","#800026"),
+      c("#D73027","#F46D43","#FDAE61","#FEE08B","#FFFFBF","#D9EF8B","#A6D96A","#66BD63","#1A9850"),
+      c("#E41A1C","#377EB8","#4DAF4A","#984EA3","#FF7F00","#FFFF33","#A65628","#F781BF","#999999")
     ))
+
     
     # Duplicate the color gradients 3 times to allow for huge trees.
     for (i in seq_len(length(col))) {
@@ -1301,10 +1325,19 @@ vtree <- function (z, vars, splitspaces=TRUE,
       if (singleColor || plain) varlabelcolors[TRUE] <- "black"
     }
 
-    if (!is.null(palette) && length(palette)==1) {
-      palette <- rep(palette,numvars)
-      names(palette) <- vars
-      if (missing(rootfillcolor)) rootfillcolor <- col[[1]][palette,1]
+    if (!is.null(palette)) {
+      if (length(palette)==1 & is.null(names(palette))) {
+        # Use the specified palette for all variables.
+        palette <- rep(palette,numvars)
+        names(palette) <- vars
+        if (missing(rootfillcolor)) rootfillcolor <- col[[1]][palette,1]
+      } else {
+        if (length(vars)<=length(palette)) {
+          names(palette) <- c(vars,rep("NoVariable",length(palette)-length(vars)))
+        } else {
+          names(palette) <- vars[seq_len(length(palette))]
+        }
+    }
     }
 
     if (!plain) {

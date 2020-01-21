@@ -167,7 +167,7 @@ with the fill colors in the rest of the tree.}
 
 \item{rootfillcolor}{Fill-color for the root node.}
 
-\item{palette}{A vector of palette numbers (which can range between 1 and 9).
+\item{palette}{A vector of palette numbers (which can range between 1 and 14).
 The names of the vector indicate the corresponding variable.
 See \strong{Palettes} below for more information.}
 
@@ -506,6 +506,11 @@ Sequential palettes from Color Brewer:
  \item{PuBu}
  \item{PuRd}
  \item{YlOrBr}
+ \item{PuBuGn}
+ \item{BuPu}
+ \item{YlOrRd}
+ \item{RdYlGn}
+ \item{Set1}
 }
 }
 
