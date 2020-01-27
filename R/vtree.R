@@ -347,22 +347,15 @@ NULL
 #' }
 #'
 #' @section Palettes:
-#' Sequential palettes from Color Brewer:
-#' \enumerate{
-#'  \item{Reds}
-#'  \item{Blues}
-#'  \item{Greens}
-#'  \item{Oranges}
-#'  \item{Purples}
-#'  \item{YlGn}
-#'  \item{PuBu}
-#'  \item{PuRd}
-#'  \item{YlOrBr}
-#'  \item{PuBuGn}
-#'  \item{BuPu}
-#'  \item{YlOrRd}
-#'  \item{RdYlGn}
-#'  \item{Set1}
+#' 
+#' The following palettes
+#' (obtained from \code{RColorBrewer}) are used in the order indicated:
+#' 
+#' \tabular{rlcrlcrlcrl}{
+#'  1 \tab  Reds        \tab \tab 5 \tab  Purples \tab \tab 9  \tab YlOrBr \tab \tab 13 \tab RdYlGn \cr
+#'  2 \tab  Blues       \tab \tab 6 \tab  YlGn    \tab \tab 10 \tab PuBuGn \tab \tab 14 \tab Set1 \cr 
+#'  3 \tab  Greens      \tab \tab 7 \tab  PuBu    \tab \tab 11 \tab BuPu   \tab \tab    \tab \cr
+#'  4 \tab  Oranges     \tab \tab 8 \tab PuRd     \tab \tab 12 \tab YlOrRd \tab \tab    \tab \cr
 #' }
 #'
 #' @examples
@@ -1004,7 +997,17 @@ vtree <- function (z, vars, splitspaces=TRUE,
       c("#D73027","#F46D43","#FDAE61","#FEE08B","#FFFFBF","#D9EF8B","#A6D96A","#66BD63","#1A9850"),
       c("#E41A1C","#377EB8","#4DAF4A","#984EA3","#FF7F00","#FFFF33","#A65628","#F781BF","#999999")
     ))
-
+    
+    # Now add some single-shade palettes
+    #
+    # for (i in seq_len(length(col))) {
+    #   singles <- c(
+    #     "#FFFFFF","#CCCCCC","#FFCC00","#CC99FF","#6699CC","#33CCFF",
+    #     "#FF9933","#CCFFCC","#FFCCCC","#99CC99","#99CCCC") 
+    #   for (this in singles) {
+    #     col[[i]] <- rbind(col[[i]],rep(this,i))
+    #   }
+    # }
     
     # Duplicate the color gradients 3 times to allow for huge trees.
     for (i in seq_len(length(col))) {
@@ -1324,20 +1327,22 @@ vtree <- function (z, vars, splitspaces=TRUE,
       varlabelcolors[fillcolor=="white"] <- "black"  # So that varlabels are visible on a white background
       if (singleColor || plain) varlabelcolors[TRUE] <- "black"
     }
-
+    
     if (!is.null(palette)) {
-      if (length(palette)==1 & is.null(names(palette))) {
-        # Use the specified palette for all variables.
-        palette <- rep(palette,numvars)
-        names(palette) <- vars
-        if (missing(rootfillcolor)) rootfillcolor <- col[[1]][palette,1]
+      if (length(palette)==1) {
+        if (is.null(names(palette))) {
+          # Use the specified palette for all variables.
+          palette <- rep(palette,numvars)
+          names(palette) <- vars
+          if (missing(rootfillcolor)) rootfillcolor <- col[[1]][palette,1]
+        }
       } else {
         if (length(vars)<=length(palette)) {
           names(palette) <- c(vars,rep("NoVariable",length(palette)-length(vars)))
         } else {
           names(palette) <- vars[seq_len(length(palette))]
         }
-    }
+      }
     }
 
     if (!plain) {

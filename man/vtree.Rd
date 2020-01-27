@@ -495,22 +495,15 @@ Also used by \code{labelnode} and \code{labelvar}.
 
 \section{Palettes}{
 
-Sequential palettes from Color Brewer:
-\enumerate{
- \item{Reds}
- \item{Blues}
- \item{Greens}
- \item{Oranges}
- \item{Purples}
- \item{YlGn}
- \item{PuBu}
- \item{PuRd}
- \item{YlOrBr}
- \item{PuBuGn}
- \item{BuPu}
- \item{YlOrRd}
- \item{RdYlGn}
- \item{Set1}
+
+The following palettes
+(obtained from \code{RColorBrewer}) are used in the order indicated:
+
+\tabular{rlcrlcrlcrl}{
+ 1 \tab  Reds        \tab \tab 5 \tab  Purples \tab \tab 9  \tab YlOrBr \tab \tab 13 \tab RdYlGn \cr
+ 2 \tab  Blues       \tab \tab 6 \tab  YlGn    \tab \tab 10 \tab PuBuGn \tab \tab 14 \tab Set1 \cr 
+ 3 \tab  Greens      \tab \tab 7 \tab  PuBu    \tab \tab 11 \tab BuPu   \tab \tab    \tab \cr
+ 4 \tab  Oranges     \tab \tab 8 \tab PuRd     \tab \tab 12 \tab YlOrRd \tab \tab    \tab \cr
 }
 }
 

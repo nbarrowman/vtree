@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 4.0.1"
+title: "Introduction to vtree 4.0.2"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
 output:
@@ -89,7 +89,8 @@ mistakes in published flow diagrams are all too common.
 And although the errors that make it to publication are often small,
 they can sometimes be disastrous.
 
-Note that at the end of this vignette, there is a collection of [examples using R datasets](#RdatasetExamples) that you can try.
+Note that at the end of this vignette, there is a collection of
+[examples using R datasets](#RdatasetExamples) that you can try.
 
 ## Basic features of a variable tree
 
@@ -181,7 +182,7 @@ To generate a basic variable tree,
 it is only necessary to specify a data frame and some variable names.
 However extra features extend this basic functionality to provide:
 
-* control over [labeling](#labeling), colors, [legends](#legends), [line wrapping](#wrapping),
+* control over [labeling](#labeling), [colors](#colors), [legends](#legends), [line wrapping](#wrapping),
 [text formatting](#textFormatting) and other customization features;
 
 * flexible [pruning](#pruning) to remove parts of the tree that are of lesser interest,
@@ -1142,6 +1143,53 @@ vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,summary="id %list%%trunc
   ptable=TRUE)
 ```
 
+
+## Colors  {#colors}
+
+By default, `vtree` assigns colors to nodes of each successive variable
+using color palettes from [RColorBrewer](https://cran.r-project.org/package=RColorBrewer).
+
+The sequence of palettes (identified by short names) is as follows:
+ 
+&nbsp;| &nbsp;    |&nbsp;| &nbsp;| &nbsp;  |&nbsp;| &nbsp;| &nbsp;    |&nbsp;| &nbsp;| &nbsp; 
+------|-----------|------|-------|---------|------|-------|-----------|------|-------|--------
+1     |   Reds    |&nbsp;| 5     | Purples |&nbsp;| 9     | YlOrBr    |&nbsp;| 13    | RdYlGn  
+2     |   Blues   |&nbsp;| 6     | YlGn    |&nbsp;| 10    | PuBuGn    |&nbsp;| 14    | Set1   
+3     |   Greens  |&nbsp;| 7     | PuBu    |&nbsp;| 11    | BuPu      |&nbsp;| &nbsp;| &nbsp;   
+4     |   Oranges |&nbsp;| 8     | PuRd    |&nbsp;| 12    | YlOrRd    |&nbsp;| &nbsp;| &nbsp;   
+ 
+If you prefer to change the color assignments, you can use the `palette` parameter.
+For example, by default a variable tree for `Sex` and `Severity` will assign shades of
+red to nodes of `Sex` and shades of blue to notes of `Severity`.
+To switch to shades of, say, green and orange instead, use:
+
+```{r, eval=FALSE}
+vtree(FakeData,"Sex Severity",palette=c(3,4))
+```
+
+Sometimes it may be useful to reverse the order of a gradient.
+To reverse the order of all gradients, specify `revgradient=TRUE`.
+The gradient for selected variables can be reversed as in the example below:
+
+```{r, eval=FALSE}
+vtree(FakeData,"Sex Group Severity",revgradient=c(Sex=TRUE,Severity=TRUE))
+```
+
+There are parameters for specifying the color of (1) missing value nodes and
+(2) the root node, described below.
+Excluding those special nodes,
+all the other nodes of the tree can be made the same color (say `palegreen`)
+by specifying `fillcolor="palegreen"`.
+
+By default, missing value nodes are colored white.
+For a different color (say gray), specify `NAfillcolor="gray"`.
+To instead use a color from the current palette, specify `NAfillcolor=NULL`.
+
+The color of the root node can be changed (say to `yellow`)
+by specifying `rootfillcolor="yellow"`.
+
+A simple color scheme together with well-spaced nodes is produced by specifying
+`plain=TRUE`.
 
 ## REDCap checkboxes {#REDCapCheckboxes}
 
