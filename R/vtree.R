@@ -1387,7 +1387,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
           valuecolors <- rep(NAfillcolor,length(values))
         }
         if (Nnonmissing>0) {
-          if (Nnonmissing>length(col) || (seq & (vars[i]=="sequence")) || (pattern & (vars[i]=="pattern")) || (row==0)) {
+          if (missing(fillcolor) & (Nnonmissing>length(col) || (seq & (vars[i]=="sequence")) || (pattern & (vars[i]=="pattern")) || (row==0))) {
             # Too many values to permit distinct colors
             valuecolors[values!="NA"] <- col[[1]][row] # "grey90"
             names(valuecolors) <- values
