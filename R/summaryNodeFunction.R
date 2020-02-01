@@ -36,6 +36,81 @@ summaryNodeFunction <- function (u, varname, value, args) {
       npctString <- paste0(npctString," mv=",sum(is.na(w)))
     npctString
   }
+  
+  
+  freqfunc <- function(w,digits=2,vp=TRUE,empty="",
+    pcs = "%",  showN = FALSE, sep = " ", shown = TRUE, showp = TRUE, 
+    nmiss = FALSE, nmiss0 = FALSE, includemiss = TRUE, showzero = FALSE, 
+    percentfirst = FALSE, comma = FALSE) {
+    x <- w
+    if (comma) {
+        pStart <- paste0(",", sep)
+        pStop <- ""
+    }
+    else {
+        pStart <- paste0(sep, "(")
+        pStop <- ")"
+    }
+    nmissString <- ""
+    missingNum <- sum(is.na(x))
+    if (nmiss) {
+        nmissString <- paste0("mv=", missingNum)
+        if (!vp) 
+            nmissString <- paste0("[", nmissString, "]")
+        nmissString <- paste0(" ^", nmissString, "^")
+        if (!nmiss0 & missingNum == 0) 
+            nmissString <- ""
+    }
+    if (vp) {
+        x <- x[!is.na(x)]
+    }
+    if (is.logical(x)) {
+        x <- factor(x, c("FALSE", "TRUE"))
+    }
+    if (length(x) == 0 & (!is.factor(x))) 
+        return(empty)
+    tab <- table(x, exclude = NULL)
+    if (any(is.na(names(tab)))) 
+        names(tab)[is.na(names(tab))] <- "NA"
+    result <- ""
+    if (shown) {
+        pr <- paste(result)
+        if (!showzero) 
+            pr[pr == "0"] <- ""
+        result <- paste(pr, tab, sep = "")
+        if (showN) 
+            result <- paste0(result, "/", length(x))
+        if (showp) 
+            result <- paste0(result, pStart, sep = "")
+    }
+    if (showp) {
+        result <- paste(result, around(100 * as.numeric(tab)/sum(tab), 
+            digits = digits), pcs, sep = "")
+        if (shown) 
+            result <- paste(result, pStop, sep = "")
+    }
+    if (percentfirst & shown & showp) {
+        result <- paste(around(100 * as.numeric(tab)/sum(tab), 
+            digits = digits), pcs, sep = "")
+        result <- paste0(result, pStart, tab)
+        if (showN) 
+            result <- paste0(result, "/", length(x))
+        result <- paste0(result, pStop)
+    }
+    if (!showzero) result[!is.na(tab) & tab == 0] <- ""
+    
+    result <- paste(result, nmissString, sep = "")
+    names(result) <- names(tab)
+    result <- result[names(result) != "NA"]
+    
+    if (includemiss) {
+      if (missingNum>0 | showzero) {
+        result["NA"] <- missingNum
+      }
+    }
+    paste0(paste0(names(result),": ",result),collapse="\n")
+  }
+  
 
   qntl <- function(x,...) {
     if (any(is.na(x))) {
@@ -175,6 +250,8 @@ summaryNodeFunction <- function (u, varname, value, args) {
         result <- gsub("%v%",args$var[i],result)
         result <- gsub("%list%",listOutput,result)
         result <- gsub("%listlines%",listLinesOutput,result)
+        result <- gsub("%freqpct%",freqfunc(y,digits=digits),result)
+        result <- gsub("%freq%",freqfunc(y,digits=digits,showp=FALSE),result)
         result <- gsub("%mv%",paste0(missingNum),result)
         result <- gsub("%nonmv%",paste0(nonmissingNum),result)
         if (is.numeric(x) | is.logical(x)) {
