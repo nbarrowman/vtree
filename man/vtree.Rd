@@ -467,6 +467,9 @@ are named \code{vtree1.png}, \code{vtree2.png}, etc.
  \item{\code{\%median\%} }{median, i.e. p50}
  \item{\code{\%IQR\%} }{interquartile range, i.e. p25, p75}
  \item{\code{\%npct\%} }{number and percentage of \code{TRUE} values}
+ \item{\code{\%pct\%} }{percentage of \code{TRUE} values}
+ \item{\code{\%freqpct\%} }{frequency and percentage of values of a variable.}
+ \item{\code{\%freq\%} }{frequency of values of a variable.}
  \item{\code{\%list\%} }{list of the individual values}
  \item{\code{\%mv\%} }{the number of missing values}
  \item{\code{\%nonmv\%} }{the number of non-missing values}
@@ -477,6 +480,10 @@ are named \code{vtree1.png}, \code{vtree2.png}, etc.
  \item{\code{\%node=}N\code{\%} }{flag: Only show summary in nodes with value N.}
  \item{\code{\%trunc=}n\code{\%} }{flag: Truncate the summary to the first n characters.}
 }
+
+Missing values are reported unless one of the following variant codes is used:
+\code{\%meanx\%}, \code{\%medianx\%}, \code{\%sumx\%}, \code{\%minx\%},
+\code{\%maxx\%}, \code{\%IQRx\%},\code{\%SDx\%}
 }
 
 \section{Formatting codes}{

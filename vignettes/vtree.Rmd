@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 4.0.3"
+title: "Introduction to vtree 4.0.5"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
 output:
@@ -813,6 +813,9 @@ vtree(FakeData,"Severity",summary="Score \nmean score: %mean%",sameline=TRUE,hor
   sameline=TRUE,horiz=FALSE,
   width=450,height=150,pxwidth=1000,imageheight="1.6in")`
   
+By default, missing values are reported, using the abbreviation `mv`.
+An alternative is to use the code `%meanx%`,
+which does not report missing values.
 
 To see the means without any decimals, the `cdigits` parameter can be used;
 for example:
@@ -827,14 +830,23 @@ The following codes can be used to show summary information:
 
 code            | result
 :---------------|:-------------------------------------------------------------------
-`%mean%`        |  mean
-`%SD%`          |  standard deviation
-`%sum%`         |  sum
-`%min%`         |  minimum
-`%max%`         |  maximum
+`%mean%`        |  mean\
+(variant `%meanx%` does not report missing values)
+`%SD%`          |  standard deviation\
+(variant: `%SDx%` does not report missing values)
+`%sum%`         |  sum\
+(variant: `%sumx%` does not report missing values)
+`%min%`         |  minimum\
+(variant: `%minx%` does not report missing values)
+`%max%`         |  maximum\
+(variant: `%maxx%` does not report missing values)
+`%median%`      |  median, i.e. p50\
+(variant: `%medianx%` does not report missing values)
+`%IQR%`         |  IQR, i.e. p25, p75\
+(variant: `%IQRx%` does not report missing values)
+`%freqpct%`     |  frequency and percentage of values of a variable
+`%freq%`        |  frequency of values of a variable
 `%pX%`          |  Xth percentile (e.g. `p50` means the 50th percentile)
-`%median%`      |  median, i.e. p50
-`%IQR%`         |  IQR, i.e. p25, p75
 `%npct%`        |  frequency and percentage of a logical variable. By default "valid percentages" are used. Any missing values are also reported.     
 `%pct%`         |  same as `%npct%` but percentage only (with no parentheses).
 `%list%`        |  list of individual values, separated by commas

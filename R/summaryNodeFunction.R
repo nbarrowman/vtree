@@ -1,7 +1,79 @@
 #' @importFrom stats median quantile sd
 
 summaryNodeFunction <- function (u, varname, value, args) {
+  
+  medianfunc <- function(w,cdigits) {
+    nMissing <- sum(is.na(w))
+    m <- around(stats::median(w,na.rm=TRUE), digits = cdigits)
+    if (nMissing>0) {
+      paste0(m," mv=",nMissing)
+    } else {
+      m
+    }
+  }
+  
+  minfunc <- function(w,cdigits) {
+    nMissing <- sum(is.na(w))
+    m <- around(min(w,na.rm=TRUE), digits = cdigits)
+    if (nMissing>0) {
+      paste0(m," mv=",nMissing)
+    } else {
+      m
+    }
+  }
+  
+  maxfunc <- function(w,cdigits) {
+    nMissing <- sum(is.na(w))
+    m <- around(max(w,na.rm=TRUE), digits = cdigits)
+    if (nMissing>0) {
+      paste0(m," mv=",nMissing)
+    } else {
+      m
+    }
+  }  
 
+  IQRfunc <- function(w,cdigits) {
+    nMissing <- sum(is.na(w))
+    i <- paste0(
+      around(qntl(x,0.25,na.rm=TRUE), digits = cdigits),", ",
+      around(qntl(x,0.75,na.rm=TRUE), digits = cdigits))
+    if (nMissing>0) {
+      paste0(i," mv=",nMissing)
+    } else {
+      i
+    }
+  }
+
+  
+  SDfunc <- function(w,cdigits) {
+    nMissing <- sum(is.na(w))
+    s <- around(stats::sd(w,na.rm=TRUE), digits = cdigits)
+    if (nMissing>0) {
+      paste0(s," mv=",nMissing)
+    } else {
+      s
+    }
+  }  
+
+  sumfunc <- function(w,cdigits) {
+    nMissing <- sum(is.na(w))
+    s <- around(sum(w,na.rm=TRUE), digits = cdigits)
+    if (nMissing>0) {
+      paste0(s," mv=",nMissing)
+    } else {
+      s
+    }
+  }
+  meanfunc <- function(w,cdigits) {
+    nMissing <- sum(is.na(w))
+    m <- around(mean(w,na.rm=TRUE), digits = cdigits)
+    if (nMissing>0) {
+      paste0(m," mv=",nMissing)
+    } else {
+      m
+    }
+  }
+    
   justpct <- function(w,digits=2,vp=TRUE,empty="") {
     if (vp) {
       num <- sum(w==1,na.rm=TRUE)
@@ -259,14 +331,21 @@ summaryNodeFunction <- function (u, varname, value, args) {
           # so that missing values can be handled as desired
           result <- gsub("%npct%",nAndpct(y,digits=digits),result)
           result <- gsub("%pct%",justpct(y,digits=digits),result)
-          result <- gsub("%mean%", around(mean(x), digits = cdigits),result)
-          result <- gsub("%sum%", around(sum(x), digits = cdigits),result)
-          result <- gsub("%median%", around(stats::median(x), digits = cdigits),
-              result)
-          result <- gsub("%SD%", around(stats::sd(x), digits = cdigits), result)
-          result <- gsub("%min%", around(minx, digits = cdigits), result)
-          result <- gsub("%max%", around(maxx, digits = cdigits), result)
-          result <- gsub("%IQR%",
+          result <- gsub("%mean%", meanfunc(y,cdigits=cdigits),result)
+          result <- gsub("%meanx%", around(mean(x), digits = cdigits),result)
+          result <- gsub("%sum%", sumfunc(y,cdigits=cdigits),result)
+          result <- gsub("%sumx%", around(sum(x), digits = cdigits),result)
+          result <- gsub("%median%", medianfunc(y,cdigits=cdigits),result)
+          result <- gsub("%medianx%", around(stats::median(x), digits = cdigits),
+              result)          
+          result <- gsub("%SD%", SDfunc(y,cdigits=cdigits), result)
+          result <- gsub("%SDx%", around(stats::sd(x), digits = cdigits), result)
+          result <- gsub("%min%", minfunc(y, cdigits = cdigits), result)
+          result <- gsub("%minx%", around(min(x), digits = cdigits), result)
+          result <- gsub("%max%", maxfunc(y, cdigits = cdigits), result)
+          result <- gsub("%maxx%", around(max(x), digits = cdigits), result)
+          result <- gsub("%IQR%", IQRfunc(y,cdigits=cdigits), result)
+          result <- gsub("%IQRx%",
             paste0(
               around(qntl(x,0.25), digits = cdigits),", ",
               around(qntl(x,0.75), digits = cdigits)),

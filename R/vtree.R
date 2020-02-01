@@ -337,6 +337,10 @@ NULL
 #'  \item{\code{\%trunc=}n\code{\%} }{flag: Truncate the summary to the first n characters.}
 #' }
 #'
+#' Missing values are reported unless one of the following variant codes is used:
+#' \code{\%meanx\%}, \code{\%medianx\%}, \code{\%sumx\%}, \code{\%minx\%},
+#' \code{\%maxx\%}, \code{\%IQRx\%},\code{\%SDx\%} 
+#'
 #' @section Formatting codes:
 #' Formatting codes for the \code{text} argument.
 #' Also used by \code{labelnode} and \code{labelvar}.
