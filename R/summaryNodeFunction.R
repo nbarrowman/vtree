@@ -2,6 +2,17 @@
 
 summaryNodeFunction <- function (u, varname, value, args) {
   
+  # Conditional substitution
+  # gsub evaluates the replacement expression even if x doesn't match pattern.
+  # This function only evaluates the replacement expression if x matches pattern.
+  condsub <- function(pattern,replacement,x) {
+    if (length(grep(pattern,x))>0) {
+      gsub(pattern,replacement,x)
+    } else {
+      x
+    }
+  }
+  
   medianfunc <- function(w,cdigits) {
     nMissing <- sum(is.na(w))
     m <- around(stats::median(w,na.rm=TRUE), digits = cdigits)
@@ -35,8 +46,8 @@ summaryNodeFunction <- function (u, varname, value, args) {
   IQRfunc <- function(w,cdigits) {
     nMissing <- sum(is.na(w))
     i <- paste0(
-      around(qntl(x,0.25,na.rm=TRUE), digits = cdigits),", ",
-      around(qntl(x,0.75,na.rm=TRUE), digits = cdigits))
+      around(qntl(w,0.25,na.rm=TRUE), digits = cdigits),", ",
+      around(qntl(w,0.75,na.rm=TRUE), digits = cdigits))
     if (nMissing>0) {
       paste0(i," mv=",nMissing)
     } else {
@@ -44,6 +55,27 @@ summaryNodeFunction <- function (u, varname, value, args) {
     }
   }
 
+  rangefunc <- function(w,cdigits,na.rm=FALSE) {
+    #print(w)
+    if (na.rm) w <- w[!is.na(w)]
+    nMissing <- sum(is.na(w))
+    if (length(w[!is.na(w)])==0) {
+      if (nMissing==0) {
+        "No values"
+      } else {
+        paste0("mv=",nMissing)
+      }
+    } else {
+      r <- paste0(
+        around(min(w,na.rm=TRUE), digits = cdigits),", ",
+        around(max(w,na.rm=TRUE), digits = cdigits))
+      if (nMissing>0) {
+        paste0(r," mv=",nMissing)
+      } else {
+        r
+      }
+    }
+  }
   
   SDfunc <- function(w,cdigits) {
     nMissing <- sum(is.na(w))
@@ -329,23 +361,25 @@ summaryNodeFunction <- function (u, varname, value, args) {
         if (is.numeric(x) | is.logical(x)) {
           # Note that y is used in the call to nAndpct
           # so that missing values can be handled as desired
-          result <- gsub("%npct%",nAndpct(y,digits=digits),result)
-          result <- gsub("%pct%",justpct(y,digits=digits),result)
-          result <- gsub("%mean%", meanfunc(y,cdigits=cdigits),result)
-          result <- gsub("%meanx%", around(mean(x), digits = cdigits),result)
-          result <- gsub("%sum%", sumfunc(y,cdigits=cdigits),result)
-          result <- gsub("%sumx%", around(sum(x), digits = cdigits),result)
-          result <- gsub("%median%", medianfunc(y,cdigits=cdigits),result)
-          result <- gsub("%medianx%", around(stats::median(x), digits = cdigits),
+          result <- condsub("%npct%",nAndpct(y,digits=digits),result)
+          result <- condsub("%pct%",justpct(y,digits=digits),result)
+          result <- condsub("%mean%", meanfunc(y,cdigits=cdigits),result)
+          result <- condsub("%meanx%", around(mean(x), digits = cdigits),result)
+          result <- condsub("%sum%", sumfunc(y,cdigits=cdigits),result)
+          result <- condsub("%sumx%", around(sum(x), digits = cdigits),result)
+          result <- condsub("%median%", medianfunc(y,cdigits=cdigits),result)
+          result <- condsub("%medianx%", around(stats::median(x), digits = cdigits),
               result)          
-          result <- gsub("%SD%", SDfunc(y,cdigits=cdigits), result)
-          result <- gsub("%SDx%", around(stats::sd(x), digits = cdigits), result)
-          result <- gsub("%min%", minfunc(y, cdigits = cdigits), result)
-          result <- gsub("%minx%", around(min(x), digits = cdigits), result)
-          result <- gsub("%max%", maxfunc(y, cdigits = cdigits), result)
-          result <- gsub("%maxx%", around(max(x), digits = cdigits), result)
-          result <- gsub("%IQR%", IQRfunc(y,cdigits=cdigits), result)
-          result <- gsub("%IQRx%",
+          result <- condsub("%SD%", SDfunc(y,cdigits=cdigits), result)
+          result <- condsub("%SDx%", around(stats::sd(x), digits = cdigits), result)
+          result <- condsub("%min%", minfunc(y, cdigits = cdigits), result)
+          result <- condsub("%minx%", around(min(x), digits = cdigits), result)
+          result <- condsub("%max%", maxfunc(y, cdigits = cdigits), result)
+          result <- condsub("%maxx%", around(max(x), digits = cdigits), result)
+          result <- condsub("%range%", rangefunc(y,cdigits=cdigits), result)
+          result <- condsub("%rangex%", rangefunc(y,cdigits=cdigits,na.rm=TRUE), result)
+          result <- condsub("%IQR%", IQRfunc(y,cdigits=cdigits), result)
+          result <- condsub("%IQRx%",
             paste0(
               around(qntl(x,0.25), digits = cdigits),", ",
               around(qntl(x,0.75), digits = cdigits)),
