@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 4.0.6"
+title: "Introduction to vtree 4.0.7"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
 output:
@@ -62,7 +62,7 @@ df <- build.data.frame(
 
 Even in simple situations like this,
 it can be a chore to keep track of nested subsets and to calculate percentages.
-But it's often even more tedious&mdash;and there are two reasons why. 
+But it's often even more tedious&mdash;for two reasons. 
 First, the presence of missing values makes it harder to determine denominators.
 Second, as the number of variables increases,
 the number of nested subsets grows rapidly.
@@ -859,50 +859,23 @@ The `summary` argument can use any number of these codes,
 mixed with text and formatting codes.
 
 
-### More than one variable
+### The `%freqpct%` code
 
-Sometimes it is useful to display summary information for more than one variable.
-To do this, specify `summary` as a vector of character strings:
+The `%freqpct%` code allows you to summarize a discrete variable within nodes.
+For example, an alternative to a variable tree for `Sex` and `Severity`
+is a variable tree for `Sex` with a summaries for `Severity` in each node. 
 
 ```{r,eval=FALSE}
-vtree(FakeData,"Severity",horiz=FALSE,showvarnames=FALSE,splitwidth=Inf,sameline=TRUE,
-  summary=c("Score \nScore: mean (SD) %mean% (%SD%)","Pre \nPre: range %min%, %max%"))
+vtree(FakeData,"Sex",summary="Severity \n%freqpct%")
 ```
 
-`r vtree(FakeData,"Severity",horiz=FALSE,showvarnames=FALSE,splitwidth=Inf,sameline=TRUE,
-  summary=c(
-    "Score \nScore: mean (SD) %mean% (%SD%)",
-    "Pre \nPre: range %min%, %max%"),
-  width=650,height=350,pxwidth=1000,imageheight="1.5in")`
-  
+`r vtree(FakeData,"Sex",summary="Severity \n%freqpct%",
+  width=450,height=150,pxwidth=1000,imageheight="3in")`
 
-### The `%list%` code
-
-It is sometimes convenient to see individual values of a variable in each node.
-For example you might want to see ID numbers.
-To do this, use the `%list%` code.
-By default this information will be displayed in each node.
-When a value occurs more than once in the subset,
-it will be followed by a count of the number of repetitions in parentheses.
-The `%list%` code separates values by commas.
-Alternatively, the `%listlines%` code can be used to put each value on a new line.
-
-When there are many IDs, it is often convenient to truncate the output.
-If you specify `%trunc=`*N*`%`, summary information
-will be truncated after *N* characters with "...".
-
-### The `%noroot%`, `%leafonly%`, `%var=`*v*`%`, and `%node=`*n*`%` codes
-
-By default, summary information is shown in all nodes.
-However, it may also be convenient to only show it in specific nodes.
-The following codes are available:
-
-**code**         | **summary information restricted to:**
------------------|----------------------------------------
-`%noroot%`       | all nodes *except* the root
-`%leafonly%`     | leaf nodes
-`%var=`*v*`%`    | nodes of variable *v*
-`%node=`*n*`%`   | nodes named *n*
+Because (by default) a summary is shown in each node,
+this tree shows more information than a variable tree for `Sex` and `Severity`.
+The display is also more compact, which can be convenient,
+especially with large trees.
 
 
 ### Specification of variables in the summary argument
@@ -925,6 +898,35 @@ Continuous variables such as `Score` can be dichotomized using
 notation such as `Score>10` or `Score<20`.
 
 
+### The `%list%` code
+
+It is sometimes convenient to see individual values of a variable in each node.
+For example you might want to see ID numbers.
+To do this, use the `%list%` code.
+By default this information will be displayed in each node.
+When a value occurs more than once in the subset,
+it will be followed by a count of the number of repetitions in parentheses.
+The `%list%` code separates values by commas.
+Alternatively, the `%listlines%` code can be used to put each value on a new line.
+
+When there are many IDs, it is often convenient to truncate the output.
+If you specify `%trunc=`*N*`%`, summary information
+will be truncated after *N* characters with "...".
+
+### The `%noroot%`, `%leafonly%`, `%var=`*v*`%`, and `%node=`*n*`%` codes
+
+By default, summary information is shown in all nodes.
+However, it may also be convenient to only show it in specific nodes.
+The following codes control this:
+
+**code**         | **summary information restricted to:**
+-----------------|----------------------------------------
+`%noroot%`       | all nodes *except* the root
+`%leafonly%`     | leaf nodes
+`%var=`*v*`%`    | nodes of variable *v*
+`%node=`*n*`%`   | nodes named *n*
+
+
 ### R expressions in the summary argument
 
 Rather than starting the `summary` argument with a variable name,
@@ -942,6 +944,23 @@ vtree(FakeData,"Severity Category",
 
 Expressions involving functions can also be used; for example `sqrt(abs(Post/Pre))`.
 
+
+### More than one variable
+
+Sometimes it is useful to display summary information for more than one variable.
+To do this, specify `summary` as a vector of character strings:
+
+```{r,eval=FALSE}
+vtree(FakeData,"Severity",horiz=FALSE,showvarnames=FALSE,splitwidth=Inf,sameline=TRUE,
+  summary=c("Score \nScore: mean (SD) %mean% (%SD%)","Pre \nPre: range %min%, %max%"))
+```
+
+`r vtree(FakeData,"Severity",horiz=FALSE,showvarnames=FALSE,splitwidth=Inf,sameline=TRUE,
+  summary=c(
+    "Score \nScore: mean (SD) %mean% (%SD%)",
+    "Pre \nPre: range %range%"),
+  width=650,height=350,pxwidth=1000,imageheight="1.5in")`
+  
 
 ## Pattern trees and pattern tables {#patterns}
 
