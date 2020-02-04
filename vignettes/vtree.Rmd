@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 4.0.7"
+title: "Introduction to vtree 4.0.8"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
 output:
@@ -781,29 +781,8 @@ It is often useful to display information about other variables
 (apart from those that define the tree) in the nodes of a variable tree.
 This is particularly useful for numeric variables,
 which generally cannot be used to build the tree since they have too many distinct values.
-For example, we might wish to display the mean age for individuals in each node.
-Or we might wish to list the ID numbers of the individuals in each node.
-The `summary` argument can be used to flexibly specify additional information to display.
-
-
-### A simple example
-
-The argument of the `summary` parameter is a character string with the following structure:
-
-* It starts with the name of the variable for which a summary is desired. (We'll see later that variable specifications and expressions can also be used, as long as they do not contain any spaces.)
-
-* Next there is a space.
-
-* The remainder of the string specifies what to display,
-with text as well as special codes to indicate the type of summary desired and to control which nodes display the summary, etc.
-
-For example `%mean%` indicates that the mean of the specified variable should be shown.
-Thus to display the mean of the numeric variable `Score`,
-you could specify `summary="Score \nmean score: %mean%"`.
-Note that the part of the string following the first space is
-`"\nmean score: %mean%"`.
-This specifies that in each node, after the usual frequency and percentage,
-the summary should start on a new line with the words "mean score: " followed by the mean.
+For example, we might wish to display the mean `Score` for individuals in each node.
+Here's how to do this, using the `summary` parameter:
 
 ```{r,eval=FALSE}
 vtree(FakeData,"Severity",summary="Score \nmean score: %mean%",sameline=TRUE,horiz=FALSE)
@@ -813,10 +792,34 @@ vtree(FakeData,"Severity",summary="Score \nmean score: %mean%",sameline=TRUE,hor
   sameline=TRUE,horiz=FALSE,
   width=450,height=150,pxwidth=1000,imageheight="1.6in")`
   
-By default, missing values are reported, using the abbreviation `mv`.
-An alternative is to use the code `%meanx%`,
-which does not report missing values.
+The mean score is shown in each node.
+If there are any missing values in a node,
+the number of missing values is shown using the abbreviation `mv`.
 
+
+### How to specify the `summary` argument
+
+The argument of the `summary` parameter is a character string with the following structure:
+
+* It starts with the name of the variable for which a summary is desired. (We'll see later that variable specifications and expressions can also be used, as long as they do not contain any spaces.)
+
+* Next there is a space.
+
+* The remainder of the string specifies what to display,
+with text as well as special codes (such as `%mean%`) to indicate the type of summary desired and to control which nodes display the summary, etc.
+
+For example specifying `summary="Score \nmean score: %mean%"`
+indicates that the variable to be summarized is `Score` and that the summary
+should have the following format: `\nmean score: %mean%`, representing:
+
+* a new line (represented by the newline character `\n`) 
+
+* followed by the words "mean score: "
+
+* and finally the mean of `Score`.
+
+If you don't want to see the number of missing values, 
+the code `%meanx%` can be used instead of `%mean%`.
 To see the means without any decimals, the `cdigits` parameter can be used;
 for example:
 
@@ -883,7 +886,7 @@ especially with large trees.
 Variables in the `summary` parameter can also be specified in a way similar
 to the [specification of variables](#VariableSpecification) for structuring a variable tree.
 For example, if we wish to know the proportion of patients in each node whose `Category` is single,
-we specify `Category=single` in the `summary` argument.
+we specify `Category=single` in the `summary` argument and use the `%pct%` code:
 
 ```{r,eval=FALSE}
 vtree(FakeData,"Severity",summary="Category=single \n%pct% single",sameline=TRUE,horiz=FALSE)
@@ -893,7 +896,6 @@ vtree(FakeData,"Severity",summary="Category=single \n%pct% single",sameline=TRUE
   horiz=FALSE,sameline=TRUE,
   width=450,height=150,pxwidth=800,imageheight="1.3in")`
   
-
 Continuous variables such as `Score` can be dichotomized using
 notation such as `Score>10` or `Score<20`.
 
@@ -952,12 +954,12 @@ To do this, specify `summary` as a vector of character strings:
 
 ```{r,eval=FALSE}
 vtree(FakeData,"Severity",horiz=FALSE,showvarnames=FALSE,splitwidth=Inf,sameline=TRUE,
-  summary=c("Score \nScore: mean (SD) %mean% (%SD%)","Pre \nPre: range %min%, %max%"))
+  summary=c("Score \nScore: mean (SD) %meanx% (%SD%)","Pre \nPre: range %range%"))
 ```
 
 `r vtree(FakeData,"Severity",horiz=FALSE,showvarnames=FALSE,splitwidth=Inf,sameline=TRUE,
   summary=c(
-    "Score \nScore: mean (SD) %mean% (%SD%)",
+    "Score \nScore: mean (SD) %meanx% (%SD%)",
     "Pre \nPre: range %range%"),
   width=650,height=350,pxwidth=1000,imageheight="1.5in")`
   
