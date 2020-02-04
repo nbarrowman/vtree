@@ -1327,12 +1327,14 @@ vtree <- function (z, vars, splitspaces=TRUE,
       if (missing(rootfillcolor)) rootfillcolor <- fillcolor
     }
 
+    holdvarlabelcolors <- FALSE
     if (missing(fillcolor)) {
       varlabelcolors <- rep(unknowncolor,numvars)
     } else {
       varlabelcolors <- fillcolor
       varlabelcolors[fillcolor=="white"] <- "black"  # So that varlabels are visible on a white background
       if (singleColor || plain) varlabelcolors[TRUE] <- "black"
+      holdvarlabelcolors <- TRUE
     }
     
     if (!is.null(palette)) {
@@ -1406,7 +1408,9 @@ vtree <- function (z, vars, splitspaces=TRUE,
               } else {
                 valuecolors[values!="NA"] <- fillcolor[names(fillcolor)==vars[i]]
               }
-              varlabelcolors[i] <- fillcolor[names(fillcolor)==vars[i]]
+              if (!holdvarlabelcolors) {
+                varlabelcolors[i] <- fillcolor[names(fillcolor)==vars[i]]
+              }
             } else
             if (gradient[vars[i]]) {
               if (revgrad) {
@@ -1445,7 +1449,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
         names(varlabelcolors) <- OLDVARS
       }
     }
-
+    
     # If fillcolor isn't a list, create a list
     if (!is.list(fillcolor)) {
       FC <- vector("list",numvars)
