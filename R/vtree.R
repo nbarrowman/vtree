@@ -1619,7 +1619,8 @@ vtree <- function (z, vars, splitspaces=TRUE,
       }
     }
     if (vars[1]=="pattern" | vars[1]=="sequence") {
-      patternTable <- data.frame(n=fc$n,pct=fc$pct,PATTERN_values,check.names=FALSE)
+      patternTable <- data.frame(n=fc$n,pct=fc$pct,
+        PATTERN_values[seq_len(length(fc$n)),],check.names=FALSE)
       if (length(summarytext)>0) {
         numsum <- max(sapply(summarytext,length))
         for (j in 1:numsum) {
