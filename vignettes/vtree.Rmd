@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 4.1.0"
+title: "Introduction to vtree 4.1.1"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
 output:
@@ -984,14 +984,11 @@ vtree(FakeData,"Severity Sex",pattern=TRUE)
 ```{r, echo=FALSE,results="asis"}
 cat(vtree(FakeData,"Severity Sex",
   width=650,height=650,pxwidth=500,imageheight="4in"))
-#filepath <- grVizToPNG(v14,width=800))
 
 cat("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")
 
 cat(vtree(FakeData,"Severity Sex",pattern=TRUE,
   width=650,height=650,pxwidth=600,imageheight="4in"))
-#filepath2 <- grVizToPNG(v15,width=800)
-#![](`r filepath`){ height=4in } &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ![](`r filepath2`){ height=4in }
 ```
 
 
@@ -1062,6 +1059,10 @@ vtree(FakeData,"Ind1 Ind2 Ind3 Ind4",Venn=TRUE,pattern=TRUE)
 
 `r vtree(FakeData,"Ind1 Ind2 Ind3 Ind4",Venn=TRUE,pattern=TRUE,
   width=650,height=650,pxwidth=600,imageheight="6in")`
+
+Big pattern trees can be overwhelming,
+so it may be useful to specify, say, `prunesmaller=3`,
+which prunes patterns than occur 2 times or fewer.
 
 A pattern tree for indicator variables provides all the information that a Venn diagram represents,
 but unlike a Venn diagram, missing values are also represented.

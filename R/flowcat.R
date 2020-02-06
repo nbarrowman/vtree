@@ -276,7 +276,8 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
   labelassign <- c()
   if (root) {
     if (showroot) {
-      if (title!="") displayCAT[1] <- paste0(displayCAT[1],"<BR/>")
+      #if (title!="") displayCAT[1] <- paste0(displayCAT[1],"<BR/>")
+      if (title!="") displayCAT[1] <- displayCAT[1]
       labelassign <- paste(paste0(
         nodenames[1],'[label=<',displayCAT[1],npctString[1],extraText[1],'> color=',topcolor,styleString,
         ' fillcolor=<',topfillcolor,'>]'),collapse='\n')
