@@ -102,7 +102,7 @@ ul {
   margin-top: 0;
 }
   ul li {
-    list-style: circle outside;
+    list-style: disc outside;
   }
   ul ul {
     margin-bottom: 0;

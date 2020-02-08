@@ -1806,18 +1806,28 @@ vtree <- function (z, vars, splitspaces=TRUE,
           }
 
           colors <- fillcolor[[thisvarname]][1:length(categoryCounts)]
-          symbols <- rep("&#x25CF;",length(colors)) # rep("&#x2B24;",length(colors))
+          #symbols <- rep("&#x25CF;",length(colors)) # rep("&#x2B24;",length(colors))
+          #symbols <- rep("&#x2B24;",length(colors)) # rep("&#x2B24;",length(colors))
+          #symbols <- rep("&#x2589;",length(colors)) # rep("&#x2B24;",length(colors))
+          #symbols <- rep("&#x220E;",length(colors)) # rep("&#x2B24;",length(colors))
+          #symbols <- rep("&#8718;",length(colors)) # rep("&#x2B24;",length(colors))
+          #symbols <- rep("&#x002A;",length(colors)) # rep("&#x2B24;",length(colors))
+          #symbols <- rep("&diams;",length(colors)) # rep("&#x2B24;",length(colors))
+          #symbols <- rep("&#74425;",length(colors)) # rep("&#x2B24;",length(colors))
+          #symbols <- rep("&Omicron;",length(colors)) # rep("&#x2B24;",length(colors))
+          #symbols <- rep("&#927;",length(colors)) # rep("&#x2B24;",length(colors))
+          symbols <- rep("<b>+</b> ",length(colors)) # rep("&#x2B24;",length(colors))
           colorkey <- paste0(
             "<FONT POINT-SIZE='30' COLOR='",colors,"'>",
             symbols,
             "</FONT>")
-          spaces <- rep("&nbsp;",length(colors))
+          spaces <- rep(" ",length(colors))
           if (any(is.na(thisvar))) {
             colorkey[names(categoryCounts)=="NA"] <- paste0(
-              '<FONT POINT-SIZE="20" COLOR="','black','">',
-              '&#x25EF;',
+              '<FONT POINT-SIZE="30" COLOR="','black','">',
+              '<b>+</b> ',
               '</FONT>')
-            spaces[names(categoryCounts)=="NA"] <- '&nbsp;&nbsp;'
+            spaces[names(categoryCounts)=="NA"] <- '  '
           }
 
           CAT <- names(categoryCounts)

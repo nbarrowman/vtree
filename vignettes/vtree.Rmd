@@ -1,12 +1,13 @@
 ---
-title: "Introduction to vtree 4.1.1"
+title: "Introduction to vtree 4.1.2"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
 output:
-  rmarkdown::html_vignette:
-    css: vtreeVignette.css
-    toc: true
-    toc_depth: '2'
+  html_document
+# rmarkdown::html_vignette:
+#   css: vtreeVignette.css
+#   toc: true
+#   toc_depth: '2'
 vignette: >
   %\VignetteIndexEntry{Introduction to vtree}
   %\VignetteEngine{knitr::rmarkdown}
@@ -15,28 +16,35 @@ vignette: >
 
 ```{r, echo=FALSE}
 suppressMessages(library(ggplot2))
-library(vtree)
+#library(vtree)
+source("C:/Users/nickb/Documents/vtree/source.R")
 options(width=90)
+```
+
+```{r}
+build.data.frame
 ```
 
 # Introduction
 
-`vtree` is a flexible tool for generating *variable trees* &mdash;
+vtree is a flexible tool for generating *variable trees* &mdash;
 diagrams that display information about nested subsets of a data frame.
 Given simple specifications,
-`vtree` produces these diagrams and automatically labels them with counts,
+vtree produces these diagrams and automatically labels them with counts,
 percentages, and other summaries.
-With `vtree`, you can:
+vtree lets you
 
-* explore a data set interactively, and
+* explore a data set interactively
 
 * produce customized figures for reports and publications.
+
+It is important to note that vtree does *not* generate decision trees.
 
 ## Two examples
 
 *Subsets* play an important role in almost any data analysis.
-Imagine a data set of countries,
-with variables named `population`, `continent`, and `landlocked`.
+Imagine a data set of countries
+that includes variables named `population`, `continent`, and `landlocked`.
 We might wish to examine subsets of the data set based on the `continent` variable.
 Within each of these subsets,
 we might wish to examine *nested* subsets based on the `population` variable,
@@ -69,12 +77,11 @@ the number of nested subsets grows rapidly.
 In spite of these difficulties,
 people often calculate nested subsets by hand 
 (along with percentages and other summaries).
-Not only is this tiresome work, it is extremely error prone.
 
 Nested subsets arise in all kinds of situations.
 Consider, for example, flow diagrams for clinical studies,
-such as the following rudimentary
-[CONSORT](http://www.consort-statement.org) diagram,
+such as the following 
+[CONSORT](http://www.consort-statement.org)-style diagram,
 which is also a variable tree.
 
 `r 
@@ -84,13 +91,14 @@ vtree(FakeRCT,"eligible randomized group followup",plain=TRUE,
   width=230,height=500,pxwidth=500,imageheight="4.5in")
 `
 
-Because manual calculation and transcription are error-prone,
-mistakes in published flow diagrams are all too common.
+Manual calculation and transcription are both error-prone tasks,
+which can lead to mistakes in published flow diagrams.
 And although the errors that make it to publication are often small,
 they can sometimes be disastrous.
+Part of the reason `vtree` was developed was to make flow diagrams reproducible.
 
 Note that at the end of this vignette, there is a collection of
-[examples using R datasets](#RdatasetExamples) that you can try.
+[vtree examples using R datasets](#RdatasetExamples) that you can try.
 
 ## Basic features of a variable tree
 
@@ -99,7 +107,7 @@ The examples that follow use a data set called `FakeData` which represents
 The variable tree below depicts subsets defined by `Sex` (M or F)
 nested within subsets defined by disease `Severity`
 (Mild, Moderate, Severe, or NA).
-Although this example&mdash;and many subsequent ones&mdash;use just two variables,
+Although many of the examples here involve just two variables,
 variable trees are especially useful with three or more variables.
 
 ```{r, echo=FALSE, results="asis"}
@@ -183,7 +191,7 @@ it is only necessary to specify a data frame and some variable names.
 However extra features extend this basic functionality to provide:
 
 * control over [labeling](#labeling), [colors](#colors), [legends](#legends), [line wrapping](#wrapping),
-[text formatting](#textFormatting) and other customization features;
+and [text formatting](#textFormatting);
 
 * flexible [pruning](#pruning) to remove parts of the tree that are of lesser interest,
 which is particularly useful when a tree gets large;
@@ -255,7 +263,7 @@ Note that if `vtree` is called without a list of variables,
 it uses as many discrete variables from the data frame as possible,
 starting with the first column.
 
-```{r, eval=FALSE}
+```{r, eval=FALSE,echo=FALSE}
 NOTES:
 1. Discrete variables are operationally defined here as variables with at most 4 distinct values.
 2. Variables are included until the maximum number of nodes exceeds the maxNodes parameter value.
@@ -337,7 +345,9 @@ the marginal counts and percentages for `Severity` are identical to those displa
 In contrast, for `Sex`, the marginal counts and percentages are different
 from what is shown in the nodes because the nodes for `Sex` are nested with levels of `Severity`.
 
+```{r, eval=FALSE}
 (Unfortunately the NA circle in the legend is oddly sized and positioned due to an issue with the corresponding unicode symbols.)
+```
 
 
 ### Putting node labels on the same line as the counts and percentages
@@ -1179,19 +1189,19 @@ vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,summary="id %list%%trunc
 
 
 ## Colors  {#colors}
-
+     
 By default, `vtree` assigns colors to nodes of each successive variable
 using color palettes from [RColorBrewer](https://cran.r-project.org/package=RColorBrewer).
 
 The sequence of palettes (identified by short names) is as follows:
  
-&nbsp;| &nbsp;    |&nbsp;| &nbsp;| &nbsp;  |&nbsp;| &nbsp;| &nbsp;    |&nbsp;| &nbsp;| &nbsp; 
-------|-----------|------|-------|---------|------|-------|-----------|------|-------|--------
-1     |   Reds    |&nbsp;| 5     | Purples |&nbsp;| 9     | YlOrBr    |&nbsp;| 13    | RdYlGn  
-2     |   Blues   |&nbsp;| 6     | YlGn    |&nbsp;| 10    | PuBuGn    |&nbsp;| 14    | Set1   
-3     |   Greens  |&nbsp;| 7     | PuBu    |&nbsp;| 11    | BuPu      |&nbsp;| &nbsp;| &nbsp;   
-4     |   Oranges |&nbsp;| 8     | PuRd    |&nbsp;| 12    | YlOrRd    |&nbsp;| &nbsp;| &nbsp;   
- 
+-  -------  ------  --  -------  ------  --  -------  -------  ------  ------ 
+1  Reds     &nbsp;   5  Purples  &nbsp;  9    YlOrBr  &nbsp;   13      RdYlGn  
+2  Blues    &nbsp;   6  YlGn     &nbsp;  10   PuBuGn  &nbsp;   14      Set1   `
+3  Greens   &nbsp;   7  PuBu     &nbsp;  11   BuPu    &nbsp;   &nbsp;  &nbsp;  
+4  Oranges  &nbsp;   8  PuRd     &nbsp;  12   YlOrRd  &nbsp;   &nbsp;  &nbsp;  
+-  -------  ------  --  -------  ------  --  -------  -------  ------  ------
+
 If you prefer to change the color assignments, you can use the `palette` parameter.
 For example, by default a variable tree for `Sex` and `Severity` will assign shades of
 red to nodes of `Sex` and shades of blue to notes of `Severity`.
@@ -1209,21 +1219,22 @@ The gradient for selected variables can be reversed as in the example below:
 vtree(FakeData,"Sex Group Severity",revgradient=c(Sex=TRUE,Severity=TRUE))
 ```
 
-There are parameters for specifying the color of (1) missing value nodes and
-(2) the root node, described below.
-Excluding those special nodes,
-all the other nodes of the tree can be made the same color (say `palegreen`)
-by specifying `fillcolor="palegreen"`.
+Other parameters for specifying colors include:
 
-By default, missing value nodes are colored white.
+* `NAfillcolor`: By default, missing value nodes are colored white.
 For a different color (say gray), specify `NAfillcolor="gray"`.
 To instead use a color from the current palette, specify `NAfillcolor=NULL`.
 
-The color of the root node can be changed (say to `yellow`)
+* `rootfillcolor`: The color of the root node can be changed (say to yellow)
 by specifying `rootfillcolor="yellow"`.
 
-A simple color scheme together with well-spaced nodes is produced by specifying
-`plain=TRUE`.
+* `fillcolor`: To set all nodes of the tree
+(except for missing value nodes and the root node) 
+to be the same color (say palegreen),
+specify `fillcolor="palegreen"`.
+
+* `plain`: A simple color scheme is produced by specifying `plain=TRUE`.
+(Additionally, this increases the spaces between nodes.)
 
 ## REDCap checkboxes {#REDCapCheckboxes}
 
