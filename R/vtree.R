@@ -1,4 +1,3 @@
- 
 #' vtree: a tool for calculating and drawing variable trees.
 #'
 #' @description
@@ -1774,6 +1773,12 @@ vtree <- function (z, vars, splitspaces=TRUE,
       
       NL <- "Node_L0_0 [style=invisible]\n"
       
+      if (rounded) {
+        styleString <- ' style="rounded,filled"'
+      } else {
+        styleString <- ' style=filled'
+      }
+      
       for (i in seq_len(numvars)) {
         thisvarname <- vars[i]
         thisvar <- z[[thisvarname]]
@@ -1834,7 +1839,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
          labels,
           ' shape=none margin=0]',collapse = '\n')
           
-        colors <- fillcolor[[thisvarname]][seq_len(length(categoryCounts))]
+        FILLCOLOR <- fillcolor[[thisvarname]][seq_len(length(categoryCounts))]
 
         legendlabel <- paste0(CAT,", ",npctString)
         
@@ -1846,8 +1851,9 @@ vtree <- function (z, vars, splitspaces=TRUE,
         nl <- paste0("Node_L",i,"_",seq_len(length(categoryCounts)),
           '[',
           labels,
-          ' color=black style="rounded,filled" ',
-          ' fillcolor=<',colors,'>]',
+          ' color=',color[i+1],' ',
+          styleString,
+          ' fillcolor=<',FILLCOLOR,'>]',
           collapse = '\n')
         
         nl_allnodes <- paste0("Node_L",i,"_",seq(0,length(categoryCounts)),collapse=" ")
@@ -1863,10 +1869,12 @@ vtree <- function (z, vars, splitspaces=TRUE,
             "\n}\n",
             paste0("Node_L",i-1,"_0 -> Node_L",i,"_0 [style=invisible arrowhead=none]\n"))  
         } else {
+          link <- paste0("Node_L",i-1,"_0 -> Node_L",i,"_0 [style=invisible arrowhead=none]\n")
+          if (i==1 & !showroot) link <- ""
           nl <- paste0(
             nlheading,
             "\n",
-            paste0("Node_L",i-1,"_0 -> Node_L",i,"_0 [style=invisible arrowhead=none]\n"))
+            link)
         }
         NL <- paste0(NL,"\n",nl)
         

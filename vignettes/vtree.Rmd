@@ -1,13 +1,12 @@
 ---
-title: "Introduction to vtree 4.1.3"
+title: "Introduction to vtree 4.1.4"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
 output:
-  html_document
-# rmarkdown::html_vignette:
-#   css: vtreeVignette.css
-#   toc: true
-#   toc_depth: '2'
+  rmarkdown::html_vignette:
+    css: vtreeVignette.css
+    toc: true
+    toc_depth: '2'
 vignette: >
   %\VignetteIndexEntry{Introduction to vtree}
   %\VignetteEngine{knitr::rmarkdown}
@@ -16,13 +15,8 @@ vignette: >
 
 ```{r, echo=FALSE}
 suppressMessages(library(ggplot2))
-#library(vtree)
-source("C:/Users/nickb/Documents/vtree/source.R")
+library(vtree)
 options(width=90)
-```
-
-```{r}
-build.data.frame
 ```
 
 # Introduction
