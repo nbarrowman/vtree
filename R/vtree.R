@@ -81,6 +81,7 @@ NULL
 #' @param showvarnames     Show the name of the variable next to each level of the tree?
 #' @param showlevels       (Deprecated) Same as showvarnames.
 #' @param varnamepointsize Font size (in points) to use when displaying variable names.
+#' @param legendpointsize  Font size (in points) to use when displaying legend.
 #' @param prune            List of vectors that specifies nodes to prune.
 #'                         The name of each element of the
 #'                         list must be one of the variable names in \code{vars}.
@@ -421,6 +422,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
   showpct=TRUE, showlpct=TRUE,
   showcount=TRUE, showlegend=FALSE,
   varnamepointsize = 18,
+  legendpointsize = 14,
   HTMLtext = FALSE,
   digits = 0,cdigits=1,
   splitwidth = 20, lsplitwidth=15,
@@ -1766,134 +1768,127 @@ vtree <- function (z, vars, splitspaces=TRUE,
       }
       colored_VARS <- paste0('<FONT POINT-SIZE="',varnamepointsize,'">',colored_VARS,'</FONT>')
       marginalText <- rep("",numvars)
-      if (showlegend) {
-        for (i in seq_len(numvars)) {
-          thisvarname <- vars[i]
-          thisvar <- z[[thisvarname]]
-          if (is.logical(thisvar)) {
-            thisvar <- factor(thisvar, c("FALSE", "TRUE"))
-          }
-          categoryCounts <- table(thisvar,exclude=NULL)
+      
+      #-------------------------------------------------------------------------
+      #-V------------------------------V--------------------------------------V-
+      
+      NL <- "Node_L0_0 [style=invisible]\n"
+      
+      for (i in seq_len(numvars)) {
+        thisvarname <- vars[i]
+        thisvar <- z[[thisvarname]]
+        if (is.logical(thisvar)) {
+          thisvar <- factor(thisvar, c("FALSE", "TRUE"))
+        }
+        categoryCounts <- table(thisvar,exclude=NULL)
 
-          if (Venn) {
-            names(categoryCounts)[which(names(categoryCounts)=="1" | names(categoryCounts)=="TRUE")] <- "Yes"
-            names(categoryCounts)[which(names(categoryCounts)=="0" | names(categoryCounts)=="FALSE")] <- "No"
-          }
+        if (Venn) {
+          names(categoryCounts)[which(names(categoryCounts)=="1" | names(categoryCounts)=="TRUE")] <- "Yes"
+          names(categoryCounts)[which(names(categoryCounts)=="0" | names(categoryCounts)=="FALSE")] <- "No"
+        }
 
-          names(categoryCounts)[is.na(names(categoryCounts))] <- "NA"
+        names(categoryCounts)[is.na(names(categoryCounts))] <- "NA"
 
-          if (vp & any(is.na(thisvar))) {
-            cc <- categoryCounts
-            cc <- cc[names(cc)!="NA"]
-            if (length(cc)>0) {
-              if (showlpct) {
-                npctString <- paste0(cc," (",
-                  around(100*cc/sum(cc),digits),"%)")
-              } else {
-                npctString <- cc
-              }
-            } else {
-              npctString <- NULL
-            }
-            npctString <- c(npctString,categoryCounts["NA"])
-          } else {
+        if (vp & any(is.na(thisvar))) {
+          cc <- categoryCounts
+          cc <- cc[names(cc)!="NA"]
+          if (length(cc)>0) {
             if (showlpct) {
-              npctString <- paste0(categoryCounts," (",
-                around(100*categoryCounts/length(thisvar),digits),"%)")
+              npctString <- paste0(cc," (",
+                around(100*cc/sum(cc),digits),"%)")
             } else {
-              npctString <- categoryCounts
+              npctString <- cc
             }
-          }
-
-          colors <- fillcolor[[thisvarname]][1:length(categoryCounts)]
-          #symbols <- rep("&#x25CF;",length(colors)) # rep("&#x2B24;",length(colors))
-          #symbols <- rep("&#x2B24;",length(colors)) # rep("&#x2B24;",length(colors))
-          #symbols <- rep("&#x2589;",length(colors)) # rep("&#x2B24;",length(colors))
-          #symbols <- rep("&#x220E;",length(colors)) # rep("&#x2B24;",length(colors))
-          #symbols <- rep("&#8718;",length(colors)) # rep("&#x2B24;",length(colors))
-          #symbols <- rep("&#x002A;",length(colors)) # rep("&#x2B24;",length(colors))
-          #symbols <- rep("&diams;",length(colors)) # rep("&#x2B24;",length(colors))
-          #symbols <- rep("&#74425;",length(colors)) # rep("&#x2B24;",length(colors))
-          #symbols <- rep("&Omicron;",length(colors)) # rep("&#x2B24;",length(colors))
-          #symbols <- rep("&#927;",length(colors)) # rep("&#x2B24;",length(colors))
-          symbols <- rep("<b>+</b> ",length(colors)) # rep("&#x2B24;",length(colors))
-          colorkey <- paste0(
-            "<FONT POINT-SIZE='30' COLOR='",colors,"'>",
-            symbols,
-            "</FONT>")
-          spaces <- rep(" ",length(colors))
-          if (any(is.na(thisvar))) {
-            colorkey[names(categoryCounts)=="NA"] <- paste0(
-              '<FONT POINT-SIZE="30" COLOR="','black','">',
-              '<b>+</b> ',
-              '</FONT>')
-            spaces[names(categoryCounts)=="NA"] <- '  '
-          }
-
-          CAT <- names(categoryCounts)
-
-          # Relabel the nodes if labels have been specified
-          labels <- labelnode[[thisvarname]]
-          for (label in labels) {
-            if (label %in% CAT) {
-              m <- match(label,CAT)
-              CAT[m] <- names(labels)[labels==label]
-            }
-          }
-
-          legendlabel <- paste0(CAT,", ",npctString)
-
-          if (HTMLtext) {
-            legendlabel <- splitlines(legendlabel,width=lsplitwidth,sp='<BR/>',at=" ")
           } else {
-            legendlabel <- splitlines(legendlabel,width=lsplitwidth,sp='\n',
-              at = c(" ", ".", "-", "+", "_", "=", "/"))
-            legendlabel <- convertToHTML(legendlabel)
+            npctString <- NULL
           }
-
-          if (length(legendlabel)>length(col) || thisvarname=="sequence") {
-            marginalText[i] <- ""
+          npctString <- c(npctString,categoryCounts["NA"])
+        } else {
+          if (showlpct) {
+            npctString <- paste0(categoryCounts," (",
+              around(100*categoryCounts/length(thisvar),digits),"%)")
           } else {
-            marginalText[i] <- paste0('<FONT POINT-SIZE="1"> </FONT><BR ALIGN="LEFT" />',
-              colorkey,spaces,
-              legendlabel,sep="",
-              collapse='<BR ALIGN="LEFT" />')
-            marginalText[i] <- paste(marginalText[i],'<BR ALIGN="LEFT" />')
+            npctString <- categoryCounts
           }
         }
-      }
+        
+        CAT <- names(categoryCounts)
 
-      labels <- paste0(
-        'label=<',
-        colored_VARS,'<BR/>',marginalText,
-        '>')
-      if (showroot) {
-        nodelevels <- 'Node_L0[style=invisible]\n'
-      } else {
-        nodelevels <- ''
+        # Relabel the nodes if labels have been specified
+        labels <- labelnode[[thisvarname]]
+        for (label in labels) {
+          if (label %in% CAT) {
+            m <- match(label,CAT)
+            CAT[m] <- names(labels)[labels==label]
+          }
+        }
+        
+        
+        labels <- paste0(
+          'label=<',
+          colored_VARS[i],
+          '>')        
+        
+        nlheading <- paste0("Node_L",i,"_0",
+         '[',
+         labels,
+          ' shape=none margin=0]',collapse = '\n')
+          
+        colors <- fillcolor[[thisvarname]][seq_len(length(categoryCounts))]
+
+        legendlabel <- paste0(CAT,", ",npctString)
+        
+        labels <- paste0(
+          'label=<<FONT POINT-SIZE="',legendpointsize,'">',
+          legendlabel,
+          '</FONT>>')        
+        
+        nl <- paste0("Node_L",i,"_",seq_len(length(categoryCounts)),
+          '[',
+          labels,
+          ' color=black style="rounded,filled" ',
+          ' fillcolor=<',colors,'>]',
+          collapse = '\n')
+        
+        nl_allnodes <- paste0("Node_L",i,"_",seq(0,length(categoryCounts)),collapse=" ")
+
+        if (showlegend) {
+          nl <- paste0(
+            "subgraph cluster_",i," {\n",
+            "style=invisible\n",
+            "{rank=same"," ",nl_allnodes,"}\n",
+            nlheading,
+            "\n",
+            nl,
+            "\n}\n",
+            paste0("Node_L",i-1,"_0 -> Node_L",i,"_0 [style=invisible arrowhead=none]\n"))  
+        } else {
+          nl <- paste0(
+            nlheading,
+            "\n",
+            paste0("Node_L",i-1,"_0 -> Node_L",i,"_0 [style=invisible arrowhead=none]\n"))
+        }
+        NL <- paste0(NL,"\n",nl)
+        
+      #-^------------------------------^--------------------------------------^-       
+      #-------------------------------------------------------------------------
+          
       }
-      nodelevels <- paste0(nodelevels, paste0('Node_L',
-        1:numvars,
-        '[',
-        labels,
-        ' shape=none margin=0]',collapse = '\n'))
-      nodelinks <- paste0('Node_L', 1:numvars, collapse = '->')
-      if (showroot) {
-        nodelinks <- paste0('Node_L0->',nodelinks)
-      }
-      nodelevels <- paste0(nodelevels, paste0('\n\nedge[style=invis];\n',
-          nodelinks),'\n')
+      
     }
     else {
-      nodelevels <- ''
+      NL <- ''
     }
+    
+    #browser()
+    
     if (ptable) {
       pt <- patternTable[nrow(patternTable):1,]
       rownames(pt) <- NULL
       pt
     } else {    
       flowchart <- showflow(fc, getscript = getscript, nodesep = nodesep,
-        ranksep=ranksep, margin=margin, nodelevels = nodelevels, horiz = horiz,
+        ranksep=ranksep, margin=margin, nodelevels = NL, horiz = horiz,
         width=width,height=height,
         graphattr=graphattr,nodeattr=nodeattr,edgeattr=edgeattr)
       

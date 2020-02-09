@@ -9,12 +9,13 @@ graphattr="",nodeattr="",edgeattr="") {
 # ranksep    The ranksep graph attribute.
 #
 
-  nodePart <- "node [fontname = Helvetica, fontcolor = black,shape = rectangle, color = black"
+  nodePart <- 'node [fontname = Helvetica, fontcolor = black,shape = rectangle, color = black, tooltip=" "'
   nodePart <- paste0(nodePart,",margin=",margin)
   nodePart <- paste0(nodePart,ifelse(nodeattr=="","",","),nodeattr)
   nodePart <- paste0(nodePart,"]\n")
 
-  graphPart <- paste0('graph [layout = dot, compound=true, nodesep=',nodesep,', ranksep=',ranksep,', fontsize=12')
+  graphPart <- paste0('graph [layout = dot, compound=true, nodesep=',nodesep,
+    ', ranksep=',ranksep,', fontsize=12, tooltip=" "')
   graphPart <- paste0(graphPart,ifelse(graphattr=="","",","),graphattr)
   graphPart <- paste0(graphPart,']\n')
 
