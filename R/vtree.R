@@ -1771,7 +1771,11 @@ vtree <- function (z, vars, splitspaces=TRUE,
       #-------------------------------------------------------------------------
       #-V------------------------------V--------------------------------------V-
       
-      NL <- "Node_L0_0 [style=invisible]\n"
+      if (showroot) {
+        NL <- "Node_L0_0 [style=invisible]\n"
+      } else {
+        NL <- ""
+      }
       
       if (rounded) {
         styleString <- ' style="rounded,filled"'

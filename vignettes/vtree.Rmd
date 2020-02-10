@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 4.1.4"
+title: "Introduction to vtree 4.1.5"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
 output:
@@ -26,13 +26,17 @@ diagrams that display information about nested subsets of a data frame.
 Given simple specifications,
 vtree produces these diagrams and automatically labels them with counts,
 percentages, and other summaries.
-vtree lets you
+The two main uses of vtree are to:
 
-* explore a data set interactively
+1. explore a data set interactively
 
-* produce customized figures for reports and publications.
+2. produce customized figures for reports and publications.
 
-It is important to note that vtree does *not* generate decision trees.
+One thing that vtree does *not* do, however, is build decision trees.
+
+The sections that follow introduce the basic design and features of vtree.
+Or you can [skip this and begin using the `vtree` function](#vtreeFunction).
+
 
 ## Two examples
 
@@ -92,7 +96,7 @@ they can sometimes be disastrous.
 Part of the reason `vtree` was developed was to make flow diagrams reproducible.
 
 Note that at the end of this vignette, there is a collection of
-[vtree examples using R datasets](#RdatasetExamples) that you can try.
+[variable tree examples using R datasets](#RdatasetExamples) that you can try.
 
 ## Basic features of a variable tree
 
@@ -169,10 +173,10 @@ multi-way contingency tables are often used.
 These are typically displayed using several two-way tables.
 In this situation, variable trees are generally easier to interpret.
 
-It is also worth noting that
-contingency tables are not *always* more compact than variable trees.
-When most cells of a large contingency table are empty (in which case the table is said to be *sparse*),
-the corresponding variable tree may be more compact since empty-nodes are not shown.
+Note that contingency tables are not *always* more compact than variable trees.
+When most cells of a large contingency table are empty
+(in which case the table is said to be *sparse*),
+the corresponding variable tree may be more compact since empty nodes are not shown.
  
 
 ## Features of vtree
@@ -241,7 +245,7 @@ which can have empty cells,
 a variable tree has no empty nodes.
 
 
-# The `vtree` function
+# The `vtree` function {#vtreeFunction}
 
 Consider a data frame named `df`,
 which includes discrete variables `v1` and `v2`.
@@ -315,12 +319,13 @@ and if you don't wish to see counts, specify `showcount=FALSE`.
 ### Displaying a legend and hiding node labels {#legends}
 
 To display a legend, specify `showlegend=TRUE`.
-Next to each level of the tree,
-the variable name is displayed together with color discs and the values they correspond to.
-For each of the values, overall (*marginal*) counts are shown, together with percentages.
+Next to each variable are "legend nodes" representing the values of that variable
+and colored accordingly.
+Each legend node also contains an overall (*marginal*) count,
+together with a percentage.
 
-When the legend is shown, the node labels become redundant,
-since the colors identify the values of the variables
+When the legend is shown, labels in the nodes of the variable tree are redundant,
+since the colors of the nodes identify the values of the variables
 (although the labels may aid readability).
 If you prefer, you can hide the node labels,
 by specifying `shownodelabels=FALSE`:
@@ -337,11 +342,7 @@ and additionally provides marginal (that is, overall) counts and percentages for
 Since `Severity` is the first variable in the tree---i.e., it is not nested within another variable---
 the marginal counts and percentages for `Severity` are identical to those displayed in the nodes.
 In contrast, for `Sex`, the marginal counts and percentages are different
-from what is shown in the nodes because the nodes for `Sex` are nested with levels of `Severity`.
-
-```{r, eval=FALSE}
-(Unfortunately the NA circle in the legend is oddly sized and positioned due to an issue with the corresponding unicode symbols.)
-```
+from what is shown in the nodes because the nodes for `Sex` are nested within levels of `Severity`.
 
 
 ### Putting node labels on the same line as the counts and percentages
