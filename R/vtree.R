@@ -1845,7 +1845,13 @@ vtree <- function (z, vars, splitspaces=TRUE,
           
         FILLCOLOR <- fillcolor[[thisvarname]][seq_len(length(categoryCounts))]
 
-        legendlabel <- paste0(CAT,", ",npctString)
+        if (HTMLtext) {
+          displayCAT <- CAT
+        } else {
+          displayCAT <- convertToHTML(CAT)
+        }       
+        
+        legendlabel <- paste0(displayCAT,", ",npctString)
         
         labels <- paste0(
           'label=<<FONT POINT-SIZE="',legendpointsize,'">',
@@ -1865,7 +1871,8 @@ vtree <- function (z, vars, splitspaces=TRUE,
         if (showlegend) {
           nl <- paste0(
             "subgraph cluster_",i," {\n",
-            "style=invisible\n",
+            "style=rounded\n",
+            "color=<#d3d3d3>\n",
             "{rank=same"," ",nl_allnodes,"}\n",
             nlheading,
             "\n",
