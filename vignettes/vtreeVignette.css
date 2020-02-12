@@ -111,7 +111,7 @@ ul {
 pre, code {
   background-color: #f7f7f7;
   border-radius: 3px;
-  color: #333;
+  color: #000000;
   white-space: pre-wrap;    /* Wrap long lines */
 }
 pre {
@@ -125,7 +125,7 @@ pre:not([class]) {
 
 code {
   font-family: Consolas, Monaco, 'Courier New', monospace;
-  font-size: 85%;
+  font-size: 95%;
 }
 p > code, li > code {
   padding: 2px 0px;

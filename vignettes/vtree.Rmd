@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 4.1.5"
+title: "Introduction to vtree 4.1.6"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
 output:
@@ -32,10 +32,10 @@ The two main uses of vtree are to:
 
 2. produce customized figures for reports and publications.
 
-One thing that vtree does *not* do, however, is build decision trees.
+Note that vtree is *not* designed to build or display decision trees.
 
 The sections that follow introduce the basic design and features of vtree.
-Or you can [skip this and begin using the `vtree` function](#vtreeFunction).
+Or you can [skip ahead and start using the `vtree` function](#vtreeFunction).
 
 
 ## Two examples
@@ -617,16 +617,17 @@ This is used in `vtree` to control formatting of text such as node labels.
 
 ### Markdown-style codes for text formatting
 
-By default, the `vtree` package uses markdown-style codes for text formatting.
+By default, the `vtree` package uses markdown-style codes for text formatting:
 
-* `\n` means insert a line break
-* `\n*l` means make the preceding line left-justified and insert a line break
-* `*...*` means display text in italics
-* `**...**` means display text in bold
-* `^...^` means display text in superscript (using 10 point font)
-* `~...~` means display text in subscript (using 10 point font)
-* `%%red ...%%` means display text in red (or whichever color is specified)
-
+-------------  -----------------------------------------------------------------
+`\n`           insert a line break
+`\n*l`         make the preceding line left-justified and insert a line break
+`*...*`        display text in italics
+`**...**`      display text in bold
+`^...^`        display text in superscript (using 10 point font)
+`~...~`        display text in subscript (using 10 point font)
+`%%red ...%%`  display text in red (or whichever color is specified)
+-------------  -----------------------------------------------------------------
 
 ### HTML-like codes for text formatting
 
@@ -634,17 +635,17 @@ As an alternative,
 if you specify `HTMLtext=TRUE` you can use "HTML-like labels"
 (implemented in `Graphviz`), including:
 
-* `<BR/>` means insert a line break
-* `<BR ALIGN='LEFT'/>` means make the preceding line left-justified and insert a line break
-* `<I> ... </I>` means display text in italics
-* `<B> ... </B>` means display text in bold
-* `<SUP> ... </SUP>` means display text in superscript,
-  but note that the font size does not change
-* `<SUB> ... </SUB>` means display text in subscript
-  but again note that the font size does not change
-* `<FONT POINT-SIZE='10'> ... </FONT>` means set font to 10 point
-* `<FONT FACE='Times-Roman'> ... </FONT>` means set font to Times-Roman
-* `<FONT COLOR='red'> ... </FONT>` means set font to red
+----------------------------------      ----------------------------------------------------------
+`<BR/>`                                 insert a line break
+`<BR ALIGN='LEFT'/>`                    make the preceding line left-justified and insert a line break
+`<I> ... </I>`                          display text in italics
+`<B> ... </B>`                          display text in bold
+`<SUP> ... </SUP>`                      display text in superscript (using 10 point font)
+`<SUB> ... </SUB>`                      display text in subscript (using 10 point font)
+`<FONT POINT-SIZE='10'> ... </FONT>`    set font to 10 point
+`<FONT FACE='Times-Roman'> ... </FONT>` set font to Times-Roman
+`<FONT COLOR='red'> ... </FONT>`        set font to red
+----------------------------------      ----------------------------------------------------------
 
 See <https://www.graphviz.org/doc/info/shapes.html#html> for more details.
 
@@ -926,12 +927,12 @@ By default, summary information is shown in all nodes.
 However, it may also be convenient to only show it in specific nodes.
 The following codes control this:
 
-**code**         | **summary information restricted to:**
------------------|----------------------------------------
-`%noroot%`       | all nodes *except* the root
-`%leafonly%`     | leaf nodes
-`%var=`*v*`%`    | nodes of variable *v*
-`%node=`*n*`%`   | nodes named *n*
+|**code**         | **summary information restricted to:**
+|:----------------|----------------------------------------
+|`%noroot%`       | all nodes *except* the root
+|`%leafonly%`     | leaf nodes
+|`%var=`*v*`%`    | nodes of variable *v*
+|`%node=`*n*`%`   | nodes named *n*
 
 
 ### R expressions in the summary argument
@@ -997,7 +998,7 @@ cat(vtree(FakeData,"Severity Sex",pattern=TRUE,
 ```
 
 
-Pattern trees are easier to read than ordinary variable trees,
+Pattern trees are simpler to read than ordinary variable trees,
 but they involve a considerable loss of information,
 since they only represent the *n*th-level subsets
 (where *n* is the number of variables).
@@ -1066,10 +1067,11 @@ vtree(FakeData,"Ind1 Ind2 Ind3 Ind4",Venn=TRUE,pattern=TRUE)
   width=650,height=650,pxwidth=600,imageheight="6in")`
 
 Big pattern trees can be overwhelming,
-so it may be useful to specify, say, `prunesmaller=3`,
-which prunes patterns than occur 2 times or fewer.
+so it may be useful to prune patterns that occur fewer than, say, 3 times, 
+by specifying `prunesmaller=3`.
 
-A pattern tree for indicator variables provides all the information that a Venn diagram represents,
+A pattern tree for indicator variables provides all the information
+that a Venn diagram represents,
 but unlike a Venn diagram, missing values are also represented.
 This can also be shown as a pattern table.
 For example:
@@ -1214,22 +1216,14 @@ The gradient for selected variables can be reversed as in the example below:
 vtree(FakeData,"Sex Group Severity",revgradient=c(Sex=TRUE,Severity=TRUE))
 ```
 
-Other parameters for specifying colors include:
+Other color-related parameters include:
 
-* `NAfillcolor`: By default, missing value nodes are colored white.
-For a different color (say gray), specify `NAfillcolor="gray"`.
-To instead use a color from the current palette, specify `NAfillcolor=NULL`.
-
-* `rootfillcolor`: The color of the root node can be changed (say to yellow)
-by specifying `rootfillcolor="yellow"`.
-
-* `fillcolor`: To set all nodes of the tree
-(except for missing value nodes and the root node) 
-to be the same color (say palegreen),
-specify `fillcolor="palegreen"`.
-
-* `plain`: A simple color scheme is produced by specifying `plain=TRUE`.
-(Additionally, this increases the spaces between nodes.)
+----------------  ---------------------------------------------------------
+`NAfillcolor`     By default, missing value nodes are colored white. For a different color (say gray), specify `NAfillcolor="gray"`. To instead use a color from the current palette, specify `NAfillcolor=NULL`.
+`rootfillcolor`   The color of the root node can be changed (say to yellow) by specifying `rootfillcolor="yellow"`.
+`fillcolor`       To set all nodes of the tree (except for missing value nodes and the root node) to be the same color (say palegreen), specify `fillcolor="palegreen"`.
+`plain`           A simple color scheme is produced by specifying `plain=TRUE`. (Additionally, this increases the spaces between nodes.)
+----------------  ---------------------------------------------------------
 
 ## REDCap checkboxes {#REDCapCheckboxes}
 
@@ -1664,7 +1658,8 @@ nested within type of diet.
 A simple variable tree can be produced like this:
 
 ```{r, eval=FALSE}
-vtree(ChickWeight,"Diet Time",keep=list(Time=c("0","4")),summary="weight \nmean weight %mean%g")
+vtree(ChickWeight,"Diet Time",
+  keep=list(Time=c("0","4")),summary="weight \nmean weight %mean%g")
 ```
 
 To make the display a little easier to read, relabel the nodes
