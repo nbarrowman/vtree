@@ -48,12 +48,11 @@ Within each of these subsets,
 we might wish to examine *nested* subsets based on the `population` variable,
 for example, countries with populations under 30 million and over 30 million.
 We might continue to a third level of nesting based on the `landlocked` variable.
+
 `vtree` provides a general solution to the problem of calculating nested subsets
 and displaying information about them.
 Nested subsets help us to answer questions like the following:
-*Among African countries with a population over 30 million, what percentage are landlocked?*
-
-The variable tree below answers this question:
+*Among African countries with a population over 30 million, what percentage are landlocked?* The variable tree below answers this question:
 
 ```{r, echo=FALSE}
 df <- build.data.frame(
@@ -68,7 +67,7 @@ df <- build.data.frame(
 
 Even in simple situations like this,
 it can be a chore to keep track of nested subsets and to calculate percentages.
-But it's often even more tedious&mdash;for two reasons. 
+But it's often even more tedious, for two reasons. 
 First, the presence of missing values makes it harder to determine denominators.
 Second, as the number of variables increases,
 the number of nested subsets grows rapidly.
@@ -132,7 +131,8 @@ and there is a node for these patients.
 Inside each of the nodes, the number of patients is displayed
 and---except for in the missing value node---the corresponding percentage is also shown.
 Note that, by default, `vtree` displays "valid" percentages,
-i.e. the denominator used to calculate the percentage is the total number of non-missing values,
+i.e. the denominator used to calculate the percentage is the
+total number of *non-missing* values,
 `r sum(!is.na(FakeData$Severity))`.
 
 The final level of the tree corresponds to values of `Sex`.
@@ -167,11 +167,13 @@ Likewise, a tree with `Severity` shown within levels of `Sex` corresponds to
 a contingency table with *row percentages*.
 
 The contingency table above is more compact than the corresponding variable tree,
-but some people may find the variable tree easier to interpret.
+although the variable tree may seem more intuitive.
 When three of more variables are of interest,
 multi-way contingency tables are often used.
 These are typically displayed using several two-way tables.
-In this situation, variable trees are generally easier to interpret.
+Higher-order contingency tables become increasingly difficult to interpret.
+Variable trees, on the other hand,
+have the same intuitive structure regardless of the number of variables.
 
 Note that contingency tables are not *always* more compact than variable trees.
 When most cells of a large contingency table are empty
