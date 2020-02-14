@@ -1858,12 +1858,17 @@ vtree <- function (z, vars, splitspaces=TRUE,
           legendlabel,
           '</FONT>>')        
         
+        if (!horiz) {
+          labels <- rev(labels)
+          FILLCOLOR <- rev(FILLCOLOR)
+        }
+        
         nl <- paste0("Node_L",i,"_",seq_len(length(categoryCounts)),
           '[',
           labels,
           ' color=',color[i+1],' ',
           styleString,
-          ' fillcolor=<',FILLCOLOR,'>]',
+          ' fillcolor=<',FILLCOLOR,'> height=0]',
           collapse = '\n')
         
         nl_allnodes <- paste0("Node_L",i,"_",seq(0,length(categoryCounts)),collapse=" ")
@@ -1872,7 +1877,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
           nl <- paste0(
             "subgraph cluster_",i," {\n",
             "style=rounded\n",
-            "color=<#d3d3d3>\n",
+            "color=<#bdbdbd>\n",
             "{rank=same"," ",nl_allnodes,"}\n",
             nlheading,
             "\n",

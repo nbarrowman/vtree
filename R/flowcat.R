@@ -266,6 +266,9 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
     extraText <- convertToHTML(extraText)
   }
   
+  # displayCAT <- ifelse(displayCAT=="","",paste0("<B>",displayCAT,"</B>"))
+  # displayCAT <- ifelse(displayCAT=="","",paste0("<FONT POINT-SIZE=15>",displayCAT,"</FONT>"))
+  
   # Write DOT code for assigning labels (using the DiagrammeR framework)
   VARLABELLOC <- ""
   if (!is.null(varlabelloc) && !is.na(varlabelloc)) VARLABELLOC <- paste0("labelloc=",varlabelloc)

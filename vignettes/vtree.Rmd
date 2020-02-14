@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 4.1.8"
+title: "Introduction to vtree 4.1.9"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
 output:
@@ -251,7 +251,8 @@ a variable tree has no empty nodes.
 
 Consider a data frame named `df`,
 which includes discrete variables `v1` and `v2`.
-In this case, a variable tree can be displayed using the following command:
+In this case,
+a variable tree for subsets of `df` based on values of `v2` nested within values of `v1` can be displayed using the following command:
 
 ```{r, eval=FALSE}
 vtree(df,"v1 v2")
@@ -323,6 +324,7 @@ and if you don't wish to see counts, specify `showcount=FALSE`.
 To display a legend, specify `showlegend=TRUE`.
 Next to each variable are "legend nodes" representing the values of that variable
 and colored accordingly.
+For each variable, the legend nodes are grouped within a light gray box.
 Each legend node also contains an overall (*marginal*) count,
 together with a percentage.
 
