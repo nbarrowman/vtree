@@ -825,13 +825,34 @@ vtree <- function (z, vars, splitspaces=TRUE,
       # If an element of codevar is not the name of a variable in z,
       # perhaps it's an expression that can be evaluated in z
       for (i in seq_len(length(codevar))) { 
-        if (!(codevar[i] %in% names(z))) {
-          derivedvar <- with(z,eval(parse(text=codevar[i],keep.source=FALSE))) 
-          z[[codevar[i]]] <- derivedvar
+        if (length(grep("^stem:",codevar[i]))==0) {   # except for stems
+          if (!(codevar[i] %in% names(z))) {
+           derivedvar <- with(z,eval(parse(text=codevar[i],keep.source=FALSE))) 
+           z[[codevar[i]]] <- derivedvar
+          }
         }
-      }
+      }      
       
-      allvars <- c(allvars,codevar)
+      CODEVAR <- codevar
+      
+      # Process stem: tag in variable names in summary argument
+      extra_variables <- NULL
+      findstem <- grep("^stem:",codevar)
+      if (length(findstem)>0) {
+        for (i in seq_len(length(codevar))) {    
+          if (i %in% findstem) {
+            thevar <- sub("^stem:(\\S+)","\\1",codevar[i])
+            expanded_stem <- names(z)[grep(paste0("^",thevar,"___[0-9]+$"),names(z))]
+            if (length(expanded_stem)==0) {
+              stop(paste0("summary: Could not find variables with names matching the specified stem: ",thevar))
+            }   
+            extra_variables <- c(extra_variables,expanded_stem) 
+          }
+        }
+        CODEVAR <- CODEVAR[-findstem]  # remove stems
+      }      
+      
+      allvars <- c(allvars,CODEVAR,extra_variables)
        
       #  if (!all(codevar %in% names(z))) {
       #    nomatch <- codevar[!(codevar %in% names(z))]

@@ -143,18 +143,11 @@ summaryNodeFunction <- function (u, varname, value, args) {
   
   
   freqfunc <- function(w,digits=2,vp=TRUE,empty="",
-    pcs = "%",  showN = FALSE, sep = " ", shown = TRUE, showp = TRUE, 
+    pcs = "%",  showN = FALSE, shown = TRUE, showp = TRUE, 
     nmiss = FALSE, nmiss0 = FALSE, includemiss = TRUE, showzero = FALSE, 
-    percentfirst = FALSE, comma = FALSE) {
+    percentfirst = FALSE, sep = ", ") {
     x <- w
-    if (comma) {
-        pStart <- paste0(",", sep)
-        pStop <- ""
-    }
-    else {
-        pStart <- paste0(sep, "(")
-        pStop <- ")"
-    }
+ 
     nmissString <- ""
     missingNum <- sum(is.na(x))
     if (nmiss) {
@@ -181,29 +174,29 @@ summaryNodeFunction <- function (u, varname, value, args) {
         pr <- paste(result)
         if (!showzero) 
             pr[pr == "0"] <- ""
-        result <- paste(pr, tab, sep = "")
+        result <- paste0(pr, tab)
         if (showN) 
             result <- paste0(result, "/", length(x))
         if (showp) 
-            result <- paste0(result, pStart, sep = "")
+            result <- paste0(result, "(", sep = "")
     }
     if (showp) {
-        result <- paste(result, around(100 * as.numeric(tab)/sum(tab), 
-            digits = digits), pcs, sep = "")
+        result <- paste0(result, around(100 * as.numeric(tab)/sum(tab), 
+            digits = digits), pcs)
         if (shown) 
-            result <- paste(result, pStop, sep = "")
+            result <- paste0(result, ")")
     }
     if (percentfirst & shown & showp) {
         result <- paste(around(100 * as.numeric(tab)/sum(tab), 
             digits = digits), pcs, sep = "")
-        result <- paste0(result, pStart, tab)
+        result <- paste0(result, "(", tab)
         if (showN) 
             result <- paste0(result, "/", length(x))
-        result <- paste0(result, pStop)
+        result <- paste0(result, ")")
     }
     if (!showzero) result[!is.na(tab) & tab == 0] <- ""
     
-    result <- paste(result, nmissString, sep = "")
+    result <- paste0(result, nmissString)
     names(result) <- names(tab)
     result <- result[names(result) != "NA"]
     
@@ -212,7 +205,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
         result["NA"] <- missingNum
       }
     }
-    paste0(paste0(names(result),": ",result),collapse="\n")
+    paste0(paste0(names(result),": ",result),collapse=sep)
   }
   
 
@@ -246,9 +239,53 @@ summaryNodeFunction <- function (u, varname, value, args) {
   for (i in 1:nargs) {
   
     var <- args$var[i]
-
-    y <- u[[var]]
-
+    
+    if (length(grep("%combo%",args$format[i]))>0) {
+      ShowCombinations <- TRUE
+    } else {
+      ShowCombinations <- FALSE
+    }
+    
+    # check if it's a stem
+    if (length(grep("^stem:",var))>0) {
+      thevar <- sub("^stem:(\\S+)","\\1",var)
+      expanded_stem <- names(u)[grep(paste0("^",thevar,"___[0-9]+$"),names(u))]
+      if (ShowCombinations) {
+        y <- rep("",nrow(u))
+      } else {
+        y <- NULL
+      }
+      none <- rep(TRUE,nrow(u))
+      for (j in 1:length(expanded_stem)) {
+        rexp1 <- ".+\\(choice=(.+)\\)"
+        rexp2 <- ".+: (.+)"
+        lab <- attributes(z[[expanded_stem[j]]])$label
+        if (length(grep(rexp1,lab))>0) {
+          choice <- sub(rexp1,"\\1",lab)
+        } else
+        if (length(grep(rexp2,lab))>0) {
+          choice <- sub(rexp2,"\\1",lab)
+        } else {
+          stop("Could not find value of checklist item")
+        }
+        #browser()
+        if (ShowCombinations) {
+          y <- ifelse(u[[expanded_stem[j]]]==1,
+            ifelse(y=="",choice,paste0(y,"+",choice)),y)
+        } else {
+          none <- none & u[[expanded_stem[j]]]==0
+          y <- c(y,rep(choice,sum(u[[expanded_stem[j]]])))
+        }
+      }
+      if (ShowCombinations) {
+        y[y==""] <- "*None"
+      } else {
+        y <- c(y,rep("*None",sum(none)))
+      }
+    } else {
+      y <- u[[var]]
+    }
+    
     show <- TRUE
     if (!is.null(args$sf)) {
       show <- args$sf[[i]](u)
@@ -312,7 +349,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
           "(.*)%npct=([^%]+)%(.*)","\\2",result)
         y_event <- y==npct_arg
       }      
-
+      
       if (!args$leaf) {
         if (length(grep("%leafonly%",result))>0) {
           ShowNodeText <- FALSE
@@ -350,12 +387,15 @@ summaryNodeFunction <- function (u, varname, value, args) {
         result <- gsub("%node=[^%]+%","",result)
         result <- gsub("%trunc=(.+)%","",result)
         result <- gsub("%noroot%","",result)
+        result <- gsub("%combo%","",result)
         result <- gsub("%leafonly%","",result)
         result <- gsub("%v%",args$var[i],result)
         result <- gsub("%list%",listOutput,result)
         result <- gsub("%listlines%",listLinesOutput,result)
         result <- gsub("%freqpct%",freqfunc(y,digits=digits),result)
         result <- gsub("%freq%",freqfunc(y,digits=digits,showp=FALSE),result)
+        result <- gsub("%freqpctlines%",freqfunc(y,digits=digits,sep="\n"),result)
+        result <- gsub("%freqlines%",freqfunc(y,digits=digits,showp=FALSE,sep="\n"),result)
         result <- gsub("%mv%",paste0(missingNum),result)
         result <- gsub("%nonmv%",paste0(nonmissingNum),result)
         if (is.numeric(x) | is.logical(x)) {
