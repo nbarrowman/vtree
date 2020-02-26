@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 4.1.9"
+title: "Introduction to vtree 4.2.4"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
 output:
@@ -34,7 +34,8 @@ The two main uses of vtree are to:
 
 Note that vtree is *not* designed to build or display decision trees.
 
-The sections that follow introduce the basic design and features of vtree.
+The sections that follow introduce variable trees and provide an
+overview of the features of vtree.
 Or you can [skip ahead and start using the `vtree` function](#vtreeFunction).
 
 
@@ -68,12 +69,9 @@ df <- build.data.frame(
 Even in simple situations like this,
 it can be a chore to keep track of nested subsets and to calculate percentages.
 But it's often even more tedious, for two reasons. 
-First, the presence of missing values makes it harder to determine denominators.
+First, if there are missing values it's harder to determine denominators.
 Second, as the number of variables increases,
 the number of nested subsets grows rapidly.
-In spite of these difficulties,
-people often calculate nested subsets by hand 
-(along with percentages and other summaries).
 
 Nested subsets arise in all kinds of situations.
 Consider, for example, flow diagrams for clinical studies,
@@ -88,13 +86,15 @@ vtree(FakeRCT,"eligible randomized group followup",plain=TRUE,
   width=230,height=500,pxwidth=500,imageheight="4.5in")
 `
 
-Manual calculation and transcription are both error-prone tasks,
-which can lead to mistakes in published flow diagrams.
+The diagram above was produced by vtree.
+Both the structure of the diagram and the numbers shown were automatically determined.
+When manual calculation and transcription are instead used
+to populate such diagrams, mistakes are likely.
 And although the errors that make it to publication are often small,
 they can sometimes be disastrous.
-Part of the reason `vtree` was developed was to make flow diagrams reproducible.
+One motivation for developing vtree was to make flow diagrams reproducible.
 
-Note that at the end of this vignette, there is a collection of
+At the end of this vignette, there is a collection of
 [variable tree examples using R datasets](#RdatasetExamples) that you can try.
 
 ## Basic features of a variable tree
@@ -118,8 +118,8 @@ The rest of the nodes are arranged in successive levels,
 where each level corresponds to a variable.
 Note that this highlights one difference between variable trees
 and some other kinds of trees:
-at each level of a variable tree, regardless of the branch,
-the nodes represent values of the same variable.
+at each level of a variable tree,
+all of the nodes correspond to values of a single variable.
 (*Decision trees*, in contrast,
 can have splits on different variables at the same level.)
  
@@ -251,8 +251,10 @@ a variable tree has no empty nodes.
 
 Consider a data frame named `df`,
 which includes discrete variables `v1` and `v2`.
-In this case,
-a variable tree for subsets of `df` based on values of `v2` nested within values of `v1` can be displayed using the following command:
+Suppose we wish to produce a variable tree showing
+subsets based on values of `v1` as well as
+subsets of those subsets based on values of `v2`.
+The variable tree can be displayed using the following command:
 
 ```{r, eval=FALSE}
 vtree(df,"v1 v2")
@@ -286,7 +288,8 @@ vtree(FakeData,"Severity")
 
 `r vtree(FakeData,"Severity",width=250,height=250,pxwidth=300,imageheight="2.5in")`
 
-Next, consider a vertical variable tree with two variables, `Severity` and `Sex`.
+Next, consider a variable tree with two variables, `Severity` and `Sex`.
+To make it vertical, specify `horiz=FALSE`.
 A less colorful display with more spacing can be requested by specifying `plain=TRUE`:
 
 ```{r, eval=FALSE}
@@ -309,7 +312,7 @@ and `r sum(FakeData$Severity %in% "Mild")`/`r nrow(FakeData) - sum(is.na(FakeDat
 `r sum(FakeData$Severity %in% "Mild")/(nrow(FakeData) - sum(is.na(FakeData$Severity)))` so the percentage shown is 48%.
 No percentage is shown in the NA node since missing values are not included in the denominator.
 
-If you prefer that the denominator represent the complete set of observations
+If you prefer the denominator to represent the complete set of observations
 (*including* any missing values),
 specify `vp=FALSE`.
 With this setting, a percentage will be shown in each of the nodes,
@@ -322,7 +325,7 @@ and if you don't wish to see counts, specify `showcount=FALSE`.
 ### Displaying a legend and hiding node labels {#legends}
 
 To display a legend, specify `showlegend=TRUE`.
-Next to each variable are "legend nodes" representing the values of that variable
+Next to each variable name are "legend nodes" representing the values of that variable
 and colored accordingly.
 For each variable, the legend nodes are grouped within a light gray box.
 Each legend node also contains an overall (*marginal*) count,
@@ -341,12 +344,10 @@ vtree(FakeData,"Severity Sex",showlegend=TRUE,shownodelabels=FALSE)
 `r vtree(FakeData,"Severity Sex",showlegend=TRUE,shownodelabels=FALSE,
   width=550,height=450,pxwidth=800,imageheight="4in")`
   
-The legend shows how colors are assigned to the different values of each variable,
-and additionally provides marginal (that is, overall) counts and percentages for each variable.
 Since `Severity` is the first variable in the tree---i.e., it is not nested within another variable---
-the marginal counts and percentages for `Severity` are identical to those displayed in the nodes.
+the marginal counts and percentages for `Severity` shown in the legend nodes are identical to those displayed in the nodes of the variable tree.
 In contrast, for `Sex`, the marginal counts and percentages are different
-from what is shown in the nodes because the nodes for `Sex` are nested within levels of `Severity`.
+from what is shown in the nodes of the variable tree for `Sex` since they are nested within levels of `Severity`.
 
 
 ### Putting node labels on the same line as the counts and percentages
@@ -356,8 +357,8 @@ it can be difficult to display it in a readable way.
 One approach that helps is to display the tree horizontally
 and also to put the node labels on the same
 line as the counts and percentage by specifying `sameline=TRUE`.
-For example,
-the following results in nodes with single-lines labels such as **Moderate, 16 (40%)**, etc.:
+For example, the code below generates single-line labels such as
+"Moderate, 16 (40%)":
 
 ```{r,eval=FALSE}
 vtree(FakeData,"Severity Sex Viral",sameline=TRUE)
@@ -469,11 +470,11 @@ vtree(FakeData,"Severity",vp=FALSE,keep=list(Severity="Moderate"))
 
 Note that in the tree on the left (which uses valid percentages),
 the NA node is retained.
-This is done so that the percentage of Moderate cases can be interpreted..
+This is done so that the percentage of Moderate cases can be interpreted.
 (There are `r sum(FakeData$Severity=="Moderate",na.rm=TRUE)` Moderate cases,
-and a total of `r sum(!is.na(FakeData$Severity))` non-missing cases,
-which is
-`r round(100*sum(FakeData$Severity=="Moderate",na.rm=TRUE)/sum(!is.na(FakeData$Severity)))`%.)
+which together make up 
+`r round(100*sum(FakeData$Severity=="Moderate",na.rm=TRUE)/sum(!is.na(FakeData$Severity)))`%
+of the `r sum(!is.na(FakeData$Severity))` non-missing cases.)
 
 On the right, the NA node has been removed, 
 because the denominator (`r nrow(FakeData)`) doesn't depend on the number of missing values.
@@ -483,11 +484,10 @@ because the denominator (`r nrow(FakeData)`) doesn't depend on the number of mis
 
 A disadvantage of the `prune` parameter is that in the resulting tree,
 the counts shown in child nodes may not add up to the counts shown in the parent node.
-For example in the variable tree above,
-of a total of `r nrow(FakeData)` patients,
-`r sum(!is.na(FakeData$Severity) & FakeData$Severity=="Severe")`
-have Severe disease and `Severity` is unknown for `r sum(is.na(FakeData$Severity))`.
-One might wonder what happened to the other `r sum(!is.na(FakeData$Severity) & FakeData$Severity!="Severe")` patients.
+For example in the variable trees above,
+not all of the Severity groups are shown,
+so their counts do not add up to `r nrow(FakeData)`,
+ 
 
 A solution to this problem is to retain the specified nodes,
 but to prune *below* them (i.e. to prune their descendants).
@@ -513,7 +513,8 @@ this allows you to specify which nodes should be "followed" (that is, *not* prun
 ### The `prunesmaller` parameter
 
 As a variable tree grows it can become difficult to see the forest for the tree.
-For example, consider the following variable tree:
+For example, the following tree is hard to read,
+even when `sameline=TRUE` has been specified:
 
 ```{r, eval=FALSE}
 vtree(FakeData,"Severity Sex Age Category",sameline=TRUE)
@@ -533,16 +534,16 @@ vtree(FakeData,"Severity Sex Age Category",sameline=TRUE,prunesmaller=3)
   imageheight="5in",pxwidth=1200)`
 
 As with the `keep` parameter,
-when `vp=TRUE` (which is the default, and means that valid percentages are shown), 
+when valid percentages are used (`vp=TRUE`, which is the default), 
 nodes represent missing values will not be pruned.
-(As noted in the section on the `keep` parameter,
+(As noted previously,
 this is because percentages are confusing when missing values are not shown.)
 When `vp=FALSE`, missing nodes will be pruned (if they are small enough).
 
 
 ## Labels for variables and nodes {#labeling}
 
-By default, `vtree` labels variables and nodes exactly as they are in the data frame.
+By default, `vtree` labels variables and nodes exactly as they appear in the data frame.
 But it is often useful to change these labels.
 
 ### Changing variable labels with the `labelvar` parameter
@@ -579,7 +580,7 @@ vtree(FakeData,"Group Sex",horiz=FALSE,labelnode=list(Sex=c(Male="M",Female="F")
 The `labelnode` argument argument is specified as a list whose element names are variable names.
 To substitute `New label` for `Old label`,
 the syntax is: `"New label"="Old label"`.
-Thus the full specification is: `labelnode=list(Sex=c(Male="M",Female="F"))`.
+Thus the full specification, as used above, is: `labelnode=list(Sex=c(Male="M",Female="F"))`.
 
 ### Targeted node labels using the `tlabelnode` parameter
 
@@ -615,13 +616,14 @@ vtree(FakeData,"Group Sex",horiz=FALSE,
 
 `Graphviz`,
 the open source graph visualization software that `vtree` is built on,
-supports a variety of text formatting (including boldface, colors, etc.).
+supports a variety of text formatting (including bold, colors, etc.).
 This is used in `vtree` to control formatting of text such as node labels.
 
 
 ### Markdown-style codes for text formatting
 
-By default, the `vtree` package uses markdown-style codes for text formatting:
+By default, the `vtree` package uses markdown-style codes for text formatting.
+In the tables below, `...` represents arbitrary text.
 
 -------------  -----------------------------------------------------------------
 `\n`           insert a line break
@@ -663,7 +665,7 @@ It is specified as a list with an element named for each variable.
 In the example below the list has one element, named `Severity`.
 That element in turn is a vector `c(Mild="\n*Excluding\nnew diagnoses*")`
 indicating that the Mild node should include additional text using Markdown-style formatting
-(i.e. there is a linebreak and the asterisks around the text indicate that it should be displayed in italics):
+(i.e. `\n` indicates a linebreak and the asterisks around the text indicate that it should be displayed in italics):
 
 ```{r,eval=FALSE}
 vtree(FakeData,"Group Severity",horiz=FALSE,showvarnames=FALSE,
@@ -679,7 +681,7 @@ vtree(FakeData,"Group Severity",horiz=FALSE,showvarnames=FALSE,
 
 In the example above,
 suppose that new diagnoses are only excluded from Mild cases in `Group` B.
-But the `text` parameter is used to add text to *all* Mild nodes.
+But the `text` parameter adds text to *all* Mild nodes.
 Thus, in situations like this, the `text` parameter is not sufficient.
 Instead, you can use the `ttext` parameter to target
 exactly which nodes should have the specified text.
@@ -708,10 +710,10 @@ vtree(FakeData,"Group Severity",horiz=FALSE,showvarnames=FALSE,
 For convenience,
 `vtree` allows you to specify variable names (separated by whitespace)
 in a single character string.
-If, however, any of the variable names have internal spaces,
-the variable names must be specified as a vector of character strings.
+(If, however, any of the variable names have internal spaces,
+the variable names must be specified as a vector of character strings.)
  
-Additionally, there are several modifiers that can be used
+Additionally, several modifiers can be used in the string of variable names
 to change the way variables are represented in a tree.
  
  
@@ -754,7 +756,7 @@ i.e. to divide them into three groups:
 ### suffix `*`
 
 Specifying `Ind*` matches all variable names that start with `Ind`.
-In `FakeData` these are `Ind1`, `Ind2`, and `Ind3`.
+In `FakeData` this matches `Ind1`, `Ind2`, and `Ind3`.
 
 The `*` suffix matches all variable names
 
@@ -820,7 +822,8 @@ with text as well as special codes (such as `%mean%`) to indicate the type of su
 
 For example specifying `summary="Score \nmean score: %mean%"`
 indicates that the variable to be summarized is `Score` and that the summary
-should have the following format: `\nmean score: %mean%`, representing:
+should have the following format: `\nmean score: %mean%`.
+This appears as:
 
 * a new line (represented by the newline character `\n`) 
 
@@ -829,7 +832,8 @@ should have the following format: `\nmean score: %mean%`, representing:
 * and finally the mean of `Score`.
 
 If you don't want to see the number of missing values, 
-the code `%meanx%` can be used instead of `%mean%`.
+the code `%meanx%` can be used instead of `%mean%`
+(but note that this can be misleading).
 To see the means without any decimals, the `cdigits` parameter can be used;
 for example:
 
@@ -859,7 +863,7 @@ code            | result
 (variant: `%IQRx%` does not report missing values)
 `%freqpct%`     |  frequency and percentage of values of a variable
 `%freq%`        |  frequency of values of a variable
-`%pX%`          |  Xth percentile (e.g. `p50` means the 50th percentile)
+`%pY%`          |  *Y*th percentile (e.g. `p50` means the 50th percentile)
 `%npct%`        |  frequency and percentage of a logical variable. By default "valid percentages" are used. Any missing values are also reported.     
 `%pct%`         |  same as `%npct%` but percentage only (with no parentheses).
 `%list%`        |  list of individual values, separated by commas

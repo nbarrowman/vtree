@@ -1580,7 +1580,12 @@ vtree <- function (z, vars, splitspaces=TRUE,
     summarytext <- vector("list",length=length(CAT))
     names(summarytext) <- CAT
     for (value in CAT) {
-      summarytext[[value]] <- nodefunc(z[qqq == value, ], vars[1], value, args = nodeargs)
+     # browser()
+      zselect <- z[qqq == value, ]
+      for (i in seq_len(ncol(zselect))) {
+        attr(zselect[,i],"label") <- attr(z[,i],"label")
+      }
+      summarytext[[value]] <- nodefunc(zselect, vars[1], value, args = nodeargs)
       nodetext <- paste0(summarytext[[value]],collapse="")
       nodetext <- splitlines(nodetext, width = splitwidth, sp = sepN, at=" ")
       ThisLevelText <- c(ThisLevelText, nodetext)
@@ -1722,7 +1727,12 @@ vtree <- function (z, vars, splitspaces=TRUE,
           select <- which(z[[CurrentVar]] == varlevel)
       }
       if (length(select)>0 & numvars>=1) {
-        fcChild <- vtree(z[select, , drop = FALSE],
+        zselect <- z[select, , drop = FALSE]
+        for (index in seq_len(ncol(zselect))) {
+          attr(zselect[[index]],"label") <- attr(z[[index]],"label")
+        }
+        # browser()
+        fcChild <- vtree(zselect,
           vars[-1], parent = fc$nodenum[i], last = max(fc$nodenum),
           labelnode = labelnode,
           tlabelnode = TLABELNODE,

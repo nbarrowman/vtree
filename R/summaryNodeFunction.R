@@ -259,7 +259,8 @@ summaryNodeFunction <- function (u, varname, value, args) {
       for (j in 1:length(expanded_stem)) {
         rexp1 <- ".+\\(choice=(.+)\\)"
         rexp2 <- ".+: (.+)"
-        lab <- attributes(z[[expanded_stem[j]]])$label
+        lab <- attributes(u[[expanded_stem[j]]])$label
+        #browser()
         if (length(grep(rexp1,lab))>0) {
           choice <- sub(rexp1,"\\1",lab)
         } else

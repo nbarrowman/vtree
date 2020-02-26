@@ -41,7 +41,9 @@ build.data.frame <- function(varnames,...) {
   count <- NULL
   for (i in seq_len(length(input))) {
     m <- length(input[[i]])
-    if ((m-1)>nvar) stop("Number of input in a list cannot exceed number of variable names")
+    if ((m-1)!=nvar) stop(paste0(
+      "There are ",nvar," variable names, so each list should have ",
+      nvar+1," elements (",nvar," values followed by a count)."))
     count <- c(count,input[[i]][[m]])
   }
   listit <- vector("list",length=length(input[[1]])-1)
