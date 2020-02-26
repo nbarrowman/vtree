@@ -145,7 +145,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
   freqfunc <- function(w,digits=2,vp=TRUE,empty="",
     pcs = "%",  showN = FALSE, shown = TRUE, showp = TRUE, 
     nmiss = FALSE, nmiss0 = FALSE, includemiss = TRUE, showzero = FALSE, 
-    percentfirst = FALSE, sep = ", ") {
+    percentfirst = FALSE, sep = ", ",sort=FALSE) {
     x <- w
  
     nmissString <- ""
@@ -167,6 +167,9 @@ summaryNodeFunction <- function (u, varname, value, args) {
     if (length(x) == 0 & (!is.factor(x))) 
         return(empty)
     tab <- table(x, exclude = NULL)
+    if (sort) {
+      tab <- rev(sort(tab))
+    }
     if (any(is.na(names(tab)))) 
         names(tab)[is.na(names(tab))] <- "NA"
     result <- ""
@@ -245,6 +248,12 @@ summaryNodeFunction <- function (u, varname, value, args) {
     } else {
       ShowCombinations <- FALSE
     }
+    
+    if (length(grep("%sort%",args$format[i]))>0) {
+      SortIt <- TRUE
+    } else {
+      SortIt <- FALSE
+    }    
     
     # check if it's a stem
     if (length(grep("^stem:",var))>0) {
@@ -389,14 +398,15 @@ summaryNodeFunction <- function (u, varname, value, args) {
         result <- gsub("%trunc=(.+)%","",result)
         result <- gsub("%noroot%","",result)
         result <- gsub("%combo%","",result)
+        result <- gsub("%sort%","",result)
         result <- gsub("%leafonly%","",result)
         result <- gsub("%v%",args$var[i],result)
         result <- gsub("%list%",listOutput,result)
         result <- gsub("%listlines%",listLinesOutput,result)
-        result <- gsub("%freqpct%",freqfunc(y,digits=digits),result)
-        result <- gsub("%freq%",freqfunc(y,digits=digits,showp=FALSE),result)
-        result <- gsub("%freqpctlines%",freqfunc(y,digits=digits,sep="\n"),result)
-        result <- gsub("%freqlines%",freqfunc(y,digits=digits,showp=FALSE,sep="\n"),result)
+        result <- gsub("%freqpct%",freqfunc(y,digits=digits,sort=SortIt),result)
+        result <- gsub("%freq%",freqfunc(y,digits=digits,showp=FALSE,sort=SortIt),result)
+        result <- gsub("%freqpctlines%",freqfunc(y,digits=digits,sep="\n",sort=SortIt),result)
+        result <- gsub("%freqlines%",freqfunc(y,digits=digits,showp=FALSE,sep="\n",sort=SortIt),result)
         result <- gsub("%mv%",paste0(missingNum),result)
         result <- gsub("%nonmv%",paste0(nonmissingNum),result)
         if (is.numeric(x) | is.logical(x)) {

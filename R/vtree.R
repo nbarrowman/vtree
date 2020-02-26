@@ -324,8 +324,10 @@ NULL
 #'  \item{\code{\%IQR\%} }{interquartile range, i.e. p25, p75}
 #'  \item{\code{\%npct\%} }{number and percentage of \code{TRUE} values}
 #'  \item{\code{\%pct\%} }{percentage of \code{TRUE} values}
-#'  \item{\code{\%freqpct\%} }{frequency and percentage of values of a variable.}
+#'  \item{\code{\%freqpct\%} }{frequency and percentage of values of a variable}
+#'  \item{\code{\%freqpctlines\%} }{frequency and percentage of values of a variable shown on successive lines}
 #'  \item{\code{\%freq\%} }{frequency of values of a variable.}
+#'  \item{\code{\%freqlines\%} }{frequency of values of a variable shown on successive lines}
 #'  \item{\code{\%list\%} }{list of the individual values}
 #'  \item{\code{\%mv\%} }{the number of missing values}
 #'  \item{\code{\%nonmv\%} }{the number of non-missing values}
