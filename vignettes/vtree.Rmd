@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 4.2.5"
+title: "Introduction to vtree 4.2.6"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
 output:
@@ -842,7 +842,6 @@ vtree(FakeData,"Severity",summary="Score \nmean score: %mean%",cdigits=0,
   sameline=TRUE,horiz=FALSE)
 ```
 
-
 The following codes can be used to show summary information:
 
 code            | result
@@ -862,7 +861,9 @@ code            | result
 `%IQR%`         |  IQR, i.e. p25, p75\
 (variant: `%IQRx%` does not report missing values)
 `%freqpct%`     |  frequency and percentage of values of a variable
+`%freqpctlines%`|  same as `%freqpct%` but on separate lines
 `%freq%`        |  frequency of values of a variable
+`%freqlines%`   |  same as `%freq%` but on separate lines
 `%pY%`          |  *Y*th percentile (e.g. `p50` means the 50th percentile)
 `%npct%`        |  frequency and percentage of a logical variable. By default "valid percentages" are used. Any missing values are also reported.     
 `%pct%`         |  same as `%npct%` but percentage only (with no parentheses).
@@ -897,8 +898,9 @@ especially with large trees.
 
 ### Specification of variables in the summary argument
 
-Variables in the `summary` parameter can also be specified in a way similar
-to the [specification of variables](#VariableSpecification) for structuring a variable tree.
+Variables in the `summary` parameter can also be specified in a way that is
+somewhat similar to the [specification of variables](#VariableSpecification)
+for structuring a variable tree.
 For example, if we wish to know the proportion of patients in each node whose `Category` is single,
 we specify `Category=single` in the `summary` argument and use the `%pct%` code:
 
@@ -912,6 +914,13 @@ vtree(FakeData,"Severity",summary="Category=single \n%pct% single",sameline=TRUE
   
 Continuous variables such as `Score` can be dichotomized using
 notation such as `Score>10` or `Score<20`.
+
+#### prefix `stem:`
+
+As with variable specifications, there is a `stem:` prefix for variables
+in the summary argument. 
+This is used to identify checkbox variables from a REDCap dataset.
+
 
 
 ### The `%list%` code
@@ -1247,6 +1256,30 @@ individual variables `IceCream___1` (representing Chocolate),
 `IceCream___2` (Vanilla), and `IceCream___3` (Strawberry) are created.
 When the dataset is read into R,
 the names of the flavors are embedded in the `attributes` of these variables.
+
+For illustrative purposes, let's build a dataframe like this using the
+`build.data.frame` function (for an explanation of this function see the section
+of this vignette on [generating a data frame by specifying subset sizes](#GeneratingDataFrames)
+
+```{r,eval=FALSE}
+dessert <- build.data.frame(
+  c(   "group","IceCream___1","IceCream___2","IceCream___3"),
+  list("A",     1,             0,             0,              7),
+  list("A",     1,             0,             1,              2),
+  list("A",     0,             0,             0,              1),
+  list("B",     1,             0,             1,              1),
+  list("B",     1,             0,             0,              2), 
+  list("B",     0,             1,             1,              1),
+  list("B",     0,             0,             0,              1))
+attr(dessert$IceCream___1,"label") <- "Ice cream (choice=Chocolate)"
+attr(dessert$IceCream___2,"label") <- "Ice cream (choice=Vanilla)"
+attr(dessert$IceCream___3,"label") <- "Ice cream (choice=Strawberry)"
+``` 
+
+```{r, eval=FALSE}
+vtree(dessert,"stem:IceCream",pattern=TRUE)
+vtree(dessert,"",summary="stem:IceCream \n%freqlines%%combo%",splitwidth=Inf)
+```
 
 ### prefix `stem:`
 

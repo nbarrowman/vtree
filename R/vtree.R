@@ -472,6 +472,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
     sepN <- "\n"
   }  
 
+  novars <- FALSE
 
   ### ----------- Begin code for root only ------------
 
@@ -488,11 +489,16 @@ vtree <- function (z, vars, splitspaces=TRUE,
       pattern <- TRUE
     }
     
-    if (!missing(vars) && length(vars)==1 && splitspaces) {
-      vars <- strsplit(vars,"\\s+")[[1]]
-      # In case the first element is empty
-      # (due to whitespace at the beginning of the string)
-      if (vars[1]=="") vars <- vars[-1]
+    if (!missing(vars) && length(vars)==1) {
+      if (!is.na(vars) & vars=="") {
+        novars <- TRUE
+      } else
+      if (splitspaces) {
+        vars <- strsplit(vars,"\\s+")[[1]]
+        # In case the first element is empty
+        # (due to whitespace at the beginning of the string)
+        if (vars[1]=="") vars <- vars[-1]
+      }
     }
 
     # Special case where z is provided as a vector instead of a data frame
@@ -1066,6 +1072,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
     }
 
     # Check that all of named variables are in the data frame
+    if (novars) ALLVARS <- ALLVARS[ALLVARS!=""]
     findallvars <- ALLVARS %in% names(z)
     if (any(!findallvars)) {
       stop("The following variables were not found in the data frame: ",
@@ -1490,7 +1497,9 @@ vtree <- function (z, vars, splitspaces=TRUE,
     
   }
 
+  ### -----------------------------------------------  
   ### ----------- End code for root only ------------
+  ### -----------------------------------------------  
   
   numvars <- length(vars)
 
@@ -1610,15 +1619,25 @@ vtree <- function (z, vars, splitspaces=TRUE,
   if (pattern & vars[1]!="pattern") ThisLevelText <- ""
   if (seq  & vars[1]!="sequence") ThisLevelText <- ""
 
-  fc <- flowcat(z[[vars[1]]], root = root, title = title, parent = parent,
+  if (novars) {
+    zvalue <- rep(0,nrow(z))
+    showCOUNT <- showcount
+    showPCT <- showpct
+  } else {
+    zvalue <- z[[vars[1]]]
+    showCOUNT <- showcount[[vars[1]]]
+    showPCT <- showpct[vars[1]]
+  }
+  
+  fc <- flowcat(zvalue, root = root, novars=novars, title = title, parent = parent,
     var=vars[[1]],
     last = last, labels = labelnode[[vars[1]]], tlabelnode=tlabelnode, labelvar = labelvar[vars[1]],
     varminwidth=varminwidth[vars[1]],varminheight=varminheight[vars[1]],varlabelloc=varlabelloc[vars[1]],
     check.is.na=check.is.na,
     sameline=sameline,
     showvarinnode=showvarinnode,shownodelabels=shownodelabels[vars[1]],
-    showpct=showpct[vars[1]],
-    showcount=showcount[vars[1]],
+    showpct=showPCT,
+    showcount=showCOUNT,
     prune=prune[[vars[1]]],
     prunelone=prunelone,
     prunesmaller=prunesmaller,
@@ -1944,6 +1963,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
       rownames(pt) <- NULL
       pt
     } else {    
+      if (novars) NL <- ""
       flowchart <- showflow(fc, getscript = getscript, nodesep = nodesep,
         ranksep=ranksep, margin=margin, nodelevels = NL, horiz = horiz,
         width=width,height=height,

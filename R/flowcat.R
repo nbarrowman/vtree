@@ -1,4 +1,4 @@
-flowcat <- function(z,root=TRUE,title="",parent=1,last=1,labels=NULL,tlabelnode=NULL,HTMLtext=FALSE,
+flowcat <- function(z,root=TRUE,novars=FALSE,title="",parent=1,last=1,labels=NULL,tlabelnode=NULL,HTMLtext=FALSE,
 var,
 check.is.na=FALSE,
 labelvar=NULL,
@@ -21,7 +21,7 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
 # https://en.wikipedia.org/wiki/DOT_(graph_description_language)
 #
 
-  if (HTMLtext) {
+    if (HTMLtext) {
     sepN <- "<BR/>"
   } else {
     sepN <- "\n"
@@ -50,6 +50,10 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
   # Pre-pend the parent node
   categoryCounts <- c(length(z),categoryCounts)
   names(categoryCounts)[1] <- title
+
+  if (novars) {
+    showcount <- TRUE
+  }
 
   if (vp & any(names(categoryCounts)=="NA")) { 
     cc <- categoryCounts[-1]
@@ -82,8 +86,6 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
       npctString <- paste0(npctString," (",pctString,"%)")
     }
   }
-  
-  #browser()
   
   npctString <- c(length(z),npctString)
   nString <- c(length(z),nString)
@@ -153,6 +155,7 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
       }
     }
   }
+  
 
   # Number of new nodes to add to the tree
   n <- length(categoryCounts)-1              # exclude the parent node
@@ -198,7 +201,7 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
       }
     }
   }
-  
+    
   displayCAT <- CAT
   
   if (HTMLtext) {
@@ -222,7 +225,7 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
   }
 
   # Write DOT code for the edges
-  if (showroot) {
+  if (showroot & !novars) {
     edgeVector <- paste0(nodenames[1],"->",nodenames[-1])
     edges <- paste(edgeVector,collapse=" ")
   } else {
@@ -260,7 +263,7 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
       displayCAT[-1] <- paste0(labelvar,sepN,displayCAT[-1])
     }
   }
-  
+
   if (!HTMLtext) {
     displayCAT <- convertToHTML(displayCAT)
     extraText <- convertToHTML(extraText)
@@ -285,9 +288,11 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
         nodenames[1],'[label=<',displayCAT[1],npctString[1],extraText[1],'> color=',topcolor,styleString,
         ' fillcolor=<',topfillcolor,'>]'),collapse='\n')
     }
-    labelassign <- paste0(labelassign,'\n',paste(paste0(
-      nodenames[-1],'[label=<',displayCAT[-1],npctString[-1],extraText[-1],'> color=',color,styleString,
-      ' fillcolor=<',FILLCOLOR,'>',VARLABELLOC,' ',VARMINWIDTH,' ',VARMINHEIGHT,']')),collapse='\n')
+    if (!novars) {
+      labelassign <- paste0(labelassign,'\n',paste(paste0(
+        nodenames[-1],'[label=<',displayCAT[-1],npctString[-1],extraText[-1],'> color=',color,styleString,
+        ' fillcolor=<',FILLCOLOR,'>',VARLABELLOC,' ',VARMINWIDTH,' ',VARMINHEIGHT,']')),collapse='\n')
+    }
   } else {
     labelassign <- paste(paste0(
       nodenames[-1],'[label=<',displayCAT[-1],npctString[-1],extraText[-1],'> color=',color,styleString,
