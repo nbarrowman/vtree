@@ -13,6 +13,29 @@ summaryNodeFunction <- function (u, varname, value, args) {
     }
   }
   
+  fullsummary <- function(w,digits,varname) {
+    nMissing <- sum(is.na(w))
+    if (length(w)<=3) {
+      return(paste(varname,"\n",around(w,digits=digits),collapse=", "))
+    }
+    if (nMissing==length(w)) {
+      return(paste0(varname,"\n","missing ",nMissing))
+    }
+    med <- around(as.numeric(stats::median(w,na.rm=TRUE)), digits = digits)
+    lo <- around(as.numeric(min(w,na.rm=TRUE)), digits = digits)
+    hi <- around(as.numeric(max(w,na.rm=TRUE)), digits = digits)
+    q25 <- around(quantile(w,0.25,na.rm=TRUE), digits = digits)
+    q75 <- around(quantile(w,0.75,na.rm=TRUE), digits = digits)
+    mn <- around(mean(w,na.rm=TRUE), digits = digits)
+    s <- around(stats::sd(w,na.rm=TRUE), digits = digits)
+    paste0(
+      varname,"\n",
+      "missing ",nMissing,"\n",
+      "mean ",mn," SD ",s,"\n",
+      "med ",med," IQR ",q25,", ",q75,"\n",
+      "range ",lo,", ",hi,"\n")
+  }
+  
   medianfunc <- function(w,cdigits) {
     nMissing <- sum(is.na(w))
     m <- around(stats::median(w,na.rm=TRUE), digits = cdigits)
@@ -243,6 +266,12 @@ summaryNodeFunction <- function (u, varname, value, args) {
   
     var <- args$var[i]
     
+    if (args$format[i]=="") {
+      ShowFullSummary <- TRUE
+    } else {
+      ShowFullSummary <- FALSE
+    }
+    
     if (length(grep("%combo%",args$format[i]))>0) {
       ShowCombinations <- TRUE
     } else {
@@ -269,7 +298,6 @@ summaryNodeFunction <- function (u, varname, value, args) {
         rexp1 <- ".+\\(choice=(.+)\\)"
         rexp2 <- ".+: (.+)"
         lab <- attributes(u[[expanded_stem[j]]])$label
-        #browser()
         if (length(grep(rexp1,lab))>0) {
           choice <- sub(rexp1,"\\1",lab)
         } else
@@ -278,7 +306,6 @@ summaryNodeFunction <- function (u, varname, value, args) {
         } else {
           stop("Could not find value of checklist item")
         }
-        #browser()
         if (ShowCombinations) {
           y <- ifelse(u[[expanded_stem[j]]]==1,
             ifelse(y=="",choice,paste0(y,"+",choice)),y)
@@ -392,7 +419,11 @@ summaryNodeFunction <- function (u, varname, value, args) {
           minx <- min(x)
           maxx <- max(x)
         }
-
+        
+        if (ShowFullSummary) {
+          result <- paste0("\n",fullsummary(y,digits=cdigits,varname=var))
+        }
+        
         result <- gsub("%var=[^%]+%","",result)
         result <- gsub("%node=[^%]+%","",result)
         result <- gsub("%trunc=(.+)%","",result)

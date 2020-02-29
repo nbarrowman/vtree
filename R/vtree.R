@@ -43,6 +43,7 @@ NULL
 #' @param vars             Required (unless \code{z} is a vector):
 #'                         Either a character string of whitespace-separated variable names
 #'                         or a vector of variable names.
+#' @param auto             Automatically choose variables?
 #' @param splitspaces      When \code{vars} is a character string,
 #'                         split it by spaces to get variable names?
 #'                         It is only rarely necessary to use this parameter.
@@ -400,7 +401,7 @@ NULL
 #'
 #' @export
 
-vtree <- function (z, vars, splitspaces=TRUE,
+vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
   prune=list(), prunebelow = list(), keep=list(), follow=list(),
   prunelone=NULL,pruneNA=FALSE,prunesmaller=NULL,
   labelnode = list(),tlabelnode=NULL,labelvar = NULL,
@@ -488,16 +489,22 @@ vtree <- function (z, vars, splitspaces=TRUE,
     if (ptable & !(pattern | seq | check.is.na)) {
       pattern <- TRUE
     }
-    
-    if (!missing(vars) && length(vars)==1) {
-      if (!is.na(vars) & vars=="") {
+
+    if (!auto) {
+      if (missing(vars)) {
         novars <- TRUE
+        vars <- ""
       } else
-      if (splitspaces) {
-        vars <- strsplit(vars,"\\s+")[[1]]
-        # In case the first element is empty
-        # (due to whitespace at the beginning of the string)
-        if (vars[1]=="") vars <- vars[-1]
+      if (length(vars)==1) {
+        if (!is.na(vars) & vars=="") {
+          novars <- TRUE
+        } else
+        if (splitspaces) {
+          vars <- strsplit(vars,"\\s+")[[1]]
+          # In case the first element is empty
+          # (due to whitespace at the beginning of the string)
+          if (vars[1]=="") vars <- vars[-1]
+        }
       }
     }
 
@@ -510,12 +517,9 @@ vtree <- function (z, vars, splitspaces=TRUE,
       vars <- argname
     }
     
-    # Special case where vars is not provided.
-    #
-    # ---> Include all variables with fewer than 5 levels.
-    # ---> Set showvarinnode=TRUE
-    #
-    if (is.data.frame(z) && missing(vars)) {
+ 
+    #if (is.data.frame(z) && missing(vars)) {
+    if (auto) {
       if (missing(showvarinnode) & !check.is.na) showvarinnode <- TRUE
       vars <- c()
       non_discrete_vars <- c()
@@ -873,6 +877,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
         }
       }
       codecode <- gsub("^(\\S+) (.+)$", "\\2", summary)
+      codecode[grep("^(\\S+) (.+)$",summary,invert=TRUE)] <- ""
       nodefunc <- summaryNodeFunction
       nodeargs <- list(var = codevar, format = codecode, sf = runsummary, digits = digits, cdigits = cdigits, sepN=sepN)
       # allvars <- c(allvars,codevar)
@@ -1591,7 +1596,6 @@ vtree <- function (z, vars, splitspaces=TRUE,
     summarytext <- vector("list",length=length(CAT))
     names(summarytext) <- CAT
     for (value in CAT) {
-     # browser()
       zselect <- z[qqq == value, ]
       for (i in seq_len(ncol(zselect))) {
         attr(zselect[,i],"label") <- attr(z[,i],"label")
@@ -1752,9 +1756,8 @@ vtree <- function (z, vars, splitspaces=TRUE,
         for (index in seq_len(ncol(zselect))) {
           attr(zselect[[index]],"label") <- attr(z[[index]],"label")
         }
-        # browser()
         fcChild <- vtree(zselect,
-          vars[-1], parent = fc$nodenum[i], last = max(fc$nodenum),
+          vars[-1], auto=FALSE,parent = fc$nodenum[i], last = max(fc$nodenum),
           labelnode = labelnode,
           tlabelnode = TLABELNODE,
           colorvarlabels=colorvarlabels,
@@ -1955,8 +1958,6 @@ vtree <- function (z, vars, splitspaces=TRUE,
     else {
       NL <- ''
     }
-    
-    #browser()
     
     if (ptable) {
       pt <- patternTable[nrow(patternTable):1,]
