@@ -135,12 +135,9 @@ div.figure {
   text-align: center;
 }
 img {
-  background-color: #FFFFFF;
-  padding: 2px;
-  border: 0px solid #DDDDDD;
-  border-radius: 3px;
-  border: 0px solid #CCCCCC;
-  margin: 0 5px;
+  vertical-align: middle;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 h1 {

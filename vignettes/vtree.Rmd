@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 4.2.7"
+title: "Introduction to vtree 4.2.8"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
 output:
@@ -263,16 +263,18 @@ vtree(df,"v1 v2")
 For additional details about how variables can be specified,
 see the section on [specification of variables](#VariableSpecification) below.
 Note that if `vtree` is called without a list of variables,
-it uses as many discrete variables from the data frame as possible,
-starting with the first column.
+it shows only the root node, representing the entire data frame.
+Although a tree with just one node might not seem very useful,
+it provides a convenient way of displaying
+[summary information](#summary) about the data frame.
 
-```{r, eval=FALSE,echo=FALSE}
+```{r, eval=FALSE,echo=FALSE,include=FALSE}
 NOTES:
 1. Discrete variables are operationally defined here as variables with at most 4 distinct values.
 2. Variables are included until the maximum number of nodes exceeds the maxNodes parameter value.
 ```
 
-Numerous additional parameters can be supplied.
+The `vtree` function has numerous optional parameters.
 For example, by default `vtree` produces a horizontal tree
 (that is, a tree that grows from left to right).
 To generate a vertical tree, specify `horiz=FALSE`.
@@ -793,8 +795,47 @@ It is often useful to display information about other variables
 (apart from those that define the tree) in the nodes of a variable tree.
 This is particularly useful for numeric variables,
 which generally cannot be used to build the tree since they have too many distinct values.
-For example, we might wish to display the mean `Score` for individuals in each node.
-Here's how to do this, using the `summary` parameter:
+The `summary` parameter allows you to show summary information about
+a specified variable.
+
+For example, suppose you are interested in summary information for the `Score`
+variable for all of the observations in the data frame.
+In that case you don't need to specify any variables for the tree since you
+are only interested in the root variable:
+
+```{r,eval=FALSE}
+vtree(FakeData,summary="Score")
+```
+
+`r vtree(FakeData,summary="Score",
+  width=450,height=150,pxwidth=1000,imageheight="1in")`
+  
+When a variable name (in this case `"Score"`) is specified as the argument
+of the `summary` parameter, a default set of summary statistics is shown:
+
+* the variable name
+
+* the number of missing values
+
+* the mean and standard deviation
+
+* the median and interquartile range
+
+* the range
+
+If we wish to display these summaries for Score in each node of a variable tree,
+say based `Severity`, we simply call:
+
+```{r,eval=FALSE}
+vtree(FakeData,"Severity",summary="Score",horiz=FALSE)
+```
+
+`r vtree(FakeData,"Severity",summary="Score",horiz=FALSE,
+  width=450,height=150,pxwidth=1000,imageheight="2.5in")`
+
+The `summary` parameter also allows for a more customized specification.
+For example, we might wish to display only the mean `Score`
+in each node of the tree:
 
 ```{r,eval=FALSE}
 vtree(FakeData,"Severity",summary="Score \nmean score: %mean%",sameline=TRUE,horiz=FALSE)
@@ -811,11 +852,13 @@ the number of missing values is shown using the abbreviation `mv`.
 
 ### How to specify the `summary` argument
 
-The argument of the `summary` parameter is a character string with the following structure:
+As described above, the `summary` argument may simply be a variable name
+(in which case detailed summary statistics are reported).
+Alternatively, a character string with the following structure may be used:
 
-* It starts with the name of the variable for which a summary is desired. (We'll see later that variable specifications and expressions can also be used, as long as they do not contain any spaces.)
+* First, the name of the variable for which a summary is desired. (We'll see later that variable specifications and expressions can also be used, as long as they do not contain any spaces.)
 
-* Next there is a space.
+* Next a space.
 
 * The remainder of the string specifies what to display,
 with text as well as special codes (such as `%mean%`) to indicate the type of summary desired and to control which nodes display the summary, etc.
@@ -860,40 +903,21 @@ code            | result
 (variant: `%medianx%` does not report missing values)
 `%IQR%`         |  IQR, i.e. p25, p75\
 (variant: `%IQRx%` does not report missing values)
-`%freqpct%`     |  frequency and percentage of values of a variable
-`%freqpctlines%`|  same as `%freqpct%` but on separate lines
-`%freq%`        |  frequency of values of a variable
-`%freqlines%`   |  same as `%freq%` but on separate lines
+`%freqpct%`     |  frequency and percentage of values of a variable\
+(variant: `%freqpct_%` shows each value on a separate line)
+`%freq%`        |  frequency of values of a variable\
+(variant: `%freq_%` shows each value on a separate line)
 `%pY%`          |  *Y*th percentile (e.g. `p50` means the 50th percentile)
 `%npct%`        |  frequency and percentage of a logical variable. By default "valid percentages" are used. Any missing values are also reported.     
 `%pct%`         |  same as `%npct%` but percentage only (with no parentheses).
-`%list%`        |  list of individual values, separated by commas
-`%listlines%`   |  list of individual values, each on a separate line
+`%list%`        |  list of individual values, separated by commas\
+(variant: `%list_%` shows each value on a separate line)
 `%mv%`          |  the number of missing values
 `%nonmv%`       |  the number of non-missing values
 `%v%`           |  the name of the variable
 
 The `summary` argument can use any number of these codes,
 mixed with text and formatting codes.
-
-
-### The `%freqpct%` code
-
-The `%freqpct%` code allows you to summarize a discrete variable within nodes.
-For example, an alternative to a variable tree for `Sex` and `Severity`
-is a variable tree for `Sex` with a summaries for `Severity` in each node. 
-
-```{r,eval=FALSE}
-vtree(FakeData,"Sex",summary="Severity \n%freqpct%")
-```
-
-`r vtree(FakeData,"Sex",summary="Severity \n%freqpct%",
-  width=450,height=150,pxwidth=1000,imageheight="3in")`
-
-Because (by default) a summary is shown in each node,
-this tree shows more information than a variable tree for `Sex` and `Severity`.
-The display is also more compact, which can be convenient,
-especially with large trees.
 
 
 ### Specification of variables in the summary argument
@@ -1005,13 +1029,13 @@ vtree(FakeData,"Severity Sex")
 vtree(FakeData,"Severity Sex",pattern=TRUE)
 ```
 ```{r, echo=FALSE,results="asis"}
-cat(vtree(FakeData,"Severity Sex",
-  width=650,height=650,pxwidth=500,imageheight="4in"))
+vtree(FakeData,"Severity Sex",
+  width=650,height=650,pxwidth=500,imageheight="4in")
 
 cat("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")
 
-cat(vtree(FakeData,"Severity Sex",pattern=TRUE,
-  width=650,height=650,pxwidth=600,imageheight="4in"))
+vtree(FakeData,"Severity Sex",pattern=TRUE,
+  width=650,height=650,pxwidth=600,imageheight="4in")
 ```
 
 

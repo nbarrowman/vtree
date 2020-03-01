@@ -315,21 +315,19 @@ NULL
 #' 
 #' @section Summary codes:
 #' \itemize{
-#'  \item{\code{\%mean\%} }{mean}
-#'  \item{\code{\%SD\%} }{standard deviation}
-#'  \item{\code{\%sum\%} }{sum}
-#'  \item{\code{\%min\%} }{minimum}
-#'  \item{\code{\%max\%} }{maximum}
+#'  \item{\code{\%mean\%} }{mean. Variant \code{\%meanx\%} does not report missing values.}
+#'  \item{\code{\%SD\%} }{standard deviation. Variant \code{\%SDx\%} does not report missing values.}
+#'  \item{\code{\%sum\%} }{sum. Variant \code{\%sum\%} does not report missing values.}
+#'  \item{\code{\%min\%} }{minimum. Variant \code{\%minx\%} does not report missing values.}
+#'  \item{\code{\%max\%} }{maximum. Variant \code{\%maxx\%} does not report missing values.}
 #'  \item{\code{\%pX\%} }{Xth percentile, e.g. p50 means the 50th percentile}
-#'  \item{\code{\%median\%} }{median, i.e. p50}
-#'  \item{\code{\%IQR\%} }{interquartile range, i.e. p25, p75}
+#'  \item{\code{\%median\%} }{median. Variant \code{\%medianx\%} does not report missing values.}
+#'  \item{\code{\%IQR\%} }{interquartile range. Variant \code{\%IQRx\%} does not report missing values.}
 #'  \item{\code{\%npct\%} }{number and percentage of \code{TRUE} values}
 #'  \item{\code{\%pct\%} }{percentage of \code{TRUE} values}
-#'  \item{\code{\%freqpct\%} }{frequency and percentage of values of a variable}
-#'  \item{\code{\%freqpctlines\%} }{frequency and percentage of values of a variable shown on successive lines}
-#'  \item{\code{\%freq\%} }{frequency of values of a variable.}
-#'  \item{\code{\%freqlines\%} }{frequency of values of a variable shown on successive lines}
-#'  \item{\code{\%list\%} }{list of the individual values}
+#'  \item{\code{\%freqpct\%} }{frequency and percentage of values of a variable. Variant \code{\%freqpct_\%} shows each value on a separate line }
+#'  \item{\code{\%freq\%} }{frequency of values of a variable. Variant \code{\%freq_\%} shows each value on a separate line}
+#'  \item{\code{\%list\%} }{list of the individual values. Variant \code{\%list_\%} shows each value on a separate line}
 #'  \item{\code{\%mv\%} }{the number of missing values}
 #'  \item{\code{\%nonmv\%} }{the number of non-missing values}
 #'  \item{\code{\%v\%} }{the name of the variable}

@@ -33,7 +33,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
       "missing ",nMissing,"\n",
       "mean ",mn," SD ",s,"\n",
       "med ",med," IQR ",q25,", ",q75,"\n",
-      "range ",lo,", ",hi,"\n")
+      "range ",lo,", ",hi)
   }
   
   medianfunc <- function(w,cdigits) {
@@ -434,10 +434,13 @@ summaryNodeFunction <- function (u, varname, value, args) {
         result <- gsub("%v%",args$var[i],result)
         result <- gsub("%list%",listOutput,result)
         result <- gsub("%listlines%",listLinesOutput,result)
+        result <- gsub("%list_%",listLinesOutput,result)
         result <- gsub("%freqpct%",freqfunc(y,digits=digits,sort=SortIt),result)
         result <- gsub("%freq%",freqfunc(y,digits=digits,showp=FALSE,sort=SortIt),result)
         result <- gsub("%freqpctlines%",freqfunc(y,digits=digits,sep="\n",sort=SortIt),result)
+        result <- gsub("%freqpct_%",freqfunc(y,digits=digits,sep="\n",sort=SortIt),result)
         result <- gsub("%freqlines%",freqfunc(y,digits=digits,showp=FALSE,sep="\n",sort=SortIt),result)
+        result <- gsub("%freq_%",freqfunc(y,digits=digits,showp=FALSE,sep="\n",sort=SortIt),result)
         result <- gsub("%mv%",paste0(missingNum),result)
         result <- gsub("%nonmv%",paste0(nonmissingNum),result)
         if (is.numeric(x) | is.logical(x)) {
