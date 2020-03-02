@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 4.2.8"
+title: "Introduction to vtree 4.2.9"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
 output:
@@ -260,19 +260,11 @@ The variable tree can be displayed using the following command:
 vtree(df,"v1 v2")
 ```
 
-For additional details about how variables can be specified,
-see the section on [specification of variables](#VariableSpecification) below.
-Note that if `vtree` is called without a list of variables,
-it shows only the root node, representing the entire data frame.
+If `vtree` is called without a list of variables,
+only the root node is shown, representing the entire data frame.
 Although a tree with just one node might not seem very useful,
 it provides a convenient way of displaying
 [summary information](#summary) about the data frame.
-
-```{r, eval=FALSE,echo=FALSE,include=FALSE}
-NOTES:
-1. Discrete variables are operationally defined here as variables with at most 4 distinct values.
-2. Variables are included until the maximum number of nodes exceeds the maxNodes parameter value.
-```
 
 The `vtree` function has numerous optional parameters.
 For example, by default `vtree` produces a horizontal tree
@@ -301,6 +293,8 @@ vtree(FakeData,"Severity Sex",horiz=FALSE,plain=TRUE)
 `r vtree(FakeData,"Severity Sex",horiz=FALSE,plain=TRUE,
   width=450,height=200,pxwidth=1600,imageheight="1.8in")`
 
+For additional details about how variables can be specified,
+see the section on [specification of variables](#VariableSpecification) below.
 
 ### Percentages
 
@@ -387,6 +381,14 @@ specify `lsplitwidth=8`.
 Also note that in the legend,
 text wrapping can take place not only at spaces,
 but also at any of the following characters: . - + _ = /
+
+
+### Automatic variable tree
+
+Specifying `auto=TRUE` generates a variable tree by automatically selecting
+as many discrete variables as possible in the order they occur in the data frame.
+This provides a quick demonstration of `vtree` but tends not to be especially
+informative.
 
 *This concludes the mini-tutorial.*
 `vtree` has many more features, described in the following sections.

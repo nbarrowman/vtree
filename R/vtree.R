@@ -43,7 +43,7 @@ NULL
 #' @param vars             Required (unless \code{z} is a vector):
 #'                         Either a character string of whitespace-separated variable names
 #'                         or a vector of variable names.
-#' @param auto             Automatically choose variables?
+#' @param auto             Automatically choose variables? (\code{vars} should not be specified)
 #' @param splitspaces      When \code{vars} is a character string,
 #'                         split it by spaces to get variable names?
 #'                         It is only rarely necessary to use this parameter.
@@ -116,12 +116,7 @@ NULL
 #' @param check.is.na      Replace each variable named in \code{vars} with a logical vector indicating
 #'                         whether or not each of its values is missing?
 #' @param summary          A character string used to specify summary statistics to display in the nodes.
-#'                         The first word in the character string is the name of the variable to be summarized.
-#'                         The rest of the character string is the text that will be displayed,
-#'                         along with special codes specifying the information to display
-#'                         (see \strong{Summary codes} below).
-#'                         A vector of character strings can also be specified,
-#'                         if more than one variable is to be summarized.
+#'                         See \strong{Displaying summary information} below for details.
 #' @param runsummary       A list of functions, with the same length as \code{summary}.
 #'                         Each function must take a data frame as its sole argument,
 #'                         and return a logical value.
@@ -313,6 +308,25 @@ NULL
 #' are named \code{vtree1.png}, \code{vtree2.png}, etc.
 #' (A custom option \code{vtree_count} is used to automatically keep track of the number of PNG files.)
 #' 
+#' @section Displaying summary information:
+#' The \code{summary} parameter allows you to specify information to display
+#' in each node. The parameter can be specified as a vector of character strings,
+#' where each element represents a different variable to summarize.
+#' When a single variable name is specified, a default set of summary statistics is shown:
+#' \itemize{
+#'  \item{the variable name}
+#'  \item{the number of missing values}
+#'  \item{the mean and standard deviation}
+#'  \item{the median and interquartile range}
+#'  \item{the range}
+#' } 
+#' The summary parameter also allows for a more customized specification, as follows:
+#' \itemize{
+#'   \item{First, the name of the variable for which a summary is desired.}
+#'   \item{Next a space.}
+#'   \item{The remainder of the string specifies what to display, with text as well as special codes (see \strong{Summary codes} below) to indicate the type of summary desired and to control which nodes display the summary, etc.}
+#' }
+#'
 #' @section Summary codes:
 #' \itemize{
 #'  \item{\code{\%mean\%} }{mean. Variant \code{\%meanx\%} does not report missing values.}
@@ -337,10 +351,6 @@ NULL
 #'  \item{\code{\%node=}N\code{\%} }{flag: Only show summary in nodes with value N.}
 #'  \item{\code{\%trunc=}n\code{\%} }{flag: Truncate the summary to the first n characters.}
 #' }
-#'
-#' Missing values are reported unless one of the following variant codes is used:
-#' \code{\%meanx\%}, \code{\%medianx\%}, \code{\%sumx\%}, \code{\%minx\%},
-#' \code{\%maxx\%}, \code{\%IQRx\%},\code{\%SDx\%} 
 #'
 #' @section Formatting codes:
 #' Formatting codes for the \code{text} argument.
