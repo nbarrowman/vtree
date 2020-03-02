@@ -461,15 +461,12 @@ are named \code{vtree1.png}, \code{vtree2.png}, etc.
 The \code{summary} parameter allows you to specify information to display
 in each node. The parameter can be specified as a vector of character strings,
 where each element represents a different variable to summarize.
-When a single variable name is specified, a default set of summary statistics is shown:
-\itemize{
- \item{the variable name}
- \item{the number of missing values}
- \item{the mean and standard deviation}
- \item{the median and interquartile range}
- \item{the range}
-} 
-The summary parameter also allows for a more customized specification, as follows:
+When an element of \code{summary} is specified as a single variable name, 
+the following default set of summary statistics is shown:
+the variable name, number of missing values, mean and standard deviation,
+median and interquartile range and range.
+A customized summary is shown when an element of \code{summary}
+is specified as a character string with the following structure:
 \itemize{
   \item{First, the name of the variable for which a summary is desired.}
   \item{Next a space.}
@@ -482,7 +479,7 @@ The summary parameter also allows for a more customized specification, as follow
 \itemize{
  \item{\code{\%mean\%} }{mean. Variant \code{\%meanx\%} does not report missing values.}
  \item{\code{\%SD\%} }{standard deviation. Variant \code{\%SDx\%} does not report missing values.}
- \item{\code{\%sum\%} }{sum. Variant \code{\%sum\%} does not report missing values.}
+ \item{\code{\%sum\%} }{sum. Variant \code{\%sumx\%} does not report missing values.}
  \item{\code{\%min\%} }{minimum. Variant \code{\%minx\%} does not report missing values.}
  \item{\code{\%max\%} }{maximum. Variant \code{\%maxx\%} does not report missing values.}
  \item{\code{\%pX\%} }{Xth percentile, e.g. p50 means the 50th percentile}

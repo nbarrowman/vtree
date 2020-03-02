@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 4.3.0"
+title: "Introduction to vtree 4.3.1"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
 output:
@@ -838,9 +838,11 @@ vtree(FakeData,"Severity",summary="Score",horiz=FALSE)
 `r vtree(FakeData,"Severity",summary="Score",horiz=FALSE,
   width=450,height=150,pxwidth=1000,imageheight="2.5in")`
 
-The `summary` parameter also allows for a more customized specification.
+The `summary` parameter also allows for customized summaries.
 For example, we might wish to display only the mean `Score`
-in each node of the tree:
+in each node of the tree.
+The following specification can be used:
+
 
 ```{r,eval=FALSE}
 vtree(FakeData,"Severity",summary="Score \nmean score: %mean%",sameline=TRUE,horiz=FALSE)
@@ -853,9 +855,11 @@ vtree(FakeData,"Severity",summary="Score \nmean score: %mean%",sameline=TRUE,hor
 The mean score is shown in each node.
 If there are any missing values in a node,
 the number of missing values is shown using the abbreviation `mv`.
+The specification used above, `summary="Score \nmean score: %mean%"`,
+has a special structure.
+The next section explains this structure.
 
-
-### How to specify the `summary` argument
+### How to specify the `summary` argument to get customized summaries
 
 As described above, the `summary` argument may simply be a variable name
 (in which case detailed summary statistics are reported).
@@ -895,7 +899,7 @@ The following codes can be used to show summary information:
 code            | result
 :---------------|:-------------------------------------------------------------------
 `%mean%`        |  mean\
-(variant `%meanx%` does not report missing values)
+(variant: `%meanx%` does not report missing values)
 `%SD%`          |  standard deviation\
 (variant: `%SDx%` does not report missing values)
 `%sum%`         |  sum\
@@ -1305,44 +1309,42 @@ attr(dessert$IceCream___2,"label") <- "Ice cream (choice=Vanilla)"
 attr(dessert$IceCream___3,"label") <- "Ice cream (choice=Strawberry)"
 ``` 
 
-```{r, eval=FALSE}
+### variable prefix `stem:`
+
+To examine the pattern of ice-cream flavour choices,
+the following can be used:
+
+```{r eval=FALSE}
+vtree(dessert,"IceCream___1 IceCream___2 IceCream___3",pattern=TRUE)
+```
+
+One problem is that this doesn't assign the appropriate labels to
+`IceCream___1` (Chocolate), `IceCream___2` (Vanilla), and `IceCream___3` (Strawberry).
+
+Instead, try the following more compact call,
+which also assigns labels automatically.
+
+```{r eval=FALSE}
 vtree(dessert,"stem:IceCream",pattern=TRUE)
-vtree(dessert,"",summary="stem:IceCream \n%freqlines%%combo%",splitwidth=Inf)
 ```
 
-### prefix `stem:`
+### The `stem:` prefix in `summary`
 
-`vtree` includes a feature designed to make REDCap checkbox variables easier to use.
-Instead of typing:
+The `summary` parameter also supports a `stem:` prefix:
 
-```{r eval=FALSE}
-vtree(MyREDCapData,"IceCream___1 IceCream___2 IceCream___3")
+```{r, eval=FALSE}
+vtree(dessert,summary="stem:IceCream \n%freq_%%combo%",splitwidth=Inf)
 ```
 
-you can use a special syntax where `stem:` precedes the REDCap variable name:
 
-```{r eval=FALSE}
-vtree(MyREDCapData,"stem:IceCream")
-```
+### variable prefix `rc:`
 
-By default,
-`vtree` will also extract the names of the choices and create variables with those names.
-(This can be disabled by specifying `choicechecklist=FALSE`.)
-
-An especially convenient way to display checkbox variables with `vtree` is:
-
-```{r eval=FALSE}
-vtree(MyREDCapData,"stem:IceCream",pattern=TRUE,showroot=FALSE)
-```
-
-### prefix `rc:`
-
-Alternatively, if you wish to only examine specific REDCap checkbox items,
+If you wish to only examine specific REDCap checkbox items,
 the `rc:` prefix can be used.
 For example to examine results for just Chocolate and Strawberry:
 
 ```{r, eval=FALSE}
-vtree(MyREDCapData,"rc:IceCream___1 rc:IceCream___3",pattern=TRUE,showroot=FALSE)
+vtree(dessert,"rc:IceCream___1 rc:IceCream___3",pattern=TRUE)
 ```
 
 
@@ -1488,25 +1490,15 @@ it’s a different situation when the counts are large.
 For example:
 
 ```{r, eval=FALSE}
-vtree(build.data.frame(
+build.data.frame(
   c("pet","breed","size"),
   list("dog","golden retriever","large",5),
   list("cat","tabby","small",2),
   list("dog","Dalmation","various",101),
   list("cat","Abyssinian","small",5),
   list("cat","Abyssinian","large",22),
-  list("cat","tabby","large",86)))
+  list("cat","tabby","large",86))
 ```
-
-`r vtree(build.data.frame(
-  c("pet","breed","size"),
-  list("dog","golden retriever","large",5),
-  list("cat","tabby","small",2),
-  list("dog","Dalmation","various",101),
-  list("cat","Abyssinian","small",5),
-  list("cat","Abyssinian","large",22),
-  list("cat","tabby","large",86)),
-  imagewidth="4in",pxwidth=800)`
 
 
 # Examples

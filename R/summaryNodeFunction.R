@@ -204,7 +204,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
         if (showN) 
             result <- paste0(result, "/", length(x))
         if (showp) 
-            result <- paste0(result, "(", sep = "")
+            result <- paste0(result, " (", sep = "")
     }
     if (showp) {
         result <- paste0(result, around(100 * as.numeric(tab)/sum(tab), 
@@ -215,7 +215,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
     if (percentfirst & shown & showp) {
         result <- paste(around(100 * as.numeric(tab)/sum(tab), 
             digits = digits), pcs, sep = "")
-        result <- paste0(result, "(", tab)
+        result <- paste0(result, " (", tab)
         if (showN) 
             result <- paste0(result, "/", length(x))
         result <- paste0(result, ")")
