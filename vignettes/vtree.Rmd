@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 4.2.9"
+title: "Introduction to vtree 4.3.0"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
 output:
@@ -387,7 +387,7 @@ but also at any of the following characters: . - + _ = /
 
 Specifying `auto=TRUE` generates a variable tree by automatically selecting
 as many discrete variables as possible in the order they occur in the data frame.
-This provides a quick demonstration of `vtree` but tends not to be especially
+This provides a quick demonstration of `vtree` but may not be especially
 informative.
 
 *This concludes the mini-tutorial.*
@@ -437,7 +437,6 @@ Sometimes it is more convenient to specify which nodes should be *retained*
 rather than which ones should be discarded.
 The `keep` parameter is used for this purpose,
 and can thus be considered the complement of the `prune` parameter.
-
 For example, to retain only the Moderate `Severity` node:
 ```{r,eval=FALSE}
 vtree(FakeData,"Severity",keep=list(Severity="Moderate"))
@@ -824,6 +823,10 @@ of the `summary` parameter, a default set of summary statistics is shown:
 * the median and interquartile range
 
 * the range
+
+(Note, however, that if there are three or fewer observations,
+instead of showing the above summary statistics,
+the observations are simply listed.)
 
 If we wish to display these summaries for Score in each node of a variable tree,
 say based `Severity`, we simply call:

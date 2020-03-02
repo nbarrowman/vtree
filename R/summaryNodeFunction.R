@@ -16,7 +16,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
   fullsummary <- function(w,digits,varname) {
     nMissing <- sum(is.na(w))
     if (length(w)<=3) {
-      return(paste(varname,"\n",around(w,digits=digits),collapse=", "))
+      return(paste0(varname,"\n",paste(around(w,digits=digits),collapse=", ")))
     }
     if (nMissing==length(w)) {
       return(paste0(varname,"\n","missing ",nMissing))
