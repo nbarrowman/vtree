@@ -444,7 +444,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
   nodefunc = NULL, nodeargs = NULL, 
   choicechecklist = TRUE,
   arrowhead="normal",
-  pxwidth,pxheight,imagewidth,imageheight,folder,
+  pxwidth,pxheight,imagewidth="",imageheight="",folder,
   pngknit=TRUE,as.if.knit=FALSE,
   maxNodes=1000,
   parent = 1, last = 1, root = TRUE)
@@ -2010,14 +2010,14 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
     
       embedded <- paste0("![](",fullpath,")")
     
-      if (missing(imageheight)) {
-        if (missing(imagewidth)) {
+      if (imageheight=="") {
+        if (imagewidth=="") {
           result <- paste0(embedded,"{ height=3in }")
         } else {
           result <- paste0(embedded,"{width=",imagewidth,"}")
         }
       } else {
-        if (missing(imagewidth)) {
+        if (imagewidth=="") {
           result <- paste0(embedded,"{height=",imageheight,"}")
         } else {
           result <- paste0(embedded,"{width=",imagewidth," height=",imageheight,"}")
