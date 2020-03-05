@@ -2,9 +2,9 @@
 
 summaryNodeFunction <- function (u, varname, value, args) {
   
-  # Conditional substitution
-  # gsub evaluates the replacement expression even if x doesn't match pattern.
-  # This function only evaluates the replacement expression if x matches pattern.
+  # Conditional substitution: whereas gsub evaluates the replacement expression
+  # even if x doesn't match pattern, this function only evaluates the 
+  # replacement expression if x matches pattern.
   condsub <- function(pattern,replacement,x) {
     if (length(grep(pattern,x))>0) {
       gsub(pattern,replacement,x)
@@ -267,8 +267,10 @@ summaryNodeFunction <- function (u, varname, value, args) {
     var <- args$var[i]
     
     if (args$format[i]=="") {
+      FormatString <- FALSE
       ShowFullSummary <- TRUE
     } else {
+      FormatString <- TRUE
       ShowFullSummary <- FALSE
     }
     
@@ -285,7 +287,14 @@ summaryNodeFunction <- function (u, varname, value, args) {
     }    
     
     # check if it's a stem
+    StemSpecified <- FALSE
     if (length(grep("^stem:",var))>0) {
+      StemSpecified <- TRUE
+      ShowFullSummary <- FALSE
+      if (!FormatString) {
+        ShowCombinations <- TRUE
+        SortIt <- TRUE
+      }
       thevar <- sub("^stem:(\\S+)","\\1",var)
       expanded_stem <- names(u)[grep(paste0("^",thevar,"___[0-9]+$"),names(u))]
       if (ShowCombinations) {
@@ -422,62 +431,65 @@ summaryNodeFunction <- function (u, varname, value, args) {
         
         if (ShowFullSummary) {
           result <- paste0("\n",fullsummary(y,digits=cdigits,varname=var))
-        }
-        
-        result <- gsub("%var=[^%]+%","",result)
-        result <- gsub("%node=[^%]+%","",result)
-        result <- gsub("%trunc=(.+)%","",result)
-        result <- gsub("%noroot%","",result)
-        result <- gsub("%combo%","",result)
-        result <- gsub("%sort%","",result)
-        result <- gsub("%leafonly%","",result)
-        result <- gsub("%v%",args$var[i],result)
-        result <- gsub("%list%",listOutput,result)
-        result <- gsub("%listlines%",listLinesOutput,result)
-        result <- gsub("%list_%",listLinesOutput,result)
-        result <- gsub("%freqpct%",freqfunc(y,digits=digits,sort=SortIt),result)
-        result <- gsub("%freq%",freqfunc(y,digits=digits,showp=FALSE,sort=SortIt),result)
-        result <- gsub("%freqpctlines%",freqfunc(y,digits=digits,sep="\n",sort=SortIt),result)
-        result <- gsub("%freqpct_%",freqfunc(y,digits=digits,sep="\n",sort=SortIt),result)
-        result <- gsub("%freqlines%",freqfunc(y,digits=digits,showp=FALSE,sep="\n",sort=SortIt),result)
-        result <- gsub("%freq_%",freqfunc(y,digits=digits,showp=FALSE,sep="\n",sort=SortIt),result)
-        result <- gsub("%mv%",paste0(missingNum),result)
-        result <- gsub("%nonmv%",paste0(nonmissingNum),result)
-        if (is.numeric(x) | is.logical(x)) {
-          # Note that y is used in the call to nAndpct
-          # so that missing values can be handled as desired
-          result <- condsub("%npct%",nAndpct(y,digits=digits),result)
-          result <- condsub("%pct%",justpct(y,digits=digits),result)
-          result <- condsub("%mean%", meanfunc(y,cdigits=cdigits),result)
-          result <- condsub("%meanx%", around(mean(x), digits = cdigits),result)
-          result <- condsub("%sum%", sumfunc(y,cdigits=cdigits),result)
-          result <- condsub("%sumx%", around(sum(x), digits = cdigits),result)
-          result <- condsub("%median%", medianfunc(y,cdigits=cdigits),result)
-          result <- condsub("%medianx%", around(stats::median(x), digits = cdigits),
-              result)          
-          result <- condsub("%SD%", SDfunc(y,cdigits=cdigits), result)
-          result <- condsub("%SDx%", around(stats::sd(x), digits = cdigits), result)
-          result <- condsub("%min%", minfunc(y, cdigits = cdigits), result)
-          result <- condsub("%minx%", around(min(x), digits = cdigits), result)
-          result <- condsub("%max%", maxfunc(y, cdigits = cdigits), result)
-          result <- condsub("%maxx%", around(max(x), digits = cdigits), result)
-          result <- condsub("%range%", rangefunc(y,cdigits=cdigits), result)
-          result <- condsub("%rangex%", rangefunc(y,cdigits=cdigits,na.rm=TRUE), result)
-          result <- condsub("%IQR%", IQRfunc(y,cdigits=cdigits), result)
-          result <- condsub("%IQRx%",
-            paste0(
-              around(qntl(x,0.25), digits = cdigits),", ",
-              around(qntl(x,0.75), digits = cdigits)),
-            result)
-          repeat {
-              if (length(grep("%(p)([0-9]+)%", result)) == 0)
-                  break
-              quant <- sub("(.*)%(p)([0-9]+)%(.*)", "\\3", result)
-              if (quant != "") {
-                  qq <- around(qntl(x, as.numeric(quant)/100),
-                      digits = digits)
-                  result <- sub(paste0("%p", quant,"%"), qq, result)
-              }
+        } else
+        if (StemSpecified && !FormatString) {
+          result <- paste0("\n",freqfunc(y,digits=cdigits,sort=SortIt,sep="\n",showp=FALSE))
+        } else {
+          result <- gsub("%var=[^%]+%","",result)
+          result <- gsub("%node=[^%]+%","",result)
+          result <- gsub("%trunc=(.+)%","",result)
+          result <- gsub("%noroot%","",result)
+          result <- gsub("%combo%","",result)
+          result <- gsub("%sort%","",result)
+          result <- gsub("%leafonly%","",result)
+          result <- gsub("%v%",args$var[i],result)
+          result <- gsub("%list%",listOutput,result)
+          result <- gsub("%listlines%",listLinesOutput,result)
+          result <- gsub("%list_%",listLinesOutput,result)
+          result <- gsub("%freqpct%",freqfunc(y,digits=digits,sort=SortIt),result)
+          result <- gsub("%freq%",freqfunc(y,digits=digits,showp=FALSE,sort=SortIt),result)
+          result <- gsub("%freqpctlines%",freqfunc(y,digits=digits,sep="\n",sort=SortIt),result)
+          result <- gsub("%freqpct_%",freqfunc(y,digits=digits,sep="\n",sort=SortIt),result)
+          result <- gsub("%freqlines%",freqfunc(y,digits=digits,showp=FALSE,sep="\n",sort=SortIt),result)
+          result <- gsub("%freq_%",freqfunc(y,digits=digits,showp=FALSE,sep="\n",sort=SortIt),result)
+          result <- gsub("%mv%",paste0(missingNum),result)
+          result <- gsub("%nonmv%",paste0(nonmissingNum),result)
+          if (is.numeric(x) | is.logical(x)) {
+            # Note that y is used in the call to nAndpct
+            # so that missing values can be handled as desired
+            result <- condsub("%npct%",nAndpct(y,digits=digits),result)
+            result <- condsub("%pct%",justpct(y,digits=digits),result)
+            result <- condsub("%mean%", meanfunc(y,cdigits=cdigits),result)
+            result <- condsub("%meanx%", around(mean(x), digits = cdigits),result)
+            result <- condsub("%sum%", sumfunc(y,cdigits=cdigits),result)
+            result <- condsub("%sumx%", around(sum(x), digits = cdigits),result)
+            result <- condsub("%median%", medianfunc(y,cdigits=cdigits),result)
+            result <- condsub("%medianx%", around(stats::median(x), digits = cdigits),
+                result)          
+            result <- condsub("%SD%", SDfunc(y,cdigits=cdigits), result)
+            result <- condsub("%SDx%", around(stats::sd(x), digits = cdigits), result)
+            result <- condsub("%min%", minfunc(y, cdigits = cdigits), result)
+            result <- condsub("%minx%", around(min(x), digits = cdigits), result)
+            result <- condsub("%max%", maxfunc(y, cdigits = cdigits), result)
+            result <- condsub("%maxx%", around(max(x), digits = cdigits), result)
+            result <- condsub("%range%", rangefunc(y,cdigits=cdigits), result)
+            result <- condsub("%rangex%", rangefunc(y,cdigits=cdigits,na.rm=TRUE), result)
+            result <- condsub("%IQR%", IQRfunc(y,cdigits=cdigits), result)
+            result <- condsub("%IQRx%",
+              paste0(
+                around(qntl(x,0.25), digits = cdigits),", ",
+                around(qntl(x,0.75), digits = cdigits)),
+              result)
+            repeat {
+                if (length(grep("%(p)([0-9]+)%", result)) == 0)
+                    break
+                quant <- sub("(.*)%(p)([0-9]+)%(.*)", "\\3", result)
+                if (quant != "") {
+                    qq <- around(qntl(x, as.numeric(quant)/100),
+                        digits = digits)
+                    result <- sub(paste0("%p", quant,"%"), qq, result)
+                }
+            }
           }
         }
       } else {
