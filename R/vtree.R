@@ -684,20 +684,24 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
       for (i in seq_len(length(vars))) {
         if (i %in% findstem) {
           stem <- sub("^stem:(\\S+)$","\\1",vars[i])
-          expanded_stem <- names(z)[grep(paste0("^",stem,"___[0-9]+$"),names(z))]
+          expanded_stem <- names(z)[grep(paste0("^",stem,"___[0-9]+.*$"),names(z))]
+          # remove any variable name that contains ".factor"
+          expanded_stem <- expanded_stem[grep("\\.factor",expanded_stem,invert=TRUE)]
           if (length(expanded_stem)==0) {
             stop(paste0("Could not find variables with names matching the specified stem: ",stem))
           }
+          rexp0 <- "\\(choice=.+\\)"
+          rexp1 <- "(.+) \\(choice=(.+)\\)"
+          rexp2 <- "(.+): (.+)"          
           if (choicechecklist) {
             for (j in 1:length(expanded_stem)) {
-              rexp1 <- ".+\\(choice=(.+)\\)"
-              rexp2 <- ".+: (.+)"
               lab <- attributes(z[[expanded_stem[j]]])$label
-              if (length(grep(rexp1,lab))>0) {
-                choice <- sub(rexp1,"\\1",lab)
+              if (length(grep(rexp0,lab))>0) {
+                REDCap_var_label <- sub(rexp1,"\\1",lab)
+                choice <- sub(rexp1,"\\2",lab)
               } else
               if (length(grep(rexp2,lab))>0) {
-                choice <- sub(rexp2,"\\1",lab)
+                choice <- sub(rexp2,"\\2",lab)
               } else {
                 stop("Could not find value of checklist item")
               }
@@ -713,7 +717,58 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
       }
       vars <- expandedvars
     }
-    
+
+    # Process any: tag in variable names to handle REDCap checklists automatically
+    findstem <- grep("^any:",vars)
+    if (length(findstem)>0) {
+      expandedvars <- c()
+      for (i in seq_len(length(vars))) {
+        if (i %in% findstem) {
+          stem <- sub("^any:(\\S+)$","\\1",vars[i])
+          expanded_stem <- names(z)[grep(paste0("^",stem,"___[0-9]+.*$"),names(z))]
+          # remove any variable name that contains ".factor"
+          expanded_stem <- expanded_stem[grep("\\.factor",expanded_stem,invert=TRUE)]
+          if (length(expanded_stem)==0) {
+            stop(paste0("Could not find variables with names matching the specified stem: ",stem))
+          }
+          anychecked <- rep(FALSE,nrow(z))
+          rexp0 <- "\\(choice=.+\\)"
+          rexp1 <- "(.+) \\(choice=(.+)\\)"
+          rexp2 <- "(.+): (.+)"
+          lab1 <- attributes(z[[expanded_stem[1]]])$label
+          if (length(grep(rexp0,lab1))>0) {
+            REDCap_var_label <- sub(rexp1,"\\1",lab1)
+          } else {
+            REDCap_var_label <- sub(rexp2,"\\1",lab1)
+          }
+          if (choicechecklist) {
+            for (j in 1:length(expanded_stem)) {
+              lab <- attributes(z[[expanded_stem[j]]])$label
+              if (length(grep(rexp0,lab))>0) {
+                choice <- sub(rexp1,"\\2",lab)
+              } else
+              if (length(grep(rexp2,lab))>0) {
+                choice <- sub(rexp2,"\\2",lab)
+              } else {
+                stop("Could not find value of checklist item")
+              }
+              anychecked <- anychecked | z[[expanded_stem[j]]]
+            }
+          } else {
+            for (j in 1:length(expanded_stem)) {
+              anychecked <- anychecked | z[[expanded_stem[j]]]
+            }
+          }
+          REDCap_var_label_any <- paste0("Any: ",REDCap_var_label)
+          z[[REDCap_var_label_any]] <- anychecked
+          expandedvars <- c(expandedvars,REDCap_var_label_any)
+        } else {
+          expandedvars <- c(expandedvars,vars[i])
+        }
+      }
+      vars <- expandedvars
+    }
+            
     # Process rc: tag in variable names to handle single REDCap checklist items automatically
     findtag <- grep("^rc:",vars)
     if (length(findtag)>0) {
