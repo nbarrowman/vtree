@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 4.3.5"
+title: "Introduction to vtree 4.3.6"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
 output:
@@ -799,20 +799,22 @@ which generally cannot be used to build the tree since they have too many distin
 The `summary` parameter allows you to show summary information about
 a specified variable.
 
+### Default summaries for numeric variables
+
 For example, suppose you are interested in summary information for the `Score`
-variable for all of the observations in the data frame.
-In that case you don't need to specify any variables for the tree since you
-are only interested in the root variable:
+variable for all of the observations in the data frame (i.e. the root node).
+In that case you don't need to specify any variables for the tree itself:
 
 ```{r,eval=FALSE}
 vtree(FakeData,summary="Score")
 ```
 
 `r vtree(FakeData,summary="Score",
-  width=450,height=150,pxwidth=1000,imageheight="1in")`
+  width=450,height=150,pxwidth=1000,imageheight="1.2in")`
   
-When a variable name (in this case `"Score"`) is specified as the argument
-of the `summary` parameter, a default set of summary statistics is shown:
+When the name of a numeric variable (in this case `"Score"`) is specified
+as the argument of the `summary` parameter,
+a default set of summary statistics is shown:
 
 * the variable name
 
@@ -828,8 +830,8 @@ of the `summary` parameter, a default set of summary statistics is shown:
 instead of showing the above summary statistics,
 the observations are simply listed.)
 
-If we wish to display these summaries for Score in each node of a variable tree,
-say based `Severity`, we simply call:
+If we wish to display these summaries for `Score` in each node of a variable tree,
+say based on `Severity`, we simply call:
 
 ```{r,eval=FALSE}
 vtree(FakeData,"Severity",summary="Score",horiz=FALSE)
@@ -837,6 +839,20 @@ vtree(FakeData,"Severity",summary="Score",horiz=FALSE)
 
 `r vtree(FakeData,"Severity",summary="Score",horiz=FALSE,
   width=450,height=150,pxwidth=1000,imageheight="2.5in")`
+
+
+### Default summaries for non-numeric variables
+
+If we want summary information for a factor variable such as `Category`,
+a similar call to `vtree` can be used:
+
+```{r,eval=FALSE}
+vtree(FakeData,summary="Category")
+```
+
+For non-numeric variables like factors, the count and percentage for each value will be shown.
+
+### Customized summaries
 
 The `summary` parameter also allows for customized summaries.
 For example, we might wish to display only the mean `Score`
@@ -856,14 +872,7 @@ The mean score is shown in each node.
 If there are any missing values in a node,
 the number of missing values is shown using the abbreviation `mv`.
 The specification used above, `summary="Score \nmean score: %mean%"`,
-has a special structure.
-The next section explains this structure.
-
-### How to specify the `summary` argument to get customized summaries
-
-As described above, the `summary` argument may simply be a variable name
-(in which case detailed summary statistics are reported).
-Alternatively, a character string with the following structure may be used:
+has a special structure:
 
 * First, the name of the variable for which a summary is desired. (We'll see later that variable specifications and expressions can also be used, as long as they do not contain any spaces.)
 
@@ -875,9 +884,9 @@ with text as well as special codes (such as `%mean%`) to indicate the type of su
 For example specifying `summary="Score \nmean score: %mean%"`
 indicates that the variable to be summarized is `Score` and that the summary
 should have the following format: `\nmean score: %mean%`.
-This appears as:
+This is rendered as:
 
-* a new line (represented by the newline character `\n`) 
+* a new line (specified by the newline character `\n`) 
 
 * followed by the words "mean score: "
 
@@ -1328,14 +1337,18 @@ which also assigns labels automatically.
 vtree(dessert,"stem:IceCream",pattern=TRUE)
 ```
 
-### variable prefix `none:`
+### variable prefix `any:`
 
-To examine whether *any* of the checkboxes in a group have been
-checked, the `any:` prefix can be used. 
+To examine whether *any* of the checkboxes in a group have been checked,
+the `any:` prefix can be used. 
 
 ```{r eval=FALSE}
 vtree(dessert,"any:IceCream")
 ```
+
+The `any:` stem reduces the checkbox variables to a single variable
+representing whether one or more of the boxes have been checked (`TRUE`)
+or none of them have been checked (`FALSE`).
 
 ### The `stem:` prefix in `summary`
 
