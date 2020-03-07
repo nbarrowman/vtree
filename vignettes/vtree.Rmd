@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 4.3.4"
+title: "Introduction to vtree 4.3.5"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
 output:
@@ -1326,6 +1326,15 @@ which also assigns labels automatically.
 
 ```{r eval=FALSE}
 vtree(dessert,"stem:IceCream",pattern=TRUE)
+```
+
+### variable prefix `none:`
+
+To examine whether *any* of the checkboxes in a group have been
+checked, the `any:` prefix can be used. 
+
+```{r eval=FALSE}
+vtree(dessert,"any:IceCream")
 ```
 
 ### The `stem:` prefix in `summary`

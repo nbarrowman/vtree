@@ -415,7 +415,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
       }
 
       # Format %list% output
-      tabval <- tableWithoutSort(around(sort(y,na.last=TRUE),digits=cdigits),exclude=NULL)
+      tabval <- tableWithoutSort(around(sort(y,na.last=TRUE),digits=digits),exclude=NULL)
       countval <- paste0(" (n=",tabval,")")
       countval[tabval==1] <- ""
       listOutput <- paste0(paste0(names(tabval),countval),collapse=", ")
@@ -437,7 +437,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
           }
         } else
         if (StemSpecified && !FormatString) {
-          result <- paste0("\n",freqfunc(y,digits=cdigits,sort=SortIt,sep="\n",showp=FALSE))
+          result <- paste0("\n",freqfunc(y,digits=digits,sort=SortIt,sep="\n",showp=FALSE))
         } else {
           result <- gsub("%var=[^%]+%","",result)
           result <- gsub("%node=[^%]+%","",result)
@@ -450,19 +450,19 @@ summaryNodeFunction <- function (u, varname, value, args) {
           result <- gsub("%list%",listOutput,result)
           result <- gsub("%listlines%",listLinesOutput,result)
           result <- gsub("%list_%",listLinesOutput,result)
-          result <- gsub("%freqpct%",freqfunc(y,digits=cdigits,sort=SortIt),result)
-          result <- gsub("%freq%",freqfunc(y,digits=cdigits,showp=FALSE,sort=SortIt),result)
-          result <- gsub("%freqpctlines%",freqfunc(y,digits=cdigits,sep="\n",sort=SortIt),result)
-          result <- gsub("%freqpct_%",freqfunc(y,digits=cdigits,sep="\n",sort=SortIt),result)
-          result <- gsub("%freqlines%",freqfunc(y,digits=cdigits,showp=FALSE,sep="\n",sort=SortIt),result)
-          result <- gsub("%freq_%",freqfunc(y,digits=cdigits,showp=FALSE,sep="\n",sort=SortIt),result)
+          result <- gsub("%freqpct%",freqfunc(y,digits=digits,sort=SortIt),result)
+          result <- gsub("%freq%",freqfunc(y,digits=digits,showp=FALSE,sort=SortIt),result)
+          result <- gsub("%freqpctlines%",freqfunc(y,digits=digits,sep="\n",sort=SortIt),result)
+          result <- gsub("%freqpct_%",freqfunc(y,digits=digits,sep="\n",sort=SortIt),result)
+          result <- gsub("%freqlines%",freqfunc(y,digits=digits,showp=FALSE,sep="\n",sort=SortIt),result)
+          result <- gsub("%freq_%",freqfunc(y,digits=digits,showp=FALSE,sep="\n",sort=SortIt),result)
           result <- gsub("%mv%",paste0(missingNum),result)
           result <- gsub("%nonmv%",paste0(nonmissingNum),result)
           if (is.numeric(x) | is.logical(x)) {
             # Note that y is used in the call to nAndpct
             # so that missing values can be handled as desired
-            result <- condsub("%npct%",nAndpct(y,digits=cdigits),result)
-            result <- condsub("%pct%",justpct(y,digits=cdigits),result)
+            result <- condsub("%npct%",nAndpct(y,digits=digits),result)
+            result <- condsub("%pct%",justpct(y,digits=digits),result)
             result <- condsub("%mean%", meanfunc(y,digits=cdigits),result)
             result <- condsub("%meanx%", around(mean(x), digits = cdigits),result)
             result <- condsub("%sum%", sumfunc(y,digits=cdigits),result)
