@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 4.3.6"
+title: "Introduction to vtree 4.3.7"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
 output:
@@ -26,11 +26,11 @@ diagrams that display information about nested subsets of a data frame.
 Given simple specifications,
 vtree produces these diagrams and automatically labels them with counts,
 percentages, and other summaries.
-The two main uses of vtree are to:
+The two main uses of vtree are:
 
-1. explore a data set interactively
+1. to explore a data set interactively
 
-2. produce customized figures for reports and publications.
+2. to produce customized figures for reports and publications.
 
 Note that vtree is *not* designed to build or display decision trees.
 
@@ -69,8 +69,8 @@ df <- build.data.frame(
 Even in simple situations like this,
 it can be a chore to keep track of nested subsets and to calculate percentages.
 But it's often even more tedious, for two reasons. 
-First, if there are missing values it's harder to determine denominators.
-Second, as the number of variables increases,
+(1) If there are missing values it's harder to determine denominators.
+(2) As the number of variables increases,
 the number of nested subsets grows rapidly.
 
 Nested subsets arise in all kinds of situations.
@@ -90,7 +90,7 @@ The diagram above was produced by vtree.
 Both the structure of the diagram and the numbers shown were automatically determined.
 When manual calculation and transcription are instead used
 to populate such diagrams, mistakes are likely.
-And although the errors that make it to publication are often small,
+And although the errors that make it into to published articles are often small,
 they can sometimes be disastrous.
 One motivation for developing vtree was to make flow diagrams reproducible.
 
@@ -264,7 +264,7 @@ If `vtree` is called without a list of variables,
 only the root node is shown, representing the entire data frame.
 Although a tree with just one node might not seem very useful,
 it provides a convenient way of displaying
-[summary information](#summary) about the data frame.
+[summary information](#summary) about the whole data frame.
 
 The `vtree` function has numerous optional parameters.
 For example, by default `vtree` produces a horizontal tree
@@ -383,16 +383,11 @@ text wrapping can take place not only at spaces,
 but also at any of the following characters: . - + _ = /
 
 
-### Automatic variable tree
-
-Specifying `auto=TRUE` generates a variable tree by automatically selecting
-as many discrete variables as possible in the order they occur in the data frame.
-This provides a quick demonstration of `vtree` but may not be especially
-informative.
 
 *This concludes the mini-tutorial.*
 `vtree` has many more features, described in the following sections.
 
+---
  
 ## Pruning {#pruning}
 
@@ -444,7 +439,7 @@ vtree(FakeData,"Severity",keep=list(Severity="Moderate"))
 
 #### Missing value nodes and the `keep` parameter
 
-It is important to note how the `keep` parameter functions
+It is important to note how the `keep` parameter works
 when missing values are present.
 Consider a variable tree for the `Severity` variable,
 shown on the left with so-called "valid" percentages.
@@ -718,8 +713,8 @@ the variable names must be specified as a vector of character strings.)
  
 Additionally, several modifiers can be used in the string of variable names
 to change the way variables are represented in a tree.
- 
- 
+
+
 ### prefix `is.na:`
 
 If an individual variable name is preceded by `is.na:`,
@@ -728,11 +723,34 @@ that variable will be replaced by a missing value indicator in the variable tree
 which is used to replace *all* of the specified variables with missing value indicators.)
 
 
-### prefixes `stem:` and `rc:`
+### suffix `#`
+
+Specifying `Ind#` matches all variable names that start with `Ind`
+and end with a numeric digit, namely `Ind1`, `Ind2`, and `Ind3`.
+(In this particular case, this is the same result as using `Ind*`).
+
+
+### suffix `*`
+
+Specifying `Ind*` matches all variable names that start with `Ind`
+and end with any other characters.
+In `FakeData` this matches `Ind1`, `Ind2`, and `Ind3`,
+But in general `Ind*` would also match `India` and `India1977`.
+ 
+
+### prefix `any:` with suffix `*` or `#`
+
+A specification like `any:Start#` generates a variable representing whether any of the
+matching variables (`Start1`, `Start2`, ...) equals 1 (or is TRUE).
+Similary, `any:Start*` would do the same thing but a broader class of variable names
+would be matched.
+
+
+### prefixes `stem:`, `rc:` and `any:` (with no prefix)
 
 In datasets exported from [REDCap](https://www.project-redcap.org/),
 checkboxes are represented using multiple variables.
-The `stem:` prefix makes it easier to work with them.
+Special prefixes make it easier to work with them.
 This is described in the section on [REDCap checkboxes](#REDCapCheckboxes)
 later in this vignette.
 
@@ -754,21 +772,6 @@ i.e. to divide them into three groups:
 * "high": values more than 1.5&times;IQR above the median,
 
 * "low": values more than 1.5&times;IQR below the median.
-
-
-### suffix `*`
-
-Specifying `Ind*` matches all variable names that start with `Ind`.
-In `FakeData` this matches `Ind1`, `Ind2`, and `Ind3`.
-
-The `*` suffix matches all variable names
-
-
-### suffix `#`
-
-Specifying `Ind#` matches all variable names that start with `Ind`
-and end with a numeric digit, namely `Ind1`, `Ind2`, and `Ind3`.
-(In this particular case, this is the same result as using `Ind*`).
 
 
 ### specification `variable=value` {#dichotomizing}

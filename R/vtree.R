@@ -560,10 +560,11 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
     
     # Process * tag in variable names to expand list of variables
     findstar <- grep("\\*$",vars)
+    findany <- grep("^any:",vars)
     if (length(findstar)>0) {
       expandedvars <- c()
       for (i in seq_len(length(vars))) {
-        if (i %in% findstar) {
+        if ((i %in% findstar) & !(i %in% findany)) {
           stem <- sub("(\\S+)\\*$","\\1",vars[i])
           expanded_stem <- names(z)[grep(paste0(stem,".*$"),names(z))]
           expandedvars <- c(expandedvars,expanded_stem)
@@ -571,16 +572,17 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
           expandedvars <- c(expandedvars,vars[i])
         }
       }
-      vars <- expanded_stem
+      vars <- expandedvars
       if (length(vars)==0) stop("No variables match the specification.")
     }    
     
     # Process # tag in variable names to expand list of variables ending in numeric digits
-    findstar <- grep("#$",vars)
-    if (length(findstar)>0) {
+    findhashmark <- grep("#$",vars)
+    findany <- grep("^any:",vars)
+    if (length(findhashmark)>0)  {
       expandedvars <- c()
       for (i in seq_len(length(vars))) {
-        if (i %in% findstar) {
+        if ((i %in% findhashmark)  & !(i %in% findany)) {
           stem <- sub("(\\S+)\\#$","\\1",vars[i])
           expanded_stem <- names(z)[grep(paste0(stem,"[0-9]+$"),names(z))]
           expandedvars <- c(expandedvars,expanded_stem)
@@ -588,7 +590,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
           expandedvars <- c(expandedvars,vars[i])
         }
       }
-      vars <- expanded_stem
+      vars <- expandedvars
       if (length(vars)==0) stop("No variables match the specification.")
     }            
      
@@ -717,6 +719,40 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
       }
       vars <- expandedvars
     }
+    
+    # Process any: tag in variable names that ends in asterisk or hashmark
+    regex1 <- "^any:(\\S+)([\\*#])$"
+    findstem <- grep(regex1,vars)
+    if (length(findstem)>0) {
+      expandedvars <- c()
+      for (i in seq_len(length(vars))) {
+        if (i %in% findstem) {
+          stem <- sub(regex1,"\\1",vars[i])
+          wildcard <- sub(regex1,"\\2",vars[i])
+          if (wildcard=="*") {
+            expanded_stem <- names(z)[grep(paste0("^",stem,".+$"),names(z))]
+          } else
+          if (wildcard=="#") {
+            expanded_stem <- names(z)[grep(paste0("^",stem,"[0-9]+$"),names(z))]
+          } else {
+            stop("wildcard is neither * nor #.")
+          }
+          # remove any variable name that contains ".factor"
+          expanded_stem <- expanded_stem[grep("\\.factor",expanded_stem,invert=TRUE)]
+          if (length(expanded_stem)==0) {
+            stop(paste0("Could not find variables with names matching the specified stem: ",stem))
+          }
+          anychecked <- rep(FALSE,nrow(z))
+          for (j in 1:length(expanded_stem)) {
+            anychecked <- anychecked | z[[expanded_stem[j]]]
+          }
+          NewVarName <- paste0("Any: ",stem)
+          z[[NewVarName]] <- anychecked
+          expandedvars <- c(expandedvars,NewVarName)
+        }
+      }
+      vars <- expandedvars
+    }    
 
     # Process any: tag in variable names to handle REDCap checklists automatically
     findstem <- grep("^any:",vars)
