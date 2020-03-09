@@ -520,10 +520,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
       }
     }
 
-
     
- 
-    #if (is.data.frame(z) && missing(vars)) {
     if (auto) {
       if (missing(showvarinnode) & !check.is.na) showvarinnode <- TRUE
       vars <- c()
@@ -551,11 +548,11 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
         }
         level <- level+1
       }
-      message("--Discrete variables included: ",paste(vars,collapse=" "))
+      message("[vtree] --Discrete variables included: ",paste(vars,collapse=" "))
       if (length(excluded_discrete_vars)>0) 
-        message("--Discrete variables excluded: ",paste(excluded_discrete_vars,collapse=" "))
+        message("[vtree] --Discrete variables excluded: ",paste(excluded_discrete_vars,collapse=" "))
       if (length(non_discrete_vars)>0)
-        message("Additional variables excluded: ",paste(non_discrete_vars,collapse=" "))
+        message("[vtree] Additional variables excluded: ",paste(non_discrete_vars,collapse=" "))
     }
     
     # Process * tag in variable names to expand list of variables
@@ -946,9 +943,9 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
       }      
       
       CODEVAR <- codevar
+      extra_variables <- NULL
       
       # Process stem: tag in variable names in summary argument
-      extra_variables <- NULL
       findstem <- grep("^stem:",codevar)
       if (length(findstem)>0) {
         for (i in seq_len(length(codevar))) {    
@@ -962,12 +959,10 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
           }
         }
         CODEVAR <- CODEVAR[-findstem]  # remove stems
-        allvars <- c(allvars,CODEVAR,extra_variables)
       }      
       
       
       # Process * at end of variable names in summary argument
-      extra_variables <- NULL
       findstem <- grep("\\*$",codevar)
       if (length(findstem)>0) {
         for (i in seq_len(length(codevar))) {    
@@ -981,10 +976,10 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
           }
         }
         CODEVAR <- CODEVAR[-findstem]  # remove stems
-        allvars <- c(allvars,CODEVAR,extra_variables) 
       }      
-      
 
+      allvars <- c(allvars,CODEVAR,extra_variables) 
+      
       #  if (!all(codevar %in% names(z))) {
       #    nomatch <- codevar[!(codevar %in% names(z))]
       #    stop("Variable(s) specified in summary argument not in data frame: ",paste(nomatch,collapse=", "))
@@ -999,7 +994,6 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
       codecode[grep("^(\\S+) (.+)$",summary,invert=TRUE)] <- ""
       nodefunc <- summaryNodeFunction
       nodeargs <- list(var = codevar, format = codecode, sf = runsummary, digits = digits, cdigits = cdigits, sepN=sepN)
-      # allvars <- c(allvars,codevar)
     }
 
 
@@ -1619,61 +1613,55 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
       fillcolor <- FC
     }
     
+    z_names <- names(z)
+
+    # Special case with a single variable being relabled and variable name not specified
+    if (!missing(labelvar) && is.null(names(labelvar))) {
+      if ((numvars==1) && (length(labelvar)==1)) {
+        names(labelvar) <- z_names
+      }
+    }
+  
+    findvars <- names(labelvar) %in% z_names
+    if (any(!findvars)) {
+      message("[vtree] The following variables named in labelvar were not found in vars: ",
+        paste(names(labelvar)[!findvars], collapse = ", "))
+    }
+  
+    findvars <- names(prunebelow) %in% z_names
+    if (any(!findvars)) {
+      message("[vtree] The following variables named in prunebelow were not found in vars: ",
+        paste(names(prunebelow)[!findvars], collapse = ", "))
+    }
+  
+    findvars <- names(prune) %in% z_names
+    if (any(!findvars)) {
+      message("[vtree] The following variables named in prune were not found in vars: ",
+        paste(names(prune)[!findvars], collapse = ", "))
+    }
+  
+    findvars <- names(follow) %in% z_names
+    if (any(!findvars)) {
+      message("[vtree] The following variables named in follow were not found in vars: ",
+          paste(names(follow)[!findvars], collapse = ", "))
+    }
+  
+    findvars <- names(keep) %in% z_names
+    if (any(!findvars)) {
+      message("[vtree] The following variables named in keep were not found in vars: ",
+        paste(names(keep)[!findvars], collapse = ", "))
+    }    
   }
 
-  ### -----------------------------------------------  
-  ### ----------- End code for root only ------------
-  ### -----------------------------------------------  
+  
+  ### -------------------------------------------------------------------  
+  ### --------------------- End code for root only ----------------------
+  ### -------------------------------------------------------------------  
   
   numvars <- length(vars)
 
   # Node outline colors
   if (!colornodes) color <- rep("black", 100)
-
-  z_names <- names(z)
-
-  # findvars <- vars %in% z_names
-  # if (any(!findvars)) {
-  #     stop("The following variables were not found in the data frame: ",
-  #         paste(vars[!findvars], collapse = ", "))
-  # }
-
-  # Special case with a single variable being relabled and variable name not specified
-  if (!missing(labelvar) && is.null(names(labelvar))) {
-    if ((numvars==1) && (length(labelvar)==1)) {
-      names(labelvar) <- z_names
-    }
-  }
-
-  findvars <- names(labelvar) %in% z_names
-  if (any(!findvars)) {
-      stop("The following variables named in labelvar were not found in vars: ",
-          paste(names(labelvar)[!findvars], collapse = ", "))
-  }
-
-  findvars <- names(prunebelow) %in% z_names
-  if (any(!findvars)) {
-      stop("The following variables named in prunebelow were not found in vars: ",
-          paste(names(prunebelow)[!findvars], collapse = ", "))
-  }
-
-  findvars <- names(prune) %in% z_names
-  if (any(!findvars)) {
-      stop("The following variables named in prune were not found in vars: ",
-          paste(names(prune)[!findvars], collapse = ", "))
-  }
-
-  findvars <- names(follow) %in% z_names
-  if (any(!findvars)) {
-      stop("The following variables named in follow were not found in vars: ",
-          paste(names(follow)[!findvars], collapse = ", "))
-  }
-
-  findvars <- names(keep) %in% z_names
-  if (any(!findvars)) {
-      stop("The following variables named in keep were not found in vars: ",
-          paste(names(keep)[!findvars], collapse = ", "))
-  }
 
   if (is.null(z) || is.null(vars)) {
     #cat("Return NULL because z is NULL or vars is NULL\n")
@@ -1912,8 +1900,6 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
   # If desired, show variable levels and legend
 
   if (root) {
-    #message("Total nodes:",max(fc$nodenum),"\n")
-
     if (showvarnames) {
       # Special case for check.is.na
       if (check.is.na) {

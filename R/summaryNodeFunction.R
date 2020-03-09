@@ -242,6 +242,10 @@ summaryNodeFunction <- function (u, varname, value, args) {
       stats::quantile(x,...)
     }
   }
+  
+  
+  #--- Body of code starts here -----------------------------------------------
+  
 
   sepN <- args$sepN
   
@@ -434,7 +438,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
           ShowNodeText <- FALSE
         }
       }
-
+      
       TruncNodeText <- FALSE
       if (length(grep("%trunc=([^%]+)%",result))>0) {
         truncval <- as.numeric(sub("(.*)%trunc=([^%]+)%(.*)","\\2",result))
