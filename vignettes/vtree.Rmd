@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 4.3.7"
+title: "Introduction to vtree 4.3.8"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
 output:
@@ -50,10 +50,8 @@ we might wish to examine *nested* subsets based on the `population` variable,
 for example, countries with populations under 30 million and over 30 million.
 We might continue to a third level of nesting based on the `landlocked` variable.
 
-`vtree` provides a general solution to the problem of calculating nested subsets
-and displaying information about them.
-Nested subsets help us to answer questions like the following:
-*Among African countries with a population over 30 million, what percentage are landlocked?* The variable tree below answers this question:
+Nested subsets are at the heart of questions like the following:
+*Among African countries with a population over 30 million, what percentage are landlocked?* The variable tree below shows the answer:
 
 ```{r, echo=FALSE}
 df <- build.data.frame(
@@ -72,12 +70,14 @@ But it's often even more tedious, for two reasons.
 (1) If there are missing values it's harder to determine denominators.
 (2) As the number of variables increases,
 the number of nested subsets grows rapidly.
+vtree provides a general solution to the problem of calculating nested subsets
+and displaying information about them.
 
 Nested subsets arise in all kinds of situations.
 Consider, for example, flow diagrams for clinical studies,
 such as the following 
 [CONSORT](http://www.consort-statement.org)-style diagram,
-which is also a variable tree.
+produced by vtree.
 
 `r 
 vtree(FakeRCT,"eligible randomized group followup",plain=TRUE,
@@ -86,11 +86,11 @@ vtree(FakeRCT,"eligible randomized group followup",plain=TRUE,
   width=230,height=500,pxwidth=500,imageheight="4.5in")
 `
 
-The diagram above was produced by vtree.
-Both the structure of the diagram and the numbers shown were automatically determined.
+Both the structure of this variable tree
+and the numbers shown were automatically determined.
 When manual calculation and transcription are instead used
 to populate such diagrams, mistakes are likely.
-And although the errors that make it into to published articles are often small,
+And although the errors that make it into published articles are often minor,
 they can sometimes be disastrous.
 One motivation for developing vtree was to make flow diagrams reproducible.
 
@@ -833,8 +833,9 @@ a default set of summary statistics is shown:
 instead of showing the above summary statistics,
 the observations are simply listed.)
 
-If we wish to display these summaries for `Score` in each node of a variable tree,
-say based on `Severity`, we simply call:
+Suppose we're building a variable tree based on `Severity` and we
+wish to display these summaries for `Score` in each node.
+We simply call:
 
 ```{r,eval=FALSE}
 vtree(FakeData,"Severity",summary="Score",horiz=FALSE)
@@ -943,7 +944,7 @@ mixed with text and formatting codes.
 
 ### Specification of variables in the summary argument
 
-Variables in the `summary` parameter can also be specified in a way that is
+Variables in the `summary` argument can also be specified in a way that is
 somewhat similar to the [specification of variables](#VariableSpecification)
 for structuring a variable tree.
 For example, if we wish to know the proportion of patients in each node whose `Category` is single,

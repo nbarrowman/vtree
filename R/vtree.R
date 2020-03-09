@@ -934,9 +934,13 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
       # perhaps it's an expression that can be evaluated in z
       for (i in seq_len(length(codevar))) { 
         if (length(grep("^stem:",codevar[i]))==0) {   # except for stems
-          if (!(codevar[i] %in% names(z))) {
-           derivedvar <- with(z,eval(parse(text=codevar[i],keep.source=FALSE))) 
-           z[[codevar[i]]] <- derivedvar
+          if (length(grep("\\*$",codevar[i]))==0) {   # except for ending in *
+            if (length(grep("#$",codevar[i]))==0) {   # except for ending in #
+              if (!(codevar[i] %in% names(z))) {
+                derivedvar <- with(z,eval(parse(text=codevar[i],keep.source=FALSE))) 
+                z[[codevar[i]]] <- derivedvar
+              }
+            }
           }
         }
       }      
@@ -958,10 +962,29 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
           }
         }
         CODEVAR <- CODEVAR[-findstem]  # remove stems
+        allvars <- c(allvars,CODEVAR,extra_variables)
       }      
       
-      allvars <- c(allvars,CODEVAR,extra_variables)
-       
+      
+      # Process * at end of variable names in summary argument
+      extra_variables <- NULL
+      findstem <- grep("\\*$",codevar)
+      if (length(findstem)>0) {
+        for (i in seq_len(length(codevar))) {    
+          if (i %in% findstem) {
+            thevar <- sub("(\\S+)\\*$","\\1",codevar[i])
+            expanded_stem <- names(z)[grep(paste0("^",thevar,".*$"),names(z))]
+            if (length(expanded_stem)==0) {
+              stop(paste0("summary: Could not find variables with names matching the * term",thevar))
+            }   
+            extra_variables <- c(extra_variables,expanded_stem) 
+          }
+        }
+        CODEVAR <- CODEVAR[-findstem]  # remove stems
+        allvars <- c(allvars,CODEVAR,extra_variables) 
+      }      
+      
+
       #  if (!all(codevar %in% names(z))) {
       #    nomatch <- codevar[!(codevar %in% names(z))]
       #    stop("Variable(s) specified in summary argument not in data frame: ",paste(nomatch,collapse=", "))
@@ -1692,7 +1715,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
     summarytext <- vector("list",length=length(CAT))
     names(summarytext) <- CAT
     for (value in CAT) {
-      zselect <- z[qqq == value, ]
+      zselect <- z[qqq == value,,drop=FALSE]
       for (i in seq_len(ncol(zselect))) {
         attr(zselect[,i],"label") <- attr(z[,i],"label")
       }

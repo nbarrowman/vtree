@@ -254,6 +254,59 @@ structure(list(x = list(diagram = "digraph vtree {\ngraph [nodesep=0.46, ranksep
 
 test_that("summary",{
   
+  expect_identical(vtree(FakeData,summary="Score"),
+  structure(list(x = list(diagram = "digraph vtree {\ngraph [nodesep=0.1, ranksep=0.5, tooltip=\" \"]\nnode [fontname = Helvetica, fontcolor = black,shape = rectangle, color = black, tooltip=\" \",margin=0.1]\nrankdir=LR;\n\nedge[style=solid]\n\n\nNode_1[label=<46<BR/>Score<BR/>missing 2<BR/>mean 17.1 SD 20.2<BR/>med 9.0 IQR 4.0, 23.5<BR/>range 0.0, 99.0> color=black style=\"rounded,filled\" fillcolor=<#EFF3FF>]\n\n}\n", 
+    config = list(engine = "dot", options = NULL)), width = NULL, 
+    height = NULL, sizingPolicy = list(defaultWidth = NULL, defaultHeight = NULL, 
+        padding = NULL, viewer = list(defaultWidth = NULL, defaultHeight = NULL, 
+            padding = NULL, fill = TRUE, suppress = FALSE, paneHeight = NULL), 
+        browser = list(defaultWidth = NULL, defaultHeight = NULL, 
+            padding = NULL, fill = FALSE, external = FALSE), 
+        knitr = list(defaultWidth = NULL, defaultHeight = NULL, 
+            figure = TRUE)), dependencies = NULL, elementId = NULL, 
+    preRenderHook = NULL, jsHooks = list()), class = c("grViz", 
+"htmlwidget"), package = "DiagrammeR"))
+  
+  expect_identical(vtree(FakeData,summary="Severity"),
+  structure(list(x = list(diagram = "digraph vtree {\ngraph [nodesep=0.1, ranksep=0.5, tooltip=\" \"]\nnode [fontname = Helvetica, fontcolor = black,shape = rectangle, color = black, tooltip=\" \",margin=0.1]\nrankdir=LR;\n\nedge[style=solid]\n\n\nNode_1[label=<46<BR/>Mild: 19 (48%)<BR/>Moderate: 16 (40%)<BR/>Severe: 5 (12%)<BR/>NA: 6> color=black style=\"rounded,filled\" fillcolor=<#EFF3FF>]\n\n}\n", 
+    config = list(engine = "dot", options = NULL)), width = NULL, 
+    height = NULL, sizingPolicy = list(defaultWidth = NULL, defaultHeight = NULL, 
+        padding = NULL, viewer = list(defaultWidth = NULL, defaultHeight = NULL, 
+            padding = NULL, fill = TRUE, suppress = FALSE, paneHeight = NULL), 
+        browser = list(defaultWidth = NULL, defaultHeight = NULL, 
+            padding = NULL, fill = FALSE, external = FALSE), 
+        knitr = list(defaultWidth = NULL, defaultHeight = NULL, 
+            figure = TRUE)), dependencies = NULL, elementId = NULL, 
+    preRenderHook = NULL, jsHooks = list()), class = c("grViz", 
+"htmlwidget"), package = "DiagrammeR"))
+  
+  expect_identical(
+    {dessert <- build.data.frame(
+      c(   "group","IceCream___1","IceCream___2","IceCream___3"),
+      list("A",     1,             0,             0,              7),
+      list("A",     1,             0,             1,              2),
+      list("A",     0,             0,             0,              1),
+      list("B",     1,             0,             1,              1),
+      list("B",     1,             0,             0,              2), 
+      list("B",     0,             1,             1,              1),
+      list("B",     0,             0,             0,              1))
+    attr(dessert$IceCream___1,"label") <- "Ice cream (choice=Chocolate)"
+    attr(dessert$IceCream___2,"label") <- "Ice cream (choice=Vanilla)"
+    attr(dessert$IceCream___3,"label") <- "Ice cream (choice=Strawberry)"
+    vtree(dessert,summary="stem:IceCream \n%freq_%%combo%",splitwidth=Inf)
+    },
+    structure(list(x = list(diagram = "digraph vtree {\ngraph [nodesep=0.1, ranksep=0.5, tooltip=\" \"]\nnode [fontname = Helvetica, fontcolor = black,shape = rectangle, color = black, tooltip=\" \",margin=0.1]\nrankdir=LR;\n\nedge[style=solid]\n\n\nNode_1[label=<15<BR/>*None: 2<BR/>Chocolate: 9<BR/>Chocolate+Strawberry: 3<BR/>Vanilla+Strawberry: 1> color=black style=\"rounded,filled\" fillcolor=<#EFF3FF>]\n\n}\n", 
+    config = list(engine = "dot", options = NULL)), width = NULL, 
+    height = NULL, sizingPolicy = list(defaultWidth = NULL, defaultHeight = NULL, 
+        padding = NULL, viewer = list(defaultWidth = NULL, defaultHeight = NULL, 
+            padding = NULL, fill = TRUE, suppress = FALSE, paneHeight = NULL), 
+        browser = list(defaultWidth = NULL, defaultHeight = NULL, 
+            padding = NULL, fill = FALSE, external = FALSE), 
+        knitr = list(defaultWidth = NULL, defaultHeight = NULL, 
+            figure = TRUE)), dependencies = NULL, elementId = NULL, 
+    preRenderHook = NULL, jsHooks = list()), class = c("grViz", 
+"htmlwidget"), package = "DiagrammeR"))  
+
   expect_identical(vtree(FakeData,"Severity",horiz=FALSE,showvarnames=FALSE,splitwidth=Inf,sameline=TRUE,summary=c("Score \nScore: mean %meanx% SD %SD%","Pre \nPre: range %range%")),
   structure(list(x = list(diagram = "digraph vtree {\ngraph [nodesep=0.1, ranksep=0.5, tooltip=\" \"]\nnode [fontname = Helvetica, fontcolor = black,shape = rectangle, color = black, tooltip=\" \",margin=0.1]\n\nedge[style=solid]\nNode_1->Node_2 Node_1->Node_3 Node_1->Node_4 Node_1->Node_5\n\nNode_1[label=<46<BR/>Score: mean 17.1 SD 20.2 mv=2<BR/>Pre: range -2.5, 2.1 mv=3> color=black style=\"rounded,filled\" fillcolor=<#EFF3FF>]\nNode_2[label=<Mild, 19 (48%)<BR/>Score: mean 12.1 SD 14.6 mv=1<BR/>Pre: range -2.5, 1.9 mv=2> color=black style=\"rounded,filled\" fillcolor=<#FEE0D2>  ]\nNode_1[label=<46<BR/>Score: mean 17.1 SD 20.2 mv=2<BR/>Pre: range -2.5, 2.1 mv=3> color=black style=\"rounded,filled\" fillcolor=<#EFF3FF>]\nNode_3[label=<Moderate, 16 (40%)<BR/>Score: mean 17.1 SD 24.4 mv=1<BR/>Pre: range -1.5, 2.1 mv=1> color=black style=\"rounded,filled\" fillcolor=<#FC9272>  ]\nNode_1[label=<46<BR/>Score: mean 17.1 SD 20.2 mv=2<BR/>Pre: range -2.5, 2.1 mv=3> color=black style=\"rounded,filled\" fillcolor=<#EFF3FF>]\nNode_4[label=<Severe, 5 (12%)<BR/>Score: mean 37.6 SD 16.8<BR/>Pre: range -1.4, 0.5> color=black style=\"rounded,filled\" fillcolor=<#DE2D26>  ]\nNode_1[label=<46<BR/>Score: mean 17.1 SD 20.2 mv=2<BR/>Pre: range -2.5, 2.1 mv=3> color=black style=\"rounded,filled\" fillcolor=<#EFF3FF>]\nNode_5[label=<NA, 6<BR/>Score: mean 15.0 SD 19.4<BR/>Pre: range -1.5, 0.8> color=black style=\"rounded,filled\" fillcolor=<white>  ]\n\n}\n", 
     config = list(engine = "dot", options = NULL)), width = NULL, 

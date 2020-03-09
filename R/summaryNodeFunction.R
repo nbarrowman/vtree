@@ -287,7 +287,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
     }    
     
     # check if it's a stem
-    StemSpecified <- FALSE
+    StemSpecified <- StarSpecified <- HashmarkSpecified <- FALSE
     if (length(grep("^stem:",var))>0) {
       StemSpecified <- TRUE
       ShowFullSummary <- FALSE
@@ -328,10 +328,37 @@ summaryNodeFunction <- function (u, varname, value, args) {
       } else {
         y <- c(y,rep("*None",sum(none)))
       }
+    } else 
+    if (length(grep("\\*$",var))>0) {
+      StarSpecified <- TRUE
+      ShowFullSummary <- FALSE
+      thevar <- sub("(\\S+)\\*$","\\1",var)
+      expanded_stem <- names(u)[grep(paste0("^",thevar,".*$"),names(u))]
+      none <- rep(TRUE,nrow(u))
+      if (ShowCombinations) {
+        y <- rep("",nrow(u))
+        for (j in 1:length(expanded_stem)) {
+          y <-
+              ifelse(is.na(u[[expanded_stem[j]]]),
+                paste0("NA(",expanded_stem[j],")"),
+                ifelse(u[[expanded_stem[j]]]==1,
+                  ifelse(y=="",expanded_stem[j],paste0(y,"+",expanded_stem[j])),y))
+        }
+      } else {
+        y <- NULL
+        for (j in 1:length(expanded_stem)) {
+          none <- none & u[[expanded_stem[j]]]==0
+          y <- c(y,rep(expanded_stem[j],sum(u[[expanded_stem[j]]],na.rm=TRUE)))
+          y <- c(y,rep(paste0("NA(",expanded_stem[j],")"),sum(is.na(u[[expanded_stem[j]]]))))
+        }
+      }
+      if (ShowCombinations) {
+        y[y %in% ""] <- "*None"
+      }
     } else {
       y <- u[[var]]
     }
-    
+
     show <- TRUE
     if (!is.null(args$sf)) {
       show <- args$sf[[i]](u)
