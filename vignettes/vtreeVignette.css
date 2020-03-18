@@ -109,14 +109,18 @@ ul {
   }
 
 pre, code {
-  background-color: #f7f7f7;
+  background-color: #E8E8E8;
   border-radius: 3px;
+  border-left: 3px solid #E8E8E8;
+  border-right: 3px solid #E8E8E8;
   color: #000000;
   white-space: pre-wrap;    /* Wrap long lines */
 }
 pre {
   border-radius: 3px;
   margin: 5px 0px 10px 0px;
+  padding-left: 4px;
+  padding-right: 4px;  
   padding: 10px;
 }
 pre:not([class]) {

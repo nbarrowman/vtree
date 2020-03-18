@@ -243,7 +243,9 @@ NULL
 #' @param arrowhead        DOT arrowhead style. Defaults to \code{"normal"}.
 #'                         Other choices include \code{"none"}, \code{"vee"}.
 #' @param maxNodes         An error occurs if the number of nodes exceeds \code{maxNodes},
-#'                         which defaults to 1000.                         
+#'                         which defaults to 1000.
+#' @param unchecked        Vector of string values interpreted as "unchecked". 
+#' @param checked          Vector of string values interpreted as "checked".
 #' @param folder           Optional path to a folder where the PNG file should stored
 #'                         when called during knit
 #' @param as.if.knit       Behave as if called while knitting?
@@ -447,6 +449,8 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
   pxwidth,pxheight,imagewidth="",imageheight="",folder,
   pngknit=TRUE,as.if.knit=FALSE,
   maxNodes=1000,
+  unchecked=c("0","FALSE","No","no"),
+  checked=c("1","TRUE","Yes","yes"),
   parent = 1, last = 1, root = TRUE)
 {
   
@@ -556,14 +560,15 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
     }
     
     # Process * tag in variable names to expand list of variables
-    findstar <- grep("\\*$",vars)
+    regex <- "^(\\S+)\\*$"
+    findstar <- grep(regex,vars)
     findany <- grep("^any:",vars)
     if (length(findstar)>0) {
       expandedvars <- c()
       for (i in seq_len(length(vars))) {
         if ((i %in% findstar) & !(i %in% findany)) {
-          stem <- sub("(\\S+)\\*$","\\1",vars[i])
-          expanded_stem <- names(z)[grep(paste0(stem,".*$"),names(z))]
+          stem <- sub(regex,"\\1",vars[i])
+          expanded_stem <- names(z)[grep(paste0("^",stem,".*$"),names(z))]
           expandedvars <- c(expandedvars,expanded_stem)
         } else {
           expandedvars <- c(expandedvars,vars[i])
@@ -574,14 +579,15 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
     }    
     
     # Process # tag in variable names to expand list of variables ending in numeric digits
-    findhashmark <- grep("#$",vars)
+    regex <- "^(\\S+)\\#$"
+    findhashmark <- grep(regex,vars)
     findany <- grep("^any:",vars)
     if (length(findhashmark)>0)  {
       expandedvars <- c()
       for (i in seq_len(length(vars))) {
         if ((i %in% findhashmark)  & !(i %in% findany)) {
-          stem <- sub("(\\S+)\\#$","\\1",vars[i])
-          expanded_stem <- names(z)[grep(paste0(stem,"[0-9]+$"),names(z))]
+          stem <- sub(regex,"\\1",vars[i])
+          expanded_stem <- names(z)[grep(paste0("^",stem,"[0-9]+$"),names(z))]
           expandedvars <- c(expandedvars,expanded_stem)
         } else {
           expandedvars <- c(expandedvars,vars[i])
@@ -727,7 +733,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
           stem <- sub(regex1,"\\1",vars[i])
           wildcard <- sub(regex1,"\\2",vars[i])
           if (wildcard=="*") {
-            expanded_stem <- names(z)[grep(paste0("^",stem,".+$"),names(z))]
+            expanded_stem <- names(z)[grep(paste0("^",stem,".*$"),names(z))]
           } else
           if (wildcard=="#") {
             expanded_stem <- names(z)[grep(paste0("^",stem,"[0-9]+$"),names(z))]
@@ -741,7 +747,11 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
           }
           anychecked <- rep(FALSE,nrow(z))
           for (j in 1:length(expanded_stem)) {
-            anychecked <- anychecked | z[[expanded_stem[j]]]
+            message(expanded_stem[j])
+            convertedToLogical <- 
+              ifelse(z[[expanded_stem[j]]] %in% checked,TRUE,
+                ifelse(z[[expanded_stem[j]]] %in% unchecked,FALSE,NA))
+            anychecked <- anychecked | convertedToLogical
           }
           NewVarName <- paste0("Any: ",stem)
           z[[NewVarName]] <- anychecked

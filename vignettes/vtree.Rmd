@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 4.3.9"
+title: "Introduction to vtree 4.4.0"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
 output:
@@ -733,17 +733,32 @@ and end with a numeric digit, namely `Ind1`, `Ind2`, and `Ind3`.
 ### suffix `*`
 
 Specifying `Ind*` matches all variable names that start with `Ind`
-and end with any other characters.
-In `FakeData` this matches `Ind1`, `Ind2`, and `Ind3`,
-But in general `Ind*` would also match `India` and `India1977`.
- 
+and end with any other characters (or no other characters).
+In `FakeData` this matches `Ind1`, `Ind2`, and `Ind3` (just like `Ind#` does).
+But `Ind*` would also match variables with names like `Ind`, `Index`, and `India1977`.
+
 
 ### prefix `any:` with suffix `*` or `#`
 
-A specification like `any:Start#` generates a variable representing whether any of the
-matching variables (`Start1`, `Start2`, ...) equals 1 (or is TRUE).
-Similary, `any:Start*` would do the same thing but a broader class of variable names
-would be matched.
+Sometimes a group of variables contain responses to 
+a list of "check all that apply" options (i.e., checkboxes).
+It is often useful to know if *any* of the options were selected (i.e. checked).
+
+A specification like `any:Start#` (`any:Start*`) 
+is used to generate a variable that is
+`TRUE` if any of the matching variables has a "checked" value, or
+`FALSE` if all of the matching variables have "unchecked" values.
+By default, the parameters `checked` and `unchecked` specify which values
+are considered checked or unchecked respectively, and are as follows:
+
+|**parameter** | **Values**
+|:-------------|-----------------------------------------------------------
+|`checked`     | `"1"`,`"TRUE"`,`"Yes"`,`"yes"`
+|`unchecked`   | `"0"`,`"FALSE"`,`"No"`,`"no"`
+
+Values that do not correspond to the above are treated as missing values.
+
+
 
 
 ### prefixes `stem:`, `rc:` and `any:` (with no prefix)

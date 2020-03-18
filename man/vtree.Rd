@@ -90,6 +90,8 @@ vtree(
   pngknit = TRUE,
   as.if.knit = FALSE,
   maxNodes = 1000,
+  unchecked = c("0", "FALSE", "No", "no"),
+  checked = c("1", "TRUE", "Yes", "yes"),
   parent = 1,
   last = 1,
   root = TRUE
@@ -383,6 +385,10 @@ when called during knit}
 
 \item{maxNodes}{An error occurs if the number of nodes exceeds \code{maxNodes},
 which defaults to 1000.}
+
+\item{unchecked}{Vector of string values interpreted as "unchecked".}
+
+\item{checked}{Vector of string values interpreted as "checked".}
 
 \item{parent}{Parent node number (Internal use only.)}
 
