@@ -13,7 +13,7 @@ showcount=TRUE,
 showvarnames=FALSE,
 pruneNA=FALSE,
 splitwidth=Inf,topcolor="black",color="blue",topfillcolor="olivedrab3",fillcolor="olivedrab2",
-vp=TRUE,rounded=FALSE,showroot=TRUE) {
+vp=TRUE,rounded=FALSE,just="c",showroot=TRUE,verbose=FALSE) {
 #
 # Write DOT code for a single-level {flow}chart of {cat}egories using the
 # DiagrammeR framework.
@@ -265,8 +265,8 @@ vp=TRUE,rounded=FALSE,showroot=TRUE) {
   }
 
   if (!HTMLtext) {
-    displayCAT <- convertToHTML(displayCAT)
-    extraText <- convertToHTML(extraText)
+    displayCAT <- convertToHTML(displayCAT,just=just)
+    extraText <- convertToHTML(extraText,just=just)
   }
   
   # displayCAT <- ifelse(displayCAT=="","",paste0("<B>",displayCAT,"</B>"))

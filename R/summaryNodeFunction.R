@@ -146,7 +146,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
     pctString
   }
   
-  nAndpct <- function(w,digits=2,vp=TRUE,empty="") {
+  nAndpct <- function(w,digits=2,vp=TRUE,empty="",varname="") {
     if (vp) {
       num <- sum(w==1,na.rm=TRUE)
       den <- length(w) - sum(is.na(w))
@@ -161,6 +161,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
     }
     if (any(is.na(w)))
       npctString <- paste0(npctString," mv=",sum(is.na(w)))
+    if (!is.na(varname) & varname!="") npctString <- paste0(varname,": ",npctString)
     npctString
   }
   
@@ -168,7 +169,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
   freqfunc <- function(w,digits=2,vp=TRUE,empty="",
     pcs = "%",  showN = FALSE, shown = TRUE, showp = TRUE, 
     nmiss = FALSE, nmiss0 = FALSE, includemiss = TRUE, showzero = FALSE, 
-    percentfirst = FALSE, sep = ", ",sort=FALSE) {
+    percentfirst = FALSE, sep = ", ",sort=FALSE,varname="") {
     x <- w
  
     nmissString <- ""
@@ -193,6 +194,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
     if (sort) {
       tab <- rev(sort(tab))
     }
+#    browser()
     if (any(is.na(names(tab)))) 
         names(tab)[is.na(names(tab))] <- "NA"
     result <- ""
@@ -203,14 +205,14 @@ summaryNodeFunction <- function (u, varname, value, args) {
         result <- paste0(pr, tab)
         if (showN) 
             result <- paste0(result, "/", length(x))
-        if (showp) 
-            result <- paste0(result, " (", sep = "")
     }
     if (showp) {
-        result <- paste0(result, around(100 * as.numeric(tab)/sum(tab), 
-            digits = digits), pcs)
-        if (shown) 
-            result <- paste0(result, ")")
+        pct <- paste0(around(100 * as.numeric(tab)/sum(tab), digits = digits),pcs)
+        if (shown) {
+          pct <- paste0(" (",pct,")")
+        }
+        pct[pct==" (NaN%)"] <- ""
+        result <- paste0(result,pct)
     }
     if (percentfirst & shown & showp) {
         result <- paste(around(100 * as.numeric(tab)/sum(tab), 
@@ -227,11 +229,16 @@ summaryNodeFunction <- function (u, varname, value, args) {
     result <- result[names(result) != "NA"]
     
     if (includemiss) {
-      if (missingNum>0 | showzero) {
+      if (missingNum>0) { # | showzero) {
         result["NA"] <- missingNum
       }
     }
-    paste0(paste0(names(result),": ",result),collapse=sep)
+    
+    RESULT <- paste0(paste0(names(result),": ",result),collapse=sep)
+    
+    if (varname!="") RESULT <- paste0(varname,"\n",RESULT)
+    
+    RESULT
   }
   
 
@@ -270,10 +277,14 @@ summaryNodeFunction <- function (u, varname, value, args) {
   
     var <- args$var[i]
     
+    original_var <- args$original_var[i]
+    
     if (args$format[i]=="") {
+      SortIt <- TRUE
       FormatString <- FALSE
       ShowFullSummary <- TRUE
     } else {
+      SortIt <- FALSE
       FormatString <- TRUE
       ShowFullSummary <- FALSE
     }
@@ -286,53 +297,55 @@ summaryNodeFunction <- function (u, varname, value, args) {
     
     if (length(grep("%sort%",args$format[i]))>0) {
       SortIt <- TRUE
-    } else {
-      SortIt <- FALSE
-    }    
+    } 
+    #else {
+    #  SortIt <- FALSE
+    #}    
     
     # check if it's a stem
     StemSpecified <- StarSpecified <- HashmarkSpecified <- FALSE
-    if (length(grep("^stem:",var))>0) {
-      StemSpecified <- TRUE
-      ShowFullSummary <- FALSE
-      if (!FormatString) {
-        ShowCombinations <- TRUE
-        SortIt <- TRUE
-      }
-      thevar <- sub("^stem:(\\S+)","\\1",var)
-      expanded_stem <- names(u)[grep(paste0("^",thevar,"___[0-9]+$"),names(u))]
-      if (ShowCombinations) {
-        y <- rep("",nrow(u))
-      } else {
-        y <- NULL
-      }
-      none <- rep(TRUE,nrow(u))
-      for (j in 1:length(expanded_stem)) {
-        rexp1 <- ".+\\(choice=(.+)\\)"
-        rexp2 <- ".+: (.+)"
-        lab <- attributes(u[[expanded_stem[j]]])$label
-        if (length(grep(rexp1,lab))>0) {
-          choice <- sub(rexp1,"\\1",lab)
-        } else
-        if (length(grep(rexp2,lab))>0) {
-          choice <- sub(rexp2,"\\1",lab)
-        } else {
-          stop("Could not find value of checklist item")
-        }
-        if (ShowCombinations) {
-          y <- ifelse(u[[expanded_stem[j]]]==1,
-            ifelse(y=="",choice,paste0(y,"+",choice)),y)
-        } else {
-          none <- none & u[[expanded_stem[j]]]==0
-          y <- c(y,rep(choice,sum(u[[expanded_stem[j]]])))
-        }
-      }
-      if (ShowCombinations) {
-        y[y==""] <- "*None"
-      } else {
-        y <- c(y,rep("*None",sum(none)))
-      }
-    } else 
+    #if (length(grep("^stem:",var))>0) {
+    #  StemSpecified <- TRUE
+    #  ShowFullSummary <- FALSE
+    #  if (!FormatString) {
+    #    ShowCombinations <- TRUE
+    #    SortIt <- TRUE
+    #  }
+    #  thevar <- sub("^stem:(\\S+)","\\1",var)
+    #  expanded_stem <- names(u)[grep(paste0("^",thevar,"___[0-9]+$"),names(u))]
+    #  if (ShowCombinations) {
+    #    y <- rep("",nrow(u))
+    #  } else {
+    #    y <- NULL
+    #  }
+ #  #   browser()
+    #  none <- rep(TRUE,nrow(u))
+    #  for (j in 1:length(expanded_stem)) {
+    #    rexp1 <- ".+\\(choice=(.+)\\)"
+    #    rexp2 <- ".+: (.+)"
+    #    lab <- attributes(u[[expanded_stem[j]]])$label
+    #    if (length(grep(rexp1,lab))>0) {
+    #      choice <- sub(rexp1,"\\1",lab)
+    #    } else
+    #    if (length(grep(rexp2,lab))>0) {
+    #      choice <- sub(rexp2,"\\1",lab)
+    #    } else {
+    #      stop("Could not find value of checklist item")
+    #    }
+    #    if (ShowCombinations) {
+    #      y <- ifelse(u[[expanded_stem[j]]]==1,
+    #        ifelse(y=="",choice,paste0(y,"+",choice)),y)
+    #    } else {
+    #      none <- none & u[[expanded_stem[j]]]==0
+    #      y <- c(y,rep(choice,sum(u[[expanded_stem[j]]])))
+    #    }
+    #  }
+    #  if (ShowCombinations) {
+    #    y[y==""] <- "*None"
+    #  } else {
+    #    y <- c(y,rep("*None",sum(none)))
+    #  }
+    #} else 
     if (length(grep("\\*$",var))>0) {
       StarSpecified <- TRUE
       ShowFullSummary <- FALSE
@@ -461,10 +474,13 @@ summaryNodeFunction <- function (u, varname, value, args) {
         }
         
         if (ShowFullSummary) {
-          if (is.numeric(y)) {
+          if (is.numeric(y) && length(unique(y))>3) {
             result <- paste0("\n",fullsummary(y,digits=cdigits,varname=var))
+          } else
+          if (is.logical(y) || (is.numeric(y) && (all(unique(y) %in% c(NA,0,1))))) {
+            result <- paste0("\n",nAndpct(y,digits=digits,varname=original_var))
           } else {
-            result <- paste0("\n",freqfunc(y,digits=digits,sep="\n",sort=SortIt))
+            result <- paste0("\n",freqfunc(y,digits=digits,sep="\n",sort=SortIt,varname=original_var,showzero=TRUE))
           }
         } else
         if (StemSpecified && !FormatString) {

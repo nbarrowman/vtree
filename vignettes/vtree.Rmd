@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 4.4.0"
+title: "Introduction to vtree 4.4.1"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
 output:
@@ -15,7 +15,8 @@ vignette: >
 
 ```{r, echo=FALSE}
 suppressMessages(library(ggplot2))
-library(vtree)
+#library(vtree)
+source("C:/Users/nickb/Documents/vtree/source.R")
 options(width=90)
 ```
 
@@ -351,15 +352,23 @@ from what is shown in the nodes of the variable tree for `Sex` since they are ne
 When a variable tree is large,
 it can be difficult to display it in a readable way.
 One approach that helps is to display the tree horizontally
-and also to put the node labels on the same
-line as the counts and percentage by specifying `sameline=TRUE`.
-For example, the code below generates single-line labels such as
-"Moderate, 16 (40%)":
+and in each node put the node label on the same line as the count and percentage.
+
+Consider this call to vtree:
 
 ```{r,eval=FALSE}
-vtree(FakeData,"Severity Sex Viral",sameline=TRUE)
+vtree(FakeData,"Severity")
 ```
 
+The label for the Moderate node, for example,
+is on two lines: "Moderate" and "16 (40%)".
+Specifying `sameline=TRUE` results in single-line labels:
+
+```{r,eval=FALSE}
+vtree(FakeData,"Severity",sameline=TRUE)
+```
+
+The label for the Moderate node is "Moderate, 16 (40%)".
 
 
 ### Hiding variable names
@@ -395,7 +404,7 @@ When a variable tree gets too big,
 or you are only interested in certain parts of the tree,
 it may be useful to remove some nodes along with their descendants.
 This is known as *pruning*.
-For convenience, `vtree` provides several different ways to prune a tree,
+For convenience, there are several different ways to prune a tree,
 described below.
 
 ### The `prune` parameter
@@ -474,7 +483,7 @@ which together make up
 `r round(100*sum(FakeData$Severity=="Moderate",na.rm=TRUE)/sum(!is.na(FakeData$Severity)))`%
 of the `r sum(!is.na(FakeData$Severity))` non-missing cases.)
 
-On the right, the NA node has been removed, 
+On the right, the NA node is not shown, 
 because the denominator (`r nrow(FakeData)`) doesn't depend on the number of missing values.
 
 
@@ -483,7 +492,7 @@ because the denominator (`r nrow(FakeData)`) doesn't depend on the number of mis
 A disadvantage of the `prune` parameter is that in the resulting tree,
 the counts shown in child nodes may not add up to the counts shown in the parent node.
 For example in the variable trees above,
-not all of the Severity groups are shown,
+not all of the severity groups are shown,
 so their counts do not add up to `r nrow(FakeData)`,
  
 
@@ -576,7 +585,7 @@ vtree(FakeData,"Group Sex",horiz=FALSE,labelnode=list(Sex=c(Male="M",Female="F")
   width=700,height=250,pxwidth=800,imageheight="2.2in")`
 
 The `labelnode` argument argument is specified as a list whose element names are variable names.
-To substitute `New label` for `Old label`,
+To substitute `"New label"` for `"Old label"`,
 the syntax is: `"New label"="Old label"`.
 Thus the full specification, as used above, is: `labelnode=list(Sex=c(Male="M",Female="F"))`.
 
@@ -612,10 +621,10 @@ vtree(FakeData,"Group Sex",horiz=FALSE,
 
 ## Text and text formatting {#textFormatting}
 
-`Graphviz`,
-the open source graph visualization software that `vtree` is built on,
+Graphviz,
+the open source graph visualization software that vtree is built on,
 supports a variety of text formatting (including bold, colors, etc.).
-This is used in `vtree` to control formatting of text such as node labels.
+This is used in vtree to control formatting of text such as node labels.
 
 
 ### Markdown-style codes for text formatting
@@ -706,28 +715,25 @@ vtree(FakeData,"Group Severity",horiz=FALSE,showvarnames=FALSE,
 ## Specification of variables {#VariableSpecification}
  
 For convenience,
-`vtree` allows you to specify variable names (separated by whitespace)
-in a single character string.
+you can specify variable names (separated by whitespace) in a single character string.
 (If, however, any of the variable names have internal spaces,
 the variable names must be specified as a vector of character strings.)
  
-Additionally, several modifiers can be used in the string of variable names
-to change the way variables are represented in a tree.
+Additionally, several modifiers can be used in the string of variable names.
 
 
 ### prefix `is.na:`
 
 If an individual variable name is preceded by `is.na:`,
 that variable will be replaced by a missing value indicator in the variable tree.
-(This differs from the `check.is.na` parameter, described later,
+(This differs from the [`check.is.na` parameter](#missingValues),
 which is used to replace *all* of the specified variables with missing value indicators.)
 
 
 ### suffix `#`
 
 Specifying `Ind#` matches all variable names that start with `Ind`
-and end with a numeric digit, namely `Ind1`, `Ind2`, and `Ind3`.
-(In this particular case, this is the same result as using `Ind*`).
+and end with one or more numeric digits, namely `Ind1`, `Ind2`, and `Ind3`.
 
 
 ### suffix `*`
@@ -735,16 +741,17 @@ and end with a numeric digit, namely `Ind1`, `Ind2`, and `Ind3`.
 Specifying `Ind*` matches all variable names that start with `Ind`
 and end with any other characters (or no other characters).
 In `FakeData` this matches `Ind1`, `Ind2`, and `Ind3` (just like `Ind#` does).
-But `Ind*` would also match variables with names like `Ind`, `Index`, and `India1977`.
+But if `FakeData` contained variables named `Ind` and `Index,
+they would also be matched by `Ind*`.
 
 
 ### prefix `any:` with suffix `*` or `#`
 
 Sometimes a group of variables contain responses to 
-a list of "check all that apply" options (i.e., checkboxes).
+a list of checkbox options ("check all that apply").
 It is often useful to know if *any* of the options were selected (i.e. checked).
 
-A specification like `any:Start#` (`any:Start*`) 
+A specification like `any:Start#`
 is used to generate a variable that is
 `TRUE` if any of the matching variables has a "checked" value, or
 `FALSE` if all of the matching variables have "unchecked" values.
@@ -756,12 +763,10 @@ are considered checked or unchecked respectively, and are as follows:
 |`checked`     | `"1"`,`"TRUE"`,`"Yes"`,`"yes"`
 |`unchecked`   | `"0"`,`"FALSE"`,`"No"`,`"no"`
 
-Values that do not correspond to the above are treated as missing values.
+Values not listed in `checked` or `unchecked` are treated as missing values.
 
 
-
-
-### prefixes `stem:`, `rc:` and `any:` (with no prefix)
+### prefixes for REDCap datasets: `stem:`, `rc:` and `any:` (without suffix `*` or `#`)
 
 In datasets exported from [REDCap](https://www.project-redcap.org/),
 checkboxes are represented using multiple variables.
@@ -817,7 +822,9 @@ which generally cannot be used to build the tree since they have too many distin
 The `summary` parameter allows you to show summary information about
 a specified variable.
 
-### Default summaries for numeric variables
+### Default summaries
+
+#### Default summaries for numeric variables
 
 For example, suppose you are interested in summary information for the `Score`
 variable for all of the observations in the data frame (i.e. the root node).
@@ -860,7 +867,7 @@ vtree(FakeData,"Severity",summary="Score",horiz=FALSE)
   width=450,height=150,pxwidth=1000,imageheight="2.5in")`
 
 
-### Default summaries for non-numeric variables
+#### Default summaries for non-numeric variables
 
 If we want summary information for a factor variable such as `Category`,
 a similar call to `vtree` can be used:
@@ -870,6 +877,48 @@ vtree(FakeData,summary="Category")
 ```
 
 For non-numeric variables like factors, the count and percentage for each value will be shown.
+
+
+#### Specification of variables in the summary argument
+
+Variables in the `summary` argument can also be specified in a way that is
+similar to the [specification of variables](#VariableSpecification)
+for structuring a variable tree.
+For example, if we wish to know the proportion of patients in each node whose `Category` is single,
+we specify `Category=single` in the `summary` argument:
+
+```{r,eval=FALSE}
+vtree(FakeData,"Severity",summary="Category=single",sameline=TRUE,horiz=FALSE)
+```
+
+`r vtree(FakeData,"Severity",summary="Category=single", 
+  horiz=FALSE,sameline=TRUE,
+  width=450,height=150,pxwidth=800,imageheight="1in")`
+  
+Summaries can be obtained for a collection of variables using pattern-matching,
+for example:
+
+```{r,eval=FALSE}
+vtree(FakeData,"Severity",summary="Ind*",sameline=TRUE,horiz=FALSE,just="l")
+```
+
+`r vtree(FakeData,"Severity",summary="Ind*",sameline=TRUE,horiz=FALSE,just="l",
+  width=450,height=150,pxwidth=800,imageheight="2in")`
+  
+Note that `just="l"` specifies that all text should be left-justified,
+which conveniently lines up all of the rows of the summary.
+
+
+##### prefixes for REDCap datasets: `stem:` and `stemc:`
+
+For REDCap checklist variables,
+there is a `stem:` prefix like the one for variable specifications.
+There is an additional prefix, `stemc:`,
+which calculates response patterns (combinations).
+This is described in the section on [REDCap checkboxes](#REDCapCheckboxes)
+later in this vignette.
+
+
 
 ### Customized summaries
 
@@ -924,7 +973,7 @@ vtree(FakeData,"Severity",summary="Score \nmean score: %mean%",cdigits=0,
 
 The following codes can be used to show summary information:
 
-code            | result
+summary code    | result
 :---------------|:-------------------------------------------------------------------
 `%mean%`        |  mean\
 (variant: `%meanx%` does not report missing values)
@@ -955,32 +1004,6 @@ code            | result
 
 The `summary` argument can use any number of these codes,
 mixed with text and formatting codes.
-
-
-### Specification of variables in the summary argument
-
-Variables in the `summary` argument can also be specified in a way that is
-somewhat similar to the [specification of variables](#VariableSpecification)
-for structuring a variable tree.
-For example, if we wish to know the proportion of patients in each node whose `Category` is single,
-we specify `Category=single` in the `summary` argument and use the `%pct%` code:
-
-```{r,eval=FALSE}
-vtree(FakeData,"Severity",summary="Category=single \n%pct% single",sameline=TRUE,horiz=FALSE)
-```
-
-`r vtree(FakeData,"Severity",summary="Category=single \n%pct% single", 
-  horiz=FALSE,sameline=TRUE,
-  width=450,height=150,pxwidth=800,imageheight="1.3in")`
-  
-Continuous variables such as `Score` can be dichotomized using
-notation such as `Score>10` or `Score<20`.
-
-#### prefix `stem:`
-
-As with variable specifications, there is a `stem:` prefix for variables
-in the summary argument. 
-This is used to identify checkbox variables from a REDCap dataset.
 
 
 
@@ -1322,7 +1345,7 @@ For illustrative purposes, let's build a dataframe like this using the
 `build.data.frame` function (for an explanation of this function see the section
 of this vignette on [generating a data frame by specifying subset sizes](#GeneratingDataFrames)
 
-```{r,eval=FALSE}
+```{r}
 dessert <- build.data.frame(
   c(   "group","IceCream___1","IceCream___2","IceCream___3"),
   list("A",     1,             0,             0,              7),
@@ -1369,15 +1392,29 @@ The `any:` stem reduces the checkbox variables to a single variable
 representing whether one or more of the boxes have been checked (`TRUE`)
 or none of them have been checked (`FALSE`).
 
-### The `stem:` prefix in `summary`
+### The `stem:` and `stemc:` prefixes in `summary`
 
-The `summary` parameter also supports a `stem:` prefix:
+The `summary` parameter supports a `stem:` prefix:
 
 ```{r, eval=FALSE}
-vtree(dessert,summary="stem:IceCream \n%freq_%%combo%",splitwidth=Inf)
+vtree(dessert,summary="stem:IceCream",splitwidth=Inf,just="l")
 ```
 
+`r vtree(dessert,summary="stem:IceCream",splitwidth=Inf,just="l",
+  width=450,height=150,pxwidth=1000,imageheight="1.2in")`
 
+There is an additional prefix, `stemc:`,
+which calculates response patterns (combinations).
+
+```{r, eval=FALSE}
+vtree(dessert,summary="stemc:IceCream",splitwidth=Inf)
+```
+
+`r vtree(dessert,summary="stemc:IceCream",splitwidth=Inf,just="l",
+  width=450,height=150,pxwidth=1000,imageheight="1.2in")`
+  
+  
+  
 ### variable prefix `rc:`
 
 If you wish to only examine specific REDCap checkbox items,

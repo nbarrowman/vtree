@@ -92,6 +92,8 @@ vtree(
   maxNodes = 1000,
   unchecked = c("0", "FALSE", "No", "no"),
   checked = c("1", "TRUE", "Yes", "yes"),
+  just = "c",
+  verbose = FALSE,
   parent = 1,
   last = 1,
   root = TRUE
@@ -248,10 +250,12 @@ This controls two Graphviz parameters: \code{margin} and \code{nodesep}.}
 
 \item{shownodelabels}{Show node labels?
 A single value (with no names) specifies the setting for all variables.
-A logical vector of \code{TRUE} values for named variables is interpreted as
-\code{TRUE} for those variables and \code{FALSE} for all others.
-A logical vector of \code{FALSE} values for named variables is interpreted as
-\code{FALSE} for those variables and \code{TRUE} for all others.}
+Otherwise, a named logical vector indicates which variables should have their
+node labels shown.
+If the vector consists of only \code{TRUE} values,
+it is interpreted as \code{TRUE} for those variables and \code{FALSE} for all others.
+Similarly, if the vector consists of only \code{FALSE} values, 
+it is interpreted as \code{FALSE} for those variables and \code{TRUE} for all others.}
 
 \item{showvarnames}{Show the name of the variable next to each level of the tree?}
 
@@ -389,6 +393,10 @@ which defaults to 1000.}
 \item{unchecked}{Vector of string values interpreted as "unchecked".}
 
 \item{checked}{Vector of string values interpreted as "checked".}
+
+\item{just}{Text justification ("l"=left, "c"=center, "r"=right).}
+
+\item{verbose}{Report additional details?}
 
 \item{parent}{Parent node number (Internal use only.)}
 
