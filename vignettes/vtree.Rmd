@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 4.4.1"
+title: "Introduction to vtree 4.4.2"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
 output:
@@ -285,14 +285,7 @@ vtree(FakeData,"Severity")
 
 Next, consider a variable tree with two variables, `Severity` and `Sex`.
 To make it vertical, specify `horiz=FALSE`.
-A less colorful display with more spacing can be requested by specifying `plain=TRUE`:
-
-```{r, eval=FALSE}
-vtree(FakeData,"Severity Sex",horiz=FALSE,plain=TRUE)
-```
-
-`r vtree(FakeData,"Severity Sex",horiz=FALSE,plain=TRUE,
-  width=450,height=200,pxwidth=1600,imageheight="1.8in")`
+A less colorful display with more spacing can be requested by specifying `plain=TRUE`.
 
 For additional details about how variables can be specified,
 see the section on [specification of variables](#VariableSpecification) below.
@@ -361,14 +354,14 @@ vtree(FakeData,"Severity")
 ```
 
 The label for the Moderate node, for example,
-is on two lines: "Moderate" and "16 (40%)".
-Specifying `sameline=TRUE` results in single-line labels:
+is on two lines, like this:
 
-```{r,eval=FALSE}
-vtree(FakeData,"Severity",sameline=TRUE)
-```
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**Moderate** \
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**16 (40%)**
 
-The label for the Moderate node is "Moderate, 16 (40%)".
+Specifying `sameline=TRUE` results in single-line labels, like this:
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**Moderate, 16 (40%)**
 
 
 ### Hiding variable names
@@ -418,7 +411,7 @@ vtree(FakeData,"Severity Sex",prune=list(Severity=c("Mild","Moderate")))
 ```
 
 `r vtree(FakeData,"Severity Sex",prune=list(Severity=c("Mild","Moderate")),
-  width=500,height=300,pxwidth=600,imageheight="2.5in")`
+  width=500,height=300,pxwidth=500,imageheight="2.5in")`
 
 In general,
 the argument of the `prune` parameter is a list with an element named for each variable you wish to prune.
@@ -462,17 +455,17 @@ vtree(FakeData,"Severity")
 vtree(FakeData,"Severity",vp=FALSE)
 ```
 
-`r vtree(FakeData,"Severity",imagewidth="1.5in",pxwidth=400)`
+`r vtree(FakeData,"Severity",imagewidth="1.5in",pxwidth=400)` &nbsp;&nbsp;&nbsp;&nbsp;
 `r vtree(FakeData,"Severity",vp=FALSE,imagewidth="1.5in",pxwidth=400)`
 
-Suppose we use `keep` to retain only the Moderate node.
+Suppose we use `keep` to retain only the Moderate node:
 
 ```{r,eval=FALSE}
 vtree(FakeData,"Severity",keep=list(Severity="Moderate"))
 vtree(FakeData,"Severity",vp=FALSE,keep=list(Severity="Moderate"))
 ```
 
-`r vtree(FakeData,"Severity",keep=list(Severity="Moderate"),imagewidth="1.5in",pxwidth=400)`
+`r vtree(FakeData,"Severity",keep=list(Severity="Moderate"),imagewidth="1.5in",pxwidth=400)`  &nbsp;&nbsp;&nbsp;&nbsp;
 `r vtree(FakeData,"Severity",vp=FALSE,keep=list(Severity="Moderate"),imagewidth="1.5in",pxwidth=400)`
 
 Note that in the tree on the left (which uses valid percentages),
@@ -646,7 +639,7 @@ In the tables below, `...` represents arbitrary text.
 
 As an alternative,
 if you specify `HTMLtext=TRUE` you can use "HTML-like labels"
-(implemented in `Graphviz`), including:
+(implemented in Graphviz), including:
 
 ----------------------------------      ----------------------------------------------------------
 `<BR/>`                                 insert a line break
@@ -667,7 +660,7 @@ See <https://www.graphviz.org/doc/info/shapes.html#html> for more details.
 
 Suppose you wish to add the italicized text "*Excluding new diagnoses*"
 to any Mild nodes in the tree.
-The parameter `text` lets you add text to nodes.
+The parameter `text` is used to add text to nodes.
 It is specified as a list with an element named for each variable.
 In the example below the list has one element, named `Severity`.
 That element in turn is a vector `c(Mild="\n*Excluding\nnew diagnoses*")`
@@ -718,8 +711,7 @@ For convenience,
 you can specify variable names (separated by whitespace) in a single character string.
 (If, however, any of the variable names have internal spaces,
 the variable names must be specified as a vector of character strings.)
- 
-Additionally, several modifiers can be used in the string of variable names.
+Additionally, several modifiers can be used, as detailed below.
 
 
 ### prefix `is.na:`
@@ -728,7 +720,14 @@ If an individual variable name is preceded by `is.na:`,
 that variable will be replaced by a missing value indicator in the variable tree.
 (This differs from the [`check.is.na` parameter](#missingValues),
 which is used to replace *all* of the specified variables with missing value indicators.)
+For example:
 
+```{r,eval=FALSE}
+vtree(FakeData,"is.na:Score")
+```
+
+`r vtree(FakeData,"is.na:Score",
+  pxwidth=500,imageheight="1.5in")`
 
 ### suffix `#`
 
@@ -741,32 +740,36 @@ and end with one or more numeric digits, namely `Ind1`, `Ind2`, and `Ind3`.
 Specifying `Ind*` matches all variable names that start with `Ind`
 and end with any other characters (or no other characters).
 In `FakeData` this matches `Ind1`, `Ind2`, and `Ind3` (just like `Ind#` does).
-But if `FakeData` contained variables named `Ind` and `Index,
+But if `FakeData` contained variables named `Ind` and `Index`,
 they would also be matched by `Ind*`.
 
 
 ### prefix `any:` with suffix `*` or `#`
 
 Sometimes a group of variables contain responses to 
-a list of checkbox options ("check all that apply").
+a list of checkbox options (often with instructions to "check all that apply").
 It is often useful to know if *any* of the options were selected (i.e. checked).
 
 A specification like `any:Start#`
 is used to generate a variable that is
-`TRUE` if any of the matching variables has a "checked" value, or
-`FALSE` if all of the matching variables have "unchecked" values.
-By default, the parameters `checked` and `unchecked` specify which values
-are considered checked or unchecked respectively, and are as follows:
 
-|**parameter** | **Values**
+* `TRUE` if any of the matching variables has a "checked" value
+
+* `FALSE` if all of the matching variables have "unchecked" values.
+
+The parameters `checked` and `unchecked` specify which values
+are considered checked or unchecked respectively,
+and have the following defaults:
+
+|**parameter** | **default value**
 |:-------------|-----------------------------------------------------------
-|`checked`     | `"1"`,`"TRUE"`,`"Yes"`,`"yes"`
-|`unchecked`   | `"0"`,`"FALSE"`,`"No"`,`"no"`
+|`checked`     | `c("1","TRUE","Yes","yes")`
+|`unchecked`   | `c("0","FALSE","No","no")`
 
 Values not listed in `checked` or `unchecked` are treated as missing values.
 
 
-### prefixes for REDCap datasets: `stem:`, `rc:` and `any:` (without suffix `*` or `#`)
+### prefixes for REDCap datasets: `stem:`, `rc:` and `any:` (with no suffix)
 
 In datasets exported from [REDCap](https://www.project-redcap.org/),
 checkboxes are represented using multiple variables.
@@ -824,9 +827,7 @@ a specified variable.
 
 ### Default summaries
 
-#### Default summaries for numeric variables
-
-For example, suppose you are interested in summary information for the `Score`
+Suppose you are interested in summary information for the `Score`
 variable for all of the observations in the data frame (i.e. the root node).
 In that case you don't need to specify any variables for the tree itself:
 
@@ -864,10 +865,7 @@ vtree(FakeData,"Severity",summary="Score",horiz=FALSE)
 ```
 
 `r vtree(FakeData,"Severity",summary="Score",horiz=FALSE,
-  width=450,height=150,pxwidth=1000,imageheight="2.5in")`
-
-
-#### Default summaries for non-numeric variables
+  width=450,height=150,pxwidth=1200,imageheight="2.7in")`
 
 If we want summary information for a factor variable such as `Category`,
 a similar call to `vtree` can be used:
@@ -876,10 +874,12 @@ a similar call to `vtree` can be used:
 vtree(FakeData,summary="Category")
 ```
 
-For non-numeric variables like factors, the count and percentage for each value will be shown.
+`r vtree(FakeData,summary="Category",
+  width=500,height=300,pxwidth=300,imageheight="1in")`
+ 
 
 
-#### Specification of variables in the summary argument
+### Specification of variables in the summary argument
 
 Variables in the `summary` argument can also be specified in a way that is
 similar to the [specification of variables](#VariableSpecification)
@@ -888,12 +888,11 @@ For example, if we wish to know the proportion of patients in each node whose `C
 we specify `Category=single` in the `summary` argument:
 
 ```{r,eval=FALSE}
-vtree(FakeData,"Severity",summary="Category=single",sameline=TRUE,horiz=FALSE)
+vtree(FakeData,"Severity",summary="Category=single",horiz=FALSE)
 ```
 
-`r vtree(FakeData,"Severity",summary="Category=single", 
-  horiz=FALSE,sameline=TRUE,
-  width=450,height=150,pxwidth=800,imageheight="1in")`
+`r vtree(FakeData,"Severity",summary="Category=single",horiz=FALSE, 
+  width=450,height=150,pxwidth=1400,imageheight="1.3in")`
   
 Summaries can be obtained for a collection of variables using pattern-matching,
 for example:
@@ -903,7 +902,7 @@ vtree(FakeData,"Severity",summary="Ind*",sameline=TRUE,horiz=FALSE,just="l")
 ```
 
 `r vtree(FakeData,"Severity",summary="Ind*",sameline=TRUE,horiz=FALSE,just="l",
-  width=450,height=150,pxwidth=800,imageheight="2in")`
+  width=450,height=150,pxwidth=1100,imageheight="2.2in")`
   
 Note that `just="l"` specifies that all text should be left-justified,
 which conveniently lines up all of the rows of the summary.
@@ -929,17 +928,17 @@ The following specification can be used:
 
 
 ```{r,eval=FALSE}
-vtree(FakeData,"Severity",summary="Score \nmean score: %mean%",sameline=TRUE,horiz=FALSE)
+vtree(FakeData,"Severity",summary="Score \nmean score\n%mean%",sameline=TRUE,horiz=FALSE)
 ```
 
-`r vtree(FakeData,"Severity",summary="Score \nmean score: %mean%",
+`r vtree(FakeData,"Severity",summary="Score \nmean score\n%mean%",
   sameline=TRUE,horiz=FALSE,
   width=450,height=150,pxwidth=1000,imageheight="1.6in")`
   
 The mean score is shown in each node.
 If there are any missing values in a node,
 the number of missing values is shown using the abbreviation `mv`.
-The specification used above, `summary="Score \nmean score: %mean%"`,
+The specification used above, `summary="Score \nmean score\n%mean%"`,
 has a special structure:
 
 * First, the name of the variable for which a summary is desired. (We'll see later that variable specifications and expressions can also be used, as long as they do not contain any spaces.)
@@ -949,27 +948,24 @@ has a special structure:
 * The remainder of the string specifies what to display,
 with text as well as special codes (such as `%mean%`) to indicate the type of summary desired and to control which nodes display the summary, etc.
 
-For example specifying `summary="Score \nmean score: %mean%"`
+In the example above,
+specifying `summary="Score \nmean score\n%mean%"`
 indicates that the variable to be summarized is `Score` and that the summary
-should have the following format: `\nmean score: %mean%`.
+should have the following format: `\nmean score\n%mean%`.
 This is rendered as:
 
 * a new line (specified by the newline character `\n`) 
 
-* followed by the words "mean score: "
+* the words "mean score"
+
+* another new line
 
 * and finally the mean of `Score`.
 
 If you don't want to see the number of missing values, 
 the code `%meanx%` can be used instead of `%mean%`
 (but note that this can be misleading).
-To see the means without any decimals, the `cdigits` parameter can be used;
-for example:
-
-```{r,eval=FALSE}
-vtree(FakeData,"Severity",summary="Score \nmean score: %mean%",cdigits=0,
-  sameline=TRUE,horiz=FALSE)
-```
+To see the means without any decimals, specify `cdigits=0`.
 
 The following codes can be used to show summary information:
 
@@ -1002,7 +998,7 @@ summary code    | result
 `%nonmv%`       |  the number of non-missing values
 `%v%`           |  the name of the variable
 
-The `summary` argument can use any number of these codes,
+The `summary` argument can include any number of these codes,
 mixed with text and formatting codes.
 
 
@@ -1016,13 +1012,13 @@ By default this information will be displayed in each node.
 When a value occurs more than once in the subset,
 it will be followed by a count of the number of repetitions in parentheses.
 The `%list%` code separates values by commas.
-Alternatively, the `%listlines%` code can be used to put each value on a new line.
+Alternatively, the `%list_%` code can be used to put each value on a new line.
 
 When there are many IDs, it is often convenient to truncate the output.
 If you specify `%trunc=`*N*`%`, summary information
 will be truncated after *N* characters with "...".
 
-### The `%noroot%`, `%leafonly%`, `%var=`*v*`%`, and `%node=`*n*`%` codes
+### Control codes: `%noroot%`, `%leafonly%`, `%var=`*v*`%`, and `%node=`*n*`%`
 
 By default, summary information is shown in all nodes.
 However, it may also be convenient to only show it in specific nodes.
@@ -1049,7 +1045,7 @@ vtree(FakeData,"Severity Category",
 
 `r vtree(FakeData,"Severity Category",
   summary="(Post-Pre)/Pre \nmean = %mean%",sameline=TRUE,horiz=FALSE,cdigits=1,
-  width=450,height=150,pxwidth=1000,imageheight="2in")`
+  width=450,height=150,pxwidth=1000,imageheight="1.8in")`
 
 Expressions involving functions can also be used; for example `sqrt(abs(Post/Pre))`.
 
@@ -1057,7 +1053,7 @@ Expressions involving functions can also be used; for example `sqrt(abs(Post/Pre
 ### More than one variable
 
 Sometimes it is useful to display summary information for more than one variable.
-To do this, specify `summary` as a vector of character strings:
+To do this, specify `summary` as a *vector* of character strings:
 
 ```{r,eval=FALSE}
 vtree(FakeData,"Severity",horiz=FALSE,showvarnames=FALSE,splitwidth=Inf,sameline=TRUE,
@@ -1068,7 +1064,7 @@ vtree(FakeData,"Severity",horiz=FALSE,showvarnames=FALSE,splitwidth=Inf,sameline
   summary=c(
     "Score \nScore: mean (SD) %meanx% (%SD%)",
     "Pre \nPre: range %range%"),
-  width=650,height=350,pxwidth=1000,imageheight="1.5in")`
+  width=650,height=350,pxwidth=1400,imageheight="1.4in")`
   
 
 ## Pattern trees and pattern tables {#patterns}
@@ -1088,16 +1084,12 @@ A "pattern tree" can be easily produced by specifying `pattern=TRUE`:
 vtree(FakeData,"Severity Sex")
 vtree(FakeData,"Severity Sex",pattern=TRUE)
 ```
-```{r, echo=FALSE,results="asis"}
-vtree(FakeData,"Severity Sex",
-  width=650,height=650,pxwidth=500,imageheight="4in")
 
-cat("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")
-
-vtree(FakeData,"Severity Sex",pattern=TRUE,
-  width=650,height=650,pxwidth=600,imageheight="4in")
-```
-
+`r vtree(FakeData,"Severity Sex",
+  width=650,height=650,pxwidth=500,imageheight="4in")`
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+`r vtree(FakeData,"Severity Sex",pattern=TRUE,
+  width=650,height=650,pxwidth=600,imageheight="4in")`
 
 Pattern trees are simpler to read than ordinary variable trees,
 but they involve a considerable loss of information,

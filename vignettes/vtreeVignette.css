@@ -53,13 +53,16 @@ table {
   border-collapse: collapse;
 }
 table th {
-  border-width: 2px;
+  border-width: 1px;
+  border-color: #DDDDDD;
+  background-color: #f7f7f7;
   padding: 5px;
   border-style: inset;
 }
 table td {
   border-width: 1px;
   border-style: inset;
+  border-color: #DDDDDD;
   line-height: 18px;
   padding: 5px 5px;
 }
@@ -67,7 +70,7 @@ table, table th, table td {
   border-left-style: none;
   border-right-style: none;
 }
-table thead, table tr.even {
+table thead {
   background-color: #f7f7f7;
 }
 

@@ -304,48 +304,6 @@ summaryNodeFunction <- function (u, varname, value, args) {
     
     # check if it's a stem
     StemSpecified <- StarSpecified <- HashmarkSpecified <- FALSE
-    #if (length(grep("^stem:",var))>0) {
-    #  StemSpecified <- TRUE
-    #  ShowFullSummary <- FALSE
-    #  if (!FormatString) {
-    #    ShowCombinations <- TRUE
-    #    SortIt <- TRUE
-    #  }
-    #  thevar <- sub("^stem:(\\S+)","\\1",var)
-    #  expanded_stem <- names(u)[grep(paste0("^",thevar,"___[0-9]+$"),names(u))]
-    #  if (ShowCombinations) {
-    #    y <- rep("",nrow(u))
-    #  } else {
-    #    y <- NULL
-    #  }
- #  #   browser()
-    #  none <- rep(TRUE,nrow(u))
-    #  for (j in 1:length(expanded_stem)) {
-    #    rexp1 <- ".+\\(choice=(.+)\\)"
-    #    rexp2 <- ".+: (.+)"
-    #    lab <- attributes(u[[expanded_stem[j]]])$label
-    #    if (length(grep(rexp1,lab))>0) {
-    #      choice <- sub(rexp1,"\\1",lab)
-    #    } else
-    #    if (length(grep(rexp2,lab))>0) {
-    #      choice <- sub(rexp2,"\\1",lab)
-    #    } else {
-    #      stop("Could not find value of checklist item")
-    #    }
-    #    if (ShowCombinations) {
-    #      y <- ifelse(u[[expanded_stem[j]]]==1,
-    #        ifelse(y=="",choice,paste0(y,"+",choice)),y)
-    #    } else {
-    #      none <- none & u[[expanded_stem[j]]]==0
-    #      y <- c(y,rep(choice,sum(u[[expanded_stem[j]]])))
-    #    }
-    #  }
-    #  if (ShowCombinations) {
-    #    y[y==""] <- "*None"
-    #  } else {
-    #    y <- c(y,rep("*None",sum(none)))
-    #  }
-    #} else 
     if (length(grep("\\*$",var))>0) {
       StarSpecified <- TRUE
       ShowFullSummary <- FALSE
