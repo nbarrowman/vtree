@@ -279,16 +279,51 @@ summaryNodeFunction <- function (u, varname, value, args) {
     
     original_var <- args$original_var[i]
     
+    ShowSimpleSummary <- TRUE
+    Formatstring <- FALSE
+    SortIt <- TRUE
     if (args$format[i]=="") {
       SortIt <- TRUE
       FormatString <- FALSE
-      ShowFullSummary <- TRUE
-    } else {
-      SortIt <- FALSE
-      FormatString <- TRUE
-      ShowFullSummary <- FALSE
+      ShowSimpleSummary <- TRUE
     }
+    # else {
+    #  SortIt <- FALSE
+    #  FormatString <- TRUE
+    #  ShowSimpleSummary <- FALSE
+    # }
     
+    if (length(grep("%v%"            ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%list%"         ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%listlines%"    ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%list_%"        ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%freqpct%"      ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%freq%"         ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%freqpctlines%" ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%freqpct_%"     ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%freqlines%"    ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%freq_%"        ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%mv%"           ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%nonmv%"        ,args$format[i])>0)) ShowSimpleSummary <- FALSE    
+    if (length(grep("%npct%"         ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%pct%"          ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%mean%"         ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%meanx%"        ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%sum%"          ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%sumx%"         ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%median%"       ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%medianx%"      ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%SD%"           ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%SDx%"          ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%min%"          ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%minx%"         ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%max%"          ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%maxx%"         ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%range%"        ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%rangex%"       ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%IQR%"          ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%IQRx%"         ,args$format[i])>0)) ShowSimpleSummary <- FALSE  
+               
     if (length(grep("%combo%",args$format[i]))>0) {
       ShowCombinations <- TRUE
     } else {
@@ -306,7 +341,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
     StemSpecified <- StarSpecified <- HashmarkSpecified <- FALSE
     if (length(grep("\\*$",var))>0) {
       StarSpecified <- TRUE
-      ShowFullSummary <- FALSE
+      ShowSimpleSummary <- FALSE
       thevar <- sub("(\\S+)\\*$","\\1",var)
       expanded_stem <- names(u)[grep(paste0("^",thevar,".*$"),names(u))]
       none <- rep(TRUE,nrow(u))
@@ -431,7 +466,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
           maxx <- max(x)
         }
         
-        if (ShowFullSummary) {
+        if (ShowSimpleSummary) {
           if (is.numeric(y) && length(unique(y))>3) {
             result <- paste0("\n",fullsummary(y,digits=cdigits,varname=var))
           } else

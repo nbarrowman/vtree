@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 4.4.3"
+title: "Introduction to vtree 4.4.4"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
 output:
@@ -15,7 +15,8 @@ vignette: >
 
 ```{r, echo=FALSE}
 suppressMessages(library(ggplot2))
-library(vtree)
+#library(vtree)
+source("C:/Users/nickb/Documents/vtree/source.R")
 options(width=90)
 ```
 
@@ -859,8 +860,7 @@ instead of showing the above summary statistics,
 the observations are simply listed.)
 
 Suppose we're building a variable tree based on `Severity` and we
-wish to display these summaries for `Score` in each node.
-We simply call:
+wish to display these summaries for `Score` in each node:
 
 ```{r,eval=FALSE}
 vtree(FakeData,"Severity",summary="Score",horiz=FALSE)
@@ -870,8 +870,8 @@ vtree(FakeData,"Severity",summary="Score",horiz=FALSE)
 `r vtree(FakeData,"Severity",summary="Score",horiz=FALSE,
   pxwidth=1200,imageheight="2.7in")`
 
-If we want summary information for a factor variable such as `Category`,
-a similar call to `vtree` can be used:
+There are also default summaries for factor variables and for indicator variables.
+For example, `Category` is a factor variable:
 
 ```{r,eval=FALSE}
 vtree(FakeData,summary="Category")
@@ -880,7 +880,17 @@ vtree(FakeData,summary="Category")
 `r spaces(68)`
 `r vtree(FakeData,summary="Category",
   pxwidth=300,imageheight="1in")`
- 
+
+Indicator variables have two levels such as 0 / 1, or `TRUE` / `FALSE`.
+For example, `Event` is an indicator variable
+
+```{r,eval=FALSE}
+vtree(FakeData,summary="Event")
+```
+
+`r spaces(68)`
+`r vtree(FakeData,summary="Event",
+  pxwidth=300,imageheight="0.5in")`
 
 
 ### Specification of variables in the summary argument
@@ -924,13 +934,42 @@ This is described in the section on [REDCap checkboxes](#REDCapCheckboxes)
 later in this vignette.
 
 
+### Control codes: `%noroot%`, `%leafonly%`, `%var=`*v*`%`, and `%node=`*n*`%`
+
+By default, summary information is shown in all nodes.
+However, it may also be convenient to only show it in specific nodes.
+To control this, special codes that begin and end with `%` can be specified.
+The following control codes are available:
+
+|**code**         | **summary information restricted to:**
+|:----------------|----------------------------------------
+|`%noroot%`       | all nodes *except* the root
+|`%leafonly%`     | leaf nodes
+|`%var=`*v*`%`    | nodes of variable *v*
+|`%node=`*n*`%`   | nodes named *n*
+
+The control codes can be specified by adding them to the end of the summary
+string, separated with a space.
+For example to only show summary information for nodes of the `Category` variable 
+with the value `triple`:
+
+```{r, eval=FALSE}
+vtree(FakeData,"Severity Category",summary="Score<10 %var=Category%%node=triple%",
+  sameline=TRUE)
+```
+
+`r spaces(35)`
+`r vtree(FakeData,"Severity Category",summary="Score<10 %var=Category%%node=triple%",
+  sameline=TRUE,
+  pxwidth=1000,imageheight="2.5in")`
+
 
 ### Customized summaries
 
 The `summary` parameter also allows for customized summaries.
 For example, we might wish to display only the mean `Score`
 in each node of the tree.
-The following specification can be used:
+The `%mean%` code is used to represent the mean of the specified variable:
 
 
 ```{r,eval=FALSE}
@@ -942,37 +981,20 @@ vtree(FakeData,"Severity",summary="Score \nmean score\n%mean%",sameline=TRUE,hor
   sameline=TRUE,horiz=FALSE,
   pxwidth=1000,imageheight="1.6in")`
   
-The mean score is shown in each node.
+The table below lists numerous other summary codes.
+When such a code is present, the default summary is not shown.
+Instead,
+any text that is provided (in this case `\nmean score\n`)
+is shown, together with the requested summary information.
+Note that `\n` indicates a line break.
+
 If there are any missing values in a node,
 the number of missing values is shown using the abbreviation `mv`.
-The specification used above, `summary="Score \nmean score\n%mean%"`,
-has a special structure:
-
-* First, the name of the variable for which a summary is desired. (We'll see later that variable specifications and expressions can also be used, as long as they do not contain any spaces.)
-
-* Next a space.
-
-* The remainder of the string specifies what to display,
-with text as well as special codes (such as `%mean%`) to indicate the type of summary desired and to control which nodes display the summary, etc.
-
-In the example above,
-specifying `summary="Score \nmean score\n%mean%"`
-indicates that the variable to be summarized is `Score` and that the summary
-should have the following format: `\nmean score\n%mean%`.
-This is rendered as:
-
-* a new line (specified by the newline character `\n`) 
-
-* the words "mean score"
-
-* another new line
-
-* and finally the mean of `Score`.
-
 If you don't want to see the number of missing values, 
 the code `%meanx%` can be used instead of `%mean%`
-(but note that this can be misleading).
-To see the means without any decimals, specify `cdigits=0`.
+(and similarly `%medianx%` instead of `%median%`, etc.).
+But note that results may be misleading if missing values are suppressed.
+To see summaries without any decimals, specify `cdigits=0`.
 
 The following codes can be used to show summary information:
 
@@ -1010,7 +1032,7 @@ mixed with text and formatting codes.
 
 
 
-### The `%list%` code
+### The `%trunc%` code
 
 It is sometimes convenient to see individual values of a variable in each node.
 For example you might want to see ID numbers.
@@ -1018,25 +1040,11 @@ To do this, use the `%list%` code.
 By default this information will be displayed in each node.
 When a value occurs more than once in the subset,
 it will be followed by a count of the number of repetitions in parentheses.
-The `%list%` code separates values by commas.
-Alternatively, the `%list_%` code can be used to put each value on a new line.
 
 When there are many IDs, it is often convenient to truncate the output.
 If you specify `%trunc=`*N*`%`, summary information
 will be truncated after *N* characters with "...".
 
-### Control codes: `%noroot%`, `%leafonly%`, `%var=`*v*`%`, and `%node=`*n*`%`
-
-By default, summary information is shown in all nodes.
-However, it may also be convenient to only show it in specific nodes.
-The following codes control this:
-
-|**code**         | **summary information restricted to:**
-|:----------------|----------------------------------------
-|`%noroot%`       | all nodes *except* the root
-|`%leafonly%`     | leaf nodes
-|`%var=`*v*`%`    | nodes of variable *v*
-|`%node=`*n*`%`   | nodes named *n*
 
 
 ### R expressions in the summary argument
