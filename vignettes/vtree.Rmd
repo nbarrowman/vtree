@@ -15,8 +15,7 @@ vignette: >
 
 ```{r, echo=FALSE}
 suppressMessages(library(ggplot2))
-#library(vtree)
-source("C:/Users/nickb/Documents/vtree/source.R")
+library(vtree)
 options(width=90)
 ```
 
