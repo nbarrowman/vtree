@@ -1,3 +1,37 @@
+# vtree 4.0.0
+
+## Changes
+
+* Added a new parameter, `arrowhead`, to specify the type of arrowhead
+(or `none`).
+
+* Added summary variable specification `!=`
+
+* Sebastian Gatscha added Shiny functionality
+and the svg-pan-zoom JavaScript library.
+The following functions were added:
+`init_js`, `inlineCssSetup`, `renderVtree`, `use_svgzoom`, `vtreeOutput`.
+
+* New function `svtree` uses Shiny functionality.
+
+* Modified outputs of `vtree` to make it work better.
+
+* Thanks to `knitr::asis_output()`,
+calling `vtree` from R Markdown when generating a PNG file has been simplified.
+
+* Specifying `showvarinnode=TRUE` shows variable name in each node.
+
+* When no variable list is specified,
+`vtree` reports included variables, excluded discrete variables, 
+other excluded variables.
+
+## Bug fixes
+
+* Fixed a bug with missing value nodes.
+
+* Fixed problem with return value when running chunk from R Studio.
+
+
 # vtree 3.0.0
 
 ## Changes

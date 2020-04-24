@@ -10,36 +10,26 @@ downloads](https://cranlogs.r-pkg.org/badges/grand-total/vtree)](https://cranlog
 
 <img src="https://github.com/nbarrowman/vtree/blob/master/cheatsheets/png/v1.png" width="250">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/nbarrowman/vtree/blob/master/cheatsheets/png/t7.png" width="200">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/nbarrowman/vtree/blob/master/cheatsheets/png/t1.png" width="300">
 
-# Notes
-
 See installation details below.
-
-Important notes about the current version of vtree (version 3.0.0) on CRAN:
-
-* Compared to earlier versions, there are changes in how vtree supports R Markdown. By default when `vtree` is called from R Markdown, a PNG file is automatically generated and markdown code to embed it is generated. To generate an htmlwidget instead (as in older versions of vtree), specify `pngknit=FALSE`. For more information see: https://cran.r-project.org/web/packages/vtree/vignettes/vtree.html#embeddingInRmarkdown
-
-* The latest vtree release candidate (version 3.0.7) streamlines this functionality and corrects a bug.
-
-* It also corrects a bug related to pruning with missing values.
 
 # Installation
 
-You can install the current version of vtree (version 3.0.0) from CRAN
+You can install the current version of vtree (version 4.0.0) from CRAN
 
 ```
 install.packages("vtree")
 ```
 
-Or install the latest release candidate from github (version 3.0.7)
+Or install the latest release (v4.0.5) from github
 
 ```
-remotes::install_github("nbarrowman/vtree@v3.0.7")
+remotes::install_github("nbarrowman/vtree@v4.0.5")
 ```
 
 To get the vignette as well you need to specify `build_vignettes=TRUE`:
 
 ```
-remotes::install_github("nbarrowman/vtree@v3.0.7",build_vignettes=TRUE)
+remotes::install_github("nbarrowman/vtree@v4.0.5",build_vignettes=TRUE)
 ```
 
 # More information

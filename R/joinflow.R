@@ -5,7 +5,7 @@ joinflow <- function(...) {
 
   edges <- labelassign <- labelshow <- nodenum <- c()
   flows <- list(...)
-  for (i in 1:length(flows)) {
+  for (i in seq_len(length(flows))) {
     if (!is.null(flows[[i]])) {
       nodenum <- c(nodenum,flows[[i]]$nodenum)
       if (length(edges)==0) {

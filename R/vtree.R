@@ -71,6 +71,7 @@ NULL
 #'                         for nodes of each variable.
 #'                         (Sets the Graphviz \code{labelloc} attribute.)
 #' @param title            Optional title for the root node of the tree.
+#' @param showvarinnode    Show the variable name in each node?
 #' @param shownodelabels   Show node labels?
 #'                         A single value (with no names) specifies the setting for all variables.
 #'                         A logical vector of \code{TRUE} values for named variables is interpreted as
@@ -243,45 +244,49 @@ NULL
 #'                         e.g. \code{"5in"}.
 #'                         If neither \code{imageheight} nor \code{imagewidth} is specified,
 #'                         \code{imageheight} is set to 3 inches.
+#' @param arrowhead        DOT arrowhead style. Defaults to \code{"normal"}.
+#'                         Other choices include \code{"none"}, \code{"vee"}.
+#' @param maxNodes         An error occurs if the number of nodes exceeds \code{maxNodes},
+#'                         which defaults to 1000.                         
 #' @param folder           Optional path to a folder where the PNG file should stored
-#' @param asis             Should markdown code be displayed? 
-#'                         Whenever \code{vtree} is called within an R Markdown chunk with
-#'                         chunk option \code{results="asis"}, you must set \code{asis=TRUE}.
+#'                         when called during knit
 #' @param as.if.knit       Behave as if called while knitting?
 #' @param pngknit          Generate a PNG file when called during knit?
 #'
 #' @return
-#' The value returned by \code{vtree} -- as well as its side effects -- vary
+#' The value returned by \code{vtree} varies
 #' depending on both the parameter values specified
 #' and the context in which \code{vtree} is called.
 #' 
 #' First, there are two special cases where \code{vtree} does not show a variable tree:
 #'  
 #' \itemize{
-#'   \item If \code{ptable=TRUE}, a data frame representing a pattern table is returned.
-#'   \item Otherwise, if \code{getscript=TRUE}, a character string is returned,
+#'   \item If \code{ptable=TRUE}, the return value is a data frame representing a pattern table.
+#'   \item Otherwise, if \code{getscript=TRUE}, the return value is a character string,
 #'         consisting of a DOT script that describes the variable tree.
 #' }
 #' 
-#' Otherwise, when \code{vtree} is used \strong{interactively} (i.e. knitting is \emph{not} taking place),
-#' the value returned is:
+#' If neither of the above cases applies, the return value is as follows.
+#' If knitting is \emph{not} taking place
+#' (such as when \code{vtree} is used \strong{interactively}):
 #' \itemize{
-#'   \item an object of class \code{htmlwidget} (see \link[DiagrammeR]{DiagrammeR}).
+#'   \item the return value is an object of class \code{htmlwidget} (see \link[DiagrammeR]{DiagrammeR}).
 #'         It will intelligently print itself into HTML in a variety of contexts
 #'         including the R console, within R Markdown documents,
 #'         and within Shiny output bindings.
 #' }
 #' 
-#' When knitting \emph{is} taking place, the return value is as follows:
+#' If knitting \emph{is} taking place:
 #' \itemize{
 #'   \item If \code{pngknit=TRUE} (the default),
 #'         the return value is a character string of
-#'         pandoc markdown code to embed a PNG file with fully-specified path. 
+#'         pandoc markdown code to embed a PNG file with fully-specified path.
+#'         The character string will have class \code{knit_asis} so that
+#'         knitr will treat it as is
+#'         (the effect is the same as the chunk option results = 'asis')
+#'         when it is written to the output. (See \code{?knitr::asis_output})
 #'   \item If \code{pngknit=FALSE}, the return value is the same as when knitting is not
 #'         taking place, i.e. an object of class \code{htmlwidget}.
-#'   \item If \code{asis=TRUE}, the return value is \code{invisible(NULL)},
-#'         but as a side effect there is output consisting of 
-#'         pandoc markdown code to embed a PNG file with fully-specified path. 
 #' }
 #'
 #' @section R Markdown:
@@ -291,18 +296,21 @@ NULL
 #' By default, when knitting an R Markdown file,
 #' \code{vtree} generates PNG files and embeds them automatically in the output document.
 #' This feature is needed when knitting to a \code{.docx} file.
-#' When knitting to an HTML file, it is not necessary to generate PNG files.
-#' Rather, HTML can directly display htmlwidgets.
-#' To generate htmlwidgets rather than PNG files, specify \code{pngknit=FALSE}.
-#' Note, however, that there are some advantages to embedding PNG files in HTML.
-#' For example, with HTML files including multiple htmlwidgets, some browsers poorly.
+#' When knitting to HTML, it is not necessary to generate PNG files
+#' because HTML browsers can directly display htmlwidgets.
+#' 
+#' To generate htmlwidgets instead of PNG files, specify \code{pngknit=FALSE}.
+#' (Note, however, that there are some advantages to embedding PNG files in an HTML file.
+#' For example,
+#' some browsers perform poorly when numerous htmlwidgets are included in an HTML file.)
 #'
 #' When PNG files are generated, they are stored by default in a temporary folder.
 #' The folder can also be specified using the \code{folder} parameter.
-#' (A custom R option \code{vtree_folder} is used to automatically keep track of this.)
+#' (Using the base R function \code{options}, 
+#' a custom option \code{vtree_folder} is used to automatically keep track of this.)
 #' Successive PNG files generated by an R Markdown file
 #' are named \code{vtree1.png}, \code{vtree2.png}, etc.
-#' (A custom R option \code{vtree_count} is used to automatically keep track of this.)
+#' (A custom option \code{vtree_count} is used to automatically keep track of the number of PNG files.)
 #' 
 #' @section Summary codes:
 #' \itemize{
@@ -325,13 +333,6 @@ NULL
 #'  \item{\code{\%node=}N\code{\%} }{flag: Only show summary in nodes with value N.}
 #'  \item{\code{\%trunc=}n\code{\%} }{flag: Truncate the summary to the first n characters.}
 #' }
-#'
-#' @section Node functions:
-#' Node functions provide a mechanism for running a function within each subset
-#' representing a node of the tree. The \code{summary} parameter uses node functions.
-#' A node functions is a function takes as arguments a data frame subset,
-#' the name of the subsetting variable, the value of the subsetting variable, and
-#' a list of named arguments.
 #'
 #' @section Formatting codes:
 #' Formatting codes for the \code{text} argument.
@@ -366,20 +367,12 @@ NULL
 #' 
 #' # R Markdown inline call to vtree
 #' # `r vtree(FakeData,"Sex Severity")`
-#' 
-#' # R Markdown call to vtree in a code chunk 
-#' # ```{r, results="asis"}
-#' # cat(vtree(z,"Sex Severity"))
-#' # ```
 #'
 #' # A single-level hierarchy
 #' vtree(FakeData,"Severity")
 #'
 #' # A two-level hierarchy
 #' vtree(FakeData,"Severity Sex")
-#'
-#' # A two-level hierarchy with pruning of some values of Severity
-#' vtree(FakeData,"Severity Sex",prune=list("Severity"=c("Moderate","NA")))
 #'
 #' # Rename some nodes
 #' vtree(FakeData,"Severity Sex",labelnode=list(Sex=(c("Male"="M","Female"="F"))))
@@ -393,7 +386,7 @@ NULL
 #' # Using the summary parameter to list ID numbers (truncated to 40 characters) in specified nodes
 #' vtree(FakeData,"Severity Sex",summary="id \nid = %list% %var=Severity% %trunc=40%")
 #'
-#' # Adding text to specified nodes of a tree
+#' # Adding text to specified nodes of a tree ("targeted text")
 #' vtree(FakeData,"Severity Sex",ttext=list(
 #'   c(Severity="Severe",Sex="M",text="\nMales with Severe disease"),
 #'   c(Severity="NA",text="\nUnknown severity")))
@@ -418,7 +411,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
   showroot=TRUE,
   text = list(),ttext=list(),
   plain = FALSE, squeeze = 1,
-  shownodelabels=TRUE,
+  showvarinnode=FALSE,shownodelabels=TRUE,
   showvarnames = TRUE, showlevels = TRUE,
   showpct=TRUE, showlpct=TRUE,
   showcount=TRUE, showlegend=FALSE,
@@ -436,11 +429,13 @@ vtree <- function (z, vars, splitspaces=TRUE,
   showempty = FALSE, rounded = TRUE,
   nodefunc = NULL, nodeargs = NULL, 
   choicechecklist = TRUE,
+  arrowhead="normal",
   pxwidth,pxheight,imagewidth,imageheight,folder,
-  pngknit=TRUE,as.if.knit=FALSE,asis=FALSE,
+  pngknit=TRUE,as.if.knit=FALSE,
+  maxNodes=1000,
   parent = 1, last = 1, root = TRUE)
 {
-
+  
   makeHTML <- function(x) {
     if (is.list(x)) {
       lapply(x, convertToHTML)
@@ -494,28 +489,59 @@ vtree <- function (z, vars, splitspaces=TRUE,
 
     # Special case where z is provided as a vector instead of a data frame
     if (!is.data.frame(z)) {
-        z <- data.frame(z)
-        if (!missing(vars))
-            argname <- vars
-        colnames(z)[1] <- argname
-        vars <- argname
+      z <- data.frame(z)
+      if (!missing(vars))
+          argname <- vars
+      colnames(z)[1] <- argname
+      vars <- argname
     }
     
-    # Special case where vars is not provided
+    # Special case where vars is not provided.
+    #
+    # ---> Include all variables with fewer than 5 levels.
+    # ---> Set showvarinnode=TRUE
+    #
     if (is.data.frame(z) && missing(vars)) {
-      vars <- names(z)
+      if (missing(showvarinnode) & !check.is.na) showvarinnode <- TRUE
+      vars <- c()
+      non_discrete_vars <- c()
+      
+      for (candidate in names(z)) {
+        if (length(unique(z[[candidate]]))<5) {
+          vars <- c(vars,candidate)
+        } else {
+          non_discrete_vars <- c(non_discrete_vars,candidate)
+        }
+      }
+  
+      # Calculate a quick approximation to the cumulative number of nodes
+      nodes <- 1
+      level <- 1
+      excluded_discrete_vars <- c()
+      while (level<=length(vars)) {
+        nodes <- nodes*length(unique(z[[vars[level]]]))
+        if (nodes>maxNodes) {
+          ev <- vars[-seq_len(level)]
+          vars <- vars[seq_len(level)]
+          excluded_discrete_vars <- c(ev,excluded_discrete_vars)
+          break
+        }
+        level <- level+1
+      }
+      message("--Discrete variables included: ",paste(vars,collapse=" "))
+      if (length(excluded_discrete_vars)>0) 
+        message("--Discrete variables excluded: ",paste(excluded_discrete_vars,collapse=" "))
+      if (length(non_discrete_vars)>0)
+        message("Additional variables excluded: ",paste(non_discrete_vars,collapse=" "))
     }
-    
-    if (length(vars)>30) 
-      stop(paste0(length(vars)," variables exceeds the current maximum of 30."))
     
     # Process * tag in variable names to expand list of variables
     findstar <- grep("\\*$",vars)
     if (length(findstar)>0) {
       expandedvars <- c()
-      for (i in 1:length(vars)) {
+      for (i in seq_len(length(vars))) {
         if (i %in% findstar) {
-          stem <- sub("([^ ]+)\\*$","\\1",vars[i])
+          stem <- sub("(\\S+)\\*$","\\1",vars[i])
           expanded_stem <- names(z)[grep(paste0(stem,".*$"),names(z))]
           expandedvars <- c(expandedvars,expanded_stem)
         } else {
@@ -530,9 +556,9 @@ vtree <- function (z, vars, splitspaces=TRUE,
     findstar <- grep("#$",vars)
     if (length(findstar)>0) {
       expandedvars <- c()
-      for (i in 1:length(vars)) {
+      for (i in seq_len(length(vars))) {
         if (i %in% findstar) {
-          stem <- sub("([^ ]+)\\#$","\\1",vars[i])
+          stem <- sub("(\\S+)\\#$","\\1",vars[i])
           expanded_stem <- names(z)[grep(paste0(stem,"[0-9]+$"),names(z))]
           expandedvars <- c(expandedvars,expanded_stem)
         } else {
@@ -546,12 +572,12 @@ vtree <- function (z, vars, splitspaces=TRUE,
     # Process = tag in variable names 
     findequal <- grep("=",vars)
     if (length(findequal)>0) {
-      for (i in 1:length(vars)) {    
+      for (i in seq_len(length(vars))) {    
         if (i %in% findequal) {
-          equalvar <- sub("([^ ]+)(=)([^ ]+)","\\1",vars[i])
+          equalvar <- sub("(\\S+)(=)(\\S+)","\\1",vars[i])
           if (is.null(z[[equalvar]]))
             stop(paste("Unknown variable:",equalvar))                    
-          equalval <- sub("([^ ]+)(=)([^ ]+)","\\3",vars[i])
+          equalval <- sub("(\\S+)(=)(\\S+)","\\3",vars[i])
           # Check to see if any of the values of the specified variable contain spaces
           # If they do, replace underscores in the specified value with spaces.
           if (any(length(grep(" ",names(table(z[[equalvar]]))))>0)) {
@@ -568,12 +594,12 @@ vtree <- function (z, vars, splitspaces=TRUE,
     # Process > tag in variable names
     findgt <- grep(">",vars)
     if (length(findgt)>0) {
-      for (i in 1:length(vars)) {    
+      for (i in seq_len(length(vars))) {    
         if (i %in% findgt) {
-          gtvar <- sub("([^ ]+)(>)([^ ]+)","\\1",vars[i])
+          gtvar <- sub("(\\S+)(>)(\\S+)","\\1",vars[i])
           if (is.null(z[[gtvar]]))
             stop(paste("Unknown variable:",gtvar))                    
-          gtval <- sub("([^ ]+)(>)([^ ]+)","\\3",vars[i])
+          gtval <- sub("(\\S+)(>)(\\S+)","\\3",vars[i])
           # Check to see if any of the values of the specified variable contain spaces
           # If they do, replace underscores in the specified value with spaces.
           if (any(length(grep(" ",names(table(z[[gtvar]]))))>0)) {
@@ -590,12 +616,12 @@ vtree <- function (z, vars, splitspaces=TRUE,
     # Process < tag in variable names
     findlt <- grep("<",vars)
     if (length(findlt)>0) {
-      for (i in 1:length(vars)) {    
+      for (i in seq_len(length(vars))) {    
         if (i %in% findlt) {
-          ltvar <- sub("([^ ]+)(<)([^ ]+)","\\1",vars[i])
+          ltvar <- sub("(\\S+)(<)(\\S+)","\\1",vars[i])
           if (is.null(z[[ltvar]]))
             stop(paste("Unknown variable:",ltvar))                    
-          ltval <- sub("([^ ]+)(<)([^ ]+)","\\3",vars[i])
+          ltval <- sub("(\\S+)(<)(\\S+)","\\3",vars[i])
           # Check to see if any of the values of the specified variable contain spaces
           # If they do, replace underscores in the specified value with spaces.
           if (any(length(grep(" ",names(table(z[[ltvar]]))))>0)) {
@@ -612,9 +638,9 @@ vtree <- function (z, vars, splitspaces=TRUE,
     # Process is.na: tag in variable names to handle individual missing value checks
     findna <- grep("^is\\.na:",vars)
     if (length(findna)>0) {
-      for (i in 1:length(vars)) {
+      for (i in seq_len(length(vars))) {
         if (i %in% findna) {
-          navar <- sub("^is\\.na:([^ ]+)$","\\1",vars[i])
+          navar <- sub("^is\\.na:(\\S+)$","\\1",vars[i])
           if (is.null(z[[navar]]))
             stop(paste("Unknown variable:",navar))
           m <- is.na(z[[navar]])
@@ -632,9 +658,9 @@ vtree <- function (z, vars, splitspaces=TRUE,
     findstem <- grep("^stem:",vars)
     if (length(findstem)>0) {
       expandedvars <- c()
-      for (i in 1:length(vars)) {
+      for (i in seq_len(length(vars))) {
         if (i %in% findstem) {
-          stem <- sub("^stem:([^ ]+)$","\\1",vars[i])
+          stem <- sub("^stem:(\\S+)$","\\1",vars[i])
           expanded_stem <- names(z)[grep(paste0("^",stem,"___[0-9]+$"),names(z))]
           if (length(expanded_stem)==0) {
             stop(paste0("Could not find variables with names matching the specified stem: ",stem))
@@ -669,9 +695,9 @@ vtree <- function (z, vars, splitspaces=TRUE,
     findtag <- grep("^rc:",vars)
     if (length(findtag)>0) {
       expandedvars <- c()
-      for (i in 1:length(vars)) {
+      for (i in seq_len(length(vars))) {
         if (i %in% findtag) {
-          rcvar <- sub("^rc:([^ ]+)$","\\1",vars[i])
+          rcvar <- sub("^rc:(\\S+)$","\\1",vars[i])
           if (choicechecklist) {
             rexp1 <- ".+\\(choice=(.+)\\)"
             rexp2 <- ".+: (.+)"
@@ -703,17 +729,39 @@ vtree <- function (z, vars, splitspaces=TRUE,
 
     # Set up summaries if requested
     if (!all(summary=="")) {
-      codevar <- gsub("^([^ ]+) (.+)$", "\\1", summary)
+      codevar <- gsub("^(\\S+)\\s(.+)$", "\\1", summary)
+
+      # Process != tag in variable names in summary argument
+      # (Note that this comes before the = tag so that it doesn't match first.)
+      findequal <- grep("!=",codevar)
+      if (length(findequal)>0) {
+        for (i in seq_len(length(codevar))) {    
+          if (i %in% findequal) {
+            thevar <- sub("^(\\S+)(\\!=)(\\S+)","\\1",codevar[i])
+            if (is.null(z[[thevar]]))
+              stop(paste("Unknown variable in summary:",thevar))                      
+            theval <- sub("^(\\S+)(\\!=)(\\S+)","\\3",codevar[i])
+            # Check to see if any of the values of the specified variable contain spaces
+            # If they do, replace underscores in the specified value with spaces.
+            if (any(length(grep(" ",names(table(z[[thevar]]))))>0)) {
+              theval <- gsub("_"," ",equalval)
+            }
+            m <- z[[thevar]]!=theval
+            z[[thevar]] <- m
+            codevar[i] <- thevar
+          }
+        }
+      }
       
       # Process = tag in variable names in summary argument
       findequal <- grep("=",codevar)
       if (length(findequal)>0) {
-        for (i in 1:length(codevar)) {    
+        for (i in seq_len(length(codevar))) {    
           if (i %in% findequal) {
-            equalvar <- sub("([^ ]+)(=)([^ ]+)","\\1",codevar[i])
+            equalvar <- sub("^(\\S+)(=)(\\S+)","\\1",codevar[i])
             if (is.null(z[[equalvar]]))
-              stop(paste("Unknown variable:",equalvar))                      
-            equalval <- sub("([^ ]+)(=)([^ ]+)","\\3",codevar[i])
+              stop(paste("Unknown variable in summary:",equalvar))                      
+            equalval <- sub("^(\\S+)(=)(\\S+)","\\3",codevar[i])
             # Check to see if any of the values of the specified variable contain spaces
             # If they do, replace underscores in the specified value with spaces.
             if (any(length(grep(" ",names(table(z[[equalvar]]))))>0)) {
@@ -729,12 +777,12 @@ vtree <- function (z, vars, splitspaces=TRUE,
       # Process > tag in variable names in summary argument
       findgt <- grep(">",codevar)
       if (length(findgt)>0) {
-        for (i in 1:length(codevar)) {    
+        for (i in seq_len(length(codevar))) {    
           if (i %in% findgt) {
-            gtvar <- sub("([^ ]+)(>)([^ ]+)","\\1",codevar[i])
+            gtvar <- sub("(\\S+)(>)(\\S+)","\\1",codevar[i])
             if (is.null(z[[gtvar]]))
-              stop(paste("Unknown variable:",gtvar))                             
-            gtval <- sub("([^ ]+)(>)([^ ]+)","\\3",codevar[i])
+              stop(paste("Unknown variable in summary:",gtvar))                             
+            gtval <- sub("(\\S+)(>)(\\S+)","\\3",codevar[i])
             # Check to see if any of the values of the specified variable contain spaces
             # If they do, replace underscores in the specified value with spaces.
             if (any(length(grep(" ",names(table(z[[gtvar]]))))>0)) {
@@ -750,12 +798,12 @@ vtree <- function (z, vars, splitspaces=TRUE,
       # Process < tag in variable names in summary argument
       findlt <- grep("<",codevar)
       if (length(findlt)>0) {
-        for (i in 1:length(codevar)) {    
+        for (i in seq_len(length(codevar))) {    
           if (i %in% findlt) {
-            ltvar <- sub("([^ ]+)(<)([^ ]+)","\\1",codevar[i])
+            ltvar <- sub("(\\S+)(<)(\\S+)","\\1",codevar[i])
             if (is.null(z[[ltvar]]))
-              stop(paste("Unknown variable:",ltvar))                             
-            ltval <- sub("([^ ]+)(<)([^ ]+)","\\3",codevar[i])
+              stop(paste("Unknown variable in summary:",ltvar))                             
+            ltval <- sub("(\\S+)(<)(\\S+)","\\3",codevar[i])
             # Check to see if any of the values of the specified variable contain spaces
             # If they do, replace underscores in the specified value with spaces.
             if (any(length(grep(" ",names(table(z[[ltvar]]))))>0)) {
@@ -770,7 +818,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
       
       # If an element of codevar is not the name of a variable in z,
       # perhaps it's an expression that can be evaluated in z
-      for (i in 1:length(codevar)) { 
+      for (i in seq_len(length(codevar))) { 
         if (!(codevar[i] %in% names(z))) {
           derivedvar <- with(z,eval(parse(text=codevar[i],keep.source=FALSE))) 
           z[[codevar[i]]] <- derivedvar
@@ -789,7 +837,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
           stop("runsummary argument is not the same length as summary argument.")
         }
       }
-      codecode <- gsub("^([^ ]+) (.+)$", "\\2", summary)
+      codecode <- gsub("^(\\S+) (.+)$", "\\2", summary)
       nodefunc <- summaryNodeFunction
       nodeargs <- list(var = codevar, format = codecode, sf = runsummary, digits = digits, cdigits = cdigits, sepN=sepN)
       # allvars <- c(allvars,codevar)
@@ -935,7 +983,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
     ))
     
     # Duplicate the color gradients 3 times to allow for huge trees.
-    for (i in 1:length(col)) {
+    for (i in seq_len(length(col))) {
       col[[i]] <- rbind(col[[i]],col[[i]],col[[i]])
     }
 
@@ -951,9 +999,9 @@ vtree <- function (z, vars, splitspaces=TRUE,
     ALLVARS <- allvars
     if (length(findtri)>0) {
       tri.variable[findtri] <- TRUE
-      for (i in 1:length(allvars)) {    
+      for (i in seq_len(length(allvars))) {    
         if (i %in% findtri) {
-          trivar <- sub("^tri:([^ ]+)$","\\1",allvars[i])
+          trivar <- sub("^tri:(\\S+)$","\\1",allvars[i])
           ALLVARS[i] <- trivar
         }
       }
@@ -969,7 +1017,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
     # Use a data frame that *only* contains the variables of interest.
     # This greatly speeds things up!
     z <- z[ALLVARS]
-
+    
     if (Venn) {
       if (missing(shownodelabels)) shownodelabels <- FALSE
       if (missing(showpct)) showpct <- FALSE
@@ -991,7 +1039,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
     if (!missing(labelnode) && !is.list(labelnode)) stop("labelnode must be a list.")
 
     if (length(labelnode) > 0) {
-      for (i in 1:length(labelnode)) {
+      for (i in seq_len(length(labelnode))) {
         names(labelnode[[i]]) <- splitlines(names(labelnode[[i]]),splitwidth,sp =sepN, at=" ")
       }
     }
@@ -1032,8 +1080,6 @@ vtree <- function (z, vars, splitspaces=TRUE,
         TAB <- TAB[TAB>=mincount]
       }
       
-      #TAB <- as.numeric(tab)
-      #names(TAB) <- names(tab)
       if (showroot) {
         PATTERN_levels <- names(sort(TAB))
       } else {
@@ -1052,10 +1098,9 @@ vtree <- function (z, vars, splitspaces=TRUE,
         stringsAsFactors=FALSE)
       
       names(PATTERN_values) <- vars
-      for (i in 1:length(PATTERN_levels)) {
+      for (i in seq_len(length(PATTERN_levels))) {
         patternRow <- z[PATTERN==PATTERN_levels[i],,drop=FALSE]
         for (j in 1:length(vars)) {
-          #browser()
           PATTERN_values[[vars[j]]][i] <- as.character(patternRow[[vars[j]]][1])
         }
       }
@@ -1082,7 +1127,11 @@ vtree <- function (z, vars, splitspaces=TRUE,
         if (missing(showpct)) showpct <- c(sequence=TRUE)
         if (missing(shownodelabels)) shownodelabels <- c(sequence=FALSE)
       }
-    }    
+    } else {
+      if (arrowhead!="normal") {
+        edgeattr <- paste(edgeattr,paste0("arrowhead=",arrowhead))
+      }
+    }
 
     if (is.null(names(gradient))) {
       gradient <- rep(gradient[1],numvars)
@@ -1262,7 +1311,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
       FC <- vector("list",numvars)
       names(FC) <- vars
       numPalettes <- nrow(col[[1]])
-      for (i in 1:numvars) {
+      for (i in seq_len(numvars)) {
         if (tri.variable[i]) {
           thisvar <- factor(c("low","mid","high","NA"),levels=c("high","mid","low","NA"))
         } else {
@@ -1345,7 +1394,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
         FC[[vars[i]]] <- valuecolors
       }
       fillcolor <- FC
-      colorIndex <- rep(1:numPalettes,length=numvars)
+      colorIndex <- rep(1:numPalettes,length.out=numvars)
       names(varlabelcolors) <- vars
       if (check.is.na) {
         names(varlabelcolors) <- OLDVARS
@@ -1356,7 +1405,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
     if (!is.list(fillcolor)) {
       FC <- vector("list",numvars)
       names(FC) <- vars
-      for (i in 1:length(vars)) {
+      for (i in seq_len(length(vars))) {
         values <- names(table(z[[vars[i]]],exclude=NULL))
         values[is.na(values)] <- "NA"
         valuecolors <- rep(fillcolor[i],length(values))
@@ -1434,7 +1483,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
   actualvarname <- vars[1]
   findtri <- grep("tri:",vars[1])
   if (length(findtri)>0) {
-    trivar <- sub("^tri:([^ ]+)$","\\1",vars[1])
+    trivar <- sub("^tri:(\\S+)$","\\1",vars[1])
     med <- median(z[[trivar]],na.rm=TRUE)
     iqrange <- 
       quantile(z[[trivar]],0.75,na.rm=TRUE)-
@@ -1482,17 +1531,14 @@ vtree <- function (z, vars, splitspaces=TRUE,
   
   if (pattern & vars[1]!="pattern") ThisLevelText <- ""
   if (seq  & vars[1]!="sequence") ThisLevelText <- ""
-  
-  # cat("Right before call to flowcat\n")
-  # browser()
-  
+
   fc <- flowcat(z[[vars[1]]], root = root, title = title, parent = parent,
     var=vars[[1]],
     last = last, labels = labelnode[[vars[1]]], tlabelnode=tlabelnode, labelvar = labelvar[vars[1]],
     varminwidth=varminwidth[vars[1]],varminheight=varminheight[vars[1]],varlabelloc=varlabelloc[vars[1]],
     check.is.na=check.is.na,
     sameline=sameline,
-    shownodelabels=shownodelabels[vars[1]],
+    showvarinnode=showvarinnode,shownodelabels=shownodelabels[vars[1]],
     showpct=showpct[vars[1]],
     showcount=showcount[vars[1]],
     prune=prune[[vars[1]]],
@@ -1505,6 +1551,13 @@ vtree <- function (z, vars, splitspaces=TRUE,
     splitwidth = splitwidth, showempty = showempty, topcolor = color[1],
     color = color[2], topfillcolor = rootfillcolor, fillcolor = fillcolor[[vars[1]]],
     vp = vp, rounded = rounded, showroot=showroot)
+  
+  if (length(fc$nodenum)>0 && fc$nodenum[length(fc$nodenum)]>maxNodes) {
+    stop(
+      "Too many nodes. ",
+      "Specify different variables ",
+      "or change maxNodes parameter (currently set to ",maxNodes,").")
+  }
   
   if (root & ptable) {
     if (length(labelvar)>0) {
@@ -1603,7 +1656,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
           tlabelnode = TLABELNODE,
           colorvarlabels=colorvarlabels,
           check.is.na=check.is.na,
-          shownodelabels=shownodelabels,
+          showvarinnode=showvarinnode,shownodelabels=shownodelabels,
           showpct=showpct,
           showcount=showcount,
           sameline=sameline, showempty = showempty,
@@ -1618,6 +1671,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
           pruneNA=pruneNA,
           pattern=pattern,seq=seq,
           text = text, ttext=TTEXT,gradient=gradient,
+          maxNodes=maxNodes,
           colornodes = colornodes, color = color[-1], fillnodes = fillnodes,
           fillcolor = fillcolor, splitwidth = splitwidth,
           vp = vp, rounded = rounded)
@@ -1633,6 +1687,8 @@ vtree <- function (z, vars, splitspaces=TRUE,
   # If desired, show variable levels and legend
 
   if (root) {
+    #message("Total nodes:",max(fc$nodenum),"\n")
+
     if (showvarnames) {
       # Special case for check.is.na
       if (check.is.na) {
@@ -1661,7 +1717,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
       colored_VARS <- paste0('<FONT POINT-SIZE="',varnamepointsize,'">',colored_VARS,'</FONT>')
       marginalText <- rep("",numvars)
       if (showlegend) {
-        for (i in 1:numvars) {
+        for (i in seq_len(numvars)) {
           thisvarname <- vars[i]
           thisvar <- z[[thisvarname]]
           if (is.logical(thisvar)) {
@@ -1781,15 +1837,9 @@ vtree <- function (z, vars, splitspaces=TRUE,
         width=width,height=height,
         graphattr=graphattr,nodeattr=nodeattr,edgeattr=edgeattr)
       
-      if (getscript || !pngknit) {
+      if (getscript || !pngknit || (!isTRUE(getOption('knitr.in.progress')) && !as.if.knit)) {
         return(flowchart)
       }
-      
-      if (!isTRUE(getOption('knitr.in.progress')) && !as.if.knit) {
-        #print(flowchart)
-        #return(invisible(flowchart))
-        return(flowchart)
-      }  
       
       if (is.null(getOption("vtree_count"))) {
         options("vtree_count"=0)
@@ -1836,12 +1886,7 @@ vtree <- function (z, vars, splitspaces=TRUE,
         }
       }
       
-      if (asis) {
-        cat(result)
-        invisible(NULL)
-      } else {
-        result
-      }
+      knitr::asis_output(result)
     }
   } else {
       fc
