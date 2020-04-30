@@ -1108,10 +1108,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
             y[y %in% ""] <- "*None"
             newvar <- paste0("combinations_of_",paste(expanded_stem,collapse="_"))
             newvarheading <- paste0("combinations of ",paste(expanded_stem,collapse=", "))
-            #newvar <- "thingeroo"
-            print(newvar)
             z[[newvar]] <- y
-            print(head(z))
             codevarlist[[i]] <- newvar
             codevarheadinglist[[i]] <- newvarheading           
             extra_variables <- c(extra_variables,newvar)
