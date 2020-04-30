@@ -1078,6 +1078,50 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
         }
       }      
       
+      # Process c: tag in variable names in summary argument
+      regex <- "^c:(\\S+)\\*$"
+      findstem <- grep(regex,codevar)
+      if (length(findstem)>0) {
+        for (i in seq_len(length(codevar))) {    
+          if (i %in% findstem) {
+            y <- rep("",nrow(z))
+            none <- rep(TRUE,nrow(z))
+            thevar <- sub(regex,"\\1",codevar[i])
+            expanded_stem <- names(z)[grep(paste0("^",thevar,".*$"),names(z))]
+            if (length(expanded_stem)==0) {
+              stop(paste0("summary: Could not find variables with names matching the * term ",thevar))
+            }
+            if (verbose) message(paste0(codevar[i]," expands to: ",paste(expanded_stem,collapse=", ")))
+            
+            codevarlist[[i]] <- expanded_stem
+            codevarheadinglist[[i]] <- expanded_stem
+            codecodelist[[i]] <- rep(codecodelist[[i]],length(expanded_stem))
+            
+            expandedvars <- c()
+            if (choicechecklist) {
+              for (j in 1:length(expanded_stem)) {
+                y <- ifelse(z[[expanded_stem[j]]]==1,
+                  ifelse(y=="",expanded_stem[j],paste0(y,"+",expanded_stem[j])),y)
+              }
+            } 
+            
+            y[y %in% ""] <- "*None"
+            newvar <- paste0("combinations_of_",paste(expanded_stem,collapse="_"))
+            newvarheading <- paste0("combinations of ",paste(expanded_stem,collapse=", "))
+            #newvar <- "thingeroo"
+            print(newvar)
+            z[[newvar]] <- y
+            print(head(z))
+            codevarlist[[i]] <- newvar
+            codevarheadinglist[[i]] <- newvarheading           
+            extra_variables <- c(extra_variables,newvar)
+            codecodelist[[i]] <- rep(codecodelist[[i]],length(expanded_stem))
+  #                      browser()
+
+          }
+        }
+      }            
+      
       # Process # at end of variable names in summary argument
       regex <- "^(\\S+)\\#$"
       findstem <- grep(regex,codevar)
@@ -1099,9 +1143,10 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
       
       # Process * at end of variable names in summary argument
       findstem <- grep("\\*$",codevar)
+      findc <- grep("^c:",codevar)
       if (length(findstem)>0) {
         for (i in seq_len(length(codevar))) {
-          if (i %in% findstem) {
+          if (i %in% findstem  & !(i %in% findc)) {
             thevar <- sub("(\\S+)\\*$","\\1",codevar[i])
             expanded_stem <- names(z)[grep(paste0("^",thevar,".*$"),names(z))]
             if (length(expanded_stem)==0) {
@@ -1120,17 +1165,18 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
       codevarheading_unlisted <- unlist(codevarheadinglist)
       
       allvars <- c(allvars,codevar_unlisted) 
-      
 
       if (!is.null(runsummary)) {
         if (length(runsummary) != length(summary)) {
           stop("runsummary argument is not the same length as summary argument.")
         }
       }
- 
+      
       nodefunc <- summaryNodeFunction
       nodeargs <- list(var = codevar_unlisted, format = codecode, original_var=codevarheading_unlisted,
         sf = runsummary, digits = digits, cdigits = cdigits, sepN=sepN)
+      
+      #print(nodeargs)
     }
 
 
