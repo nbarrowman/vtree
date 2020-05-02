@@ -564,6 +564,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
       if (verbose && length(non_discrete_vars)>0)
         message("Additional variables excluded: ",paste(non_discrete_vars,collapse=" "))
     }
+
     
     # Process * tag in variable names to expand list of variables
     regex <- "^(\\S+)\\*$"
@@ -868,11 +869,13 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
     regex <- "^(\\S+)\\s(.+)$"
     if (!all(summary=="")) {
       codevar <- gsub(regex, "\\1", summary)
-      codevarlist <- codevarheadinglist <- as.list(codevar)
+      summaryvarlist <- headinglist <- as.list(codevar)
       
-      codecode <- gsub(regex, "\\2", summary)
-      codecode[grep(regex,summary,invert=TRUE)] <- ""
-      codecodelist <- as.list(codecode)
+      summaryformat <- gsub(regex, "\\2", summary)
+      summaryformat[grep(regex,summary,invert=TRUE)] <- ""
+      summaryformatlist <- as.list(summaryformat)
+      
+      extra_variables <- NULL
 
       # Process != tag in variable names in summary argument
       # (Note that this comes before the = tag so that it doesn't match first.)
@@ -892,7 +895,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
             }
             m <- z[[thevar]]!=theval
             z[[thevar]] <- m
-            codevarlist[[i]] <- thevar
+            summaryvarlist[[i]] <- thevar
 			      # codevar[i] <- thevar
           }
         }
@@ -914,7 +917,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
             }
             m <- z[[equalvar]]==equalval
             z[[equalvar]] <- m
-            codevarlist[[i]] <- equalvar
+            summaryvarlist[[i]] <- equalvar
 			      # codevar[i] <- equalvar			
           }
         }
@@ -936,7 +939,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
             }
             m <- z[[gtvar]]>as.numeric(gtval)
             z[[gtvar]] <- m
-            codevarlist[[i]] <- gtvar
+            summaryvarlist[[i]] <- gtvar
 			      # codevar[i] <- gtvar			
           }
         }
@@ -958,7 +961,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
             }
             m <- z[[ltvar]]<as.numeric(ltval)
             z[[ltvar]] <- m
-            codevarlist[[i]] <- ltvar
+            summaryvarlist[[i]] <- ltvar
 			      # codevar[i] <- ltvar			
           }
         }
@@ -966,22 +969,22 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
       
       # If an element of codevar is not the name of a variable in z,
       # perhaps it's an expression that can be evaluated in z
-      for (i in seq_len(length(codevarlist))) { 
-        if (length(grep("^stem:",codevarlist[[i]]))==0) {   # except for stems
-          if (length(grep("^stemc:",codevarlist[[i]]))==0) {   # except for stems
-            if (length(grep("\\*$",codevarlist[[i]]))==0) {   # except for ending in *
-              if (length(grep("#$",codevarlist[[i]]))==0) {   # except for ending in #
-                if (!(codevarlist[[i]] %in% names(z))) {
-                  derivedvar <- with(z,eval(parse(text=codevarlist[[i]],keep.source=FALSE))) 
-                  z[[codevarlist[[i]]]] <- derivedvar
+      for (i in seq_len(length(summaryvarlist))) { 
+        if (length(grep("^([cr]*[cr]*:)",summaryvarlist[[i]]))==0) {
+          if (length(grep("^stem:",summaryvarlist[[i]]))==0) {   # except for stems
+            if (length(grep("^stemc:",summaryvarlist[[i]]))==0) {   # except for stems
+              if (length(grep("\\*$",summaryvarlist[[i]]))==0) {   # except for ending in *
+               if (length(grep("#$",summaryvarlist[[i]]))==0) {   # except for ending in #
+                 if (!(summaryvarlist[[i]] %in% names(z))) {
+                   derivedvar <- with(z,eval(parse(text=summaryvarlist[[i]],keep.source=FALSE))) 
+                   z[[summaryvarlist[[i]]]] <- derivedvar
+                 }
                 }
               }
             }
           }
         }
       }      
-      
-      extra_variables <- NULL
       
       # Process stem: tag in variable names in summary argument
       regex <- "^stem:(\\S+)$"
@@ -1018,10 +1021,10 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
             } else {
               expandedvars <- c(expandedvars,expanded_stem)
             }
-            codevarlist[[i]] <- expandedvars
-            codevarheadinglist[[i]] <- expandedvars            
+            summaryvarlist[[i]] <- expandedvars
+            headinglist[[i]] <- expandedvars            
             extra_variables <- c(extra_variables,expanded_stem)
-            codecodelist[[i]] <- rep(codecodelist[[i]],length(expanded_stem))
+            summaryformatlist[[i]] <- rep(summaryformatlist[[i]],length(expanded_stem))
           }
         }
       }
@@ -1068,100 +1071,143 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
             y[y %in% ""] <- "*None"
             newvar <- paste0("stem:",thevar)
             z[[newvar]] <- y
-            codevarlist[[i]] <- newvar
-            codevarheadinglist[[i]] <- ""            
+            summaryvarlist[[i]] <- newvar
+            headinglist[[i]] <- ""            
             extra_variables <- c(extra_variables,newvar)
-            codecodelist[[i]] <- rep(codecodelist[[i]],length(expanded_stem))
-  #                      browser()
-
+            summaryformatlist[[i]] <- rep(summaryformatlist[[i]],length(expanded_stem))
           }
         }
       }      
       
-      # Process c: tag in variable names in summary argument
-      regex <- "^c:(\\S+)\\*$"
-      findstem <- grep(regex,codevar)
-      if (length(findstem)>0) {
+      
+      # Process c: or r: or cr: tag in variable names in summary argument
+      regex <- "^([cr]*[cr]*:)*(\\S*)([\\*#@])$"
+      match_regex <- grep(regex,codevar)
+      if (length(match_regex)>0) {
         for (i in seq_len(length(codevar))) {    
-          if (i %in% findstem) {
+          if (i %in% match_regex) {
             y <- rep("",nrow(z))
             none <- rep(TRUE,nrow(z))
-            thevar <- sub(regex,"\\1",codevar[i])
-            expanded_stem <- names(z)[grep(paste0("^",thevar,".*$"),names(z))]
-            if (length(expanded_stem)==0) {
-              stop(paste0("summary: Could not find variables with names matching the * term ",thevar))
-            }
-            if (verbose) message(paste0(codevar[i]," expands to: ",paste(expanded_stem,collapse=", ")))
-            
-            codevarlist[[i]] <- expanded_stem
-            codevarheadinglist[[i]] <- expanded_stem
-            codecodelist[[i]] <- rep(codecodelist[[i]],length(expanded_stem))
-            
-            expandedvars <- c()
-            if (choicechecklist) {
-              for (j in 1:length(expanded_stem)) {
-                y <- ifelse(z[[expanded_stem[j]]]==1,
-                  ifelse(y=="",expanded_stem[j],paste0(y,"+",expanded_stem[j])),y)
+            prefix <- sub(regex,"\\1",codevar[i])
+            text_part <- sub(regex,"\\2",codevar[i])
+            wildcard <- sub(regex,"\\3",codevar[i])
+            if (prefix=="r:" || prefix=="cr:" || prefix=="rc:") {
+              if (wildcard=="@") {
+                matching_vars <- names(z)[grep(paste0("^",text_part,"___[0-9]+$"),names(z))]
+              } else {
+                stop("Invalid wildcard")
               }
-            } 
-            
-            y[y %in% ""] <- "*None"
-            newvar <- paste0("combinations_of_",paste(expanded_stem,collapse="_"))
-            newvarheading <- paste0("combinations of ",paste(expanded_stem,collapse=", "))
-            z[[newvar]] <- y
-            codevarlist[[i]] <- newvar
-            codevarheadinglist[[i]] <- newvarheading           
-            extra_variables <- c(extra_variables,newvar)
-            codecodelist[[i]] <- rep(codecodelist[[i]],length(expanded_stem))
-  #                      browser()
-
+              if (length(matching_vars)==0) {
+                stop("summary: Could not find variables with matching names")
+              }
+              if (verbose) message(paste0(codevar[i]," expands to: ",paste(matching_vars,collapse=", ")))
+              #message(paste0("prefix-->",prefix,"<-- matching_vars=",paste(matching_vars,collapse=", ")))
+              rexp0 <- "\\(choice=.+\\)"
+              rexp1 <- "(.+) \\(choice=(.+)\\)"
+              rexp2 <- "(.+): (.+)"
+              expandedvars <- c()
+              if (prefix=="r:") {
+                if (choicechecklist) {
+                  for (j in seq_len(length(matching_vars))) {
+                    lab <- attributes(z[[matching_vars[j]]])$label
+                    if (length(grep(rexp0,lab))>0) {
+                      REDCap_var_label <- sub(rexp1,"\\1",lab)
+                      choice <- sub(rexp1,"\\2",lab)
+                    } else
+                    if (length(grep(rexp2,lab))>0) {
+                      choice <- sub(rexp2,"\\2",lab)
+                    } else {
+                      stop("Could not find value of checklist item")
+                    }
+                    if (verbose) message(paste0(matching_vars[j]," is ",choice))
+                    z[[choice]] <- z[[matching_vars[j]]]
+                    expandedvars <- c(expandedvars,choice)
+                  }            
+                } else {
+                  expandedvars <- c(expandedvars,matching_vars)
+                }
+                summaryvarlist[[i]] <- expandedvars
+                headinglist[[i]] <- expandedvars            
+                extra_variables <- c(extra_variables,matching_vars)
+                summaryformatlist[[i]] <- rep(summaryformatlist[[i]],length(matching_vars))
+              } else
+              if (prefix=="rc:" | prefix=="cr:") {
+                if (choicechecklist) {
+                  for (j in seq_len(length(matching_vars))) {
+                    lab <- attributes(z[[matching_vars[j]]])$label
+                    if (length(grep(rexp0,lab))>0) {
+                      REDCap_var_label <- sub(rexp1,"\\1",lab)
+                      choice <- sub(rexp1,"\\2",lab)
+                    } else
+                    if (length(grep(rexp2,lab))>0) {
+                      choice <- sub(rexp2,"\\2",lab)
+                    } else {
+                      stop("Could not find value of checklist item")
+                    }
+                    y <- ifelse(z[[matching_vars[j]]]==1,
+                      ifelse(y=="",choice,paste0(y,"+",choice)),y)
+                    if (verbose) message(paste0(matching_vars[j]," is ",choice))
+                    z[[choice]] <- z[[matching_vars[j]]]
+                    expandedvars <- c(matching_vars,choice)
+                  }            
+                } else {
+                  expandedvars <- c(expandedvars,matching_vars)
+                }
+                y[y %in% ""] <- "*None"
+                newvar <- paste0("stem:",text_part)
+                z[[newvar]] <- y
+                summaryvarlist[[i]] <- newvar
+                headinglist[[i]] <- ""            
+                extra_variables <- c(extra_variables,newvar)
+                summaryformatlist[[i]] <- rep(summaryformatlist[[i]],length(matching_vars))                
+              }  
+            } else {
+              if (wildcard=="*") {
+                matching_vars <- names(z)[grep(paste0("^",text_part,".*$"),names(z))]
+              } else
+              if (wildcard=="#") {
+                matching_vars <- names(z)[grep(paste0("^",text_part,"[0-9]+$"),names(z))]
+              } else {
+                stop("Invalid wildcard")
+              }
+              if (length(matching_vars)==0) {
+                stop("summary: Could not find variables with matching names")
+              }
+              if (verbose) message(paste0(codevar[i]," expands to: ",paste(matching_vars,collapse=", ")))
+              #message(paste0("prefix-->",prefix,"<-- matching_vars=",paste(matching_vars,collapse=", ")))
+              if (prefix=="c:") {
+                expandedvars <- c()
+                if (choicechecklist) {
+                  for (j in seq_len(length(matching_vars))) {
+                    y <- ifelse(z[[matching_vars[j]]]==1,
+                      ifelse(y=="",matching_vars[j],paste0(y,"+",matching_vars[j])),y)
+                  }
+                } 
+                y[y %in% ""] <- "*None"
+                newvar <- paste0("combinations_of_",paste(matching_vars,collapse="_"))
+                newvarheading <- paste0("combinations of ",paste(matching_vars,collapse=", "))
+                z[[newvar]] <- y
+                summaryvarlist[[i]] <- newvar
+                headinglist[[i]] <- newvarheading           
+                extra_variables <- c(extra_variables,newvar)
+                summaryformatlist[[i]] <- rep(summaryformatlist[[i]],length(matching_vars))
+              } else 
+              if (prefix=="") {
+                summaryvarlist[[i]] <- matching_vars
+                headinglist[[i]] <- matching_vars          
+                summaryformatlist[[i]] <- rep(summaryformatlist[[i]],length(matching_vars))
+              } else {
+                stop("Unknown prefix")
+              }
+            }
           }
         }
       }            
       
-      # Process # at end of variable names in summary argument
-      regex <- "^(\\S+)\\#$"
-      findstem <- grep(regex,codevar)
-      if (length(findstem)>0) {
-        for (i in seq_len(length(codevar))) {
-          if (i %in% findstem) {
-            thevar <- sub(regex,"\\1",codevar[i])
-            expanded_stem <- names(z)[grep(paste0("^",thevar,"[0-9]+$"),names(z))]
-            if (length(expanded_stem)==0) {
-              stop(paste0("summary: Could not find variables with names matching the # term ",thevar))
-            }
-            if (verbose) message(paste0(codevar[i]," expands to: ",paste(expanded_stem,collapse=", ")))
-            codevarlist[[i]] <- expanded_stem
-            codevarheadinglist[[i]] <- expanded_stem          
-            codecodelist[[i]] <- rep(codecodelist[[i]],length(expanded_stem))
-          }
-        }
-      }      
+      summaryvars <- unlist(summaryvarlist)
+      headings <- unlist(headinglist)
       
-      # Process * at end of variable names in summary argument
-      findstem <- grep("\\*$",codevar)
-      findc <- grep("^c:",codevar)
-      if (length(findstem)>0) {
-        for (i in seq_len(length(codevar))) {
-          if (i %in% findstem  & !(i %in% findc)) {
-            thevar <- sub("(\\S+)\\*$","\\1",codevar[i])
-            expanded_stem <- names(z)[grep(paste0("^",thevar,".*$"),names(z))]
-            if (length(expanded_stem)==0) {
-              stop(paste0("summary: Could not find variables with names matching the * term ",thevar))
-            }
-            if (verbose) message(paste0(codevar[i]," expands to: ",paste(expanded_stem,collapse=", ")))
-            codevarlist[[i]] <- expanded_stem
-            codevarheadinglist[[i]] <- expanded_stem
-            codecodelist[[i]] <- rep(codecodelist[[i]],length(expanded_stem))
-          }
-        }
-      }            
-      
-      codecode <- unlist(codecodelist)
-      codevar_unlisted <- unlist(codevarlist)
-      codevarheading_unlisted <- unlist(codevarheadinglist)
-      
-      allvars <- c(allvars,codevar_unlisted) 
+      allvars <- c(allvars,summaryvars) 
 
       if (!is.null(runsummary)) {
         if (length(runsummary) != length(summary)) {
@@ -1170,12 +1216,13 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
       }
       
       nodefunc <- summaryNodeFunction
-      nodeargs <- list(var = codevar_unlisted, format = codecode, original_var=codevarheading_unlisted,
+      nodeargs <- list(
+        var = summaryvars, format = unlist(summaryformatlist),
+        original_var=headings,
         sf = runsummary, digits = digits, cdigits = cdigits, sepN=sepN)
-      
-      #print(nodeargs)
     }
-
+    # end of section for summary argument
+    
 
     # Add any extra variables needed
     allvars <- c(allvars,retain)
