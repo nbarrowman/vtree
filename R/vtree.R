@@ -732,6 +732,106 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
       }
       vars <- expandedvars
     }
+
+    # Process r: tag in variable names to handle REDCap checklists automatically
+    regex <- "^([ir]+:)+([^\\s@]*)(@?)$"
+    findstem <- grep(regex,vars)
+    if (length(findstem)>0) {
+      expandedvars <- c()
+      for (i in seq_len(length(vars))) {
+        if (i %in% findstem) {
+          y <- rep("",nrow(z))
+          prefix <- sub(regex,"\\1",vars[i])
+          text_part <- sub(regex,"\\2",vars[i])
+          wildcard <- sub(regex,"\\3",vars[i])
+          if (wildcard=="@") {
+            matching_vars <- names(z)[grep(paste0("^",text_part,"___[0-9]+.*$"),names(z))]
+            # remove any variable name that contains ".factor"
+            matching_vars <- matching_vars[grep("\\.factor",matching_vars,invert=TRUE)]
+            if (length(matching_vars)==0) {
+              stop(paste0("Could not find variables with names matching the specified stem: ",text_part))
+            }
+            if (verbose) message(paste0(vars[i]," expands to: ",paste(matching_vars,collapse=", ")))
+            rexp0 <- "\\(choice=.+\\)"
+            rexp1 <- "(.+) \\(choice=(.+)\\)"
+            rexp2 <- "(.+): (.+)"
+            if (prefix=="r:") {
+              if (choicechecklist) {
+                for (j in 1:length(matching_vars)) {
+                  lab <- attributes(z[[matching_vars[j]]])$label
+                  if (length(grep(rexp0,lab))>0) {
+                    REDCap_var_label <- sub(rexp1,"\\1",lab)
+                    choice <- sub(rexp1,"\\2",lab)
+                  } else
+                  if (length(grep(rexp2,lab))>0) {
+                    choice <- sub(rexp2,"\\2",lab)
+                  } else {
+                    stop("Could not find value of checklist item")
+                  }
+                  z[[choice]] <- z[[matching_vars[j]]]
+                  expandedvars <- c(expandedvars,choice)
+                }
+              } else {
+                expandedvars <- c(expandedvars,matching_vars)
+              }
+            } else
+            if (prefix=="ri:" || prefix=="ir:") {
+
+              if (choicechecklist) {
+                for (j in seq_len(length(matching_vars))) {
+                  lab <- attributes(z[[matching_vars[j]]])$label
+                  if (length(grep(rexp0,lab))>0) {
+                    REDCap_var_label <- sub(rexp1,"\\1",lab)
+                    choice <- sub(rexp1,"\\2",lab)
+                  } else
+                  if (length(grep(rexp2,lab))>0) {
+                    choice <- sub(rexp2,"\\2",lab)
+                  } else {
+                    stop("Could not find value of checklist item")
+                  }
+                  y <- ifelse(z[[matching_vars[j]]]==1,
+                    ifelse(y=="",choice,paste0(y,"+",choice)),y)
+                  if (verbose) message(paste0(matching_vars[j]," is ",choice))
+                  z[[choice]] <- z[[matching_vars[j]]]
+                }            
+              } else {
+                #expandedvars <- c(expandedvars,matching_vars)
+              }
+              y[y %in% ""] <- "*None"
+              NewVarName <- paste0("stem:",text_part)
+              z[[NewVarName]] <- y
+              expandedvars <- c(expandedvars,NewVarName)
+            }
+          } else 
+          if (wildcard=="") {
+            if (!(text_part %in% names(z))) {
+              stop("Could not find variable named ",text_part)
+            }
+            if (choicechecklist) {
+              rexp1 <- ".+\\(choice=(.+)\\)"
+              rexp2 <- ".+: (.+)"
+              lab <- attributes(z[[text_part]])$label
+              if (length(grep(rexp1,lab))>0) {
+                choice <- sub(rexp1,"\\1",lab)
+              } else
+              if (length(grep(rexp2,lab))>0) {
+                choice <- sub(rexp2,"\\1",lab)
+              } else {
+                stop("Could not find value of checklist item")
+              }
+              z[[choice]] <- z[[text_part]]
+              expandedvars <- c(expandedvars,choice)
+            } else {
+              expandedvars <- c(expandedvars,text_part)
+            }
+          }         
+        } else {
+          expandedvars <- c(expandedvars,vars[i])
+        }
+      }
+      vars <- expandedvars
+    }
+    
     
     # Process any: tag in variable names that ends in asterisk or hashmark
     regex1 <- "^any:(\\S+)([\\*#])$"
@@ -1080,8 +1180,8 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
       }      
       
       
-      # Process c: or r: or cr: tag in variable names in summary argument
-      regex <- "^([cr]*[cr]*:)*(\\S*)([\\*#@])$"
+      # Process i: or r: or ir: or ri: tag in variable names in summary argument
+      regex <- "^([ir]+[ir]*:)*(\\S*)([\\*#@])$"
       match_regex <- grep(regex,codevar)
       if (length(match_regex)>0) {
         for (i in seq_len(length(codevar))) {    
@@ -1091,7 +1191,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
             prefix <- sub(regex,"\\1",codevar[i])
             text_part <- sub(regex,"\\2",codevar[i])
             wildcard <- sub(regex,"\\3",codevar[i])
-            if (prefix=="r:" || prefix=="cr:" || prefix=="rc:") {
+            if (prefix=="r:" || prefix=="ir:" || prefix=="ri:") {
               if (wildcard=="@") {
                 matching_vars <- names(z)[grep(paste0("^",text_part,"___[0-9]+$"),names(z))]
               } else {
@@ -1131,7 +1231,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
                 extra_variables <- c(extra_variables,matching_vars)
                 summaryformatlist[[i]] <- rep(summaryformatlist[[i]],length(matching_vars))
               } else
-              if (prefix=="rc:" | prefix=="cr:") {
+              if (prefix=="ri:" | prefix=="ir:") {
                 if (choicechecklist) {
                   for (j in seq_len(length(matching_vars))) {
                     lab <- attributes(z[[matching_vars[j]]])$label
@@ -1175,7 +1275,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
               }
               if (verbose) message(paste0(codevar[i]," expands to: ",paste(matching_vars,collapse=", ")))
               #message(paste0("prefix-->",prefix,"<-- matching_vars=",paste(matching_vars,collapse=", ")))
-              if (prefix=="c:") {
+              if (prefix=="i:") {
                 expandedvars <- c()
                 if (choicechecklist) {
                   for (j in seq_len(length(matching_vars))) {
