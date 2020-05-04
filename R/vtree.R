@@ -703,7 +703,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
       # Process complex variable name specification
       # including REDCap variables, intersections, and wildcards
       #
-      regex <- "^([iroa]+:)*([^\\s@\\*#]*)([@\\*#]?)$"
+      regex <- "^([iroa]+:)*([^[:space:]@\\*#]*)([@\\*#]?)$"
       match_regex <- grep(regex,vars)
       if (length(match_regex)>0) {
         expandedvars <- c()
@@ -713,6 +713,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
             prefix <- sub(regex,"\\1",vars[i])
             text_part <- sub(regex,"\\2",vars[i])
             wildcard <- sub(regex,"\\3",vars[i])
+            #browser()
             if (prefix=="" && wildcard=="") {
               expandedvars <- c(expandedvars,vars[i]) 
             } else
@@ -1250,7 +1251,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
       # Process complex variable summary specification
       # including REDCap variables, intersections, and wildcards
       #
-      regex <- "^([oair]+[oair]*:)*(\\S*)([\\*#@])$"
+      regex <- "^([oair]+[oair]*:)*([^[:space:]]*)([\\*#@])$"
       match_regex <- grep(regex,codevar)
       if (length(match_regex)>0) {
         for (i in seq_len(length(codevar))) {    
