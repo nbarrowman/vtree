@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 4.4.9"
+title: "Introduction to vtree 4.5.0"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
 output:
@@ -15,7 +15,8 @@ vignette: >
 
 ```{r, echo=FALSE}
 suppressMessages(library(ggplot2))
-library(vtree)
+#library(vtree)
+source("../source.R")
 options(width=90)
 ```
 
@@ -733,25 +734,53 @@ vtree(FakeData,"is.na:Score")
 ### suffix `#`
 
 Specifying `Ind#` matches all variable names that start with `Ind`
-and end with one or more numeric digits, namely `Ind1`, `Ind2`, and `Ind3`.
+and end with one or more numeric digits, namely `Ind1`, `Ind2`, `Ind3`, and `Ind4`.
 
 
 ### suffix `*`
 
 Specifying `Ind*` matches all variable names that start with `Ind`
 and end with any other characters (or no other characters).
-In `FakeData` this matches `Ind1`, `Ind2`, and `Ind3` (just like `Ind#` does).
+In `FakeData` this matches `Ind1`, `Ind2`, `Ind3`, and `Ind4` (just like `Ind#` does).
 But if `FakeData` contained variables named `Ind` and `Index`,
 they would also be matched by `Ind*`.
 
 
-### prefix `any:` with suffix `*` or `#`
+### prefix `i:`
+
+"Intersections" between multiple variables can be generated using the prefix `i:`.
+For example, `i:Ind*` generates a variable representing the observed
+combinations of values of `Ind1`, `Ind2`, `Ind3`, and `Ind4`.
+(If at least one of the variables is missing, the combination will be missing.)
+
+### prefix `r:` (for *REDCap*)
+
+Vtree includes special support for [REDCap](https://www.project-redcap.org/) data sets.
+The prefix `r:` is used to indicate REDCap checkbox variables.
+This is described in the section on [REDCap checkboxes](#REDCapCheckboxes)
+later in this vignette.
+
+### prefix `a:` (for *any*)
 
 Sometimes a group of variables contain responses to 
 a list of checkbox options (often with instructions to "check all that apply").
+For example, suppose you have a data frame of shops,
+including whether they are open on Saturday (`openSaturday`)
+or Sunday (`openSunday`).
+Suppose no other variables start with `open`.
+Then
+
+`open*`
+
+will match both `openSaturday` and `openSunday`.
+If we want the tree to branch according to which shops are open Saturday and Sunday, we can use
+
+`a:open*`
+
+
 It is often useful to know if *any* of the options were selected (i.e. checked).
 
-A specification like `any:Start#`
+A specification like `a:start#` 
 is used to generate a variable that is
 
 * `TRUE` if *any* of the matching variables has a "checked" value
