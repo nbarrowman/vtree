@@ -703,7 +703,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
       # Process complex variable name specification
       # including REDCap variables, intersections, and wildcards
       #
-      regex <- "^([iroa]+:)*([^[:space:]@\\*#]*)([@\\*#]?)$"
+      regex <- "^((i|r|any|all)+:)*([^[:space:]@\\*#]*)([@\\*#]?)$"
       match_regex <- grep(regex,vars)
       if (length(match_regex)>0) {
         expandedvars <- c()
@@ -711,9 +711,8 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
           if (i %in% match_regex) {
             y <- rep("",nrow(z))
             prefix <- sub(regex,"\\1",vars[i])
-            text_part <- sub(regex,"\\2",vars[i])
-            wildcard <- sub(regex,"\\3",vars[i])
-            #browser()
+            text_part <- sub(regex,"\\3",vars[i])
+            wildcard <- sub(regex,"\\4",vars[i])
             if (prefix=="" && wildcard=="") {
               expandedvars <- c(expandedvars,vars[i]) 
             } else
@@ -724,14 +723,14 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
               if (wildcard=="#") {
                 matching_vars <- names(z)[grep(paste0("^",text_part,"[0-9]+$"),names(z))]
               } else {
-                stop("Invalid wildcard")
+                stop("Invalid wildcard in variable specification")
               }
               if (length(matching_vars)==0) {
-                stop("Could not find variables with matching names")
+                stop("Could not find variables with names matching variable specification")
               }            
               expandedvars <- c(expandedvars,matching_vars)
             } else
-            if (prefix=="o:" | prefix=="a:") {
+            if (prefix=="any:" | prefix=="all:") {
               
               if (wildcard=="*") {
                 matching_vars <- names(z)[grep(paste0("^",text_part,".*$"),names(z))]
@@ -739,13 +738,13 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
               if (wildcard=="#") {
                 matching_vars <- names(z)[grep(paste0("^",text_part,"[0-9]+$"),names(z))]
               } else {
-                stop("Invalid wildcard")
+                stop("Invalid wildcard in variable specification")
               }
               if (length(matching_vars)==0) {
-                stop("Could not find variables with matching names")
+                stop("Could not find variables with names matching variable specification")
               }      
               if (verbose) message(paste0(vars[i]," expands to: ",paste(matching_vars,collapse=", ")))
-              if (prefix=="o:") {
+              if (prefix=="any:") {
                 for (j in 1:length(matching_vars)) {
                   convertedToLogical <- 
                     ifelse(z[[matching_vars[j]]] %in% checked,TRUE,
@@ -758,7 +757,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
                 }
                 NewVarName <- paste0("Any: ",text_part)
               } else
-              if (prefix=="a:") {
+              if (prefix=="all:") {
                 for (j in 1:length(matching_vars)) {
                   convertedToLogical <- 
                     ifelse(z[[matching_vars[j]]] %in% checked,TRUE,
@@ -814,7 +813,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
               rexp0 <- "\\(choice=.+\\)"
               rexp1 <- "(.+) \\(choice=(.+)\\)"
               rexp2 <- "(.+): (.+)"
-              if (prefix=="ra:" || prefix=="ar:") {
+              if (prefix=="rall:" || prefix=="allr:") {
                 
                 lab1 <- attributes(z[[matching_vars[1]]])$label
                 if (length(grep(rexp0,lab1))>0) {
@@ -839,7 +838,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
                 expandedvars <- c(expandedvars,REDCap_var_label_any)
                 
               } else
-              if (prefix=="ro:" || prefix=="or:") {
+              if (prefix=="rany:" || prefix=="anyr:") {
                 
                 lab1 <- attributes(z[[matching_vars[1]]])$label
                 if (length(grep(rexp0,lab1))>0) {
@@ -1248,10 +1247,10 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
       }      
       
       #
-      # Process complex variable summary specification
+      # Process complex summary specification
       # including REDCap variables, intersections, and wildcards
       #
-      regex <- "^([oair]+[oair]*:)*([^[:space:]]*)([\\*#@])$"
+      regex <- "^((i|r|any|all)+:)*([^[:space:]]*)([\\*#@])$"
       match_regex <- grep(regex,codevar)
       if (length(match_regex)>0) {
         for (i in seq_len(length(codevar))) {    
@@ -1259,23 +1258,24 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
             y <- rep("",nrow(z))
             none <- rep(TRUE,nrow(z))
             prefix <- sub(regex,"\\1",codevar[i])
-            text_part <- sub(regex,"\\2",codevar[i])
-            wildcard <- sub(regex,"\\3",codevar[i])
-            if (prefix=="o:" | prefix=="a:") {
+            text_part <- sub(regex,"\\3",codevar[i])
+            wildcard <- sub(regex,"\\4",codevar[i])
+            #browser()
+            if (prefix=="any:" | prefix=="all:") {
               if (wildcard=="*") {
                 matching_vars <- names(z)[grep(paste0("^",text_part,".*$"),names(z))]
               } else
               if (wildcard=="#") {
                 matching_vars <- names(z)[grep(paste0("^",text_part,"[0-9]+$"),names(z))]
               } else {
-                stop("Invalid wildcard")
+                stop("Invalid wildcard in summary specification")
               }
               expandedvars <- c()
               if (length(matching_vars)==0) {
-                stop("Could not find variables with matching names")
+                stop("Could not find variables matching summary specification")
               }      
               if (verbose) message(paste0(vars[i]," expands to: ",paste(matching_vars,collapse=", ")))
-              if (prefix=="o:") {
+              if (prefix=="any:") {
                 for (j in 1:length(matching_vars)) {
                   convertedToLogical <- 
                     ifelse(z[[matching_vars[j]]] %in% checked,TRUE,
@@ -1288,7 +1288,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
                 }
                 NewVarName <- paste0("Any: ",text_part)
               } else
-              if (prefix=="a:") {
+              if (prefix=="all:") {
                 for (j in 1:length(matching_vars)) {
                   convertedToLogical <- 
                     ifelse(z[[matching_vars[j]]] %in% checked,TRUE,
@@ -1313,14 +1313,14 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
               summaryformatlist[[i]] <- rep(summaryformatlist[[i]],length(matching_vars))
             
             } else
-            if (prefix=="r:" || prefix=="ir:" || prefix=="ri:" || prefix=="or:" || prefix=="ro:" || prefix=="ar:" || prefix=="ra:") {
+            if (prefix=="r:" || prefix=="ir:" || prefix=="ri:" || prefix=="anyr:" || prefix=="rany:" || prefix=="allr:" || prefix=="rall:") {
               if (wildcard=="@") {
                 matching_vars <- names(z)[grep(paste0("^",text_part,"___[0-9]+$"),names(z))]
               } else {
-                stop("Invalid wildcard")
+                stop("Invalid wildcard in summary specification")
               }
               if (length(matching_vars)==0) {
-                stop("summary: Could not find variables with matching names")
+                stop("Could not find variables names matching summary specification")
               }
               if (verbose) message(paste0(codevar[i]," expands to: ",paste(matching_vars,collapse=", ")))
               #message(paste0("prefix-->",prefix,"<-- matching_vars=",paste(matching_vars,collapse=", ")))
@@ -1354,7 +1354,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
                 extra_variables <- c(extra_variables,matching_vars)
                 summaryformatlist[[i]] <- rep(summaryformatlist[[i]],length(matching_vars))
               } else
-              if (prefix=="or:" || prefix=="ro:") {
+              if (prefix=="anyr:" || prefix=="rany:") {
                 lab1 <- attributes(z[[matching_vars[1]]])$label
                 if (length(grep(rexp0,lab1))>0) {
                   REDCap_var_label <- sub(rexp1,"\\1",lab1)
@@ -1381,7 +1381,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
                 extra_variables <- c(extra_variables,matching_vars)
                 summaryformatlist[[i]] <- rep(summaryformatlist[[i]],length(matching_vars))
               } else
-              if (prefix=="ar:" || prefix=="ra:") {
+              if (prefix=="allr:" || prefix=="rall:") {
                 lab1 <- attributes(z[[matching_vars[1]]])$label
                 if (length(grep(rexp0,lab1))>0) {
                   REDCap_var_label <- sub(rexp1,"\\1",lab1)
