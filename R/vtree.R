@@ -645,13 +645,14 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
             navar <- sub("^is\\.na:(\\S+)$","\\1",vars[i])
             if (is.null(z[[navar]]))
               stop(paste("Unknown variable:",navar))
+            NewVar <- paste0("is.na:",navar)
             m <- is.na(z[[navar]])
-            z[[navar]] <- factor(m, levels = c(FALSE, TRUE),c("not N/A","N/A"))
+            z[[NewVar]] <- factor(m, levels = c(FALSE, TRUE),c("not N/A","N/A"))
             # Note that available comes before N/A in alphabetical sorting.
             # Similarly FALSE comes before TRUE.
             # And 0 (representing FALSE) comes before 1 (representing TRUE) numerically.
             # This is convenient, especially when when using the seq parameter.
-            vars[i] <- navar
+            vars[i] <- NewVar
           }
         }
       }
@@ -783,10 +784,10 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
               if (wildcard=="#") {
                 matching_vars <- names(z)[grep(paste0("^",text_part,"[0-9]+$"),names(z))]
               } else {
-                stop("Invalid wildcard")
+                stop("Invalid wildcard in variable specification")
               }
               if (length(matching_vars)==0) {
-                stop("Could not find variables with matching names")
+                stop("Could not find variables with names matching variable specification")
               }
               if (verbose) message(paste0(codevar[i]," expands to: ",paste(matching_vars,collapse=", ")))
               expandedvars <- c()
@@ -807,7 +808,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
               # remove any variable name that contains ".factor"
               matching_vars <- matching_vars[grep("\\.factor",matching_vars,invert=TRUE)]
               if (length(matching_vars)==0) {
-                stop(paste0("Could not find variables with names matching the specified stem: ",text_part))
+                stop(paste0("Could not find variables with names matching variable specification"))
               }
               if (verbose) message(paste0(vars[i]," expands to: ",paste(matching_vars,collapse=", ")))
               rexp0 <- "\\(choice=.+\\)"
@@ -870,13 +871,15 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
                     if (length(grep(rexp0,lab))>0) {
                       REDCap_var_label <- sub(rexp1,"\\1",lab)
                       choice <- sub(rexp1,"\\2",lab)
+                      z[[choice]] <- z[[matching_vars[j]]]
                     } else
                     if (length(grep(rexp2,lab))>0) {
                       choice <- sub(rexp2,"\\2",lab)
+                      z[[choice]] <- z[[matching_vars[j]]]
                     } else {
-                      stop("Could not find value of checklist item")
+                      #stop("Could not find value of REDCap checklist item in variable specification")
+                      choice <- matching_vars[j]
                     }
-                    z[[choice]] <- z[[matching_vars[j]]]
                     expandedvars <- c(expandedvars,choice)
                   }
                 } 
@@ -893,7 +896,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
                     if (length(grep(rexp2,lab))>0) {
                       choice <- sub(rexp2,"\\2",lab)
                     } else {
-                      stop("Could not find value of checklist item")
+                      stop("Could not find value of REDCap checklist item in variable specification")
                     }
                     y <- ifelse(z[[matching_vars[j]]]==1,
                       ifelse(y=="",choice,paste0(y,"+",choice)),y)
@@ -921,7 +924,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
                 if (length(grep(rexp2,lab))>0) {
                   choice <- sub(rexp2,"\\1",lab)
                 } else {
-                  stop("Could not find value of checklist item")
+                  stop("Could not find value of REDCap checklist item in variable specification")
                 }
                 z[[choice]] <- z[[text_part]]
                 expandedvars <- c(expandedvars,choice)
