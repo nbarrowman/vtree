@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 4.5.3"
+title: "Introduction to vtree 4.5.4"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
 output:
@@ -753,14 +753,16 @@ For example, `i:Ind*` generates a variable representing the observed
 combinations of values of `Ind1`, `Ind2`, `Ind3`, and `Ind4`.
 (If at least one of the variables is missing, the combination will be missing.)
 
+
 ### prefix `r:` (for *REDCap*)
 
 Vtree includes special support for [REDCap](https://www.project-redcap.org/) data sets.
-The prefix `r:` is used to indicate REDCap checkbox variables.
+The prefix `r:` is used to indicate REDCap checkbox variables,
+and can be combined with othe prefixes.
 This is described in the section on [REDCap checkboxes](#REDCapCheckboxes)
 later in this vignette.
 
-### prefix `a:` (for *any*)
+### prefix `any:`
 
 Sometimes a group of variables contain responses to 
 a list of checkbox options (often with instructions to "check all that apply").
@@ -775,17 +777,17 @@ Then
 will match both `openSaturday` and `openSunday`.
 If we want the tree to branch according to which shops are open Saturday and Sunday, we can use
 
-`a:open*`
+`any:open*`
 
 
 It is often useful to know if *any* of the options were selected (i.e. checked).
 
-A specification like `a:start#` 
+A specification like `any:open*` 
 is used to generate a variable that is
 
 * `TRUE` if *any* of the matching variables has a "checked" value
 
-* `FALSE` if *all* of the matching variables have "unchecked" values.
+* `FALSE` if none of the matching variables have "checked" values.
 
 The parameters `checked` and `unchecked` specify which values
 are considered checked or unchecked respectively,
@@ -799,7 +801,12 @@ and have the following defaults:
 Values not listed in `checked` or `unchecked` are treated as missing values.
 
 
-### prefixes for REDCap datasets: `stem:`, `rc:` and `any:` (with no suffix)
+### prefix `all:`
+
+A specification like `all:open*` generates a variable which is TRUE if *all* of the matching variables have a "checked" value.
+
+
+### Deprecated: prefixes for REDCap datasets: `stem:` and `rc:`
 
 In datasets exported from [REDCap](https://www.project-redcap.org/),
 checkboxes are represented using multiple variables.
@@ -948,16 +955,17 @@ vtree(FakeData,"Severity",summary="Ind*",sameline=TRUE,horiz=FALSE,just="l")
 `r vtree(FakeData,"Severity",summary="Ind*",sameline=TRUE,horiz=FALSE,just="l",
   pxwidth=1100,imageheight="2.2in")`
   
-Note that `just="l"` specifies that all text should be left-justified,
+Incidentally, note that `just="l"` specifies that all text should be left-justified,
 which conveniently lines up all of the rows of the summary.
 
+The `summary` argument can also use the prefixes `i:`, `any:`, `all:`, and `r:` as well as the suffixes `#` and `*`.
 
-##### prefixes for REDCap datasets: `stem:` and `stemc:`
+
+
+##### Deprecated: prefix for REDCap datasets: `stem:`
 
 For REDCap checklist variables,
 there is a `stem:` prefix like the one for variable specifications.
-There is an additional prefix, `stemc:`,
-which calculates response patterns (combinations).
 This is described in the section on [REDCap checkboxes](#REDCapCheckboxes)
 later in this vignette.
 
@@ -1398,7 +1406,52 @@ attr(dessert$IceCream___2,"label") <- "Ice cream (choice=Vanilla)"
 attr(dessert$IceCream___3,"label") <- "Ice cream (choice=Strawberry)"
 ``` 
 
-### variable prefix `stem:`
+### prefix `r:`
+
+The prefix `r:` identifies a REDCap checklist variable,
+and extracts a label from the variable attribute.
+For example, the following call automatically displays "Chocolate".
+
+```{r eval=FALSE}
+vtree(dessert,"r:IceCream___1")
+```
+
+
+### suffix `@`
+
+The suffix `@` matches REDCap checklist variables based on the naming
+scheme used by REDCap for checklist variables.
+For example, the following call automatically displays Chocolate,
+Vanilla, and Strawberry:
+
+```{r eval=FALSE}
+vtree(dessert,"r:IceCream@")
+```
+ 
+
+### variable prefixes `rany:` and `rall:`
+
+The variable prefixes `any:` and `all:` can be combined with the `r:` prefix
+in the form `rany:` and `rall:`.
+For example, to determine whether anyone did not like any of the 
+flavours (Chocolate, Vanilla, or Strawberry):
+
+```{r eval=FALSE}
+vtree(dessert,"rany:IceCream@")
+```
+
+
+### variable prefix `ri:`
+
+"Intersections" of REDCap variables may be obtained by
+combining the `r:` prefix with the `i:` prefix:
+
+```{r eval=FALSE}
+vtree(dessert,"ri:IceCream@")
+```
+
+
+### Deprecated: variable prefix `stem:`
 
 To examine the pattern of ice-cream flavour choices,
 the following can be used:
@@ -1417,20 +1470,7 @@ which also assigns labels automatically.
 vtree(dessert,"stem:IceCream",pattern=TRUE)
 ```
 
-### variable prefix `any:`
-
-To examine whether *any* of the checkboxes in a group have been checked,
-the `any:` prefix can be used. 
-
-```{r eval=FALSE}
-vtree(dessert,"any:IceCream")
-```
-
-The `any:` stem reduces the checkbox variables to a single variable
-representing whether one or more of the boxes have been checked (`TRUE`)
-or none of them have been checked (`FALSE`).
-
-### The `stem:` and `stemc:` prefixes in `summary`
+### Deprecated: The `stem:` and `stemc:` prefixes in `summary`
 
 The `summary` parameter supports a `stem:` prefix:
 
@@ -1453,9 +1493,8 @@ vtree(dessert,summary="stemc:IceCream",splitwidth=Inf)
 `r vtree(dessert,summary="stemc:IceCream",splitwidth=Inf,just="l",
   pxwidth=1000,imageheight="1.2in")`
   
-  
-  
-### variable prefix `rc:`
+
+### Deprecated: variable prefix `rc:`
 
 If you wish to only examine specific REDCap checkbox items,
 the `rc:` prefix can be used.
