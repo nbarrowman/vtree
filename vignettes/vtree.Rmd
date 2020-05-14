@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 4.5.4"
+title: "Introduction to vtree 4.5.5"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
 output:
@@ -754,7 +754,7 @@ combinations of values of `Ind1`, `Ind2`, `Ind3`, and `Ind4`.
 (If at least one of the variables is missing, the combination will be missing.)
 
 
-### prefix `r:` (for *REDCap*)
+### prefix `r:` (for REDCap)
 
 Vtree includes special support for [REDCap](https://www.project-redcap.org/) data sets.
 The prefix `r:` is used to indicate REDCap checkbox variables,
@@ -806,15 +806,6 @@ Values not listed in `checked` or `unchecked` are treated as missing values.
 A specification like `all:open*` generates a variable which is TRUE if *all* of the matching variables have a "checked" value.
 
 
-### Deprecated: prefixes for REDCap datasets: `stem:` and `rc:`
-
-In datasets exported from [REDCap](https://www.project-redcap.org/),
-checkboxes are represented using multiple variables.
-Special prefixes make it easier to work with them.
-This is described in the section on [REDCap checkboxes](#REDCapCheckboxes)
-later in this vignette.
-
-
 ### prefix `tri:` {#detectingOutliers}
 
 The `tri:` prefix is useful for identifying values of a numeric variable
@@ -851,6 +842,15 @@ the `Severity` variable will be dichotomized between `Mild` and `Not Mild`.
 These two specifications are used to dichotomize a *numeric* variable,
 splitting above and below a specified value.
 This can be useful for identifying subsets with extreme values.
+
+
+### Deprecated: prefixes for REDCap datasets: `stem:` and `rc:`
+
+In datasets exported from [REDCap](https://www.project-redcap.org/),
+checkboxes are represented using multiple variables.
+Special prefixes make it easier to work with them.
+This is described in the section on [REDCap checkboxes](#REDCapCheckboxes)
+later in this vignette.
 
 
 ## Displaying summary statistics in nodes {#summary}
@@ -1410,7 +1410,7 @@ attr(dessert$IceCream___3,"label") <- "Ice cream (choice=Strawberry)"
 
 The prefix `r:` identifies a REDCap checklist variable,
 and extracts a label from the variable attribute.
-For example, the following call automatically displays "Chocolate".
+For example, the following call automatically displays "Chocolate":
 
 ```{r eval=FALSE}
 vtree(dessert,"r:IceCream___1")
@@ -1433,7 +1433,7 @@ vtree(dessert,"r:IceCream@")
 
 The variable prefixes `any:` and `all:` can be combined with the `r:` prefix
 in the form `rany:` and `rall:`.
-For example, to determine whether anyone did not like any of the 
+For example, to determine whether anyone did not like *any* of the 
 flavours (Chocolate, Vanilla, or Strawberry):
 
 ```{r eval=FALSE}
@@ -1451,7 +1451,7 @@ vtree(dessert,"ri:IceCream@")
 ```
 
 
-### Deprecated: variable prefix `stem:`
+### Deprecated: variable prefixes `stem:` and `rc:`
 
 To examine the pattern of ice-cream flavour choices,
 the following can be used:
@@ -1470,9 +1470,7 @@ which also assigns labels automatically.
 vtree(dessert,"stem:IceCream",pattern=TRUE)
 ```
 
-### Deprecated: The `stem:` and `stemc:` prefixes in `summary`
-
-The `summary` parameter supports a `stem:` prefix:
+The `summary` parameter also supports a `stem:` prefix:
 
 ```{r, eval=FALSE}
 vtree(dessert,summary="stem:IceCream",splitwidth=Inf,just="l")
@@ -1481,21 +1479,7 @@ vtree(dessert,summary="stem:IceCream",splitwidth=Inf,just="l")
 `r spaces(63)`
 `r vtree(dessert,summary="stem:IceCream",splitwidth=Inf,just="l",
   pxwidth=1000,imageheight="1in")`
-
-There is an additional prefix, `stemc:`,
-which calculates response patterns (combinations).
-
-```{r, eval=FALSE}
-vtree(dessert,summary="stemc:IceCream",splitwidth=Inf)
-```
-
-`r spaces(55)`
-`r vtree(dessert,summary="stemc:IceCream",splitwidth=Inf,just="l",
-  pxwidth=1000,imageheight="1.2in")`
   
-
-### Deprecated: variable prefix `rc:`
-
 If you wish to only examine specific REDCap checkbox items,
 the `rc:` prefix can be used.
 For example to examine results for just Chocolate and Strawberry:

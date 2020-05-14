@@ -170,6 +170,10 @@ NULL
 #' @param rounded          Use rounded boxes for nodes?
 #' @param getscript        Instead of displaying the variable tree,
 #'                         return the DOT script as a character string?
+#' @param getnum           Return a nested list representing the variable tree.
+#'                         Within each node there is an element \code{.n}
+#'                         containing the count of that node, and
+#'                         an element \code{.pct} containing the percentage.
 #' @param showempty        Show nodes that do not contain any observations?
 #' @param digits           Number of decimal digits to show in percentages.
 #' @param cdigits          Number of decimal digits to show in continuous values displayed via the summary parameter.
@@ -225,6 +229,7 @@ NULL
 #' @param parent           Parent node number (Internal use only.)
 #' @param last             Last node number (Internal use only.)
 #' @param root             Is this the root node of the tree? (Internal use only.)
+#' @param subset           A vector representing the the subset of observations. (Internal use only.)
 #' @param mincount         Minimum count to include in a pattern tree or pattern table.
 #' @param maxcount         Maximum count to include in a pattern tree or pattern table.
 #'                         (Overrides mincount.)
@@ -440,6 +445,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
   digits = 0,cdigits=1,
   splitwidth = 20, lsplitwidth=15,
   getscript = FALSE,
+  getnum = FALSE,
   nodesep = 0.5, ranksep = 0.5, margin=0.2, vp = TRUE,
   horiz = TRUE, summary = "", runsummary = NULL, retain=NULL,
   width=NULL,height=NULL,
@@ -457,7 +463,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
   checked=c("1","TRUE","Yes","yes"),
   just="c",
   verbose=FALSE,
-  parent = 1, last = 1, root = TRUE)
+  parent = 1, last = 1, root = TRUE, subset = 1:nrow(z))
 {
   
   makeHTML <- function(x) {
@@ -490,6 +496,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
 
   novars <- FALSE
 
+  
   ### ----------- Begin code for root only ------------
 
   if (root) {
@@ -704,10 +711,18 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
       # Process complex variable name specification
       # including REDCap variables, intersections, and wildcards
       #
-      regex <- "^((i|r|any|all)+:)*([^[:space:]@\\*#]*)([@\\*#]?)$"
+      regex <- "^((i|r|any|all)+:)*([^([:space:]|:)@\\*#]*)([@\\*#]?)$"
       match_regex <- grep(regex,vars)
       if (length(match_regex)>0) {
         expandedvars <- c()
+        #
+        # Regular expressions for extracting REDCap checklist choices
+        # (to be used a bit later)
+        #
+        rexp0 <- "\\(choice=.+\\)"
+        rexp1 <- "(.+) \\(choice=(.+)\\)"
+        rexp2 <- "(.+): (.+)"
+        #
         for (i in seq_len(length(vars))) {
           if (i %in% match_regex) {
             y <- rep("",nrow(z))
@@ -731,7 +746,38 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
               }            
               expandedvars <- c(expandedvars,matching_vars)
             } else
-            if (prefix=="any:" | prefix=="all:") {
+            if (prefix=="r:" && (wildcard=="*" || wildcard=="#")) {
+              if (wildcard=="*") {
+                matching_vars <- names(z)[grep(paste0("^",text_part,".*$"),names(z))]
+              } else
+              if (wildcard=="#") {
+                matching_vars <- names(z)[grep(paste0("^",text_part,"[0-9]+$"),names(z))]
+              } else {
+                stop("Invalid wildcard in variable specification")
+              }
+              if (length(matching_vars)==0) {
+                stop("Could not find variables with names matching variable specification")
+              }              
+              if (choicechecklist) {
+                for (j in 1:length(matching_vars)) {
+                  lab <- attributes(z[[matching_vars[j]]])$label
+                  if (length(grep(rexp0,lab))>0) {
+                    REDCap_var_label <- sub(rexp1,"\\1",lab)
+                    choice <- sub(rexp1,"\\2",lab)
+                    z[[choice]] <- z[[matching_vars[j]]]
+                  } else
+                  if (length(grep(rexp2,lab))>0) {
+                    choice <- sub(rexp2,"\\2",lab)
+                    z[[choice]] <- z[[matching_vars[j]]]
+                  } else {
+                    #stop("Could not find value of REDCap checklist item in variable specification")
+                    choice <- matching_vars[j]
+                  }
+                  expandedvars <- c(expandedvars,choice)
+                }
+              } 
+            } else   
+            if (prefix=="any:" || prefix=="all:") {
               
               if (wildcard=="*") {
                 matching_vars <- names(z)[grep(paste0("^",text_part,".*$"),names(z))]
@@ -811,10 +857,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
                 stop(paste0("Could not find variables with names matching variable specification"))
               }
               if (verbose) message(paste0(vars[i]," expands to: ",paste(matching_vars,collapse=", ")))
-              rexp0 <- "\\(choice=.+\\)"
-              rexp1 <- "(.+) \\(choice=(.+)\\)"
-              rexp2 <- "(.+): (.+)"
-              if (prefix=="rall:" || prefix=="allr:") {
+              if (prefix=="rall:" || prefix=="allr:") {    # with wildcard @
                 
                 lab1 <- attributes(z[[matching_vars[1]]])$label
                 if (length(grep(rexp0,lab1))>0) {
@@ -839,7 +882,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
                 expandedvars <- c(expandedvars,REDCap_var_label_any)
                 
               } else
-              if (prefix=="rany:" || prefix=="anyr:") {
+              if (prefix=="rany:" || prefix=="anyr:") {     # with wildcard @
                 
                 lab1 <- attributes(z[[matching_vars[1]]])$label
                 if (length(grep(rexp0,lab1))>0) {
@@ -864,7 +907,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
                 expandedvars <- c(expandedvars,REDCap_var_label_any)
                 
               } else                
-              if (prefix=="r:") {
+              if (prefix=="r:") {                         # with wildcard @
                 if (choicechecklist) {
                   for (j in 1:length(matching_vars)) {
                     lab <- attributes(z[[matching_vars[j]]])$label
@@ -884,7 +927,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
                   }
                 } 
               } else
-              if (prefix=="ri:" || prefix=="ir:") {
+              if (prefix=="ri:" || prefix=="ir:") {       # with wildcard @
   
                 if (choicechecklist) {
                   for (j in seq_len(length(matching_vars))) {
@@ -939,58 +982,6 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
         vars <- expandedvars
       }
       
-      
-      # Process any: tag in variable names to handle REDCap checklists automatically
-      findstem <- grep("^any:",vars)
-      if (length(findstem)>0) {
-        expandedvars <- c()
-        for (i in seq_len(length(vars))) {
-          if (i %in% findstem) {
-            stem <- sub("^any:(\\S+)$","\\1",vars[i])
-            expanded_stem <- names(z)[grep(paste0("^",stem,"___[0-9]+.*$"),names(z))]
-            # remove any variable name that contains ".factor"
-            expanded_stem <- expanded_stem[grep("\\.factor",expanded_stem,invert=TRUE)]
-            if (length(expanded_stem)==0) {
-              stop(paste0("Could not find variables with names matching the specified stem: ",stem))
-            }
-            if (verbose) message(paste0(vars[i]," expands to: ",paste(expanded_stem,collapse=", ")))
-            anychecked <- rep(FALSE,nrow(z))
-            rexp0 <- "\\(choice=.+\\)"
-            rexp1 <- "(.+) \\(choice=(.+)\\)"
-            rexp2 <- "(.+): (.+)"
-            lab1 <- attributes(z[[expanded_stem[1]]])$label
-            if (length(grep(rexp0,lab1))>0) {
-              REDCap_var_label <- sub(rexp1,"\\1",lab1)
-            } else {
-              REDCap_var_label <- sub(rexp2,"\\1",lab1)
-            }
-            if (choicechecklist) {
-              for (j in 1:length(expanded_stem)) {
-                lab <- attributes(z[[expanded_stem[j]]])$label
-                if (length(grep(rexp0,lab))>0) {
-                  choice <- sub(rexp1,"\\2",lab)
-                } else
-                if (length(grep(rexp2,lab))>0) {
-                  choice <- sub(rexp2,"\\2",lab)
-                } else {
-                  stop("Could not find value of checklist item")
-                }
-                anychecked <- anychecked | z[[expanded_stem[j]]]
-              }
-            } else {
-              for (j in 1:length(expanded_stem)) {
-                anychecked <- anychecked | z[[expanded_stem[j]]]
-              }
-            }
-            REDCap_var_label_any <- paste0("Any: ",REDCap_var_label)
-            z[[REDCap_var_label_any]] <- anychecked
-            expandedvars <- c(expandedvars,REDCap_var_label_any)
-          } else {
-            expandedvars <- c(expandedvars,vars[i])
-          }
-        }
-        vars <- expandedvars
-      }
               
       # Process rc: tag in variable names to handle single REDCap checklist items automatically
       findtag <- grep("^rc:",vars)
@@ -1263,7 +1254,6 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
             prefix <- sub(regex,"\\1",codevar[i])
             text_part <- sub(regex,"\\3",codevar[i])
             wildcard <- sub(regex,"\\4",codevar[i])
-            #browser()
             if (prefix=="any:" | prefix=="all:") {
               if (wildcard=="*") {
                 matching_vars <- names(z)[grep(paste0("^",text_part,".*$"),names(z))]
@@ -2285,7 +2275,23 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
     splitwidth = splitwidth, showempty = showempty, topcolor = color[1],
     color = color[2], topfillcolor = rootfillcolor, fillcolor = fillcolor[[vars[1]]],
     vp = vp, rounded = rounded, just=just, showroot=showroot,verbose=verbose)
-  
+
+  if (root){
+    tree <- list(.n=nrow(z),.pct=100)
+  }
+  if (vars[[1]]!="") {
+    if (root) {
+      tree <- list(.n=nrow(z),.pct=100,.subset=subset)
+    } else {
+      tree <- list()
+    }
+    children <- list()
+    for (i in seq_len(length(fc$value))) {
+      children[[fc$value[i]]] <- list(.n=fc$n[i],.pct=fc$pct[i])
+    }
+    tree[[vars[1]]] <- children
+  }
+
   if (length(fc$nodenum)>0 && fc$nodenum[length(fc$nodenum)]>maxNodes) {
     stop(
       "Too many nodes. ",
@@ -2334,8 +2340,9 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
     prunebelowlevels <- NULL
   }
   
+  
   i <- 0
-  for (varlevel in fc$levels) {
+  for (varlevel in fc$levels) {  # Loop over variable levels
     TTEXT <- ttext
     j <- 1
     while (j <= length(TTEXT)) {
@@ -2386,6 +2393,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
       }
       if (length(select)>0 & numvars>=1) {
         zselect <- z[select, , drop = FALSE]
+        subsetselect <- subset[select]
         for (index in seq_len(ncol(zselect))) {
           attr(zselect[[index]],"label") <- attr(z[[index]],"label")
         }
@@ -2399,7 +2407,8 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
           showpct=showpct,
           showcount=showcount,
           sameline=sameline, showempty = showempty,
-          root = FALSE, prune=prune, prunebelow = prunebelow, prunesmaller=prunesmaller,
+          root = FALSE, subset=subsetselect,
+          prune=prune, prunebelow = prunebelow, prunesmaller=prunesmaller,
           labelvar = labelvar,
           varminwidth = varminwidth, varminheight = varminheight, varlabelloc=varlabelloc,
           prunelone=prunelone,
@@ -2414,10 +2423,16 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
           colornodes = colornodes, color = color[-1], fillnodes = fillnodes,
           fillcolor = fillcolor, splitwidth = splitwidth,
           vp = vp, rounded = rounded, just=just,verbose=verbose)
+        tree[[vars[1]]][[varlevel]] <- c(tree[[vars[1]]][[varlevel]],.select=list(subsetselect))
+        if (!is.null(fcChild$tree)){
+          tree[[vars[1]]][[varlevel]] <- c(tree[[vars[1]]][[varlevel]],fcChild$tree)
+        }
         fc <- joinflow(fc,fcChild)
       }
     }
-  }
+  } # end loop over variable levels
+  fc$tree <- tree
+
   if (length(fc$nodenum) == 0) {
       #cat("Setting fc to NULL\n")
       fc <- NULL
@@ -2601,6 +2616,10 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
         width=width,height=height,
         graphattr=graphattr,nodeattr=nodeattr,edgeattr=edgeattr)
       
+      if (getnum) {
+        return(fc$tree)
+      }
+      
       if (getscript || !pngknit || (!isTRUE(getOption('knitr.in.progress')) && !as.if.knit)) {
         return(flowchart)
       }
@@ -2649,7 +2668,6 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
           result <- paste0(embedded,"{width=",imagewidth," height=",imageheight,"}")
         }
       }
-      
       knitr::asis_output(result)
     }
   } else {

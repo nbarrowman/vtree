@@ -59,6 +59,7 @@ vtree(
   splitwidth = 20,
   lsplitwidth = 15,
   getscript = FALSE,
+  getnum = FALSE,
   nodesep = 0.5,
   ranksep = 0.5,
   margin = 0.2,
@@ -96,7 +97,8 @@ vtree(
   verbose = FALSE,
   parent = 1,
   last = 1,
-  root = TRUE
+  root = TRUE,
+  subset = 1:nrow(z)
 )
 }
 \arguments{
@@ -296,6 +298,11 @@ linebreak is inserted.}
 \item{getscript}{Instead of displaying the variable tree,
 return the DOT script as a character string?}
 
+\item{getnum}{Return a nested list representing the variable tree.
+Within each node there is an element \code{.n}
+containing the count of that node, and
+an element \code{.pct} containing the percentage.}
+
 \item{nodesep}{Graphviz attribute: Node separation amount.}
 
 \item{ranksep}{Graphviz attribute: Rank separation amount.}
@@ -403,6 +410,8 @@ which defaults to 1000.}
 \item{last}{Last node number (Internal use only.)}
 
 \item{root}{Is this the root node of the tree? (Internal use only.)}
+
+\item{subset}{A vector representing the the subset of observations. (Internal use only.)}
 }
 \value{
 The value returned by \code{vtree} varies

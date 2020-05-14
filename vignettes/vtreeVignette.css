@@ -112,10 +112,10 @@ ul {
   }
 
 pre, code {
-  background-color: #E8E8E8;
+  background-color: #F0F0F0;
   border-radius: 3px;
-  border-left: 3px solid #E8E8E8;
-  border-right: 3px solid #E8E8E8;
+  border-left: 3px solid #F0F0F0;
+  border-right: 3px solid #F0F0F0;
   color: #000000;
   white-space: pre-wrap;    /* Wrap long lines */
 }
@@ -127,7 +127,7 @@ pre {
   padding: 10px;
 }
 pre:not([class]) {
-  background-color: #E8E8E8;
+  background-color: #F0F0F0;
 }
 
 code {

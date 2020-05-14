@@ -299,9 +299,8 @@ vp=TRUE,rounded=FALSE,just="c",showroot=TRUE,verbose=FALSE) {
       ' fillcolor=<',FILLCOLOR,'>',VARLABELLOC,' ',VARMINWIDTH,' ',VARMINHEIGHT,']'),collapse='\n')
   }
   
-  #browser()
-
   return(list(
+    root=root,
     value=CAT[-1],
     n=as.numeric(nString[-1]),
     pct=as.numeric(pctString[-1]),
