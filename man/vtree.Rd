@@ -59,7 +59,7 @@ vtree(
   splitwidth = 20,
   lsplitwidth = 15,
   getscript = FALSE,
-  getnum = FALSE,
+  getinfo = FALSE,
   nodesep = 0.5,
   ranksep = 0.5,
   margin = 0.2,
@@ -298,10 +298,9 @@ linebreak is inserted.}
 \item{getscript}{Instead of displaying the variable tree,
 return the DOT script as a character string?}
 
-\item{getnum}{Return a nested list representing the variable tree.
-Within each node there is an element \code{.n}
-containing the count of that node, and
-an element \code{.pct} containing the percentage.}
+\item{getinfo}{Instead of displaying the variable tree,
+return a nested list representing the variable tree?
+See \strong{Nested list returned when getinfo=TRUE} below for details.}
 
 \item{nodesep}{Graphviz attribute: Node separation amount.}
 
@@ -411,17 +410,18 @@ which defaults to 1000.}
 
 \item{root}{Is this the root node of the tree? (Internal use only.)}
 
-\item{subset}{A vector representing the the subset of observations. (Internal use only.)}
+\item{subset}{A vector representing the subset of observations. (Internal use only.)}
 }
 \value{
 The value returned by \code{vtree} varies
 depending on both the parameter values specified
 and the context in which \code{vtree} is called.
 
-First, there are two special cases where \code{vtree} does not show a variable tree:
+First, there are three special cases where \code{vtree} does not show a variable tree:
  
 \itemize{
   \item If \code{ptable=TRUE}, the return value is a data frame representing a pattern table.
+  \item If \code{getinfo=TRUE}, the return value is a nested list representing the variable tree.
   \item Otherwise, if \code{getscript=TRUE}, the return value is a character string,
         consisting of a DOT script that describes the variable tree.
 }
@@ -454,6 +454,25 @@ If knitting \emph{is} taking place:
 Variable trees display information about nested subsets of a data frame,
 in which the subsetting is defined by the values of categorical variables.
 }
+\section{Nested list returned when getinfo=TRUE}{
+
+When \code{getinfo=TRUE}, a nested list representing the variable tree is returned.
+\itemize{
+  \item The top level of the list represents the root node.
+        Within this list is a list named after the first variable in the tree.
+  \item In turn, within this list are lists named after the observed
+        values of that variable.
+  \item In turn, each of these lists is an element named after
+        the next variable in the tree.
+  \item And so on ...
+}
+The root element as well as each list element named after a value of a variable also 
+contains elements \code{.n} (representing the number of observations),
+\code{.pct} (representing the percentage), 
+and \code{.subset} (representing the rows of \code{z}
+corresponding to this subset).
+}
+
 \section{R Markdown}{
 
 As noted in the \strong{Value} section above,
