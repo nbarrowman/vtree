@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 4.5.6"
+title: "Introduction to vtree 4.5.7"
 author: "Nick Barrowman"
 date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
 output:
@@ -1511,22 +1511,24 @@ http://magjac.com/graphviz-visual-editor/
 
 ## Extracting a list of information about a variable tree
 
-Specifying `getinfo=TRUE` results in a list being returned by `vtree`.
+The object returned by `vtree` has an attribute `info` containing
+information about the variable tree.
 Here is an example:
 
-```{r,echo=TRUE}
-vtree(FakeData,"Group",getinfo=TRUE)
-```
-
-To understand the structure, it may be helpful to try a lengthier example
-(output not shown):
-
-```{r,echo=TRUE, eval=FALSE}
-vtree(FakeData,"Group Viral",getinfo=TRUE)
+```{r,echo=TRUE,message=FALSE}
+v <- vtree(FakeData,"Group Viral")
+attributes(v)$info
 ```
 
 The list contains the counts (`.n`) and percentages (`.pct`)
 that appear in the tree.
+
+```{r}
+v
+```
+
+
+```{r, echo=FALSE,eval=FALSE}
 It also contains vectors specifying the subset of the data frame
 being used (`.subset`).
 
@@ -1534,15 +1536,14 @@ For example, to examine the subset of the data corresponding to
 the `A` value of `Group` and the `NA` value of `Viral`,
 the following commands can be used (output not shown):
 
-```{r, eval=FALSE}
-info <- vtree(FakeData,"Group Viral",getinfo=TRUE)
+v3 <- vtree(FakeData,"Group Viral")
+info <- attributes(v3)$info
 FakeData[info$Group$A$Viral$`NA`$.subset,]
-```
 
 This might seem like a strange way to subset a data frame,
 but it means that the same code that draws a variable tree
 can be used to extract subsets.
-
+```
 
 # Ways to call vtree
 

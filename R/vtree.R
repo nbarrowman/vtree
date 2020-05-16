@@ -170,9 +170,6 @@ NULL
 #' @param rounded          Use rounded boxes for nodes?
 #' @param getscript        Instead of displaying the variable tree,
 #'                         return the DOT script as a character string?
-#' @param getinfo          Instead of displaying the variable tree,
-#'                         return a nested list representing the variable tree?
-#'                         See \strong{Nested list returned when getinfo=TRUE} below for details.
 #' @param showempty        Show nodes that do not contain any observations?
 #' @param digits           Number of decimal digits to show in percentages.
 #' @param cdigits          Number of decimal digits to show in continuous values displayed via the summary parameter.
@@ -264,11 +261,10 @@ NULL
 #' depending on both the parameter values specified
 #' and the context in which \code{vtree} is called.
 #' 
-#' First, there are three special cases where \code{vtree} does not show a variable tree:
+#' First, there are two special cases where \code{vtree} does not show a variable tree:
 #'  
 #' \itemize{
 #'   \item If \code{ptable=TRUE}, the return value is a data frame representing a pattern table.
-#'   \item If \code{getinfo=TRUE}, the return value is a nested list representing the variable tree.
 #'   \item Otherwise, if \code{getscript=TRUE}, the return value is a character string,
 #'         consisting of a DOT script that describes the variable tree.
 #' }
@@ -296,8 +292,7 @@ NULL
 #'         taking place, i.e. an object of class \code{htmlwidget}.
 #' }
 #'
-#' @section Nested list returned when getinfo=TRUE:
-#' When \code{getinfo=TRUE}, a nested list representing the variable tree is returned.
+#' @section Nested list returned as the `info` attribute:
 #' \itemize{
 #'   \item The top level of the list represents the root node.
 #'         Within this list is a list named after the first variable in the tree.
@@ -308,10 +303,8 @@ NULL
 #'   \item And so on ...
 #' }
 #' The root element as well as each list element named after a value of a variable also 
-#' contains elements \code{.n} (representing the number of observations),
-#' \code{.pct} (representing the percentage), 
-#' and \code{.subset} (representing the rows of \code{z}
-#' corresponding to this subset).
+#' contains elements \code{.n} (representing the number of observations) and
+#' \code{.pct} (representing the percentage).
 #'
 #' @section R Markdown:
 #' As noted in the \strong{Value} section above,
@@ -462,7 +455,6 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
   digits = 0,cdigits=1,
   splitwidth = 20, lsplitwidth=15,
   getscript = FALSE,
-  getinfo = FALSE,
   nodesep = 0.5, ranksep = 0.5, margin=0.2, vp = TRUE,
   horiz = TRUE, summary = "", runsummary = NULL, retain=NULL,
   width=NULL,height=NULL,
@@ -2298,7 +2290,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
   }
   if (vars[[1]]!="") {
     if (root) {
-      tree <- list(.n=nrow(z),.pct=100,.subset=subset)
+      tree <- list(.n=nrow(z),.pct=100) # ,.subset=subset)
     } else {
       tree <- list()
     }
@@ -2410,7 +2402,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
       }
       if (length(select)>0 & numvars>=1) {
         zselect <- z[select, , drop = FALSE]
-        subsetselect <- subset[select]
+        # subsetselect <- subset[select]
         for (index in seq_len(ncol(zselect))) {
           attr(zselect[[index]],"label") <- attr(z[[index]],"label")
         }
@@ -2424,7 +2416,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
           showpct=showpct,
           showcount=showcount,
           sameline=sameline, showempty = showempty,
-          root = FALSE, subset=subsetselect,
+          root = FALSE, #subset=subsetselect,
           prune=prune, prunebelow = prunebelow, prunesmaller=prunesmaller,
           labelvar = labelvar,
           varminwidth = varminwidth, varminheight = varminheight, varlabelloc=varlabelloc,
@@ -2440,7 +2432,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
           colornodes = colornodes, color = color[-1], fillnodes = fillnodes,
           fillcolor = fillcolor, splitwidth = splitwidth,
           vp = vp, rounded = rounded, just=just,verbose=verbose)
-        tree[[vars[1]]][[varlevel]] <- c(tree[[vars[1]]][[varlevel]],.subset=list(subsetselect))
+        # tree[[vars[1]]][[varlevel]] <- c(tree[[vars[1]]][[varlevel]],.subset=list(subsetselect))
         if (!is.null(fcChild$tree)){
           tree[[vars[1]]][[varlevel]] <- c(tree[[vars[1]]][[varlevel]],fcChild$tree)
         }
@@ -2633,10 +2625,8 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
         width=width,height=height,
         graphattr=graphattr,nodeattr=nodeattr,edgeattr=edgeattr)
       
-      if (getinfo) {
-        return(fc$tree)
-      }
-      
+      attributes(flowchart)$info <- tree
+
       if (getscript || !pngknit || (!isTRUE(getOption('knitr.in.progress')) && !as.if.knit)) {
         return(flowchart)
       }
@@ -2685,7 +2675,9 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
           result <- paste0(embedded,"{width=",imagewidth," height=",imageheight,"}")
         }
       }
-      knitr::asis_output(result)
+      output <- knitr::asis_output(result)
+      attributes(output)$info <- tree
+      output
     }
   } else {
       fc
