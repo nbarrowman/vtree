@@ -272,7 +272,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
   }
   
 
-  qntl <- function(x,...) {
+  qntl <- function(w,...) {
     if (!(is.numeric(w) | is.logical(w))) {
       stop("%q% : expected a numeric variable.")
     }      

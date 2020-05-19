@@ -1,4 +1,4 @@
-convertToHTML <- function(x,justify="c") {
+convertToHTML <- function(x,just="c") {
   # Convert various text elements to their HTML entities.
   # Note that order matters here!
 
@@ -12,19 +12,19 @@ convertToHTML <- function(x,justify="c") {
 
   x <- gsub("\n\\*l","<BR ALIGN='LEFT'/>",x)
 
-  if (justify %in% c("c","C","center","Center","centre","Centre")) {
+  if (just %in% c("c","C","center","Center","centre","Centre")) {
     x <- gsub("\\\\n","<BR/>",x)
     x <- gsub("\n","<BR/>",x)
   } else
-  if (justify %in% c("l","L","left","Left")) {
+  if (just %in% c("l","L","left","Left")) {
     x <- gsub("\\\\n","<BR ALIGN='LEFT'/>",x)
     x <- gsub("\n","<BR ALIGN='LEFT'/>",x)    
   } else
-  if (justify %in% c("r","R","right","Right")) {
+  if (just %in% c("r","R","right","Right")) {
     x <- gsub("\\\\n","<BR ALIGN='RIGHT'/>",x)
     x <- gsub("\n","<BR ALIGN='RIGHT'/>",x)    
   } else
-  stop("Unknown argument of justify.")  
+  stop("Unknown argument of just")  
     
 
   # Markdown-style formatting
