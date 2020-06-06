@@ -4,7 +4,8 @@
 \name{FakeRCT}
 \alias{FakeRCT}
 \title{Fake Randomized Controlled Trial (RCT) data}
-\format{A small data frame in which the rows represent (imaginary) patients and
+\format{
+A small data frame in which the rows represent (imaginary) patients and
 the columns represent variables of possible clinical relevance.
 
 \describe{
@@ -15,7 +16,8 @@ the columns represent variables of possible clinical relevance.
   \item{followup}{Factor: Followed up or Not followed up}
   \item{analyzed}{Factor: Analyzed or Not analyzed}
 
-}}
+}
+}
 \usage{
 FakeRCT
 }

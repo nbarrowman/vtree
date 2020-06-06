@@ -29,6 +29,7 @@ vtree(
   palette = NULL,
   gradient = TRUE,
   revgradient = FALSE,
+  sortfill = FALSE,
   singlecolor = 2,
   colorvarlabels = TRUE,
   title = "",
@@ -59,7 +60,6 @@ vtree(
   splitwidth = 20,
   lsplitwidth = 15,
   getscript = FALSE,
-  getinfo = FALSE,
   nodesep = 0.5,
   ranksep = 0.5,
   margin = 0.2,
@@ -194,6 +194,11 @@ A logical vector of \code{TRUE} values for named variables is interpreted as
 A logical vector of \code{FALSE} values for named variables is interpreted as
 \code{FALSE} for those variables and \code{TRUE} for all others.}
 
+\item{sortfill}{Sort colours in order of node count?
+When a \code{gradient} fill is used, this results in
+the nodes with the smallest counts having the lightest shades
+and the nodes with the largest counts having the darkest shades.}
+
 \item{singlecolor}{When a variable has a single value,
 this parameter is used to specify whether nodes should have a
 (1) light shade, (2) a medium shade, or (3) a dark shade.
@@ -297,10 +302,6 @@ linebreak is inserted.}
 
 \item{getscript}{Instead of displaying the variable tree,
 return the DOT script as a character string?}
-
-\item{getinfo}{Instead of displaying the variable tree,
-return a nested list representing the variable tree?
-See \strong{Nested list returned when getinfo=TRUE} below for details.}
 
 \item{nodesep}{Graphviz attribute: Node separation amount.}
 
@@ -417,11 +418,10 @@ The value returned by \code{vtree} varies
 depending on both the parameter values specified
 and the context in which \code{vtree} is called.
 
-First, there are three special cases where \code{vtree} does not show a variable tree:
+First, there are two special cases where \code{vtree} does not show a variable tree:
  
 \itemize{
   \item If \code{ptable=TRUE}, the return value is a data frame representing a pattern table.
-  \item If \code{getinfo=TRUE}, the return value is a nested list representing the variable tree.
   \item Otherwise, if \code{getscript=TRUE}, the return value is a character string,
         consisting of a DOT script that describes the variable tree.
 }
@@ -454,9 +454,8 @@ If knitting \emph{is} taking place:
 Variable trees display information about nested subsets of a data frame,
 in which the subsetting is defined by the values of categorical variables.
 }
-\section{Nested list returned when getinfo=TRUE}{
+\section{Nested list returned as the `info` attribute}{
 
-When \code{getinfo=TRUE}, a nested list representing the variable tree is returned.
 \itemize{
   \item The top level of the list represents the root node.
         Within this list is a list named after the first variable in the tree.
@@ -467,10 +466,8 @@ When \code{getinfo=TRUE}, a nested list representing the variable tree is return
   \item And so on ...
 }
 The root element as well as each list element named after a value of a variable also 
-contains elements \code{.n} (representing the number of observations),
-\code{.pct} (representing the percentage), 
-and \code{.subset} (representing the rows of \code{z}
-corresponding to this subset).
+contains elements \code{.n} (representing the number of observations) and
+\code{.pct} (representing the percentage).
 }
 
 \section{R Markdown}{

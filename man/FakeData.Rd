@@ -4,7 +4,8 @@
 \name{FakeData}
 \alias{FakeData}
 \title{Fake clinical dataset}
-\format{A small data frame in which the rows represent (imaginary) patients and
+\format{
+A small data frame in which the rows represent (imaginary) patients and
 the columns represent variables of possible clinical relevance.
 
 \describe{
@@ -27,7 +28,8 @@ the columns represent variables of possible clinical relevance.
   \item{Ind4}{Integer: Indicator variable for a certain characteristic, 1=present, 0=absent}
   \item{Viral}{Logical: Does this patient have a viral illness?}
 
-}}
+}
+}
 \usage{
 FakeData
 }
