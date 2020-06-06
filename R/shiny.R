@@ -107,25 +107,29 @@ use_svgzoom <-  function(minheight = "200px",
 #' @family Shiny Functions
 #' @keywords internal
 init_js <- function(init_event, onwindow_resize, shortcuts) {
-  
+
   ## Text snippets ######################## 
   wrap_conn <- '$(document).on("shiny:connected", function(event) {
     %s
     %s
   });'
-  
+
   initjs <- paste0('$(document).on("%s", ".grViz svg", function(){
-      svgPanZoom(".grViz svg");
+      if ($(".grViz svg").length > 0) {
+        svgPanZoom(".grViz svg");
+      }
     });')
   initjs <- sprintf(initjs, init_event)
-  
+
   resize <- '$(window).on("resize", function(){
-      var inst = svgPanZoom(".grViz svg");
-      inst.resize(); // update SVG cached size and controls positions
-      inst.fit();
-      inst.center();
-    });'  
-  
+      if ($(".grViz svg").length > 0) {
+        var inst = svgPanZoom(".grViz svg");
+        inst.resize(); // update SVG cached size and controls positions
+        inst.fit();
+        inst.center();
+      }
+    });'
+
   ## Output ##################
   if (onwindow_resize) {
     initjs <- HTML(sprintf(wrap_conn, initjs, resize))

@@ -12,32 +12,24 @@ downloads](https://cranlogs.r-pkg.org/badges/grand-total/vtree)](https://cranlog
 
 See installation details below.
 
-# Notes about the current version (3.0.0) on CRAN
-
-* Compared to earlier versions, there are changes in how vtree 3.0.0 supports R Markdown. By default when `vtree` is called from R Markdown, a PNG file is automatically generated and Markdown code to embed it is generated. To generate an htmlwidget instead (as in older versions of vtree), specify `pngknit=FALSE`. This is described in the vignette. See: https://cran.r-project.org/web/packages/vtree/vignettes/vtree.html#embeddingInRmarkdown
-
-* In the latest vtree release candidate (version 3.1.7), this functionality is streamlined and a related bug is fixed.
-
-* Version 3.1.7 also corrects a bug related to pruning involving missing values, and adds some great new Shiny functionality that allows panning and zooming.
-
 # Installation
 
-You can install the current version of vtree (version 3.0.0) from CRAN
+You can install the current version of vtree (version 4.0.0) from CRAN
 
 ```
 install.packages("vtree")
 ```
 
-Or install the latest release candidate from github (version 3.1.7)
+Or install the latest release (v4.0.5) from github
 
 ```
-remotes::install_github("nbarrowman/vtree@v3.1.7")
+remotes::install_github("nbarrowman/vtree@v4.0.5")
 ```
 
 To get the vignette as well you need to specify `build_vignettes=TRUE`:
 
 ```
-remotes::install_github("nbarrowman/vtree@v3.1.7",build_vignettes=TRUE)
+remotes::install_github("nbarrowman/vtree@v4.0.5",build_vignettes=TRUE)
 ```
 
 # More information
@@ -52,6 +44,6 @@ remotes::install_github("nbarrowman/vtree@v3.1.7",build_vignettes=TRUE)
     * https://rpubs.com/nbarrowman/Data_exploration_with_vtree
     * https://rpubs.com/nbarrowman/missing_values_vtree
     * https://rpubs.com/nbarrowman/pruning_a_variable_tree
-    * https://rpubs.com/nbarrowman/CONSORTvtree
+    * https://rpubs.com/nbarrowman/CONSORT-style
 
 * Please report bugs or other issues [here](https://github.com/nbarrowman/vtree/issues).
