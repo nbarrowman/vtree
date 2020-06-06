@@ -44,6 +44,6 @@ remotes::install_github("nbarrowman/vtree@v4.0.5",build_vignettes=TRUE)
     * https://rpubs.com/nbarrowman/Data_exploration_with_vtree
     * https://rpubs.com/nbarrowman/missing_values_vtree
     * https://rpubs.com/nbarrowman/pruning_a_variable_tree
-    * https://rpubs.com/nbarrowman/CONSORTvtree
+    * https://rpubs.com/nbarrowman/CONSORT-style
 
 * Please report bugs or other issues [here](https://github.com/nbarrowman/vtree/issues).
