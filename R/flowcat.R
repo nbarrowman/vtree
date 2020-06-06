@@ -13,7 +13,7 @@ showcount=TRUE,
 showvarnames=FALSE,
 pruneNA=FALSE,
 splitwidth=Inf,topcolor="black",color="blue",topfillcolor="olivedrab3",fillcolor="olivedrab2",
-vp=TRUE,rounded=FALSE,just="c",showroot=TRUE,verbose=FALSE) {
+vp=TRUE,rounded=FALSE,just="c",showroot=TRUE,verbose=FALSE,sortfill=FALSE) {
 #
 # Write DOT code for a single-level {flow}chart of {cat}egories using the
 # DiagrammeR framework.
@@ -170,6 +170,15 @@ vp=TRUE,rounded=FALSE,just="c",showroot=TRUE,verbose=FALSE) {
 
   CAT <- names(categoryCounts)
   FILLCOLOR <- fillcolor[match(CAT[-1],names(fillcolor))]
+  
+  if (sortfill) {
+    #browser()
+    o <- order(categoryCounts[-1][CAT[-1]!="NA"])
+    toChange <- (1:length(CAT[-1]))[CAT[-1]!="NA"]
+    names(FILLCOLOR)[toChange] <- names(FILLCOLOR)[toChange][o]
+    #browser()
+    FILLCOLOR <- FILLCOLOR[CAT[-1]]
+  }
 
   extraText <- rep("",length(CAT))
 

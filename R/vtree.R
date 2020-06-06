@@ -114,6 +114,10 @@ NULL
 #`                         \code{TRUE} for those variables and \code{FALSE} for all others.
 #'                         A logical vector of \code{FALSE} values for named variables is interpreted as
 #'                         \code{FALSE} for those variables and \code{TRUE} for all others.
+#' @param sortfill         Sort colours in order of node count?
+#'                         When a \code{gradient} fill is used, this results in
+#'                         the nodes with the smallest counts having the lightest shades
+#'                         and the nodes with the largest counts having the darkest shades.
 #' @param colorvarlabels   Color the variable labels?
 #' @param check.is.na      Replace each variable named in \code{vars} with a logical vector indicating
 #'                         whether or not each of its values is missing?
@@ -435,7 +439,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
   fillcolor = NULL, fillnodes = TRUE,
   NAfillcolor="white",rootfillcolor="#EFF3FF",
   palette=NULL,
-  gradient=TRUE, revgradient=FALSE,
+  gradient=TRUE, revgradient=FALSE,sortfill=FALSE,
   singlecolor=2,
   colorvarlabels=TRUE,
   title = "",
@@ -2010,6 +2014,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
       }
     }
 
+    # Assign colors
     if (!plain) {
       FC <- vector("list",numvars)
       names(FC) <- vars
@@ -2283,7 +2288,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
     text = ThisLevelText, ttext=ttext,TopText = TopText, digits = digits, cdigits = cdigits,
     splitwidth = splitwidth, showempty = showempty, topcolor = color[1],
     color = color[2], topfillcolor = rootfillcolor, fillcolor = fillcolor[[vars[1]]],
-    vp = vp, rounded = rounded, just=just, showroot=showroot,verbose=verbose)
+    vp = vp, rounded = rounded, just=just, showroot=showroot,verbose=verbose,sortfill=sortfill)
 
   if (root){
     tree <- list(.n=nrow(z),.pct=100)
@@ -2427,7 +2432,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
           follow=follow,
           pruneNA=pruneNA,
           pattern=pattern,seq=seq,
-          text = text, ttext=TTEXT,gradient=gradient,
+          text = text, ttext=TTEXT,gradient=gradient,sortfill=sortfill,
           maxNodes=maxNodes,
           colornodes = colornodes, color = color[-1], fillnodes = fillnodes,
           fillcolor = fillcolor, splitwidth = splitwidth,
