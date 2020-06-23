@@ -1,7 +1,7 @@
 ---
-title: "Introduction to vtree 4.6.0"
-author: "Nick Barrowman"
-date: '`r strftime(Sys.time(),format="%d-%b-%Y")`'
+title: "Introduction to vtree 4.6.1"
+subtitle: "*Exploring subsets of data using variable trees*"
+author: '`r paste("Nick Barrowman",strftime(Sys.time(),format="%d-%b-%Y"))`'
 output:
   rmarkdown::html_vignette:
     css: vtreeVignette.css
@@ -18,6 +18,7 @@ suppressMessages(library(ggplot2))
 library(vtree)
 #source("../source.R")
 options(width=90)
+options(rmarkdown.html_vignette.check_title = FALSE)
 ```
 
 ```{r, echo=FALSE}
@@ -29,15 +30,16 @@ spaces <- function (n) {
 # Introduction
 
 vtree is a flexible tool for generating *variable trees* &mdash;
-diagrams that display information about nested subsets of a data frame.
-Given simple specifications,
-vtree produces these diagrams and automatically labels them with counts,
-percentages, and other summaries.
-The two main uses of vtree are:
+diagrams that display information about nested subsets of a data frame,
+which can be used to
 
 1. to explore a data set interactively
 
 2. to produce customized figures for reports and publications.
+
+Given simple specifications,
+vtree produces these diagrams and automatically labels them with counts,
+percentages, and other summaries.
 
 Note that vtree is *not* designed to build or display decision trees.
 
@@ -281,6 +283,8 @@ To generate a vertical tree, specify `horiz=FALSE`.
 
 ## Mini tutorial
 
+*This section introduces some basic features of the `vtree` function.*
+
 To display a variable tree for a single variable, say `Severity`, use the following command:
 
 ```{r,eval=FALSE, results="asis"}
@@ -293,24 +297,37 @@ vtree(FakeData,"Severity")
 By default, next to each level of the tree, a variable name is shown.
 These can be removed by specifying `showvarnames=FALSE`.
 
+`vtree` can also be used with tidyverse tools.
+Here is an example that uses the pipe operator `%>%` and the
+`rename` function from dplyr:
+
+```{r,eval=FALSE}
+library(dplyr)
+FakeData %>% rename("HowBad"=Severity) %>% vtree("HowBad")
+```
+
+Note that `vtree` also has a [built-in way of renaming variables](#labeling),
+so it is not necessary to use dplyr.
+
 Large variable trees can be difficult to display in a readable way.
 One approach that helps is to display the count and percentage on the same line
 in each node.
 For example, in the tree above,
 the label for the Moderate node is on two lines, like this:
 
-`r spaces(65)`Moderate \
-`r spaces(65)`16 (40%)
+`r spaces(65)`**Moderate** \
+`r spaces(65)`**16 (40%)**
 
 Specifying `sameline=TRUE` results in single-line labels, like this:
 
-`r spaces(65)`Moderate, 16 (40%)
+`r spaces(65)`**Moderate, 16 (40%)**
 
 
 ### Percentages
 
-By default, "valid percentages" are shown,
-i.e. the denominator is the total number of *non-missing* values.
+By default, vtree shows "valid percentages",
+i.e. the denominator used to calculate a percentage is
+the total number of *non-missing* values.
 In the case of `Severity`, there are `r sum(is.na(FakeData$Severity))` missing values,
 so the denominator is `r nrow(FakeData)` - `r sum(is.na(FakeData$Severity))` ,
 or `r nrow(FakeData) - sum(is.na(FakeData$Severity))`.
@@ -372,13 +389,13 @@ Also note that in the legend,
 text wrapping can take place not only at spaces,
 but also at any of the following characters: . - + _ = /
 
-*This concludes the mini-tutorial.*
-
-vtree has many more features, described in the following sections.
+*This concludes the mini-tutorial. Vtree has many more features, described in the following sections.*
 
 ---
  
 ## Pruning {#pruning}
+
+*This section shows how to remove branches from a variable tree.*
 
 When a variable tree gets too big,
 or you are only interested in certain parts of the tree,
@@ -388,6 +405,15 @@ For convenience, there are several different ways to prune a tree,
 described below.
 
 ### The `prune` parameter
+
+Here's a variable tree we've already seen in various forms:
+
+```{r,eval=FALSE}
+vtree(FakeData,"Severity Sex")
+```
+
+`r spaces(40)`
+`r vtree(FakeData,"Severity Sex", pxwidth=1000,imageheight="3.5in")`
 
 Suppose you don't want the tree to include individuals whose disease is Mild or Moderate.
 Specifying `prune=list(Severity=c("Mild","Moderate"))`
@@ -538,6 +564,8 @@ When `vp=FALSE`, missing nodes will be pruned (if they are small enough).
 
 ## Labels for variables and nodes {#labeling}
 
+*This section shows how to relabel variables and nodes.*
+
 By default, `vtree` labels variables and nodes exactly as they appear in the data frame.
 But it is often useful to change these labels.
 
@@ -612,6 +640,8 @@ vtree(FakeData,"Group Sex",horiz=FALSE,
 
 
 ## Text and text formatting {#textFormatting}
+
+*This section shows how to add bold, italics, and other text formatting.*
 
 Graphviz,
 the open source graph visualization software that vtree is built on,
@@ -707,6 +737,8 @@ vtree(FakeData,"Group Severity",horiz=FALSE,showvarnames=FALSE,
   
 
 ## Specification of variables {#VariableSpecification}
+
+*This section shows how to alter variables for use in a variable tree.* 
  
 For convenience,
 you can specify variable names (separated by whitespace) in a single character string.
@@ -758,7 +790,7 @@ combinations of values of `Ind1`, `Ind2`, `Ind3`, and `Ind4`.
 
 Vtree includes special support for [REDCap](https://www.project-redcap.org/) data sets.
 The prefix `r:` is used to indicate REDCap checkbox variables,
-and can be combined with othe prefixes.
+and can be combined with other     prefixes.
 This is described in the section on [REDCap checkboxes](#REDCapCheckboxes)
 later in this vignette.
 
@@ -844,16 +876,9 @@ splitting above and below a specified value.
 This can be useful for identifying subsets with extreme values.
 
 
-### Deprecated: prefixes for REDCap datasets: `stem:` and `rc:`
-
-In datasets exported from [REDCap](https://www.project-redcap.org/),
-checkboxes are represented using multiple variables.
-Special prefixes make it easier to work with them.
-This is described in the section on [REDCap checkboxes](#REDCapCheckboxes)
-later in this vignette.
-
-
 ## Displaying summary statistics in nodes {#summary}
+
+*This sections shows how to display additional information in nodes.*
 
 It is often useful to display information about other variables
 (apart from those that define the tree) in the nodes of a variable tree.
@@ -958,16 +983,10 @@ vtree(FakeData,"Severity",summary="Ind*",sameline=TRUE,horiz=FALSE,just="l")
 Incidentally, note that `just="l"` specifies that all text should be left-justified,
 which conveniently lines up all of the rows of the summary.
 
-The `summary` argument can also use the prefixes `i:`, `any:`, `all:`, and `r:` as well as the suffixes `#` and `*`.
-
-
-
-##### Deprecated: prefix for REDCap datasets: `stem:`
-
-For REDCap checklist variables,
-there is a `stem:` prefix like the one for variable specifications.
-This is described in the section on [REDCap checkboxes](#REDCapCheckboxes)
-later in this vignette.
+The `summary` argument can also use the prefixes `i:`, `any:`, `all:`,
+and the suffixes `#` and `*`
+(similar to [variable specifications](#VariableSpecification)).
+Additionally specifications for [REDCap checkboxes](#REDCapCheckboxes) can be used.
 
 
 ### Control codes: `%noroot%`, `%leafonly%`, `%var=`*v*`%`, and `%node=`*n*`%`
@@ -1005,7 +1024,8 @@ vtree(FakeData,"Severity Category",summary="Score<10 %var=Category%%node=triple%
 The `summary` parameter also allows for customized summaries.
 For example, we might wish to display only the mean `Score`
 in each node of the tree.
-The `%mean%` code is used to represent the mean of the specified variable:
+The `%mean%` code is used to represent the mean of the specified variable
+(preceded here by a line break, `\n`).
 
 
 ```{r,eval=FALSE}
@@ -1022,8 +1042,7 @@ When such a code is present, the default summary is not shown.
 Instead,
 any text that is provided (in this case `\nmean score\n`)
 is shown, together with the requested summary information.
-Note that `\n` indicates a line break.
-
+ 
 If there are any missing values in a node,
 the number of missing values is shown using the abbreviation `mv`.
 If you don't want to see the number of missing values, 
@@ -1119,6 +1138,8 @@ vtree(FakeData,"Severity",horiz=FALSE,showvarnames=FALSE,splitwidth=Inf,sameline
   
 
 ## Pattern trees and pattern tables {#patterns}
+
+*This section shows how to display all the combinations of values in a set of variables.*
 
 Each node in a variable tree provides the frequency of a particular combination
 of values of the variables.
@@ -1333,6 +1354,8 @@ vtree(FakeData,"Severity Age Pre Post",check.is.na=TRUE,summary="id %list%%trunc
 
 
 ## Colors  {#colors}
+
+*This section explains how colors and color palettes can be used.*
      
 By default, `vtree` assigns colors to nodes of each successive variable
 using color palettes from [RColorBrewer](https://cran.r-project.org/package=RColorBrewer).
@@ -1374,8 +1397,10 @@ Other color-related parameters include:
 
 ## REDCap checkboxes {#REDCapCheckboxes}
 
+*This section details support for checkbox variables from REDCap.*
+
 In datasets exported from [REDCap](https://www.project-redcap.org/),
-checkboxes (i.e. the boxes where you select all that apply)
+checkboxes (i.e. select-all-that-apply boxes)
 are represented in a special way.
 For each item in a checklist, a separate variable is created.
 Suppose survey respondents were asked to select which flavors of ice cream (Chocolate, Vanilla, Strawberry) they like.
@@ -1491,6 +1516,8 @@ vtree(dessert,"rc:IceCream___1 rc:IceCream___3",pattern=TRUE)
 
 ## The DOT script generated by `vtree`
 
+*This section shows how to obtain the DOT script that displays a variable tree.*
+
 Specifying `getscript=TRUE` lets you capture the DOT script representing a variable tree.
 (DOT is a graph description language used by Graphviz, which is used by DiagrammeR, which is used by vtree!).
 Here is an example:
@@ -1511,39 +1538,26 @@ http://magjac.com/graphviz-visual-editor/
 
 ## Extracting a list of information about a variable tree
 
+*This section explains how to obtain all of the counts and percentages of a variable tree.*
+
+Sometimes it is useful to extract counts or percentages from a variable tree. 
 The object returned by `vtree` has an attribute `info` containing
-information about the variable tree.
+structured information about the counts and percentages in each node.
 Here is an example:
 
 ```{r,echo=TRUE,message=FALSE}
 v <- vtree(FakeData,"Group Viral")
+v
+```
+
+```{r,echo=TRUE,message=FALSE}
 attributes(v)$info
 ```
 
 The list contains the counts (`.n`) and percentages (`.pct`)
 that appear in the tree.
 
-```{r}
-v
-```
 
-
-```{r, echo=FALSE,eval=FALSE}
-It also contains vectors specifying the subset of the data frame
-being used (`.subset`).
-
-For example, to examine the subset of the data corresponding to
-the `A` value of `Group` and the `NA` value of `Viral`,
-the following commands can be used (output not shown):
-
-v3 <- vtree(FakeData,"Group Viral")
-info <- attributes(v3)$info
-FakeData[info$Group$A$Viral$`NA`$.subset,]
-
-This might seem like a strange way to subset a data frame,
-but it means that the same code that draws a variable tree
-can be used to extract subsets.
-```
 
 # Ways to call vtree
 

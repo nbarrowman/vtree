@@ -194,7 +194,7 @@ A logical vector of \code{TRUE} values for named variables is interpreted as
 A logical vector of \code{FALSE} values for named variables is interpreted as
 \code{FALSE} for those variables and \code{TRUE} for all others.}
 
-\item{sortfill}{Sort colours in order of node count?
+\item{sortfill}{Sort colors in order of node count?
 When a \code{gradient} fill is used, this results in
 the nodes with the smallest counts having the lightest shades
 and the nodes with the largest counts having the darkest shades.}
