@@ -1,24 +1,26 @@
-# vtree 4.6.0
+# vtree 4.6.2
 
 ## Changes
 
-* `sortfill` parameter is now used to fill nodes with gradient colors
+* New `sortfill` parameter. Specifying `sortfill=TRUE` fills nodes with gradient colors
 in sorted order according to the node count.
 
 * `vtree` return value now has an `info` attribute,
 which is a nested list that gives the count for each node
 
 * When no summary codes for statistics are specified,
-a default summary is shown.
+a default summary is shown, depending on the type of variable.
 
 * New variable prefix `i:` for "intersections" of variables
 
 * New variable prefixes `any:` and `all:`
 
-* New REDCap variable prefix `r:` and suffix `@`
+* New summary codes `%range%`, `%freq%`, and `%freqpct%`.
 
-* The old `stem:` and `rc:` variable specification and summary prefixes
-for REDCap checkbox variables are now deprecated. 
+* New variant summary codes (ending in x to disregard missing values,
+ending in _ to put on separate lines).
+
+* New REDCap variable prefix `r:` and suffix `@`
 
 * When `vars` is not specified, only the root node is shown. (Previously vtree would try to use as many variables as possible.)
 
@@ -26,11 +28,24 @@ for REDCap checkbox variables are now deprecated.
 
 * Added more informative error messages.
 
-* 
+* Added additional color palettes.
+
+* The old `stem:` and `rc:` variable specification and summary prefixes
+for REDCap checkbox variables are now deprecated.
 
 ## Bug fixes
 
-* Fixed some Shiny code for if vtree not visible immediately.
+* Fixed issue with Shiny where vtree not visible immediately.
+
+* Fixed problem with summaries when three or fewer observations are present.
+
+* Fixed bug with HTML conversion of labels in legends.
+
+* Fixed problem with DOT script when there is no root node.
+
+* Fixed bug with variable names showing up white when `fillcolor="white"`.
+
+* Fixed bug with pattern tables when `prunesmaller` was specified.
 
 
 
@@ -38,7 +53,9 @@ for REDCap checkbox variables are now deprecated.
 
 ## Changes
 
-* Added a new parameter, `arrowhead`, to specify the type of arrowhead
+* New parameter, `just`, to specify text justification.
+
+* New parameter, `arrowhead`, to specify the type of arrowhead
 (or `none`).
 
 * Added summary variable specification `!=`

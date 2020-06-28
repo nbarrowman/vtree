@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 4.6.2"
+title: "Introduction to vtree 4.6.3"
 subtitle: "*Exploring subsets of data using variable trees*"
 author: '`r paste("Nick Barrowman",strftime(Sys.time(),format="%d-%b-%Y"))`'
 output:
@@ -72,7 +72,8 @@ df <- build.data.frame(
 ```
 
 `r spaces(30)`
-`r vtree(df,"continent population landlocked",showroot=FALSE,pxwidth=1000)`
+`r vtree(df,"continent population landlocked",showroot=FALSE,pxwidth=800,
+  imageheight="3in")`
 
 Even in simple situations like this,
 it can be a chore to keep track of nested subsets and
@@ -471,7 +472,7 @@ vtree(FakeData,"Severity Sex",keep=list(Severity="Moderate"))
 
 `r spaces(40)`
 `r vtree(FakeData,"Severity Sex",keep=list(Severity="Moderate"),
-   pxwidth=500,imageheight="2in")`
+   pxwidth=500,imageheight="1.7in")`
 
 Note that in addition to the Moderate node,
 the missing value node has also been retained.
@@ -488,7 +489,7 @@ vtree(FakeData,"Severity Sex",keep=list(Severity="Moderate"),vp=FALSE)
 
 `r spaces(40)`
 `r vtree(FakeData,"Severity Sex",keep=list(Severity="Moderate"),vp=FALSE,
-   pxwidth=500,imageheight="1.5in")`
+   pxwidth=400,imageheight="1.5in")`
 
 
 
@@ -509,7 +510,7 @@ vtree(FakeData,"Severity Sex",prunebelow=list(Severity=c("Mild","Moderate")))
 
 `r spaces(40)`
 `r vtree(FakeData,"Severity Sex",prunebelow=list(Severity=c("Mild","Moderate")),
-  pxwidth=600,imageheight="3in")`
+  pxwidth=400,imageheight="3in")`
 
 ### The `follow` parameter
  
@@ -529,8 +530,8 @@ even when `sameline=TRUE` has been specified:
 vtree(FakeData,"Severity Sex Age Category",sameline=TRUE)
 ```
 
-`r spaces(30)`
-`r vtree(FakeData,"Severity Sex Age Category",sameline=TRUE,imageheight="7in",pxwidth=800)`
+`r spaces(50)`
+`r vtree(FakeData,"Severity Sex Age Category",sameline=TRUE,imageheight="5in",pxwidth=500)`
 
 One solution is to prune nodes that contain small numbers of observations.
 For example if you want to only see nodes with at least 3 observations,
@@ -540,9 +541,9 @@ you can specify `prunesmaller=3`, as in this example:
 vtree(FakeData,"Severity Sex Age Category",sameline=TRUE,prunesmaller=3)
 ```
 
-`r spaces(15)`
+`r spaces(35)`
 `r vtree(FakeData,"Severity Sex Age Category",sameline=TRUE,prunesmaller=3,
-  imageheight="5in",pxwidth=1200)`
+  imageheight="3.5in",pxwidth=800)`
 
 As with the `keep` parameter,
 when valid percentages are used (`vp=TRUE`, which is the default), 
@@ -572,7 +573,7 @@ vtree(FakeData,"Severity Sex",horiz=FALSE,labelvar=c(Severity="Initial severity"
 `r spaces(30)`
 `r vtree(FakeData,"Severity Sex",horiz=FALSE,
   labelvar=c(Severity="Initial severity"),
-  pxwidth=1200,imageheight="2.2in")`
+  pxwidth=1000,imageheight="2in")`
   
   
 ### Changing node labels with the `labelnode` parameter
@@ -590,7 +591,7 @@ vtree(FakeData,"Group Sex",horiz=FALSE,labelnode=list(Sex=c(Male="M",Female="F")
 
 `r spaces(30)`
 `r vtree(FakeData,"Group Sex",horiz=FALSE,labelnode=list(Sex=c(Male="M",Female="F")),
-  pxwidth=800,imageheight="2.2in")`
+  pxwidth=600,imageheight="1.8in")`
 
 The argument of the `labelnode` parameter is specified as
 a list whose element names are variable names.
@@ -626,7 +627,7 @@ vtree(FakeData,"Group Sex",horiz=FALSE,
     c(Group="A",Sex="M",label="boy"),
     c(Group="B",Sex="F",label="woman"),
     c(Group="B",Sex="M",label="man")),
-  pxwidth=800,imageheight="2.2in")`
+  pxwidth=600,imageheight="2.2in")`
 
 
 ## Text and text formatting {#textFormatting}
@@ -694,7 +695,7 @@ vtree(FakeData,"Group Severity",horiz=FALSE,showvarnames=FALSE,
 `r spaces(15)`
 `r vtree(FakeData,"Group Severity",horiz=FALSE,showvarnames=FALSE,
   text=list(Severity=c(Mild="\n*Excluding\nnew diagnoses*")),
-  pxwidth=1200,imageheight="2.5in")`
+  pxwidth=1000,imageheight="2.5in")`
   
 
 ### Targeted text using the `ttext` parameter
@@ -863,14 +864,14 @@ This can be useful for identifying subsets with extreme values.
 
 ## Displaying summary statistics in nodes {#summary}
 
-*This section shows how to display additional information in nodes.*
+*This section shows how to display information about other variables in the nodes.*
 
 It is often useful to display information about other variables
 (apart from those that define the tree) in the nodes of a variable tree.
 This is particularly useful for numeric variables,
-which generally cannot be used to build the tree since they have too many distinct values.
-The `summary` parameter allows you to show summary information about
-a specified variable within a subset of the data frame.
+which usually would not be used to build the tree since they have too many distinct values.
+The `summary` parameter allows you to show information (for example, a mean)
+about a specified variable within a subset of the data frame.
 
 ### Default summaries
 
@@ -884,7 +885,7 @@ vtree(FakeData,summary="Score")
 
 `r spaces(68)`
 `r vtree(FakeData,summary="Score",
-  pxwidth=1000,imageheight="1.2in")`
+  pxwidth=500,imageheight="1.2in")`
   
 When the name of a numeric variable (in this case `"Score"`) is specified
 as the argument of the `summary` parameter,
@@ -896,7 +897,7 @@ a default set of summary statistics is shown:
 
 * the mean and standard deviation
 
-* the median and interquartile range
+* the median and interquartile range (IQR)
 
 * the range
 
@@ -904,8 +905,8 @@ a default set of summary statistics is shown:
 instead of showing the above summary statistics,
 the observations are simply listed.)
 
-Suppose we're building a variable tree based on `Severity` and we
-wish to display these summaries for `Score` in each node:
+Suppose we're building a variable tree based on `Severity`.
+We can display these summaries for `Score` in each node:
 
 ```{r,eval=FALSE}
 vtree(FakeData,"Severity",summary="Score",horiz=FALSE)
@@ -913,7 +914,7 @@ vtree(FakeData,"Severity",summary="Score",horiz=FALSE)
 
 `r spaces(68)`
 `r vtree(FakeData,"Severity",summary="Score",horiz=FALSE,
-  pxwidth=1200,imageheight="2.7in")`
+  pxwidth=1000,imageheight="2.7in")`
 
 There are also default summaries for factor variables and for indicator variables.
 For example, `Category` is a factor variable:
@@ -943,16 +944,16 @@ vtree(FakeData,summary="Event")
 Variables in the `summary` argument can also be specified in a way that is
 similar to the [specification of variables](#VariableSpecification)
 for structuring a variable tree.
-For example, if we wish to know the proportion of patients in each node whose `Category` is single,
+For example, if we wish to know the proportion of patients
+in each node whose `Category` is single,
 we specify `Category=single` in the `summary` argument:
 
 ```{r,eval=FALSE}
 vtree(FakeData,"Severity",summary="Category=single",horiz=FALSE)
 ```
 
-`r spaces(5)`
 `r vtree(FakeData,"Severity",summary="Category=single",horiz=FALSE, 
-   pxwidth=1400,imageheight="1.3in")`
+   pxwidth=1000,imageheight="1.4in")`
   
 Summaries can be obtained for a collection of variables using pattern-matching,
 for example:
@@ -961,9 +962,8 @@ for example:
 vtree(FakeData,"Severity",summary="Ind*",sameline=TRUE,horiz=FALSE,just="l")
 ```
 
-`r spaces(10)`
 `r vtree(FakeData,"Severity",summary="Ind*",sameline=TRUE,horiz=FALSE,just="l",
-  pxwidth=1100,imageheight="2.5in",margin=0.3)`
+  pxwidth=1000,imageheight="2.6in",margin=0.25)`
   
 Incidentally, note that `just="l"` specifies that all text should be left-justified,
 which conveniently lines up all of the rows of the summary.
@@ -990,7 +990,7 @@ The following control codes are available:
 
 The control codes can be specified by adding them to the end of the summary
 string, separated with a space.
-For example to only show summary information for nodes of the `Category` variable 
+For example, to only show summary information for nodes of the `Category` variable 
 with the value `triple`:
 
 ```{r, eval=FALSE}
@@ -1001,7 +1001,7 @@ vtree(FakeData,"Severity Category",summary="Score<10 %var=Category%%node=triple%
 `r spaces(35)`
 `r vtree(FakeData,"Severity Category",summary="Score<10 %var=Category%%node=triple%",
   sameline=TRUE,
-  pxwidth=1000,imageheight="2.5in")`
+  pxwidth=1000,imageheight="3.0in")`
 
 
 ### Customized summaries
@@ -1017,43 +1017,39 @@ The `%mean%` code is used to represent the mean of the specified variable
 vtree(FakeData,"Severity",summary="Score \nmean score\n%mean%",sameline=TRUE,horiz=FALSE)
 ```
 
-`r spaces(20)`
+`r spaces(30)`
 `r vtree(FakeData,"Severity",summary="Score \nmean score\n%mean%",
   sameline=TRUE,horiz=FALSE,
-  pxwidth=1000,imageheight="1.6in")`
-  
-The table below lists numerous other summary codes.
+  pxwidth=800,imageheight="1.5in")`
+
+In addition to the `%mean%` code, numerous other summary codes are supported,
+as listed in the table below.
 When such a code is present, the default summary is not shown.
 Instead,
-any text that is provided (in this case `\nmean score\n`)
-is shown, together with the requested summary information.
- 
+any text that is provided---in this case `\nmean score\n`---is shown,
+together with the requested summary information.
 If there are any missing values in a node,
 the number of missing values is shown using the abbreviation `mv`.
-If you don't want to see the number of missing values, 
-the code `%meanx%` can be used instead of `%mean%`
-(and similarly `%medianx%` instead of `%median%`, etc.).
-But note that results may be misleading if missing values are suppressed.
 To see summaries without any decimals, specify `cdigits=0`.
-
-The following codes can be used to show summary information:
 
 summary code    | result
 :---------------|:-------------------------------------------------------------------
 `%mean%`        |  mean\
-(variant: `%meanx%` does not report missing values)
+(variant: `%meanx%` does not report missing values&ast;)
 `%SD%`          |  standard deviation\
-(variant: `%SDx%` does not report missing values)
+(variant: `%SDx%` does not report missing values&ast;)
 `%sum%`         |  sum\
-(variant: `%sumx%` does not report missing values)
+(variant: `%sumx%` does not report missing values&ast;)
 `%min%`         |  minimum\
-(variant: `%minx%` does not report missing values)
+(variant: `%minx%` does not report missing values&ast;)
 `%max%`         |  maximum\
-(variant: `%maxx%` does not report missing values)
+(variant: `%maxx%` does not report missing values&ast;)
+`%range%`       |  range\
+(variant: `%rangex%` does not report missing values&ast;)
 `%median%`      |  median, i.e. p50\
-(variant: `%medianx%` does not report missing values)
+(variant: `%medianx%` does not report missing values&ast;)
 `%IQR%`         |  IQR, i.e. p25, p75\
-(variant: `%IQRx%` does not report missing values)
+(variant: `%IQRx%` does not report missing values&ast;)
 `%freqpct%`     |  frequency and percentage of values of a variable\
 (variant: `%freqpct_%` shows each value on a separate line)
 `%freq%`        |  frequency of values of a variable\
@@ -1067,6 +1063,8 @@ summary code    | result
 `%nonmv%`       |  the number of non-missing values
 `%v%`           |  the name of the variable
 
+&ast;*Caution is recommended when suppressing missing values.*
+
 The `summary` argument can include any number of these codes,
 mixed with text and formatting codes.
 
@@ -1075,16 +1073,16 @@ mixed with text and formatting codes.
 ### The `%trunc%` code
 
 It is sometimes convenient to see individual values of a variable in each node.
-For example you might want to see ID numbers.
+For example, you might want to see ID numbers.
 To do this, use the `%list%` code.
 By default this information will be displayed in each node.
 When a value occurs more than once in the subset,
 it will be followed by a count of the number of repetitions in parentheses.
 
-When there are many IDs, it is often convenient to truncate the output.
-If you specify `%trunc=`*N*`%`, summary information
-will be truncated after *N* characters with "...".
-
+When there are many individual values,
+it is often convenient to truncate the output.
+If you specify `%trunc=`*N*`%`,
+summary information will be truncated after *N* characters with "...".
 
 
 ### R expressions in the summary argument
@@ -1100,7 +1098,7 @@ vtree(FakeData,"Severity Category",
 
 `r vtree(FakeData,"Severity Category",
   summary="(Post-Pre)/Pre \nmean = %mean%",sameline=TRUE,horiz=FALSE,cdigits=1,
-  pxwidth=1000,imageheight="1.8in")`
+  pxwidth=1000,imageheight="2in",margin=0.25)`
 
 Expressions involving functions can also be used; for example `sqrt(abs(Post/Pre))`.
 
@@ -1216,7 +1214,7 @@ vtree(FakeData,"Ind1 Ind2 Ind3 Ind4",Venn=TRUE,pattern=TRUE)
 
 `r spaces(40)`
 `r vtree(FakeData,"Ind1 Ind2 Ind3 Ind4",Venn=TRUE,pattern=TRUE,
-  pxwidth=600,imageheight="6in")`
+  pxwidth=500,imageheight="5in")`
 
 Big pattern trees can be overwhelming,
 so it may be useful to prune patterns that occur fewer than, say, 3 times, 
@@ -1346,12 +1344,13 @@ By default, `vtree` assigns colors to nodes of each successive variable
 using color palettes from [RColorBrewer](https://cran.r-project.org/package=RColorBrewer).
 
 The sequence of palettes (identified by short names) is as follows:
- 
+
 -  -------  ------  --  -------  ------  --  -------  -------  ------  ------ 
-1  Reds     &nbsp;   5  Purples  &nbsp;  9    YlOrBr  &nbsp;   13      RdYlGn  
-2  Blues    &nbsp;   6  YlGn     &nbsp;  10   PuBuGn  &nbsp;   14      Set1   `
-3  Greens   &nbsp;   7  PuBu     &nbsp;  11   BuPu    &nbsp;   &nbsp;  &nbsp;  
-4  Oranges  &nbsp;   8  PuRd     &nbsp;  12   YlOrRd  &nbsp;   &nbsp;  &nbsp;  
+1  Reds     &nbsp;   6  YlGn     &nbsp;  11   BuPu    &nbsp;   16      RdPu 
+2  Blues    &nbsp;   7  PuBu     &nbsp;  12   YlOrRd  &nbsp;   17      BuGn
+3  Greens   &nbsp;   8  PuRd     &nbsp;  13   RdYlGn  &nbsp;   18      OrRd
+4  Oranges  &nbsp;   9  YlOrBr   &nbsp;  14   GnBu    &nbsp;   
+5  Purples  &nbsp;  10  PuBuGn   &nbsp;  15   YlGnBu  &nbsp;
 -  -------  ------  --  -------  ------  --  -------  -------  ------  ------
 
 If you prefer to change the color assignments, you can use the `palette` parameter.
@@ -1374,6 +1373,7 @@ vtree(FakeData,"Sex Group Severity",revgradient=c(Sex=TRUE,Severity=TRUE))
 Other color-related parameters include:
 
 ----------------  ---------------------------------------------------------
+`sortfill`        Specifying `sortfill=TRUE` fills nodes with gradient colors in sorted order according to the node count.
 `NAfillcolor`     By default, missing value nodes are colored white. For a different color (say gray), specify `NAfillcolor="gray"`. To instead use a color from the current palette, specify `NAfillcolor=NULL`.
 `rootfillcolor`   The color of the root node can be changed (say to yellow) by specifying `rootfillcolor="yellow"`.
 `fillcolor`       To set all nodes of the tree (except for missing value nodes and the root node) to be the same color (say palegreen), specify `fillcolor="palegreen"`.
@@ -1530,8 +1530,13 @@ The object returned by `vtree` has an attribute `info` containing
 structured information about the counts and percentages in each node.
 Here is an example:
 
-```{r,echo=TRUE,message=FALSE}
+```{r,echo=TRUE,message=FALSE,eval=FALSE}
 v <- vtree(FakeData,"Group Viral")
+v
+```
+
+```{r,echo=FALSE,message=FALSE}
+v <- vtree(FakeData,"Group Viral",pxwidth=300,imageheight="2.5in")
 v
 ```
 
@@ -1703,7 +1708,7 @@ vtree(FakeRCT,"eligible randomized group followup analyzed",plain=TRUE,
 `r vtree(FakeRCT,"eligible randomized group followup analyzed",plain=TRUE,
   keep=list(eligible="Eligible",randomized="Randomized",followup="Followed up"),
   horiz=FALSE,showvarnames=FALSE,title="Assessed for eligibility",
-  width=230,height=500,pxwidth=400,imageheight="6in")`
+  width=230,height=500,pxwidth=300,imageheight="5in")`
   
 
 Note that this does not include all of the additional information for a full CONSORT diagram
@@ -1726,7 +1731,7 @@ vtree(FakeRCT,"eligible randomized group followup analyzed",plain=TRUE,
 `r vtree(FakeRCT,"eligible randomized group followup analyzed",plain=TRUE,
   follow=list(eligible="Eligible",randomized="Randomized",followup="Followed up"),
   horiz=FALSE,showvarnames=FALSE,title="Assessed for eligibility",
-  width=400,height=500,pxwidth=600,imageheight="6in")`
+  width=400,height=500,pxwidth=500,imageheight="5in")`
 
 Finally, it may be useful to see the ID numbers in each node.
 This can be done using the `summary` parameter with the `%list%` code.
@@ -1745,7 +1750,7 @@ vtree(FakeRCT,"eligible randomized group followup analyzed",plain=TRUE,
   follow=list(eligible="Eligible",randomized="Randomized",followup="Followed up"),
   horiz=FALSE,showvarnames=FALSE,title="Assessed for eligibility",
   summary="id \nid: %list% %noroot%",
-  width=500,height=600,pxwidth=700,imageheight="6in")`
+  width=500,height=600,pxwidth=600,imageheight="5in")`
 
 
 ## Examples using R datasets {#RdatasetExamples}
