@@ -172,11 +172,9 @@ vp=TRUE,rounded=FALSE,just="c",showroot=TRUE,verbose=FALSE,sortfill=FALSE) {
   FILLCOLOR <- fillcolor[match(CAT[-1],names(fillcolor))]
   
   if (sortfill) {
-    #browser()
     o <- order(categoryCounts[-1][CAT[-1]!="NA"])
     toChange <- (1:length(CAT[-1]))[CAT[-1]!="NA"]
     names(FILLCOLOR)[toChange] <- names(FILLCOLOR)[toChange][o]
-    #browser()
     FILLCOLOR <- FILLCOLOR[CAT[-1]]
   }
 
@@ -192,7 +190,7 @@ vp=TRUE,rounded=FALSE,just="c",showroot=TRUE,verbose=FALSE,sortfill=FALSE) {
       }
     }
   }
-
+  
   if (length(ttext)>0) {
     for (j in seq_len(length(ttext))) {
       if (length(ttext[[j]])==2 && any(names(ttext[[j]])==var)) {
@@ -272,14 +270,13 @@ vp=TRUE,rounded=FALSE,just="c",showroot=TRUE,verbose=FALSE,sortfill=FALSE) {
       displayCAT[-1] <- paste0(labelvar,sepN,displayCAT[-1])
     }
   }
+  
+  extra_text <- extraText
 
   if (!HTMLtext) {
     displayCAT <- convertToHTML(displayCAT,just=just)
     extraText <- convertToHTML(extraText,just=just)
   }
-  
-  # displayCAT <- ifelse(displayCAT=="","",paste0("<B>",displayCAT,"</B>"))
-  # displayCAT <- ifelse(displayCAT=="","",paste0("<FONT POINT-SIZE=15>",displayCAT,"</FONT>"))
   
   # Write DOT code for assigning labels (using the DiagrammeR framework)
   VARLABELLOC <- ""
@@ -314,7 +311,7 @@ vp=TRUE,rounded=FALSE,just="c",showroot=TRUE,verbose=FALSE,sortfill=FALSE) {
     n=as.numeric(nString[-1]),
     pct=as.numeric(pctString[-1]),
     npctString=npctString[-1],
-    extraText=extraText[-1],
+    extraText=extra_text[-1],
     levels=names(categoryCounts)[-1],
     nodenum=nodenum[-1],
     edges=edges,

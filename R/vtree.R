@@ -307,8 +307,9 @@ NULL
 #'   \item And so on ...
 #' }
 #' The root element as well as each list element named after a value of a variable also 
-#' contains elements \code{.n} (representing the number of observations) and
-#' \code{.pct} (representing the percentage).
+#' contains elements \code{.n} (representing the number of observations),
+#' \code{.pct} (representing the percentage), and
+#' \code{.txt} (representing additional text such as summaries).
 #'
 #' @section R Markdown:
 #' As noted in the \strong{Value} section above,
@@ -2370,7 +2371,12 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
     }
     children <- list()
     for (i in seq_len(length(fc$value))) {
-      children[[fc$value[i]]] <- list(.n=fc$n[i],.pct=fc$pct[i])
+      #browser()
+      if (fc$extraText[i]!="") {
+        children[[fc$value[i]]] <- list(.n=fc$n[i],.pct=fc$pct[i],.text=fc$extraText[i])
+      } else  {
+         children[[fc$value[i]]] <- list(.n=fc$n[i],.pct=fc$pct[i])
+      }        
     }
     tree[[vars[1]]] <- children
   }

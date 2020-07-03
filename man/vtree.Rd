@@ -466,8 +466,9 @@ in which the subsetting is defined by the values of categorical variables.
   \item And so on ...
 }
 The root element as well as each list element named after a value of a variable also 
-contains elements \code{.n} (representing the number of observations) and
-\code{.pct} (representing the percentage).
+contains elements \code{.n} (representing the number of observations),
+\code{.pct} (representing the percentage), and
+\code{.txt} (representing additional text such as summaries).
 }
 
 \section{R Markdown}{
@@ -521,6 +522,7 @@ is specified as a character string with the following structure:
  \item{\code{\%sum\%} }{sum. Variant \code{\%sumx\%} does not report missing values.}
  \item{\code{\%min\%} }{minimum. Variant \code{\%minx\%} does not report missing values.}
  \item{\code{\%max\%} }{maximum. Variant \code{\%maxx\%} does not report missing values.}
+ \item{\code{\%range\%} }{range. Variant \code{\%rangex\%} does not report missing values.}
  \item{\code{\%pX\%} }{Xth percentile, e.g. p50 means the 50th percentile}
  \item{\code{\%median\%} }{median. Variant \code{\%medianx\%} does not report missing values.}
  \item{\code{\%IQR\%} }{interquartile range. Variant \code{\%IQRx\%} does not report missing values.}
@@ -561,10 +563,10 @@ The following palettes
 (obtained from \code{RColorBrewer}) are used in the order indicated:
 
 \tabular{rlcrlcrlcrl}{
- 1 \tab  Reds        \tab \tab 5 \tab  Purples \tab \tab 9  \tab YlOrBr \tab \tab 13 \tab RdYlGn \cr
- 2 \tab  Blues       \tab \tab 6 \tab  YlGn    \tab \tab 10 \tab PuBuGn \tab \tab 14 \tab Set1 \cr 
- 3 \tab  Greens      \tab \tab 7 \tab  PuBu    \tab \tab 11 \tab BuPu   \tab \tab    \tab \cr
- 4 \tab  Oranges     \tab \tab 8 \tab PuRd     \tab \tab 12 \tab YlOrRd \tab \tab    \tab \cr
+ 1 \tab Reds     \tab \tab 5 \tab Purples  \tab \tab 9  \tab YlOrBr \tab \tab 13 \tab RdYlGn \cr
+ 2 \tab Blues    \tab \tab 6 \tab YlGn     \tab \tab 10 \tab PuBuGn \tab \tab 14 \tab Set1 \cr 
+ 3 \tab Greens   \tab \tab 7 \tab PuBu     \tab \tab 11 \tab BuPu   \tab \tab    \tab \cr
+ 4 \tab Oranges  \tab \tab 8 \tab PuRd     \tab \tab 12 \tab YlOrRd \tab \tab    \tab \cr
 }
 }
 

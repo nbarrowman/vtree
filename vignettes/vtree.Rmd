@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 4.6.3"
+title: "Introduction to vtree 4.6.4"
 subtitle: "*Exploring subsets of data using variable trees*"
 author: '`r paste("Nick Barrowman",strftime(Sys.time(),format="%d-%b-%Y"))`'
 output:
@@ -133,10 +133,9 @@ The rest of the nodes are arranged in successive levels,
 where each level corresponds to a variable.
 Note that this highlights one difference between variable trees
 and some other kinds of trees:
-at each level of a variable tree,
-all of the nodes correspond to values of a single variable.
-(*Decision trees*, in contrast,
-can have splits on different variables at the same level.)
+each level of a variable tree corresponds to just one variable.
+(Different branches of *decision trees*, in contrast,
+can have splits on different variables.)
  
 Continuing with the variable tree above,
 the nodes immediately below the root represent values of `Severity` and
@@ -274,6 +273,18 @@ The variable tree can be displayed using the following command:
 
 ```{r, eval=FALSE}
 vtree(df,"v1 v2")
+```
+
+Alternatively, you may wish to assign the output of `vtree` to an object:
+
+```{r, eval=FALSE}
+v1 <- vtree(df,"v1 v2")
+```
+
+Then it can be displayed later using:
+
+```{r, eval=FALSE}
+v1
 ```
 
 Suppose `vtree` is called without a list of variables:
@@ -916,6 +927,17 @@ vtree(FakeData,"Severity",summary="Score",horiz=FALSE)
 `r vtree(FakeData,"Severity",summary="Score",horiz=FALSE,
   pxwidth=1000,imageheight="2.7in")`
 
+Sometimes it is helpful to extract summary information as text.
+For example, we might wish to access the summary information contained in the Mild node.
+This is explained [later on](#extracting), but here's how to do it:
+
+```{r}
+vSeverity <- vtree(FakeData,"Severity",summary="Score",horiz=FALSE)
+info <- attributes(vSeverity)$info
+cat(info$Severity$Mild$.text)
+```
+
+
 There are also default summaries for factor variables and for indicator variables.
 For example, `Category` is a factor variable:
 
@@ -1521,11 +1543,12 @@ https://dreampuf.github.io/GraphvizOnline
 http://magjac.com/graphviz-visual-editor/
 
 
-## Extracting a list of information about a variable tree
+## Extracting a list of information about a variable tree {#extracting}
 
 *This section explains how to obtain all of the counts and percentages of a variable tree.*
 
-Sometimes it is useful to extract counts or percentages from a variable tree. 
+Sometimes it is useful to extract counts, percentages, and
+summary information from a variable tree. 
 The object returned by `vtree` has an attribute `info` containing
 structured information about the counts and percentages in each node.
 Here is an example:
@@ -1544,8 +1567,8 @@ v
 attributes(v)$info
 ```
 
-The list contains the counts (`.n`) and percentages (`.pct`)
-that appear in the tree.
+The list contains the counts (`.n`), percentages (`.pct`), and summary
+text (`.text`) that appear in the tree.
 
 
 

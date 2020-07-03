@@ -13,12 +13,13 @@ structure(list(x = list(diagram = "digraph vtree {\ngraph [nodesep=0.1, ranksep=
     preRenderHook = NULL, jsHooks = list()), class = c("grViz", 
 "htmlwidget"), package = "DiagrammeR", info = list(.n = 46L, 
     .pct = 100, Group = list(A = list(.n = 24, .pct = 52, Severity = list(
-        Mild = list(.n = 10, .pct = 45), Moderate = list(.n = 8, 
-            .pct = 36), Severe = list(.n = 4, .pct = 18), `NA` = list(
-            .n = 2, .pct = NA_real_))), B = list(.n = 22, .pct = 48, 
-        Severity = list(Mild = list(.n = 9, .pct = 50), Moderate = list(
-            .n = 8, .pct = 44), Severe = list(.n = 1, .pct = 6), 
-            `NA` = list(.n = 4, .pct = NA_real_)))))))
+        Mild = list(.n = 10, .pct = 45, .text = "\n*Excluding\nnew diagnoses*"), 
+        Moderate = list(.n = 8, .pct = 36), Severe = list(.n = 4, 
+            .pct = 18), `NA` = list(.n = 2, .pct = NA_real_))), 
+        B = list(.n = 22, .pct = 48, Severity = list(Mild = list(
+            .n = 9, .pct = 50, .text = "\n*Excluding\nnew diagnoses*"), 
+            Moderate = list(.n = 8, .pct = 44), Severe = list(
+                .n = 1, .pct = 6), `NA` = list(.n = 4, .pct = NA_real_)))))))
   
   expect_identical(vtree(FakeData,"Group Severity",horiz=FALSE,showvarnames=FALSE,
     ttext=list(
@@ -36,13 +37,14 @@ structure(list(x = list(diagram = "digraph vtree {\ngraph [nodesep=0.1, ranksep=
             figure = TRUE)), dependencies = NULL, elementId = NULL, 
     preRenderHook = NULL, jsHooks = list()), class = c("grViz", 
 "htmlwidget"), package = "DiagrammeR", info = list(.n = 46L, 
-    .pct = 100, Group = list(A = list(.n = 24, .pct = 52, Severity = list(
-        Mild = list(.n = 10, .pct = 45), Moderate = list(.n = 8, 
-            .pct = 36), Severe = list(.n = 4, .pct = 18), `NA` = list(
-            .n = 2, .pct = NA_real_))), B = list(.n = 22, .pct = 48, 
-        Severity = list(Mild = list(.n = 9, .pct = 50), Moderate = list(
-            .n = 8, .pct = 44), Severe = list(.n = 1, .pct = 6), 
-            `NA` = list(.n = 4, .pct = NA_real_)))))))    
+    .pct = 100, Group = list(A = list(.n = 24, .pct = 52, .text = "\nSweden", 
+        Severity = list(Mild = list(.n = 10, .pct = 45), Moderate = list(
+            .n = 8, .pct = 36), Severe = list(.n = 4, .pct = 18), 
+            `NA` = list(.n = 2, .pct = NA_real_))), B = list(
+        .n = 22, .pct = 48, .text = "\nNorway", Severity = list(
+            Mild = list(.n = 9, .pct = 50, .text = "\n*Excluding\nnew diagnoses*"), 
+            Moderate = list(.n = 8, .pct = 44), Severe = list(
+                .n = 1, .pct = 6), `NA` = list(.n = 4, .pct = NA_real_)))))))    
     
 })
 
@@ -60,9 +62,11 @@ structure(list(x = list(diagram = "digraph vtree {\ngraph [nodesep=0.1, ranksep=
             figure = TRUE)), dependencies = NULL, elementId = NULL, 
     preRenderHook = NULL, jsHooks = list()), class = c("grViz", 
 "htmlwidget"), package = "DiagrammeR", info = list(.n = 46L, 
-    .pct = 100, Severity = list(Mild = list(.n = 19, .pct = 48), 
-        Moderate = list(.n = 16, .pct = 40), Severe = list(.n = 5, 
-            .pct = 12), `NA` = list(.n = 6, .pct = NA_real_)))))
+    .pct = 100, Severity = list(Mild = list(.n = 19, .pct = 48, 
+        .text = "\nmean score: 12 mv=1\n"), Moderate = list(.n = 16, 
+        .pct = 40, .text = "\nmean score: 17 mv=1\n"), Severe = list(
+        .n = 5, .pct = 12, .text = "\nmean score: 38\n"), `NA` = list(
+        .n = 6, .pct = NA_real_, .text = "\nmean score: 15\n")))))
 })
 
     
@@ -519,9 +523,11 @@ test_that("summary",{
             figure = TRUE)), dependencies = NULL, elementId = NULL, 
     preRenderHook = NULL, jsHooks = list()), class = c("grViz", 
 "htmlwidget"), package = "DiagrammeR", info = list(.n = 46L, 
-    .pct = 100, Severity = list(Mild = list(.n = 19, .pct = 48), 
-        Moderate = list(.n = 16, .pct = 40), Severe = list(.n = 5, 
-            .pct = 12), `NA` = list(.n = 6, .pct = NA_real_)))))
+    .pct = 100, Severity = list(Mild = list(.n = 19, .pct = 48, 
+        .text = "\nScore: mean 12.1 SD 14.6 mv=1\nPre: range -2.5, 1.9 mv=2\n"), 
+        Moderate = list(.n = 16, .pct = 40, .text = "\nScore: mean 17.1 SD 24.4 mv=1\nPre: range -1.5, 2.1 mv=1\n"), 
+        Severe = list(.n = 5, .pct = 12, .text = "\nScore: mean 37.6 SD 16.8\nPre: range -1.4, 0.5\n"), 
+        `NA` = list(.n = 6, .pct = NA_real_, .text = "\nScore: mean 15.0 SD 19.4\nPre: range -1.5, 0.8\n")))))
   
   expect_identical(vtree(FakeData,"Sex",summary="Severity=Mild \nMild: %npct%%leafonly%"),
 structure(list(x = list(diagram = "digraph vtree {\ngraph [nodesep=0.1, ranksep=0.5, tooltip=\" \"]\nnode [fontname = Helvetica, fontcolor = black,shape = rectangle, color = black, tooltip=\" \",margin=0.1]\nrankdir=LR;\nNode_L0_0 [style=invisible]\n\nNode_L1_0[label=<<FONT POINT-SIZE=\"18\"><FONT COLOR=\"#DE2D26\"><B>Sex  </B></FONT></FONT>> shape=none margin=0]\nNode_L0_0 -> Node_L1_0 [style=invisible arrowhead=none]\n\nedge[style=solid]\nNode_1->Node_2 Node_1->Node_3\n\nNode_1[label=<46<BR/>> color=black style=\"rounded,filled\" fillcolor=<#EFF3FF>]\nNode_2[label=<F<BR/>27 (59%)<BR/>Mild: 11 (46%) mv=3<BR/>> color=black style=\"rounded,filled\" fillcolor=<#FEE0D2>  ]\nNode_1[label=<46<BR/>> color=black style=\"rounded,filled\" fillcolor=<#EFF3FF>]\nNode_3[label=<M<BR/>19 (41%)<BR/>Mild: 8 (50%) mv=3<BR/>> color=black style=\"rounded,filled\" fillcolor=<#DE2D26>  ]\n\n}\n", 
@@ -535,8 +541,8 @@ structure(list(x = list(diagram = "digraph vtree {\ngraph [nodesep=0.1, ranksep=
             figure = TRUE)), dependencies = NULL, elementId = NULL, 
     preRenderHook = NULL, jsHooks = list()), class = c("grViz", 
 "htmlwidget"), package = "DiagrammeR", info = list(.n = 46L, 
-    .pct = 100, Sex = list(F = list(.n = 27, .pct = 59), M = list(
-        .n = 19, .pct = 41)))))
+    .pct = 100, Sex = list(F = list(.n = 27, .pct = 59, .text = "\nMild: 11 (46%) mv=3\n"), 
+        M = list(.n = 19, .pct = 41, .text = "\nMild: 8 (50%) mv=3\n")))))
   
 })
 
