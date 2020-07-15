@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 4.6.4"
+title: "Introduction to vtree 4.6.5"
 subtitle: "*Exploring subsets of data using variable trees*"
 author: '`r paste("Nick Barrowman",strftime(Sys.time(),format="%d-%b-%Y"))`'
 output:
@@ -30,8 +30,8 @@ spaces <- function (n) {
 # Introduction
 
 vtree is a flexible tool for calculating and displaying *variable trees* &mdash;
-diagrams that display information about nested subsets of a data frame,
-which can be used to:
+diagrams that display information about nested subsets of a data frame.
+vtree can be used to:
 
 1. explore a data set interactively
 
@@ -40,10 +40,10 @@ which can be used to:
 * Note, however, that vtree is *not* designed to build or display decision trees.
 
 Given a data frame and simple specifications,
-vtree produces variable trees and automatically labels them with counts,
+vtree will produce a variable tree and automatically labels it with counts,
 percentages, and other summaries.
 
-The sections that follow introduce variable trees and provide an
+The sections below introduce variable trees and provide an
 overview of the features of vtree.
 Or you can [skip ahead and start using the `vtree` function](#vtreeFunction).
 
@@ -79,7 +79,7 @@ Even in simple situations like this,
 it can be a chore to keep track of nested subsets and
 calculate the corresponding percentages.
 The denominator used to calculate percentages may also depend
-on whether the variables have any missing values, as discussed below.
+on whether the variables have any missing values, as discussed later.
 Finally, as the number of variables increases,
 the magnitude of the task balloons,
 because the number of nested subsets grows exponentially.
@@ -102,8 +102,8 @@ vtree(FakeRCT,"eligible randomized group followup",plain=TRUE,
 
 Both the structure of this variable tree
 and the numbers shown were automatically determined.
-In comparison, when manual calculation and transcription are used to
-populate this sort of diagram, mistakes are likely.
+When manual calculation and transcription are instead used to
+populate diagrams like this, mistakes are likely.
 And although the errors that make it into published articles are often minor,
 they can sometimes be disastrous.
 One motivation for developing vtree was to make flow diagrams
@@ -130,7 +130,7 @@ nested within subsets defined by disease `Severity`
 A variable tree consists of *nodes* connected by arrows.
 At the top of the diagram above, the *root* node of the tree contains all 46 patients.
 The rest of the nodes are arranged in successive levels,
-where each level corresponds to a variable.
+where each level corresponds to a specific variable.
 Note that this highlights one difference between variable trees
 and some other kinds of trees:
 each level of a variable tree corresponds to just one variable.
@@ -158,7 +158,7 @@ Like any node, a missing-value node can have children.
 For example, of the 6 patients for whom `Severity` is missing, 3 are female and 3 are male.
 By default, `vtree` displays the full missing-value structure of the specified variables.
 
-Also by default, `vtree` automatically assigns a color palette to each variable.
+Also by default, `vtree` automatically assigns a color palette to the nodes of each variable.
 `Severity` has been assigned red hues (lightest for Mild, darkest for Severe),
 while `Sex` has been assigned blue hues (light blue for females, dark blue for males).
 The node representing missing values of `Severity` is colored white to draw attention to it.
@@ -278,13 +278,13 @@ vtree(df,"v1 v2")
 Alternatively, you may wish to assign the output of `vtree` to an object:
 
 ```{r, eval=FALSE}
-v1 <- vtree(df,"v1 v2")
+simple_tree <- vtree(df,"v1 v2")
 ```
 
 Then it can be displayed later using:
 
 ```{r, eval=FALSE}
-v1
+simple_tree
 ```
 
 Suppose `vtree` is called without a list of variables:
@@ -319,7 +319,7 @@ vtree(FakeData,"Severity")
 `r vtree(FakeData,"Severity",width=250,height=250,pxwidth=300,imageheight="2.5in")`
 
 By default, next to each level of the tree, a variable name is shown.
-In this case, "Severity" is shown below the corresponding nodes.
+In the example above, "Severity" is shown below the corresponding nodes.
 (For a vertical tree, "Severity" would be shown to the left of the nodes.)
 If you specify `showvarnames=FALSE`, no variable names will be shown.
 
@@ -439,7 +439,7 @@ vtree(FakeData,"Severity Sex")
 ```
 
 `r spaces(40)`
-`r vtree(FakeData,"Severity Sex", pxwidth=1000,imageheight="3.5in")`
+`r vtree(FakeData,"Severity Sex", pxwidth=800,imageheight="4.2in")`
 
 Suppose you don't want the tree to show branches for
 individuals whose disease is Mild or Moderate.
@@ -485,14 +485,14 @@ vtree(FakeData,"Severity Sex",keep=list(Severity="Moderate"))
 `r vtree(FakeData,"Severity Sex",keep=list(Severity="Moderate"),
    pxwidth=500,imageheight="1.7in")`
 
-Note that in addition to the Moderate node,
+**Note**: In addition to the Moderate node,
 the missing value node has also been retained.
 In general, whenever valid percentages are used (which is the default),
-missing value nodes are always retained.
+missing value nodes are retained when `keep` is used.
 This is because valid percentages are difficult to interpret without
 knowing the denominator, which requires knowing the number of missing values.
 
-To compare, here's what happens when `vp=FALSE`:
+On the other hand, here's what happens when `vp=FALSE`:
 
 ```{r,eval=FALSE}
 vtree(FakeData,"Severity Sex",keep=list(Severity="Moderate"),vp=FALSE)
@@ -509,8 +509,8 @@ vtree(FakeData,"Severity Sex",keep=list(Severity="Moderate"),vp=FALSE)
 As seen above, a disadvantage of pruning is that in the resulting tree,
 the counts shown in child nodes may not add up to the counts shown in their parent node.
 
-A solution to this problem is to retain the specified nodes,
-but to prune *below* them (i.e. to prune their descendants).
+An alternative is to prune *below* the specified nodes
+(i.e. to prune their descendants), so that the counts always add up.
 In the present example, this means that the Mild and Moderate nodes will be shown,
 but not their descendants.
 The `prunebelow` parameter is used to do this: 
@@ -561,7 +561,8 @@ when valid percentages are used (`vp=TRUE`, which is the default),
 nodes represent missing values will not be pruned.
 (As noted previously,
 this is because percentages are confusing when missing values are not shown.)
-When `vp=FALSE`, missing nodes will be pruned (if they are small enough).
+On the other hand,
+when `vp=FALSE`, missing nodes will be pruned (if they are small enough).
 
 
 ## Labels for variables and nodes {#labeling}
@@ -740,7 +741,7 @@ vtree(FakeData,"Group Severity",horiz=FALSE,showvarnames=FALSE,
 
 ## Specification of variables {#VariableSpecification}
 
-*This section shows how to alter variables for use in a variable tree.* 
+*This section shows how to control how variables appear in a variable tree.* 
  
 For convenience,
 you can specify variable names (separated by whitespace) in a single character string.
@@ -877,7 +878,7 @@ This can be useful for identifying subsets with extreme values.
 
 *This section shows how to display information about other variables in the nodes.*
 
-It is often useful to display information about other variables
+It is often useful to display information about *other* variables
 (apart from those that define the tree) in the nodes of a variable tree.
 This is particularly useful for numeric variables,
 which usually would not be used to build the tree since they have too many distinct values.
@@ -900,17 +901,10 @@ vtree(FakeData,summary="Score")
   
 When the name of a numeric variable (in this case `"Score"`) is specified
 as the argument of the `summary` parameter,
-a default set of summary statistics is shown:
-
-* the variable name
-
-* the number of missing values
-
-* the mean and standard deviation
-
-* the median and interquartile range (IQR)
-
-* the range
+a default set of summary statistics (as shown above) appears: 
+the variable name, the number of missing values,
+the mean and standard deviation, the median and interquartile range (IQR),
+and the range.
 
 (Note, however, that if there are three or fewer observations,
 instead of showing the above summary statistics,
@@ -929,7 +923,7 @@ vtree(FakeData,"Severity",summary="Score",horiz=FALSE)
 
 Sometimes it is helpful to extract summary information as text.
 For example, we might wish to access the summary information contained in the Mild node.
-This is explained [later on](#extracting), but here's how to do it:
+This is explained [later on](#extracting), but here's a brief example:
 
 ```{r}
 vSeverity <- vtree(FakeData,"Severity",summary="Score",horiz=FALSE)
@@ -1095,16 +1089,15 @@ mixed with text and formatting codes.
 ### The `%trunc%` code
 
 It is sometimes convenient to see individual values of a variable in each node.
-For example, you might want to see ID numbers.
+A good example is ID numbers.
 To do this, use the `%list%` code.
-By default this information will be displayed in each node.
 When a value occurs more than once in the subset,
 it will be followed by a count of the number of repetitions in parentheses.
 
 When there are many individual values,
 it is often convenient to truncate the output.
 If you specify `%trunc=`*N*`%`,
-summary information will be truncated after *N* characters with "...".
+summary information will be truncated after *N* characters, and followed by "...".
 
 
 ### R expressions in the summary argument
@@ -1128,7 +1121,8 @@ Expressions involving functions can also be used; for example `sqrt(abs(Post/Pre
 ### More than one variable
 
 Sometimes it is useful to display summary information for more than one variable.
-To do this, specify `summary` as a *vector* of character strings:
+To do this, specify `summary` as a *vector* of character strings.
+For example:
 
 ```{r,eval=FALSE}
 vtree(FakeData,"Severity",horiz=FALSE,showvarnames=FALSE,splitwidth=Inf,sameline=TRUE,
@@ -1148,14 +1142,15 @@ vtree(FakeData,"Severity",horiz=FALSE,showvarnames=FALSE,splitwidth=Inf,sameline
 
 Each node in a variable tree provides the frequency of a particular combination
 of values of the variables.
-The leaf nodes represent *all* the observed combinations of values of all of the variables.
+The leaf nodes represent the observed combinations of values of *all* of the variables.
 For example, in a variable tree for `Severity` and `Sex`,
 the leaf nodes correspond to Mild F, Mild M, Moderate F, Moderate M, etc.
 These combinations, or "patterns", can be treated as an additional variable.
 And if this new pattern variable is used as the first variable in a tree,
 then the branches of the tree will be simplified:
 each branch will represent a unique pattern, with no sub-branches.
-A "pattern tree" can be easily produced by specifying `pattern=TRUE`:
+A "pattern tree" can be easily produced by specifying `pattern=TRUE`.
+For example:
 
 ```{r, eval=FALSE}
 vtree(FakeData,"Severity Sex")
@@ -1200,7 +1195,7 @@ Summaries can be shown in pattern trees
 ### Pattern tables
 
 A pattern tree has the same structure as a table.
-Indeed, it may be more convenient to produce a table rather than a tree.
+Indeed, it may be more convenient to produce a table rather than a pattern tree.
 A data frame containing the information from the pattern tree 
 can be exported by specifying `ptable=TRUE`:
 
@@ -1588,14 +1583,14 @@ it displays the variable tree in a browser window.
 
 ## Calling vtree from R Markdown {#embeddingInRmarkdown}
 
-`vtree` has a number of special features when called from R Markdown
 By default, when `vtree` is called from R Markdown,
 it generates a PNG image file.
 
 Here's how it does that. `vtree` uses the `DiagrammeR` package,
 which automatically generates an `htmlwidget` object for display in HTML,
 using the [htmlwidgets](https://www.htmlwidgets.org/) framework.
-Then `vtree` converts the `htmlwidget` object into a PNG file. 
+Then `vtree` converts the `htmlwidget` object into an SVG image,
+and finally into a PNG file. 
  
 ### Generating PNG files
 
@@ -1650,7 +1645,6 @@ One advantage of code chunks is that they can also be run interactively
 
 When knitting to an HTML document, 
 htmlwidgets can be used rather than embedding a PNG file.
-(In fact PNG files are generated from `htmlwidget` objects via SVG format.)
 To use htmlwidgets instead of a PNG file simply specify `pngknit=FALSE`.
 
  
