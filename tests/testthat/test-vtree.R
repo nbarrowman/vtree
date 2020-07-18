@@ -191,10 +191,11 @@ test_that("pruning",{
             figure = TRUE)), dependencies = NULL, elementId = NULL, 
     preRenderHook = NULL, jsHooks = list()), class = c("grViz", 
 "htmlwidget"), package = "DiagrammeR", info = list(.n = 46L, 
-    .pct = 100, Severity = list(Severe = list(.n = 19, .pct = 48, 
+    .pct = 100, Severity = list(Severe = list(.n = 5, .pct = 12, 
         Sex = list(F = list(.n = 2, .pct = 40), M = list(.n = 3, 
-            .pct = 60))), `NA` = list(.n = 16, .pct = 40, Sex = list(
-        F = list(.n = 3, .pct = 50), M = list(.n = 3, .pct = 50)))))))
+            .pct = 60))), `NA` = list(.n = 6, .pct = NA_real_, 
+        Sex = list(F = list(.n = 3, .pct = 50), M = list(.n = 3, 
+            .pct = 50)))))))
   
   expect_identical(vtree(FakeData,"Severity Sex",prunebelow=list(Severity=c("Mild","Moderate"))),
     structure(list(x = list(diagram = "digraph vtree {\ngraph [nodesep=0.1, ranksep=0.5, tooltip=\" \"]\nnode [fontname = Helvetica, fontcolor = black,shape = rectangle, color = black, tooltip=\" \",margin=0.1]\nrankdir=LR;\nNode_L0_0 [style=invisible]\n\nNode_L1_0[label=<<FONT POINT-SIZE=\"18\"><FONT COLOR=\"#DE2D26\"><B>Severity  </B></FONT></FONT>> shape=none margin=0]\nNode_L0_0 -> Node_L1_0 [style=invisible arrowhead=none]\n\nNode_L2_0[label=<<FONT POINT-SIZE=\"18\"><FONT COLOR=\"#3182BD\"><B>Sex  </B></FONT></FONT>> shape=none margin=0]\nNode_L1_0 -> Node_L2_0 [style=invisible arrowhead=none]\n\nedge[style=solid]\nNode_1->Node_2 Node_1->Node_3 Node_1->Node_4 Node_1->Node_5\nNode_4->Node_6 Node_4->Node_7\nNode_5->Node_8 Node_5->Node_9\n\nNode_1[label=<46> color=black style=\"rounded,filled\" fillcolor=<#EFF3FF>]\nNode_2[label=<Mild<BR/>19 (48%)> color=black style=\"rounded,filled\" fillcolor=<#FEE0D2>  ]\nNode_1[label=<46> color=black style=\"rounded,filled\" fillcolor=<#EFF3FF>]\nNode_3[label=<Moderate<BR/>16 (40%)> color=black style=\"rounded,filled\" fillcolor=<#FC9272>  ]\nNode_1[label=<46> color=black style=\"rounded,filled\" fillcolor=<#EFF3FF>]\nNode_4[label=<Severe<BR/>5 (12%)> color=black style=\"rounded,filled\" fillcolor=<#DE2D26>  ]\nNode_1[label=<46> color=black style=\"rounded,filled\" fillcolor=<#EFF3FF>]\nNode_5[label=<NA<BR/>6> color=black style=\"rounded,filled\" fillcolor=<white>  ]\nNode_6[label=<F<BR/>2 (40%)> color=black style=\"rounded,filled\" fillcolor=<#DEEBF7>  ]\nNode_7[label=<M<BR/>3 (60%)> color=black style=\"rounded,filled\" fillcolor=<#3182BD>  ]\nNode_8[label=<F<BR/>3 (50%)> color=black style=\"rounded,filled\" fillcolor=<#DEEBF7>  ]\nNode_9[label=<M<BR/>3 (50%)> color=black style=\"rounded,filled\" fillcolor=<#3182BD>  ]\n\n}\n", 
@@ -259,9 +260,9 @@ structure(list(x = list(diagram = "digraph vtree {\ngraph [nodesep=0.1, ranksep=
             figure = TRUE)), dependencies = NULL, elementId = NULL, 
     preRenderHook = NULL, jsHooks = list()), class = c("grViz", 
 "htmlwidget"), package = "DiagrammeR", info = list(.n = 6L, .pct = 100, 
-    Group = list(B = list(.n = 2, .pct = 33, Severity = list(
+    Group = list(B = list(.n = 4, .pct = 67, Severity = list(
         `NA` = list(.n = 0, .pct = NaN, Sex = list(F = list(.n = 2, 
-            .pct = 50), M = list(.n = 2, .pct = 50)))))))))   
+            .pct = 50), M = list(.n = 2, .pct = 50))))))))) 
 })
 
 
@@ -442,7 +443,7 @@ structure(list(x = list(diagram = "digraph vtree {\ngraph [nodesep=0.46, ranksep
     preRenderHook = NULL, jsHooks = list()), class = c("grViz", 
 "htmlwidget"), package = "DiagrammeR", info = list(.n = 12L, 
     .pct = 100, eligible = list(Eligible = list(.n = 8, .pct = 67, 
-        randomized = list(Randomized = list(.n = 1, .pct = 12, 
+        randomized = list(Randomized = list(.n = 7, .pct = 88, 
             group = list(A = list(.n = 4, .pct = 57, followup = list(
                 `Followed up` = list(.n = 3, .pct = 75, analyzed = list(
                   Analyzed = list(.n = 3, .pct = 100))))), B = list(

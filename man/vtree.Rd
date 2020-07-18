@@ -58,6 +58,7 @@ vtree(
   digits = 0,
   cdigits = 1,
   splitwidth = 20,
+  vsplitwidth = 15,
   lsplitwidth = 15,
   getscript = FALSE,
   nodesep = 0.5,
@@ -297,7 +298,10 @@ A logical vector of \code{FALSE} for named variables is interpreted as
 \item{splitwidth}{The minimum number of characters before an automatic
 linebreak is inserted.}
 
-\item{lsplitwidth}{In legends, the minimum number of characters before an automatic
+\item{vsplitwidth}{In variable names, the minimum number of characters before an automatic
+linebreak is inserted.}
+
+\item{lsplitwidth}{(Deprecated) In legends, the minimum number of characters before an automatic
 linebreak is inserted.}
 
 \item{getscript}{Instead of displaying the variable tree,

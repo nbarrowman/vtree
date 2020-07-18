@@ -113,6 +113,8 @@ vp=TRUE,rounded=FALSE,just="c",showroot=TRUE,verbose=FALSE,sortfill=FALSE) {
       }  
       categoryCounts <- c(categoryCounts[1],categoryCounts[-1][!matching])
       npctString <- c(npctString[1],npctString[-1][!matching])
+      pctString <- c(pctString[1],pctString[-1][!matching])
+      nString <- c(nString[1],nString[-1][!matching])
     }
   }
 
@@ -137,8 +139,11 @@ vp=TRUE,rounded=FALSE,just="c",showroot=TRUE,verbose=FALSE,sortfill=FALSE) {
         matching <- match(newkeep,names(categoryCounts)[-1])
         matching <- matching[!is.na(matching)]        
       }
+      #browser()
       categoryCounts <- c(categoryCounts[1],categoryCounts[-1][matching])
       npctString <- c(npctString[1],npctString[-1][matching])
+      pctString <- c(pctString[1],pctString[-1][matching])
+      nString <- c(nString[1],nString[-1][matching])
     }
   }
 
@@ -304,6 +309,7 @@ vp=TRUE,rounded=FALSE,just="c",showroot=TRUE,verbose=FALSE,sortfill=FALSE) {
       nodenames[-1],'[label=<',displayCAT[-1],npctString[-1],extraText[-1],'> color=',color,styleString,
       ' fillcolor=<',FILLCOLOR,'>',VARLABELLOC,' ',VARMINWIDTH,' ',VARMINHEIGHT,']'),collapse='\n')
   }
+  
   
   return(list(
     root=root,
