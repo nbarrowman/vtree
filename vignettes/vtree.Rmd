@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 4.6.5"
+title: "Introduction to vtree 4.6.6"
 subtitle: "*Exploring subsets of data using variable trees*"
 author: '`r paste("Nick Barrowman",strftime(Sys.time(),format="%d-%b-%Y"))`'
 output:

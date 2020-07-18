@@ -33,6 +33,8 @@ ending in _ to put on separate lines).
 * The old `stem:` and `rc:` variable specification and summary prefixes
 for REDCap checkbox variables are now deprecated.
 
+* The `lsplitwidth` parameter is now deprecated; `vsplitwidth` should be used instead.
+
 ## Bug fixes
 
 * Fixed issue with Shiny where vtree not visible immediately.

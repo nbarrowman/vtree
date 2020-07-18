@@ -154,8 +154,10 @@ NULL
 #' @param HTMLtext         Is the text formatted in HTML?
 #' @param splitwidth       The minimum number of characters before an automatic
 #'                         linebreak is inserted.
-#' @param lsplitwidth      In legends, the minimum number of characters before an automatic
+#' @param vsplitwidth      In variable names, the minimum number of characters before an automatic
 #'                         linebreak is inserted.
+#' @param lsplitwidth      (Deprecated) In legends, the minimum number of characters before an automatic
+#'                         linebreak is inserted.                        
 #' @param nodesep          Graphviz attribute: Node separation amount.
 #' @param ranksep          Graphviz attribute: Rank separation amount.
 #' @param margin           Graphviz attribute: node margin.
@@ -459,7 +461,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
   legendpointsize = 14,
   HTMLtext = FALSE,
   digits = 0,cdigits=1,
-  splitwidth = 20, lsplitwidth=15,
+  splitwidth = 20, vsplitwidth=15,lsplitwidth=15,
   getscript = FALSE,
   nodesep = 0.5, ranksep = 0.5, margin=0.2, vp = TRUE,
   horiz = TRUE, summary = "", runsummary = NULL, retain=NULL,
@@ -520,6 +522,8 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
 
     argname <- sapply(as.list(substitute({z})[-1]), deparse)
 
+    if (!missing(lsplitwidth) & missing(vsplitwidth)) vsplitwidth=lsplitwidth
+    
     # Check some inputs
     if (!is.logical(splitspaces)) stop("splitspaces must be TRUE or FALSE")
     
@@ -2546,7 +2550,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
       }
 
       if (!HTMLtext) {
-        VARS <- splitlines(VARS,width=lsplitwidth,sp='\n',at = c(" ", ".", "-", "+", "_", "=", "/"))
+        VARS <- splitlines(VARS,width=vsplitwidth,sp='\n',at = c(" ", ".", "-", "+", "_", "=", "/"))
         VARS <- convertToHTML(VARS,just=just)
       }
 
@@ -2639,7 +2643,13 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
           displayCAT <- CAT
         } else {
           displayCAT <- convertToHTML(CAT,just=just)
-        }       
+        }
+        
+        if (HTMLtext) {
+          displayCAT <- splitlines(displayCAT,width=splitwidth,sp="<BR/>",at=" ")
+        } else {
+          displayCAT <- splitlines(displayCAT,width=splitwidth,sp="\n",at = c(" ", ".", "-", "+", "_", "=", "/"))
+        }      
         
         legendlabel <- paste0(displayCAT,", ",npctString)
         
