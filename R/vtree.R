@@ -2640,16 +2640,16 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
         FILLCOLOR <- fillcolor[[thisvarname]][seq_len(length(categoryCounts))]
 
         if (HTMLtext) {
-          displayCAT <- CAT
+          displayCAT <- splitlines(CAT,width=splitwidth,sp="<BR/>",at=" ")
         } else {
-          displayCAT <- convertToHTML(CAT,just=just)
-        }
+          displayCAT <- splitlines(CAT,width=splitwidth,sp="\n",at = c(" ", ".", "-", "+", "_", "=", "/"))
+        }      
         
         if (HTMLtext) {
-          displayCAT <- splitlines(displayCAT,width=splitwidth,sp="<BR/>",at=" ")
+          displayCAT <- displayCAT
         } else {
-          displayCAT <- splitlines(displayCAT,width=splitwidth,sp="\n",at = c(" ", ".", "-", "+", "_", "=", "/"))
-        }      
+          displayCAT <- convertToHTML(displayCAT,just=just)
+        }
         
         legendlabel <- paste0(displayCAT,", ",npctString)
         

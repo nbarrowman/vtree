@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 4.6.6"
+title: "Introduction to vtree 4.6.7"
 subtitle: "*Exploring subsets of data using variable trees*"
 author: '`r paste("Nick Barrowman",strftime(Sys.time(),format="%d-%b-%Y"))`'
 output:
@@ -411,10 +411,23 @@ This can be adjusted, for example, to 15 characters,
 by specifying `splitwidth=15`.
 To disable line splitting, specify `splitwidth=Inf`
 (`Inf` means infinity, i.e. "do not split".)
-The `lsplitwidth` parameter is used to control text wrapping in the legend.
-Also note that in the legend,
-text wrapping can take place not only at spaces,
-but also at any of the following characters: . - + _ = /
+
+The `vsplitwidth` parameter is similarly used to control text wrapping in variable names.
+This is helpful with long variable names,
+which may be truncated unless wrapping is used.
+In this case text wrapping occurs not only at spaces,
+but also at any of the following characters:
+
+```{eval=FALSE}
+. - + _ = / (
+```
+
+For example if `vsplitwidth=5`, a variable name like `First_Emergency_Visit`
+would be split into
+
+`r spaces(65)``First_`\
+`r spaces(65)``Emergency_`\
+`r spaces(65)``Visit`
 
 *This concludes the mini-tutorial. vtree has many more features, described in the following sections.*
 
