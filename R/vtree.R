@@ -84,6 +84,7 @@ NULL
 #' @param showvarnames     Show the name of the variable next to each level of the tree?
 #' @param showlevels       (Deprecated) Same as showvarnames.
 #' @param varnamepointsize Font size (in points) to use when displaying variable names.
+#' @param varnamebold      Show the variable name in bold?
 #' @param legendpointsize  Font size (in points) to use when displaying legend.
 #' @param prune            List of vectors that specifies nodes to prune.
 #'                         The name of each element of the
@@ -458,11 +459,12 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
   showvarnames = TRUE, showlevels = TRUE,
   showpct=TRUE, showlpct=TRUE,
   showcount=TRUE, showlegend=FALSE,
-  varnamepointsize = 18,
+  varnamepointsize = 24,
+  varnamebold=FALSE,
   legendpointsize = 14,
   HTMLtext = FALSE,
   digits = 0,cdigits=1,
-  splitwidth = 20, vsplitwidth=15,lsplitwidth=15,
+  splitwidth = 20, vsplitwidth=8,lsplitwidth=15,
   getscript = FALSE,
   nodesep = 0.5, ranksep = 0.5, margin=0.2, vp = TRUE,
   horiz = TRUE, summary = "", runsummary = NULL, retain=NULL,
@@ -2555,7 +2557,11 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
       }
 
       if (colorvarlabels) {
-        colored_VARS <- paste0('<FONT COLOR="',varlabelcolors,'">',"<B>",VARS,'  </B>','</FONT>')
+        if (varnamebold) {
+          colored_VARS <- paste0('<FONT COLOR="',varlabelcolors,'">',"<B>",VARS,'  </B>','</FONT>')
+        } else {
+          colored_VARS <- paste0('<FONT COLOR="',varlabelcolors,'">',VARS,'</FONT>')
+        }
       } else {
         colored_VARS <- VARS
       }
