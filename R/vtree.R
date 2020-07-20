@@ -19,7 +19,8 @@
 #' 
 #' @seealso 
 #' \itemize{
-#'   \item GitHub page: \url{https://github.com/nbarrowman/vtree}
+#'   \item \url{https://nbarrowman.github.io/vtree}
+#'   \item \url{https://github.com/nbarrowman/vtree}
 #'   \item Report bugs at \url{https://github.com/nbarrowman/vtree/issues}
 #' }
 #' 
@@ -2375,7 +2376,6 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
     }
     children <- list()
     for (i in seq_len(length(fc$value))) {
-      #browser()
       if (fc$extraText[i]!="") {
         children[[fc$value[i]]] <- list(.n=fc$n[i],.pct=fc$pct[i],.text=fc$extraText[i])
       } else  {
