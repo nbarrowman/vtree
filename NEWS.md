@@ -1,6 +1,8 @@
-# vtree 4.6.2
+# vtree 5.0.0
 
 ## Changes
+
+* Changed how variable labels are shown: no longer boldface, and also larger (24 point instead of 18 point). (The metrics for boldface font seemed to be not quite right, which sometimes resulted in truncated text.)
 
 * New `sortfill` parameter. Specifying `sortfill=TRUE` fills nodes with gradient colors
 in sorted order according to the node count.
@@ -33,7 +35,9 @@ ending in _ to put on separate lines).
 * The old `stem:` and `rc:` variable specification and summary prefixes
 for REDCap checkbox variables are now deprecated.
 
-* The `lsplitwidth` parameter is now deprecated; `vsplitwidth` should be used instead.
+* The `lsplitwidth` parameter is now deprecated; `vsplitwidth` (for splitting variable names) should be used instead.
+
+* `splitwidth` now applies to legend nodes as well as ordinary nodes.
 
 ## Bug fixes
 
