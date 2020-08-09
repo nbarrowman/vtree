@@ -21,7 +21,8 @@ For a comprehensive introduction, type: \code{vignette("vtree")}
 }
 \seealso{
 \itemize{
-  \item GitHub page: \url{https://github.com/nbarrowman/vtree}
+  \item \url{https://nbarrowman.github.io/vtree}
+  \item \url{https://github.com/nbarrowman/vtree}
   \item Report bugs at \url{https://github.com/nbarrowman/vtree/issues}
 }
 }

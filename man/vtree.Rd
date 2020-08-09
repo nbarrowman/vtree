@@ -52,13 +52,14 @@ vtree(
   showlpct = TRUE,
   showcount = TRUE,
   showlegend = FALSE,
-  varnamepointsize = 18,
+  varnamepointsize = 24,
+  varnamebold = FALSE,
   legendpointsize = 14,
   HTMLtext = FALSE,
   digits = 0,
   cdigits = 1,
   splitwidth = 20,
-  vsplitwidth = 15,
+  vsplitwidth = 8,
   lsplitwidth = 15,
   getscript = FALSE,
   nodesep = 0.5,
@@ -286,6 +287,8 @@ A logical vector of \code{FALSE} for named variables is interpreted as
 \item{showlegend}{Show legend (including marginal frequencies) for each variable?}
 
 \item{varnamepointsize}{Font size (in points) to use when displaying variable names.}
+
+\item{varnamebold}{Show the variable name in bold?}
 
 \item{legendpointsize}{Font size (in points) to use when displaying legend.}
 

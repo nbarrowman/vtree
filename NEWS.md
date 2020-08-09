@@ -2,7 +2,9 @@
 
 ## Changes
 
-* Changed how variable labels are shown: no longer boldface, and also larger (24 point instead of 18 point). (The metrics for boldface font seemed to be not quite right, which sometimes resulted in truncated text.)
+* Variable labels are shown differently: no longer boldface, and also larger (24 point instead of 18 point). (The metrics for boldface font seemed to be not quite right, which sometimes resulted in truncated text.)
+
+* Revamped legends.
 
 * New `sortfill` parameter. Specifying `sortfill=TRUE` fills nodes with gradient colors
 in sorted order according to the node count.
@@ -25,8 +27,6 @@ ending in _ to put on separate lines).
 * New REDCap variable prefix `r:` and suffix `@`
 
 * When `vars` is not specified, only the root node is shown. (Previously vtree would try to use as many variables as possible.)
-
-* Revamped legends.
 
 * Added more informative error messages.
 
