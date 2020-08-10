@@ -1546,7 +1546,7 @@ If you wish to directly edit this code,
 it can can be pasted into an online Graphviz editor,
 for example:
 
-https://dreampuf.github.io/GraphvizOnline
+https://dreampuf.github.io/GraphvizOnline/
 
 http://magjac.com/graphviz-visual-editor/
 
