@@ -8,9 +8,7 @@ downloads](https://cranlogs.r-pkg.org/badges/grand-total/vtree)](https://cranlog
 
 *Variable trees are diagrams that display information about nested subsets of a data frame.*
 
-<img src="https://github.com/nbarrowman/vtree/blob/master/cheatsheets/png/v1.png" width="250">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/nbarrowman/vtree/blob/master/cheatsheets/png/t7.png" width="200">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/nbarrowman/vtree/blob/master/cheatsheets/png/t1.png" width="300">
-
-See installation details below.
+<img src="https://github.com/nbarrowman/vtree/blob/master/cheatsheets/png/v1.png" width="250">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/nbarrowman/vtree/blob/master/cheatsheets/png/t7.png" width="200">&nbsp;&nbsp;&nbsp;<img src="https://github.com/nbarrowman/vtree/blob/master/cheatsheets/png/t1.png" width="300">
 
 # Installation
 
@@ -38,7 +36,7 @@ remotes::install_github("nbarrowman/vtree@v5.0.0",build_vignettes=TRUE)
 
 * A comprehensive introduction to vtree is available in the [vignette](https://cran.r-project.org/web/packages/vtree/vignettes/vtree.html)
 
-* A [cheat sheet](https://nbarrowman.github.io/cheatsheets/vtree_cheatsheet_5.0.0.pdf) (pdf) is available: 
+* A [cheat sheet](https://nbarrowman.github.io/cheatsheets/vtree_cheatsheet_5.0.0.pdf) (pdf) is available
 
 * Examples: 
     * https://rpubs.com/nbarrowman/Data_exploration_with_vtree
