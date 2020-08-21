@@ -14,22 +14,22 @@ See installation details below.
 
 # Installation
 
-You can install the current version of vtree (version 4.0.0) from CRAN
+You can install the current version of vtree (version 5.0.0) from CRAN
 
 ```
 install.packages("vtree")
 ```
 
-Or install the latest release (v4.0.5) from github
+Or install the latest release (v5.0.0) from github
 
 ```
-remotes::install_github("nbarrowman/vtree@v4.0.5")
+remotes::install_github("nbarrowman/vtree@v5.0.0")
 ```
 
 To get the vignette as well you need to specify `build_vignettes=TRUE`:
 
 ```
-remotes::install_github("nbarrowman/vtree@v4.0.5",build_vignettes=TRUE)
+remotes::install_github("nbarrowman/vtree@v5.0.0",build_vignettes=TRUE)
 ```
 
 # More information
