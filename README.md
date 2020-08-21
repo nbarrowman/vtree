@@ -38,7 +38,7 @@ remotes::install_github("nbarrowman/vtree@v5.0.0",build_vignettes=TRUE)
 
 * A comprehensive introduction to vtree is available in the [vignette](https://cran.r-project.org/web/packages/vtree/vignettes/vtree.html)
 
-* A [cheat sheet](https://github.com/rstudio/cheatsheets/raw/master/vtree.pdf) (pdf) is available: 
+* A [cheat sheet](https://nbarrowman.github.io/cheatsheets/vtree_cheatsheet_5.0.0.pdf) (pdf) is available: 
 
 * Examples: 
     * https://rpubs.com/nbarrowman/Data_exploration_with_vtree
