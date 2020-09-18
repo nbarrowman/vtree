@@ -243,6 +243,10 @@ NULL
 #'                         \code{pxwidth} is automatically set to 2000 pixels.
 #' @param pxheight         Height in pixels of the PNG bitmap to be rendered
 #'                         when \code{vtree} is called from R Markdown.
+#' @param trim             (LaTeX Sweave only.) Crop the image using a feature
+#'                         of \code{\\includegraphics}.
+#'                         Vector of bp (big points) to trim in the order
+#'                         left, lower, right, upper.
 #' @param imagewidth       A character string specifying the width of the PNG image
 #'                         to be rendered when \code{vtree} is called from R Markdown,
 #'                         e.g. \code{"4in"}
@@ -476,7 +480,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
   nodefunc = NULL, nodeargs = NULL, 
   choicechecklist = TRUE,
   arrowhead="normal",
-  pxwidth,pxheight,imagewidth="",imageheight="",folder,
+  pxwidth,pxheight,imagewidth="",imageheight="",folder=NULL,trim=NULL,
   pngknit=TRUE,as.if.knit=FALSE,
   maxNodes=1000,
   unchecked=c("0","FALSE","No","no"),
@@ -2057,15 +2061,15 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
 
     singleColor <- FALSE
     # Single color specified
-    if (!missing(fillcolor) && (length(fillcolor)==1) && (is.null(names(fillcolor)))) {
+    if (!is.null(fillcolor) && (length(fillcolor)==1) && (is.null(names(fillcolor)))) {
       singleColor <- TRUE
       fillcolor <- rep(fillcolor,numvars)
       names(fillcolor) <- vars
-      if (missing(rootfillcolor)) rootfillcolor <- fillcolor
+      if (is.null(rootfillcolor)) rootfillcolor <- fillcolor
     }
 
     holdvarlabelcolors <- FALSE
-    if (missing(fillcolor)) {
+    if (is.null(fillcolor)) {
       varlabelcolors <- rep(unknowncolor,numvars)
     } else {
       varlabelcolors <- fillcolor
@@ -2080,7 +2084,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
           # Use the specified palette for all variables.
           palette <- rep(palette,numvars)
           names(palette) <- vars
-          if (missing(rootfillcolor)) rootfillcolor <- col[[1]][palette,1]
+          if (is.null(rootfillcolor)) rootfillcolor <- col[[1]][palette,1]
         }
       } else {
         if (length(vars)<=length(palette)) {
@@ -2134,13 +2138,13 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
           valuecolors <- rep(NAfillcolor,length(values))
         }
         if (Nnonmissing>0) {
-          if (missing(fillcolor) & (Nnonmissing>length(col) || (seq & (vars[i]=="sequence")) || (pattern & (vars[i]=="pattern")) || (row==0))) {
+          if (is.null(fillcolor) & (Nnonmissing>length(col) || (seq & (vars[i]=="sequence")) || (pattern & (vars[i]=="pattern")) || (row==0))) {
             # Too many values to permit distinct colors
             valuecolors[values!="NA"] <- col[[1]][row] # "grey90"
             names(valuecolors) <- values
             varlabelcolors[i] <- col[[1]][row] # "grey90"
           } else {
-            if (!missing(fillcolor) && (vars[i] %in% names(fillcolor))) {
+            if (!is.null(fillcolor) && (vars[i] %in% names(fillcolor))) {
               if (is.null(NAfillcolor)) {
                 valuecolors[TRUE] <- fillcolor[names(fillcolor)==vars[i]]
               } else {
@@ -2642,7 +2646,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
          '[',
          labels,
           ' shape=none margin=0]',collapse = '\n')
-          
+        
         FILLCOLOR <- fillcolor[[thisvarname]][seq_len(length(categoryCounts))]
 
         if (HTMLtext) {
@@ -2689,7 +2693,10 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
             "\n",
             nl,
             "\n}\n",
-            paste0("Node_L",i-1,"_0 -> Node_L",i,"_0 [style=invisible arrowhead=none]\n"))  
+            paste0("Node_L",i-1,"_0 -> Node_L",i,"_0 [style=invisible arrowhead=none]\n"))
+          if ((pattern | check.is.na) && i==1) {
+            nl <- "Node_L1_0[style=invisible arrowhead=none]\n"
+          }
         } else {
           link <- paste0("Node_L",i-1,"_0 -> Node_L",i,"_0 [style=invisible arrowhead=none]\n")
           if (i==1 & !showroot) link <- ""
@@ -2710,6 +2717,15 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
       NL <- ''
     }
     
+    if (is.null(getOption("vtree_count"))) {
+      options("vtree_count"=0)
+      if (is.null(folder)) {
+        options("vtree_folder"=tempdir())
+      } else {
+        options("vtree_folder"=folder)
+      }        
+    }    
+    
     if (ptable) {
       pt <- patternTable[nrow(patternTable):1,]
       rownames(pt) <- NULL
@@ -2722,19 +2738,35 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
         graphattr=graphattr,nodeattr=nodeattr,edgeattr=edgeattr)
       
       attributes(flowchart)$info <- tree
+      
+      #result <- paste(names(knitr::opts_knit$get()),knitr::opts_knit$get(),collapse="\n")
+      #output <- knitr::asis_output(result)
+      #attributes(output)$info <- tree
+      #return(output)          
+      
+      
+      # if (is.null(g)) {
+      #   return("NULL value")
+      # } else {
+      #   return(g)
+      # }
+      
+      #return(knitr::opts_knit$get())
 
+      #thing <- knitr::opts_knit$get('rmarkdown.pandoc.to')
+      
+      #result <- paste("\nTrying to get LaTeX output\n",
+      #  "\nthing =",thing,"\n",
+      #  "\nknitr::is_latex_output() =",knitr::is_latex_output(),"\n")
+      #output <- knitr::asis_output(result)
+      #attributes(output)$info <- tree
+      #return(output)             
+      
       if (getscript || !pngknit || (!isTRUE(getOption('knitr.in.progress')) && !as.if.knit)) {
         return(flowchart)
       }
       
-      if (is.null(getOption("vtree_count"))) {
-        options("vtree_count"=0)
-        if (missing(folder)) {
-          options("vtree_folder"=tempdir())
-        } else {
-          options("vtree_folder"=folder)
-        }        
-      }
+
       
       options("vtree_count"=getOption("vtree_count")+1)
 
@@ -2755,25 +2787,52 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
       }  
       
       fullpath <- file.path(folder=getOption("vtree_folder"),filename)
-    
-      embedded <- paste0("![](",fullpath,")")
-    
-      if (imageheight=="") {
-        if (imagewidth=="") {
-          result <- paste0(embedded,"{ height=3in }")
+      
+
+      fmt <- knitr::opts_knit$get("out.format")
+      if (!is.null(fmt) && fmt=="latex") {
+        stuff <- "\n\\includegraphics["
+        if (!is.null(trim)) {
+          stuff <- paste0(stuff,"trim=",paste(trim,collapse=" "),", clip,")
+        }    
+        if (imageheight=="") {
+          if (imagewidth=="") {
+            result <- paste0(stuff," width=5.5in")
+          } else {
+            result <- paste0(stuff," width=",imagewidth)
+          }
         } else {
-          result <- paste0(embedded,"{width=",imagewidth,"}")
+          if (imagewidth=="") {
+            result <- paste0(stuff," height=",imageheight) 
+          } else {
+            result <- paste0(stuff," width=",
+              imagewidth,", height=",imageheight)          
+          }
         }
+        result <- paste0(result,",keepaspectratio]{",
+          normalizePath(fullpath,"/"),"}\n")
+        
       } else {
-        if (imagewidth=="") {
-          result <- paste0(embedded,"{height=",imageheight,"}")
+    
+        embedded <- paste0("![](",fullpath,")")
+      
+        if (imageheight=="") {
+          if (imagewidth=="") {
+            result <- paste0(embedded,"{ height=3in }")
+          } else {
+            result <- paste0(embedded,"{width=",imagewidth,"}")
+          }
         } else {
-          result <- paste0(embedded,"{width=",imagewidth," height=",imageheight,"}")
+          if (imagewidth=="") {
+            result <- paste0(embedded,"{height=",imageheight,"}")
+          } else {
+            result <- paste0(embedded,"{width=",imagewidth," height=",imageheight,"}")
+          }
         }
       }
       output <- knitr::asis_output(result)
       attributes(output)$info <- tree
-      output
+      output        
     }
   } else {
       fc
