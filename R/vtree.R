@@ -480,7 +480,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
   nodefunc = NULL, nodeargs = NULL, 
   choicechecklist = TRUE,
   arrowhead="normal",
-  pxwidth,pxheight,imagewidth="",imageheight="",folder=NULL,trim=NULL,
+  pxwidth=NULL,pxheight=NULL,imagewidth="",imageheight="",folder=NULL,trim=NULL,
   pngknit=TRUE,as.if.knit=FALSE,
   maxNodes=1000,
   unchecked=c("0","FALSE","No","no"),
@@ -2772,14 +2772,14 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
 
       filename <- paste0("vtree",getOption("vtree_count"),".png")
       
-      if (missing(pxheight)) {
-        if (missing(pxwidth)) {
+      if (is.null(pxheight)) {
+        if (is.null(pxwidth)) {
           grVizToPNG(flowchart,width=2000,filename=filename,folder=getOption("vtree_folder"))
         } else {
           grVizToPNG(flowchart,width=pxwidth,filename=filename,folder=getOption("vtree_folder"))
         }
       } else {
-        if (missing(pxwidth)) {
+        if (is.null(pxwidth)) {
           grVizToPNG(flowchart,height=pxheight,filename=filename,folder=getOption("vtree_folder"))
         } else {
           grVizToPNG(flowchart,width=pxwidth,height=pxheight,filename=filename,folder=getOption("vtree_folder"))
