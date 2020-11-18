@@ -263,9 +263,11 @@ NULL
 #' @param checked          Vector of string values interpreted as "checked".
 #' @param just             Text justification ("l"=left, "c"=center, "r"=right).
 #' @param verbose          Report additional details?
+#' @param absolutePath     Use absolute path?
 #' @param folder           Optional path to a folder where the PNG file should stored
 #'                         when called during knit
 #' @param as.if.knit       Behave as if called while knitting?
+#' @param format           Image file format: png or pdf
 #' @param pngknit          Generate a PNG file when called during knit?
 #'
 #' @return
@@ -480,8 +482,9 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
   nodefunc = NULL, nodeargs = NULL, 
   choicechecklist = TRUE,
   arrowhead="normal",
-  pxwidth=NULL,pxheight=NULL,imagewidth="",imageheight="",folder=NULL,trim=NULL,
-  pngknit=TRUE,as.if.knit=FALSE,
+  pxwidth=NULL,pxheight=NULL,imagewidth="",imageheight="",
+  absolutePath=TRUE,folder=NULL,trim=NULL,
+  format="png",pngknit=TRUE,as.if.knit=FALSE,
   maxNodes=1000,
   unchecked=c("0","FALSE","No","no"),
   checked=c("1","TRUE","Yes","yes"),
@@ -2774,20 +2777,21 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
       
       if (is.null(pxheight)) {
         if (is.null(pxwidth)) {
-          grVizToPNG(flowchart,width=2000,filename=filename,folder=getOption("vtree_folder"))
+          fullpath <- grVizToPNG(flowchart,width=2000,
+            format=format,filename=filename,folder=getOption("vtree_folder"))
         } else {
-          grVizToPNG(flowchart,width=pxwidth,filename=filename,folder=getOption("vtree_folder"))
+          fullpath <- grVizToPNG(flowchart,width=pxwidth,
+            format=format,filename=filename,folder=getOption("vtree_folder"))
         }
       } else {
         if (is.null(pxwidth)) {
-          grVizToPNG(flowchart,height=pxheight,filename=filename,folder=getOption("vtree_folder"))
+          fullpath <- grVizToPNG(flowchart,height=pxheight,
+            format=format,filename=filename,folder=getOption("vtree_folder"))
         } else {
-          grVizToPNG(flowchart,width=pxwidth,height=pxheight,filename=filename,folder=getOption("vtree_folder"))
+          fullpath <- grVizToPNG(flowchart,width=pxwidth,height=pxheight,
+            format=format,filename=filename,folder=getOption("vtree_folder"))
         }
       }  
-      
-      fullpath <- file.path(folder=getOption("vtree_folder"),filename)
-      
 
       fmt <- knitr::opts_knit$get("out.format")
       if (!is.null(fmt) && fmt=="latex") {
@@ -2809,8 +2813,13 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
               imagewidth,", height=",imageheight)          
           }
         }
+        if (absolutePath) {
+          np <- normalizePath(fullpath,"/")
+        } else {
+          np <- fullpath
+        }
         result <- paste0(result,",keepaspectratio]{",
-          normalizePath(fullpath,"/"),"}\n")
+          np,"}\n")
         
       } else {
     

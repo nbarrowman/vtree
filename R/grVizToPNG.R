@@ -8,6 +8,7 @@
 #' @param g        an object produced by the \code{grViz} function from the DiagrammmeR package
 #' @param width    the width in pixels of the bitmap
 #' @param height   the height in pixels of the bitmap
+#' @param format   Graphics file format. Currently "png" and "pdf" are supported.
 #' @param folder   path to folder where the PNG file should stored
 #' @param filename an optional filename.
 #'                 If not provided, the filename will be derived from the name 
@@ -28,7 +29,7 @@
 #' @export
 #'
 
-grVizToPNG <- function (g, width=NULL, height=NULL, folder = ".",filename) {
+grVizToPNG <- function (g, width=NULL, height=NULL, format="png", folder = ".",filename) {
   if (!("htmlwidget" %in% class(g)))
     stop("Argument must be of class htmlwidget.")
     
@@ -42,6 +43,12 @@ grVizToPNG <- function (g, width=NULL, height=NULL, folder = ".",filename) {
   folder <- gsub("\\\\","/",folder)
   fullpath <- file.path(folder,filename)
   message <- utils::capture.output(svg <- format(DiagrammeRsvg::export_svg(g)))
-  result <- rsvg::rsvg_png(charToRaw(svg),fullpath, width = width, height=height)
+  if (format=="png") {
+    result <- rsvg::rsvg_png(charToRaw(svg),fullpath, width = width, height=height)
+  } else 
+  if (format=="pdf") {
+    fullpath <- gsub(".png$",".pdf",fullpath)
+    result <- rsvg::rsvg_pdf(charToRaw(svg),fullpath, width = width, height=height)
+  }
   invisible(fullpath)
 }

@@ -85,11 +85,12 @@ vtree(
   nodeargs = NULL,
   choicechecklist = TRUE,
   arrowhead = "normal",
-  pxwidth,
-  pxheight,
+  pxwidth = NULL,
+  pxheight = NULL,
   imagewidth = "",
   imageheight = "",
-  folder,
+  folder = NULL,
+  trim = NULL,
   pngknit = TRUE,
   as.if.knit = FALSE,
   maxNodes = 1000,
@@ -396,6 +397,11 @@ If neither \code{imageheight} nor \code{imagewidth} is specified,
 
 \item{folder}{Optional path to a folder where the PNG file should stored
 when called during knit}
+
+\item{trim}{(LaTeX Sweave only.) Crop the image using a feature
+of \code{\\includegraphics}.
+Vector of bp (big points) to trim in the order
+left, lower, right, upper.}
 
 \item{pngknit}{Generate a PNG file when called during knit?}
 
