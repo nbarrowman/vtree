@@ -4,144 +4,99 @@
 \alias{vtree}
 \title{Draw a variable tree}
 \usage{
-vtree(
-  z,
-  vars,
-  auto = FALSE,
-  splitspaces = TRUE,
-  prune = list(),
-  prunebelow = list(),
-  keep = list(),
-  follow = list(),
-  prunelone = NULL,
-  pruneNA = FALSE,
-  prunesmaller = NULL,
-  labelnode = list(),
-  tlabelnode = NULL,
-  labelvar = NULL,
-  varminwidth = NULL,
-  varminheight = NULL,
-  varlabelloc = NULL,
-  fillcolor = NULL,
-  fillnodes = TRUE,
-  NAfillcolor = "white",
-  rootfillcolor = "#EFF3FF",
-  palette = NULL,
-  gradient = TRUE,
-  revgradient = FALSE,
-  sortfill = FALSE,
-  singlecolor = 2,
-  colorvarlabels = TRUE,
-  title = "",
-  sameline = FALSE,
-  Venn = FALSE,
-  check.is.na = FALSE,
-  seq = FALSE,
-  pattern = FALSE,
-  ptable = FALSE,
-  showroot = TRUE,
-  text = list(),
-  ttext = list(),
-  plain = FALSE,
-  squeeze = 1,
-  showvarinnode = FALSE,
-  shownodelabels = TRUE,
-  showvarnames = TRUE,
-  showlevels = TRUE,
-  showpct = TRUE,
-  showlpct = TRUE,
-  showcount = TRUE,
-  showlegend = FALSE,
-  varnamepointsize = 24,
-  varnamebold = FALSE,
-  legendpointsize = 14,
-  HTMLtext = FALSE,
-  digits = 0,
-  cdigits = 1,
-  splitwidth = 20,
-  vsplitwidth = 8,
-  lsplitwidth = 15,
-  getscript = FALSE,
-  nodesep = 0.5,
-  ranksep = 0.5,
-  margin = 0.2,
-  vp = TRUE,
-  horiz = TRUE,
-  summary = "",
-  runsummary = NULL,
-  retain = NULL,
-  width = NULL,
-  height = NULL,
-  graphattr = "",
-  nodeattr = "",
-  edgeattr = "",
-  color = c("blue", "forestgreen", "red", "orange", "pink"),
-  colornodes = FALSE,
-  mincount = 1,
-  maxcount,
-  showempty = FALSE,
-  rounded = TRUE,
-  nodefunc = NULL,
-  nodeargs = NULL,
-  choicechecklist = TRUE,
-  arrowhead = "normal",
-  pxwidth = NULL,
-  pxheight = NULL,
-  imagewidth = "",
-  imageheight = "",
-  folder = NULL,
-  trim = NULL,
-  pngknit = TRUE,
-  as.if.knit = FALSE,
-  maxNodes = 1000,
-  unchecked = c("0", "FALSE", "No", "no"),
-  checked = c("1", "TRUE", "Yes", "yes"),
-  just = "c",
-  verbose = FALSE,
-  parent = 1,
-  last = 1,
-  root = TRUE,
-  subset = 1:nrow(z)
-)
+vtree(data, vars, horiz = TRUE, title = "", sameline = FALSE,
+  vp = TRUE, shownodelabels = TRUE, showvarnames = TRUE,
+  showpct = TRUE, showlpct = TRUE, showcount = TRUE,
+  showlegend = FALSE, showroot = TRUE, showvarinnode = FALSE,
+  prune = list(), keep = list(), prunebelow = list(), follow = list(),
+  prunesmaller = NULL, summary = "", labelvar = NULL,
+  labelnode = list(), tlabelnode = NULL, digits = 0, cdigits = 1,
+  fillcolor = NULL, fillnodes = TRUE, NAfillcolor = "white",
+  rootfillcolor = "#EFF3FF", palette = NULL, gradient = TRUE,
+  revgradient = FALSE, sortfill = FALSE, singlecolor = 2,
+  colorvarlabels = TRUE, color = c("blue", "forestgreen", "red", "orange",
+  "pink"), colornodes = FALSE, Venn = FALSE, check.is.na = FALSE,
+  seq = FALSE, pattern = FALSE, ptable = FALSE, text = list(),
+  ttext = list(), plain = FALSE, squeeze = 1, varminwidth = NULL,
+  varminheight = NULL, varlabelloc = NULL, varnamepointsize = 24,
+  varnamebold = FALSE, legendpointsize = 14, HTMLtext = FALSE,
+  splitwidth = 20, vsplitwidth = 8, splitspaces = TRUE,
+  getscript = FALSE, runsummary = NULL, retain = NULL, mincount = 1,
+  maxcount, showempty = FALSE, rounded = TRUE, choicechecklist = TRUE,
+  arrowhead = "normal", just = "c", absolutePath = TRUE, folder = NULL,
+  imageFileOnly = FALSE, format = "png", pngknit = TRUE,
+  pxwidth = NULL, pxheight = NULL, imagewidth = "", imageheight = "",
+  width = NULL, height = NULL, as.if.knit = FALSE, maxNodes = 1000,
+  unchecked = c("0", "FALSE", "No", "no"), checked = c("1", "TRUE", "Yes",
+  "yes"), trim = NULL, auto = FALSE, nodesep = 0.5, ranksep = 0.5,
+  margin = 0.2, graphattr = "", nodeattr = "", edgeattr = "",
+  nodefunc = NULL, nodeargs = NULL, verbose = FALSE, parent = 1,
+  last = 1, root = TRUE, subset = 1:nrow(z), prunelone = NULL,
+  pruneNA = FALSE, lsplitwidth = 15, showlevels = TRUE, z)
 }
 \arguments{
-\item{z}{Required: Data frame, or a single vector.}
+\item{data}{Required: Data frame, or a single vector.}
 
-\item{vars}{Required (unless \code{z} is a vector):
+\item{vars}{Required (unless \code{data} is a single vector):
 Either a character string of whitespace-separated variable names
 or a vector of variable names.}
 
-\item{auto}{Automatically choose variables? (\code{vars} should not be specified)}
+\item{horiz}{Should the tree be drawn horizontally?
+(i.e. root node on the left, with the tree growing to the right)}
 
-\item{splitspaces}{When \code{vars} is a character string,
-split it by spaces to get variable names?
-It is only rarely necessary to use this parameter.
-This should only be \code{FALSE} when a single variable name
-that contains spaces is specified.}
+\item{title}{Label for the root node of the tree.}
 
-\item{prune}{List of vectors that specifies nodes to prune.
-The name of each element of the
-list must be one of the variable names in \code{vars}.
-Each element is a vector of character strings that
-identifies the values of the variable (i.e. the nodes) to prune.}
+\item{sameline}{Display node label on the same line as the count and percentage?}
 
-\item{prunebelow}{Like \code{prune} but instead of pruning the specified nodes,
-their descendants are pruned.}
+\item{vp}{Use \emph{valid percentages}?
+Valid percentages are computed by first excluding any missing values,
+i.e. restricting attention to the set of "valid" observations.
+The denominator is thus the number of non-missing observations.
+When \code{vp=TRUE}, nodes for missing values show the number of missing values
+but do not show a percentage;
+all the other nodes show valid percentages.
+When \code{vp=FALSE}, all nodes (including nodes for missing values)
+show percentages of the total number of observations.}
 
-\item{keep}{Like \code{prune} but specifies which nodes to \emph{keep}.
-The other nodes will be pruned.}
+\item{shownodelabels}{Show node labels?
+A single value (with no names) specifies the setting for all variables.
+Otherwise, a named logical vector indicates which variables should have their
+node labels shown.
+If the vector consists of only \code{TRUE} values,
+it is interpreted as \code{TRUE} for those variables and \code{FALSE} for all others.
+Similarly, if the vector consists of only \code{FALSE} values, 
+it is interpreted as \code{FALSE} for those variables and \code{TRUE} for all others.}
 
-\item{follow}{Like \code{keep} but specifies which nodes to "follow",
-i.e. which nodes' \emph{descendants} to keep.}
+\item{showvarnames}{Show the name of the variable next to each level of the tree?}
 
-\item{prunelone}{(Deprecated) A vector of values specifying "lone nodes" (of \emph{any} variable) to prune.
-A lone node is a node that has no siblings (an "only child").}
+\item{showpct, showlpct}{Show percentage? \code{showpct} is for nodes, \code{showlpct} is for legends.
+A single value (with no names) specifies the setting for all variables.
+A logical vector of \code{TRUE} for named variables is interpreted as
+A logical vector of \code{FALSE} for named variables is interpreted as
+\code{FALSE} for those variables and TRUE for all others.}
 
-\item{pruneNA}{(Deprecated) Prune all missing values?
-This is problematic because "valid" percentages
-are hard to interpret when NAs are pruned.}
+\item{showcount}{Show count in each node?
+A single value (with no names) specifies the setting for all variables.
+A logical vector of \code{TRUE} for named variables is interpreted as
+A logical vector of \code{FALSE} for named variables is interpreted as
+\code{FALSE} for those variables and \code{TRUE} for all others.}
+
+\item{showlegend}{Show legend (including marginal frequencies) for each variable?}
+
+\item{showroot}{Show the root node?
+When \code{seq=TRUE}, it may be useful to set \code{showroot=FALSE}.}
+
+\item{showvarinnode}{Show the variable name in each node?}
+
+\item{prune, keep, prunebelow, follow}{List of named vectors that specify pruning.
+(see \strong{Pruning} below)}
 
 \item{prunesmaller}{Prune any nodes with count less than specified number.}
+
+\item{summary}{A character string used to specify summary statistics to display in the nodes.
+See \strong{Displaying summary information} below for details.}
+
+\item{labelvar}{A named vector of labels for variables.}
 
 \item{labelnode}{List of vectors used to change how values of variables are displayed.
 The name of each element of the
@@ -155,63 +110,53 @@ as well as a label for that node (a "targeted" label).
 The names of each vector specify variable names,
 except for an element named \code{label}, which specifies the label to use.}
 
-\item{labelvar}{A named vector of labels for variables.}
+\item{digits, cdigits}{Number of decimal digits to show in percentages (\code{digits})
+and in continuous values displayed via the summary parameter (\code{cdigits}).}
 
-\item{varminwidth}{A named vector of minimum initial widths for nodes of each variable.
-(Sets the Graphviz \code{width} attribute.)}
-
-\item{varminheight}{A named vector of minimum initial heights for nodes of each variable.
-(Sets the Graphviz \code{height} attribute.)}
-
-\item{varlabelloc}{A named vector of vertical label locations
-("t", "c", or "b" for top, center, or bottom, respectively)
-for nodes of each variable.
-(Sets the Graphviz \code{labelloc} attribute.)}
-
-\item{fillcolor}{A named vector of colors for filling the nodes of each variable.
+\item{fillcolor}{[Color] A named vector of colors for filling the nodes of each variable.
 If an unnamed, scalar color is specified,
 all nodes will have this color.}
 
-\item{fillnodes}{Fill the nodes with color?}
+\item{fillnodes}{[Color] Fill the nodes with color?}
 
-\item{NAfillcolor}{Fill-color for missing-value nodes.
+\item{NAfillcolor}{[Color] Fill-color for missing-value nodes.
 If \code{NULL}, fill colors of missing value nodes will be consistent
 with the fill colors in the rest of the tree.}
 
-\item{rootfillcolor}{Fill-color for the root node.}
+\item{rootfillcolor}{[Color] Fill-color for the root node.}
 
-\item{palette}{A vector of palette numbers (which can range between 1 and 14).
+\item{palette}{[Color] A vector of palette numbers (which can range between 1 and 14).
 The names of the vector indicate the corresponding variable.
 See \strong{Palettes} below for more information.}
 
-\item{gradient}{Use gradients of fill color across the values of each variable?
+\item{gradient}{[Color] Use gradients of fill color across the values of each variable?
 A single value (with no names) specifies the setting for all variables.
 A logical vector of \code{TRUE} values for named variables is interpreted as
 \code{TRUE} for those variables and \code{FALSE} for all others.
 A logical vector of \code{FALSE} values for named variables is interpreted as
 \code{FALSE} for those variables and \code{TRUE} for all others.}
 
-\item{revgradient}{Should the gradient be reversed (i.e. dark to light instead of light to dark)?
+\item{revgradient}{[Color] Should the gradient be reversed (i.e. dark to light instead of light to dark)?
 A single value (with no names) specifies the setting for all variables.
 A logical vector of \code{TRUE} values for named variables is interpreted as
 A logical vector of \code{FALSE} values for named variables is interpreted as
 \code{FALSE} for those variables and \code{TRUE} for all others.}
 
-\item{sortfill}{Sort colors in order of node count?
+\item{sortfill}{[Color] Sort colors in order of node count?
 When a \code{gradient} fill is used, this results in
 the nodes with the smallest counts having the lightest shades
 and the nodes with the largest counts having the darkest shades.}
 
-\item{singlecolor}{When a variable has a single value,
+\item{singlecolor}{[Color] When a variable has a single value,
 this parameter is used to specify whether nodes should have a
 (1) light shade, (2) a medium shade, or (3) a dark shade.
 specify \code{singlecolor=1} to assign a light shade.}
 
-\item{colorvarlabels}{Color the variable labels?}
+\item{colorvarlabels}{[Color] Color the variable labels?}
 
-\item{title}{Optional title for the root node of the tree.}
+\item{color}{[Color] A vector of color names for the \emph{outline} of the nodes at each level.}
 
-\item{sameline}{Display node labels on the same line as the count and percentage?}
+\item{colornodes}{[Color] Color the node outlines?}
 
 \item{Venn}{Display multi-way set membership information?
 This provides an alternative to a Venn diagram.
@@ -221,18 +166,15 @@ Assumption: all of the specified variables are logicals or 0/1 numeric variables
 \item{check.is.na}{Replace each variable named in \code{vars} with a logical vector indicating
 whether or not each of its values is missing?}
 
-\item{seq}{Display the variable tree using "sequences"?
+\item{seq}{Display the variable tree using \emph{sequences}?
 Each unique sequence (i.e. pattern) of values will be shown separately.
 The sequences are sorted from least frequent to most frequent.}
 
 \item{pattern}{Same as \code{seq}, but lines without arrows are drawn,
-and instead of a \code{sequence} variable, a \code{pattern} variable is shown.}
+and instead of a sequence variable, a pattern variable is shown.}
 
 \item{ptable}{Generate a pattern table instead of a variable tree? 
 Only applies when \code{pattern=TRUE}.}
-
-\item{showroot}{Show the root node?
-When \code{seq=TRUE}, it may be useful to set \code{showroot=FALSE}.}
 
 \item{text}{A list of vectors containing extra text to add to
 nodes corresponding to specified values of a specified variable.
@@ -248,7 +190,7 @@ as well as text to add to that node ("targeted" text).
 The names of each vector specify variable names,
 except for an element named \code{text}, which specifies the text to add.}
 
-\item{plain}{Use "plain" settings?
+\item{plain}{[Color] Use "plain" settings?
 These settings are as follows: for each variable all nodes are the same color,
 namely a shade of blue (with each successive variable using a darker shade);
 all variable labels are black; and the \code{squeeze} parameter is set to 0.6.}
@@ -256,36 +198,14 @@ all variable labels are black; and the \code{squeeze} parameter is set to 0.6.}
 \item{squeeze}{The degree (between 0 and 1) to which the tree will be "squeezed".
 This controls two Graphviz parameters: \code{margin} and \code{nodesep}.}
 
-\item{showvarinnode}{Show the variable name in each node?}
+\item{varminwidth, varminheight}{Named vector of minimum initial widths or heights for nodes of each variable.
+\code{varminwidth} sets the Graphviz \code{width} attribute.
+\code{varminheight} sets the Graphviz \code{height} attribute.}
 
-\item{shownodelabels}{Show node labels?
-A single value (with no names) specifies the setting for all variables.
-Otherwise, a named logical vector indicates which variables should have their
-node labels shown.
-If the vector consists of only \code{TRUE} values,
-it is interpreted as \code{TRUE} for those variables and \code{FALSE} for all others.
-Similarly, if the vector consists of only \code{FALSE} values, 
-it is interpreted as \code{FALSE} for those variables and \code{TRUE} for all others.}
-
-\item{showvarnames}{Show the name of the variable next to each level of the tree?}
-
-\item{showlevels}{(Deprecated) Same as showvarnames.}
-
-\item{showpct}{Show percentage in each node?
-A single value (with no names) specifies the setting for all variables.
-A logical vector of \code{TRUE} for named variables is interpreted as
-A logical vector of \code{FALSE} for named variables is interpreted as
-\code{FALSE} for those variables and TRUE for all others.}
-
-\item{showlpct}{Show percentages (for the marginal frequencies) in the legend?}
-
-\item{showcount}{Show count in each node?
-A single value (with no names) specifies the setting for all variables.
-A logical vector of \code{TRUE} for named variables is interpreted as
-A logical vector of \code{FALSE} for named variables is interpreted as
-\code{FALSE} for those variables and \code{TRUE} for all others.}
-
-\item{showlegend}{Show legend (including marginal frequencies) for each variable?}
+\item{varlabelloc}{A named vector of vertical label locations
+("t", "c", or "b" for top, center, or bottom, respectively)
+for nodes of each variable.
+(Sets the Graphviz \code{labelloc} attribute.)}
 
 \item{varnamepointsize}{Font size (in points) to use when displaying variable names.}
 
@@ -295,43 +215,18 @@ A logical vector of \code{FALSE} for named variables is interpreted as
 
 \item{HTMLtext}{Is the text formatted in HTML?}
 
-\item{digits}{Number of decimal digits to show in percentages.}
+\item{splitwidth, vsplitwidth}{The minimum number of characters before an automatic
+linebreak is inserted.
+\code{splitwidth} is for node labels, \code{vsplitwidth} is for variable names.}
 
-\item{cdigits}{Number of decimal digits to show in continuous values displayed via the summary parameter.}
-
-\item{splitwidth}{The minimum number of characters before an automatic
-linebreak is inserted.}
-
-\item{vsplitwidth}{In variable names, the minimum number of characters before an automatic
-linebreak is inserted.}
-
-\item{lsplitwidth}{(Deprecated) In legends, the minimum number of characters before an automatic
-linebreak is inserted.}
+\item{splitspaces}{When \code{vars} is a character string,
+split it by spaces to get variable names?
+It is only rarely necessary to use this parameter.
+This should only be \code{FALSE} when a single variable name
+that contains spaces is specified.}
 
 \item{getscript}{Instead of displaying the variable tree,
 return the DOT script as a character string?}
-
-\item{nodesep}{Graphviz attribute: Node separation amount.}
-
-\item{ranksep}{Graphviz attribute: Rank separation amount.}
-
-\item{margin}{Graphviz attribute: node margin.}
-
-\item{vp}{Use "valid percentages"?
-Valid percentages are computed by first excluding any missing values,
-i.e. restricting attention to the set of "valid" observations.
-The denominator is thus the number of non-missing observations.
-When \code{vp=TRUE}, nodes for missing values show the number of missing values
-but do not show a percentage;
-all the other nodes how valid percentages.
-When \code{vp=FALSE}, all nodes (including nodes for missing values)
-show percentages of the total number of observations.}
-
-\item{horiz}{Should the tree be drawn horizontally?
-(i.e. parent node on the left, with the tree growing to the right)}
-
-\item{summary}{A character string used to specify summary statistics to display in the nodes.
-See \strong{Displaying summary information} below for details.}
 
 \item{runsummary}{A list of functions, with the same length as \code{summary}.
 Each function must take a data frame as its sole argument,
@@ -343,33 +238,12 @@ the corresponding string in \code{summary} will be evaluated.}
 \item{retain}{Vector of names of additional variables in the data frame that need to be
 available to execute the functions in \code{runsummary}.}
 
-\item{width}{Width (in pixels) to be passed to \code{DiagrammeR::grViz}.}
-
-\item{height}{Height (in pixels) to be passed to \code{DiagrammeR::grViz}.}
-
-\item{graphattr}{Character string: Additional attributes for the Graphviz graph.}
-
-\item{nodeattr}{Character string: Additional attributes for Graphviz nodes.}
-
-\item{edgeattr}{Character string: Additional attributes for Graphviz edges.}
-
-\item{color}{A vector of color names for the \emph{outline} of the nodes at each level.}
-
-\item{colornodes}{Color the node outlines?}
-
-\item{mincount}{Minimum count to include in a pattern tree or pattern table.}
-
-\item{maxcount}{Maximum count to include in a pattern tree or pattern table.
-(Overrides mincount.)}
+\item{mincount, maxcount}{Minimum or maximum count to include in a pattern tree or pattern table.
+(\code{maxcount} overrides \code{mincount}.)}
 
 \item{showempty}{Show nodes that do not contain any observations?}
 
 \item{rounded}{Use rounded boxes for nodes?}
-
-\item{nodefunc}{A node function (see \strong{Node functions} below).}
-
-\item{nodeargs}{A list containing named arguments for the node function
-specified by \code{nodefunc}.}
 
 \item{choicechecklist}{When REDCap checklists are specified using the \code{stem:} syntax,
 automatically extract the names of choices and use them as variable names?}
@@ -377,54 +251,73 @@ automatically extract the names of choices and use them as variable names?}
 \item{arrowhead}{DOT arrowhead style. Defaults to \code{"normal"}.
 Other choices include \code{"none"}, \code{"vee"}.}
 
-\item{pxwidth}{Width in pixels of the PNG bitmap to be rendered
+\item{just}{Text justification ("l"=left, "c"=center, "r"=right).}
+
+\item{absolutePath}{Use absolute path for saving graphics file?}
+
+\item{folder}{Optional path to a folder where the PNG file should stored
+when called during knit}
+
+\item{imageFileOnly}{Just generate an image file? (\code{format} specifies type of file)}
+
+\item{format}{Image file format: png or pdf}
+
+\item{pngknit}{Generate a PNG file when called during knit?}
+
+\item{pxwidth, pxheight}{Width and height of the PNG bitmap to be rendered
 when \code{vtree} is called from R Markdown.
 If neither \code{pxwidth} nor \code{pxheight} is specified,
 \code{pxwidth} is automatically set to 2000 pixels.}
 
-\item{pxheight}{Height in pixels of the PNG bitmap to be rendered
-when \code{vtree} is called from R Markdown.}
-
-\item{imagewidth}{A character string specifying the width of the PNG image
+\item{imagewidth, imageheight}{Character strings representing width and height of the PNG image
 to be rendered when \code{vtree} is called from R Markdown,
-e.g. \code{"4in"}}
-
-\item{imageheight}{A character string specifying the height of the PNG image
-to be rendered when \code{vtree} is called from R Markdown,
-e.g. \code{"5in"}.
+e.g. \code{"4in"}
 If neither \code{imageheight} nor \code{imagewidth} is specified,
 \code{imageheight} is set to 3 inches.}
 
-\item{folder}{Optional path to a folder where the PNG file should stored
-when called during knit}
+\item{width, height}{Width and height (in pixels) to be passed to \code{DiagrammeR::grViz}.}
+
+\item{as.if.knit}{Behave as if called while knitting?}
+
+\item{maxNodes}{An error occurs if the number of nodes exceeds \code{maxNodes}.}
+
+\item{unchecked, checked}{Vector of character strings interpreted as "unchecked" and "checked" respectively.}
 
 \item{trim}{(LaTeX Sweave only.) Crop the image using a feature
 of \code{\\includegraphics}.
 Vector of bp (big points) to trim in the order
 left, lower, right, upper.}
 
-\item{pngknit}{Generate a PNG file when called during knit?}
+\item{auto}{Automatically choose variables? (\code{vars} should not be specified)}
 
-\item{as.if.knit}{Behave as if called while knitting?}
+\item{nodesep, ranksep, margin}{Graphviz attributes for node separation amount,
+rank separation amount, and node margin.}
 
-\item{maxNodes}{An error occurs if the number of nodes exceeds \code{maxNodes},
-which defaults to 1000.}
+\item{graphattr, nodeattr, edgeattr}{Character string: Graphviz attributes for the graph, node, and edge respectively.}
 
-\item{unchecked}{Vector of string values interpreted as "unchecked".}
-
-\item{checked}{Vector of string values interpreted as "checked".}
-
-\item{just}{Text justification ("l"=left, "c"=center, "r"=right).}
+\item{nodefunc, nodeargs}{Node function and node arguments (see \strong{Node functions} below).}
 
 \item{verbose}{Report additional details?}
 
-\item{parent}{Parent node number (Internal use only.)}
+\item{parent, last}{[Internal use only.] Node number of parent and last node.}
 
-\item{last}{Last node number (Internal use only.)}
+\item{root}{[Internal use only.] Is this the root node of the tree?}
 
-\item{root}{Is this the root node of the tree? (Internal use only.)}
+\item{subset}{[Internal use only.] A vector representing the subset of observations.}
 
-\item{subset}{A vector representing the subset of observations. (Internal use only.)}
+\item{prunelone}{(Deprecated) A vector of values specifying "lone nodes" (of \emph{any} variable) to prune.
+A lone node is a node that has no siblings (an "only child").}
+
+\item{pruneNA}{(Deprecated) Prune all missing values?
+This is problematic because "valid" percentages
+are hard to interpret when NAs are pruned.}
+
+\item{lsplitwidth}{(Deprecated) In legends, the minimum number of characters before an automatic
+linebreak is inserted.}
+
+\item{showlevels}{(Deprecated) Same as showvarnames.}
+
+\item{z}{(Deprecate) This was replaced by the \code{data} parameter}
 }
 \value{
 The value returned by \code{vtree} varies
@@ -463,10 +356,22 @@ If knitting \emph{is} taking place:
 }
 }
 \description{
-\code{vtree} is a tool for drawing variable trees.
 Variable trees display information about nested subsets of a data frame,
 in which the subsetting is defined by the values of categorical variables.
 }
+\section{Pruning}{
+
+Each of the parameters \code{prune}, \code{keep}, \code{prunebelow}, \code{follow}
+takes a named list of vectors as its argument.
+Each vector specifies nodes of a variable.
+\itemize{
+  \item \code{prune} Specifies which nodes should be pruned.
+  \item \code{keep} Specifies which nodes should \emph{not} be pruned.
+  \item \code{prunebelow} Specifies which nodes should have their decendants pruned.
+  \item \code{follow} Specifies which nodes should \emph{not} have their descendants pruned.
+}
+}
+
 \section{Nested list returned as the `info` attribute}{
 
 \itemize{
