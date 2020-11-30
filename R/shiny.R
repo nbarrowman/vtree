@@ -122,7 +122,7 @@ init_js <- function(init_event, onwindow_resize, shortcuts) {
   initjs <- sprintf(initjs, init_event)
 
   resize <- '$(window).on("resize", function(){
-      if ($(".grViz svg").length > 0) {
+      if ($(".grViz svg:visible").length > 0) {
         var inst = svgPanZoom(".grViz svg");
         inst.resize(); // update SVG cached size and controls positions
         inst.fit();
