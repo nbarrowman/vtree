@@ -17,20 +17,21 @@ vtree(data, vars, horiz = TRUE, title = "", sameline = FALSE,
   colorvarlabels = TRUE, color = c("blue", "forestgreen", "red", "orange",
   "pink"), colornodes = FALSE, Venn = FALSE, check.is.na = FALSE,
   seq = FALSE, pattern = FALSE, ptable = FALSE, text = list(),
-  ttext = list(), plain = FALSE, squeeze = 1, varminwidth = NULL,
-  varminheight = NULL, varlabelloc = NULL, varnamepointsize = 24,
-  varnamebold = FALSE, legendpointsize = 14, HTMLtext = FALSE,
-  splitwidth = 20, vsplitwidth = 8, splitspaces = TRUE,
-  getscript = FALSE, runsummary = NULL, retain = NULL, mincount = 1,
-  maxcount, showempty = FALSE, rounded = TRUE, choicechecklist = TRUE,
-  arrowhead = "normal", just = "c", absolutePath = TRUE, folder = NULL,
-  imageFileOnly = FALSE, format = "png", pngknit = TRUE,
-  pxwidth = NULL, pxheight = NULL, imagewidth = "", imageheight = "",
-  width = NULL, height = NULL, as.if.knit = FALSE, maxNodes = 1000,
+  ttext = list(), plain = FALSE, varlabelloc = NULL,
+  varnamepointsize = 24, varnamebold = FALSE, legendpointsize = 14,
+  HTMLtext = FALSE, splitwidth = 20, vsplitwidth = 8,
+  splitspaces = TRUE, getscript = FALSE, mincount = 1, maxcount,
+  showempty = FALSE, rounded = TRUE, choicechecklist = TRUE,
+  just = "c", absolutePath = TRUE, folder = NULL,
+  imageFileOnly = FALSE, format = "", pngknit = TRUE, pxwidth = NULL,
+  pxheight = NULL, imagewidth = "", imageheight = "", width = NULL,
+  height = NULL, as.if.knit = FALSE, maxNodes = 1000,
   unchecked = c("0", "FALSE", "No", "no"), checked = c("1", "TRUE", "Yes",
-  "yes"), trim = NULL, auto = FALSE, nodesep = 0.5, ranksep = 0.5,
-  margin = 0.2, graphattr = "", nodeattr = "", edgeattr = "",
-  nodefunc = NULL, nodeargs = NULL, verbose = FALSE, parent = 1,
+  "yes"), trim = NULL, auto = FALSE, varminwidth = NULL,
+  varminheight = NULL, squeeze = 1, arrowhead = "normal",
+  nodesep = 0.5, ranksep = 0.5, margin = 0.2, graphattr = "",
+  nodeattr = "", edgeattr = "", nodefunc = NULL, nodeargs = NULL,
+  verbose = FALSE, runsummary = NULL, retain = NULL, parent = 1,
   last = 1, root = TRUE, subset = 1:nrow(z), prunelone = NULL,
   pruneNA = FALSE, lsplitwidth = 15, showlevels = TRUE, z)
 }
@@ -195,13 +196,6 @@ These settings are as follows: for each variable all nodes are the same color,
 namely a shade of blue (with each successive variable using a darker shade);
 all variable labels are black; and the \code{squeeze} parameter is set to 0.6.}
 
-\item{squeeze}{The degree (between 0 and 1) to which the tree will be "squeezed".
-This controls two Graphviz parameters: \code{margin} and \code{nodesep}.}
-
-\item{varminwidth, varminheight}{Named vector of minimum initial widths or heights for nodes of each variable.
-\code{varminwidth} sets the Graphviz \code{width} attribute.
-\code{varminheight} sets the Graphviz \code{height} attribute.}
-
 \item{varlabelloc}{A named vector of vertical label locations
 ("t", "c", or "b" for top, center, or bottom, respectively)
 for nodes of each variable.
@@ -228,28 +222,15 @@ that contains spaces is specified.}
 \item{getscript}{Instead of displaying the variable tree,
 return the DOT script as a character string?}
 
-\item{runsummary}{A list of functions, with the same length as \code{summary}.
-Each function must take a data frame as its sole argument,
-and return a logical value.
-Each string in \code{summary} will only be interpreted if
-the corresponding logical value is \code{TRUE}.
-the corresponding string in \code{summary} will be evaluated.}
-
-\item{retain}{Vector of names of additional variables in the data frame that need to be
-available to execute the functions in \code{runsummary}.}
-
 \item{mincount, maxcount}{Minimum or maximum count to include in a pattern tree or pattern table.
 (\code{maxcount} overrides \code{mincount}.)}
 
 \item{showempty}{Show nodes that do not contain any observations?}
 
-\item{rounded}{Use rounded boxes for nodes?}
+\item{rounded}{[Graphviz] Use rounded boxes for nodes?}
 
 \item{choicechecklist}{When REDCap checklists are specified using the \code{stem:} syntax,
 automatically extract the names of choices and use them as variable names?}
-
-\item{arrowhead}{DOT arrowhead style. Defaults to \code{"normal"}.
-Other choices include \code{"none"}, \code{"vee"}.}
 
 \item{just}{Text justification ("l"=left, "c"=center, "r"=right).}
 
@@ -262,7 +243,8 @@ when called during knit}
 
 \item{format}{Image file format: png or pdf}
 
-\item{pngknit}{Generate a PNG file when called during knit?}
+\item{pngknit}{Generate a PNG file when called during knit?
+(If FALSE, and knitting to HTML, an htmlwidget will be embedded in the HTML file.)}
 
 \item{pxwidth, pxheight}{Width and height of the PNG bitmap to be rendered
 when \code{vtree} is called from R Markdown.
@@ -290,14 +272,30 @@ left, lower, right, upper.}
 
 \item{auto}{Automatically choose variables? (\code{vars} should not be specified)}
 
-\item{nodesep, ranksep, margin}{Graphviz attributes for node separation amount,
+\item{squeeze}{[GraphViz] The degree (between 0 and 1) to which the tree will be "squeezed".
+This controls two Graphviz parameters: \code{margin} and \code{nodesep}.}
+
+\item{arrowhead}{[Graphviz] arrowhead style. Defaults to \code{"normal"}.
+Other choices include \code{"none"}, \code{"vee"}.}
+
+\item{nodesep, ranksep, margin}{[Graphviz] attributes for node separation amount,
 rank separation amount, and node margin.}
 
-\item{graphattr, nodeattr, edgeattr}{Character string: Graphviz attributes for the graph, node, and edge respectively.}
+\item{graphattr, nodeattr, edgeattr}{[Graphviz] Character string: Graphviz attributes for the graph, node, and edge respectively.}
 
 \item{nodefunc, nodeargs}{Node function and node arguments (see \strong{Node functions} below).}
 
 \item{verbose}{Report additional details?}
+
+\item{runsummary}{A list of functions, with the same length as \code{summary}.
+Each function must take a data frame as its sole argument,
+and return a logical value.
+Each string in \code{summary} will only be interpreted if
+the corresponding logical value is \code{TRUE}.
+the corresponding string in \code{summary} will be evaluated.}
+
+\item{retain}{Vector of names of additional variables in the data frame that need to be
+available to execute the functions in \code{runsummary}.}
 
 \item{parent, last}{[Internal use only.] Node number of parent and last node.}
 
@@ -318,6 +316,11 @@ linebreak is inserted.}
 \item{showlevels}{(Deprecated) Same as showvarnames.}
 
 \item{z}{(Deprecate) This was replaced by the \code{data} parameter}
+
+\item{[Graphviz]}{varminwidth,varminheight
+Named vector of minimum initial widths or heights for nodes of each variable.
+\code{varminwidth} sets the Graphviz \code{width} attribute.
+\code{varminheight} sets the Graphviz \code{height} attribute.}
 }
 \value{
 The value returned by \code{vtree} varies

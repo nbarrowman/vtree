@@ -68,11 +68,6 @@ NULL
 #'                         except for an element named \code{label}, which specifies the label to use.
 #' @param labelvar         A named vector of labels for variables.
 #' 
-#' @param varminwidth,varminheight
-#' Named vector of minimum initial widths or heights for nodes of each variable.
-#' \code{varminwidth} sets the Graphviz \code{width} attribute.
-#' \code{varminheight} sets the Graphviz \code{height} attribute.
-#' 
 #' @param varlabelloc      A named vector of vertical label locations
 #'                         ("t", "c", or "b" for top, center, or bottom, respectively)
 #'                         for nodes of each variable.
@@ -86,14 +81,6 @@ NULL
 #'                         whether or not each of its values is missing?
 #' @param summary          A character string used to specify summary statistics to display in the nodes.
 #'                         See \strong{Displaying summary information} below for details.
-#' @param runsummary       A list of functions, with the same length as \code{summary}.
-#'                         Each function must take a data frame as its sole argument,
-#'                         and return a logical value.
-#'                         Each string in \code{summary} will only be interpreted if
-#'                         the corresponding logical value is \code{TRUE}.
-#'                         the corresponding string in \code{summary} will be evaluated.
-#' @param retain           Vector of names of additional variables in the data frame that need to be
-#'                         available to execute the functions in \code{runsummary}.
 #' @param text             A list of vectors containing extra text to add to
 #'                         nodes corresponding to specified values of a specified variable.
 #'                         The name of each element of the list
@@ -120,7 +107,6 @@ NULL
 #'                         all the other nodes show valid percentages.
 #'                         When \code{vp=FALSE}, all nodes (including nodes for missing values)
 #'                         show percentages of the total number of observations.
-#' @param rounded          Use rounded boxes for nodes?
 #' @param getscript        Instead of displaying the variable tree,
 #'                         return the DOT script as a character string?
 #' 
@@ -170,8 +156,6 @@ NULL
 #' @param width,height
 #' Width and height (in pixels) to be passed to \code{DiagrammeR::grViz}.
 #'
-#' @param squeeze          The degree (between 0 and 1) to which the tree will be "squeezed".
-#'                         This controls two Graphviz parameters: \code{margin} and \code{nodesep}.
 #'                         
 #' @param showpct,showlpct
 #' Show percentage? \code{showpct} is for nodes, \code{showlpct} is for legends.                     
@@ -239,34 +223,56 @@ NULL
 #'                         If neither \code{imageheight} nor \code{imagewidth} is specified,
 #'                         \code{imageheight} is set to 3 inches.
 #'                         
-#' @param arrowhead        DOT arrowhead style. Defaults to \code{"normal"}.
-#'                         Other choices include \code{"none"}, \code{"vee"}.
 #' @param maxNodes         An error occurs if the number of nodes exceeds \code{maxNodes}.
 #'                         
 #' @param unchecked,checked
 #' Vector of character strings interpreted as "unchecked" and "checked" respectively.
 #' 
 #' @param just             Text justification ("l"=left, "c"=center, "r"=right).
-#' @param verbose          Report additional details?
 #' @param absolutePath     Use absolute path for saving graphics file?
 #' @param folder           Optional path to a folder where the PNG file should stored
 #'                         when called during knit
 #' @param imageFileOnly    Just generate an image file? (\code{format} specifies type of file)                 
 #' @param as.if.knit       Behave as if called while knitting?
-#' @param format           Image file format: png or pdf
+#' @param format           Image file format: "png" or "pdf".
+#'                         If not specified and knitting is taking place,
+#'                         then a PNG file is generated, unless a LaTeX document is 
+#'                         being generated (e.g. Sweave), in which case a PDF file is generated.  
 #' @param pngknit          Generate a PNG file when called during knit?
+#'                         (If FALSE, and knitting to HTML, an htmlwidget will be embedded in the HTML file.)
 #' @param auto             Automatically choose variables? (\code{vars} should not be specified)
 #' 
-#' @param nodefunc,nodeargs
-#'                         Node function and node arguments (see \strong{Node functions} below).
-#'                         
+#' @param rounded          [Graphviz] Use rounded boxes for nodes?
+#'
+#' @param varminwidth,varminheight
+#' [Graphviz] Named vector of minimum initial widths or heights for nodes of each variable.
+#' 
+#' \code{varminwidth} sets the Graphviz \code{width} attribute.
+#' \code{varminheight} sets the Graphviz \code{height} attribute.
+#' 
+#' @param squeeze          [GraphViz] The degree (between 0 and 1) to which the tree will be "squeezed".
+#'                         This controls two Graphviz parameters: \code{margin} and \code{nodesep}.                         
+#' @param arrowhead        [Graphviz] arrowhead style. Defaults to \code{"normal"}.
+#'                         Other choices include \code{"none"}, \code{"vee"}.                         
 #' @param nodesep,ranksep,margin
-#'                         Graphviz attributes for node separation amount,
+#'                         [Graphviz] attributes for node separation amount,
 #'                         rank separation amount, and node margin.
 #' 
 #' @param graphattr,nodeattr,edgeattr
-#' Character string: Graphviz attributes for the graph, node, and edge respectively.
+#' [Graphviz] Character string: Graphviz attributes for the graph, node, and edge respectively.
 #' 
+#' @param nodefunc,nodeargs
+#'                         Node function and node arguments (see \strong{Node functions} below).
+#' @param verbose          Report additional details?
+#' @param runsummary       A list of functions, with the same length as \code{summary}.
+#'                         Each function must take a data frame as its sole argument,
+#'                         and return a logical value.
+#'                         Each string in \code{summary} will only be interpreted if
+#'                         the corresponding logical value is \code{TRUE}.
+#'                         the corresponding string in \code{summary} will be evaluated.
+#' @param retain           Vector of names of additional variables in the data frame that need to be
+#'                         available to execute the functions in \code{runsummary}.
+#'
 #' @param parent,last      [Internal use only.] Node number of parent and last node.
 #' 
 #' @param root             [Internal use only.] Is this the root node of the tree?
@@ -511,9 +517,6 @@ vtree <- function (
   text = list(),
   ttext=list(),
   plain = FALSE, 
-  squeeze = 1,
-  varminwidth=NULL,
-  varminheight=NULL,
   varlabelloc=NULL,  
   varnamepointsize = 24,
   varnamebold=FALSE,
@@ -523,19 +526,15 @@ vtree <- function (
   vsplitwidth=8,
   splitspaces=TRUE,
   getscript = FALSE,
-  runsummary = NULL, 
-  retain=NULL,
   mincount=1,
   maxcount,
   showempty = FALSE, 
-  rounded = TRUE,
   choicechecklist = TRUE,
-  arrowhead="normal",
   just="c",
   absolutePath=TRUE,
   folder=NULL,
   imageFileOnly=FALSE,
-  format="png",
+  format="",
   pngknit=TRUE,
   pxwidth=NULL,
   pxheight=NULL,
@@ -548,7 +547,11 @@ vtree <- function (
   unchecked=c("0","FALSE","No","no"),
   checked=c("1","TRUE","Yes","yes"),
   trim=NULL,
-  auto=FALSE, 
+  rounded = TRUE,
+  varminwidth=NULL,
+  varminheight=NULL,  
+  squeeze = 1,
+  arrowhead="normal",
   nodesep = 0.5, 
   ranksep = 0.5, 
   margin = 0.2,   
@@ -558,6 +561,9 @@ vtree <- function (
   nodefunc = NULL, 
   nodeargs = NULL,
   verbose=FALSE,
+  runsummary = NULL, 
+  retain=NULL,  
+  auto=FALSE, 
   parent = 1,
   last = 1,
   root = TRUE,
@@ -2856,6 +2862,18 @@ vtree <- function (
 
       filenamestem <- paste0("vtree",padCount)
       
+      outfmt <- knitr::opts_knit$get("out.format")
+      if (format=="") {
+        if (!is.null(outfmt)) {
+          if (outfmt %in% c("latex","sweave")) {
+            format <- "pdf"
+          } else
+          if (outfmt %in% c("markdown")) {
+            format <- "png"
+          }
+        }
+      }
+      
       if (is.null(pxheight)) {
         if (is.null(pxwidth)) {
           fullpath <- grVizToImageFile(flowchart,width=2000,
@@ -2873,9 +2891,15 @@ vtree <- function (
             format=format,filename=filenamestem,folder=getOption("vtree_folder"))
         }
       }  
+      
+      if (imagewidth=="" && imageheight=="") {
+        output <- knitr::include_graphics(fullpath)
+        attributes(output)$info <- tree
+        return(output)
+      }
 
       fmt <- knitr::opts_knit$get("out.format")
-      if (!is.null(fmt) && fmt=="latex") {
+      if (!is.null(fmt) && fmt %in% c("latex","sweave")) {
         stuff <- "\n\\includegraphics["
         if (!is.null(trim)) {
           stuff <- paste0(stuff,"trim=",paste(trim,collapse=" "),", clip,")
