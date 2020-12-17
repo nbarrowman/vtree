@@ -115,20 +115,20 @@ test_that("variable specifications",{
                 .n = 1, .pct = 100)))))))))))
   
   expect_identical(vtree(FakeData,"Age<5"),
-    structure(list(x = list(diagram = "digraph vtree {\ngraph [nodesep=0.1, ranksep=0.5, tooltip=\" \"]\nnode [fontname = Helvetica, fontcolor = black,shape = rectangle, color = black, tooltip=\" \",margin=0.1]\nrankdir=LR;\nNode_L0_0 [style=invisible]\n\nNode_L1_0[label=<<FONT POINT-SIZE=\"24\"><FONT COLOR=\"#DE2D26\">Age</FONT></FONT>> shape=none margin=0]\nNode_L0_0 -> Node_L1_0 [style=invisible arrowhead=none]\n\nedge[style=solid]\nNode_1->Node_2 Node_1->Node_3 Node_1->Node_4\n\nNode_1[label=<46> color=black style=\"rounded,filled\" fillcolor=<#EFF3FF>]\nNode_2[label=<&ge;5<BR/>12 (31%)> color=black style=\"rounded,filled\" fillcolor=<#FEE0D2>  ]\nNode_1[label=<46> color=black style=\"rounded,filled\" fillcolor=<#EFF3FF>]\nNode_3[label=<&lt;5<BR/>27 (69%)> color=black style=\"rounded,filled\" fillcolor=<#DE2D26>  ]\nNode_1[label=<46> color=black style=\"rounded,filled\" fillcolor=<#EFF3FF>]\nNode_4[label=<NA<BR/>7> color=black style=\"rounded,filled\" fillcolor=<white>  ]\n\n}\n", 
-    config = list(engine = "dot", options = NULL)), width = NULL, 
-    height = NULL, sizingPolicy = list(defaultWidth = NULL, defaultHeight = NULL, 
+    structure(list(x = list(diagram = "digraph vtree {\ngraph [nodesep=0.1, ranksep=0.5, tooltip=\" \"]\nnode [fontname = Helvetica, fontcolor = black,shape = rectangle, color = black, tooltip=\" \",margin=0.1]\nrankdir=LR;\nNode_L0_0 [style=invisible]\n\nNode_L1_0[label=<<FONT POINT-SIZE=\"24\"><FONT COLOR=\"#DE2D26\">Age</FONT></FONT>> shape=none margin=0]\nNode_L0_0 -> Node_L1_0 [style=invisible arrowhead=none]\n\nedge[style=solid]\nNode_1->Node_2 Node_1->Node_3 Node_1->Node_4\n\nNode_1[label=<46> color=black style=\"rounded,filled\" fillcolor=<#EFF3FF>]\nNode_2[label=<&gt;=5<BR/>12 (31%)> color=black style=\"rounded,filled\" fillcolor=<#FEE0D2>  ]\nNode_1[label=<46> color=black style=\"rounded,filled\" fillcolor=<#EFF3FF>]\nNode_3[label=<&lt;5<BR/>27 (69%)> color=black style=\"rounded,filled\" fillcolor=<#DE2D26>  ]\nNode_1[label=<46> color=black style=\"rounded,filled\" fillcolor=<#EFF3FF>]\nNode_4[label=<NA<BR/>7> color=black style=\"rounded,filled\" fillcolor=<white>  ]\n\n}\n", 
+      config = list(engine = "dot", options = NULL)), width = NULL, 
+      height = NULL, sizingPolicy = list(defaultWidth = NULL, defaultHeight = NULL, 
         padding = NULL, viewer = list(defaultWidth = NULL, defaultHeight = NULL, 
-            padding = NULL, fill = TRUE, suppress = FALSE, paneHeight = NULL), 
+          padding = NULL, fill = TRUE, suppress = FALSE, paneHeight = NULL), 
         browser = list(defaultWidth = NULL, defaultHeight = NULL, 
-            padding = NULL, fill = FALSE, external = FALSE), 
+          padding = NULL, fill = FALSE, external = FALSE), 
         knitr = list(defaultWidth = NULL, defaultHeight = NULL, 
-            figure = TRUE)), dependencies = NULL, elementId = NULL, 
-    preRenderHook = NULL, jsHooks = list()), class = c("grViz", 
-"htmlwidget"), package = "DiagrammeR", info = list(.n = 46L, 
-    .pct = 100, Age = list(`>=5` = list(.n = 12, .pct = 31), 
-        `<5` = list(.n = 27, .pct = 69), `NA` = list(.n = 7, 
-            .pct = NA_real_)))))
+          figure = TRUE)), dependencies = NULL, elementId = NULL, 
+      preRenderHook = NULL, jsHooks = list()), class = c("grViz", 
+        "htmlwidget"), package = "DiagrammeR", info = list(.n = 46L, 
+          .pct = 100, Age = list(`>=5` = list(.n = 12, .pct = 31), 
+            `<5` = list(.n = 27, .pct = 69), `NA` = list(.n = 7, 
+              .pct = NA_real_)))))
 
   expect_identical(vtree(FakeData,"is.na:Severity"),
  structure(list(x = list(diagram = "digraph vtree {\ngraph [nodesep=0.1, ranksep=0.5, tooltip=\" \"]\nnode [fontname = Helvetica, fontcolor = black,shape = rectangle, color = black, tooltip=\" \",margin=0.1]\nrankdir=LR;\nNode_L0_0 [style=invisible]\n\nNode_L1_0[label=<<FONT POINT-SIZE=\"24\"><FONT COLOR=\"#DE2D26\">is.na:Severity</FONT></FONT>> shape=none margin=0]\nNode_L0_0 -> Node_L1_0 [style=invisible arrowhead=none]\n\nedge[style=solid]\nNode_1->Node_2 Node_1->Node_3\n\nNode_1[label=<46> color=black style=\"rounded,filled\" fillcolor=<#EFF3FF>]\nNode_2[label=<not N/A<BR/>40 (87%)> color=black style=\"rounded,filled\" fillcolor=<#FEE0D2>  ]\nNode_1[label=<46> color=black style=\"rounded,filled\" fillcolor=<#EFF3FF>]\nNode_3[label=<N/A<BR/>6 (13%)> color=black style=\"rounded,filled\" fillcolor=<#DE2D26>  ]\n\n}\n", 
@@ -149,10 +149,6 @@ test_that("variable specifications",{
 
 
 test_that("knitr",{
-  # Note that knitting to PNG a temporary folder is used by default,
-  # so I'm using a regular expression to partially match it.
-  expect_match(vtree(FakeData,"Severity Sex",as.if.knit=TRUE),
-    "!\\[\\].+\\.png\\).*")
   
   expect_identical(vtree(FakeData,"Severity Sex",as.if.knit=TRUE,pngknit=FALSE),
 structure(list(x = list(diagram = "digraph vtree {\ngraph [nodesep=0.1, ranksep=0.5, tooltip=\" \"]\nnode [fontname = Helvetica, fontcolor = black,shape = rectangle, color = black, tooltip=\" \",margin=0.1]\nrankdir=LR;\nNode_L0_0 [style=invisible]\n\nNode_L1_0[label=<<FONT POINT-SIZE=\"24\"><FONT COLOR=\"#DE2D26\">Severity</FONT></FONT>> shape=none margin=0]\nNode_L0_0 -> Node_L1_0 [style=invisible arrowhead=none]\n\nNode_L2_0[label=<<FONT POINT-SIZE=\"24\"><FONT COLOR=\"#3182BD\">Sex</FONT></FONT>> shape=none margin=0]\nNode_L1_0 -> Node_L2_0 [style=invisible arrowhead=none]\n\nedge[style=solid]\nNode_1->Node_2 Node_1->Node_3 Node_1->Node_4 Node_1->Node_5\nNode_2->Node_6 Node_2->Node_7\nNode_3->Node_8 Node_3->Node_9\nNode_4->Node_10 Node_4->Node_11\nNode_5->Node_12 Node_5->Node_13\n\nNode_1[label=<46> color=black style=\"rounded,filled\" fillcolor=<#EFF3FF>]\nNode_2[label=<Mild<BR/>19 (48%)> color=black style=\"rounded,filled\" fillcolor=<#FEE0D2>  ]\nNode_1[label=<46> color=black style=\"rounded,filled\" fillcolor=<#EFF3FF>]\nNode_3[label=<Moderate<BR/>16 (40%)> color=black style=\"rounded,filled\" fillcolor=<#FC9272>  ]\nNode_1[label=<46> color=black style=\"rounded,filled\" fillcolor=<#EFF3FF>]\nNode_4[label=<Severe<BR/>5 (12%)> color=black style=\"rounded,filled\" fillcolor=<#DE2D26>  ]\nNode_1[label=<46> color=black style=\"rounded,filled\" fillcolor=<#EFF3FF>]\nNode_5[label=<NA<BR/>6> color=black style=\"rounded,filled\" fillcolor=<white>  ]\nNode_6[label=<F<BR/>11 (58%)> color=black style=\"rounded,filled\" fillcolor=<#DEEBF7>  ]\nNode_7[label=<M<BR/>8 (42%)> color=black style=\"rounded,filled\" fillcolor=<#3182BD>  ]\nNode_8[label=<F<BR/>11 (69%)> color=black style=\"rounded,filled\" fillcolor=<#DEEBF7>  ]\nNode_9[label=<M<BR/>5 (31%)> color=black style=\"rounded,filled\" fillcolor=<#3182BD>  ]\nNode_10[label=<F<BR/>2 (40%)> color=black style=\"rounded,filled\" fillcolor=<#DEEBF7>  ]\nNode_11[label=<M<BR/>3 (60%)> color=black style=\"rounded,filled\" fillcolor=<#3182BD>  ]\nNode_12[label=<F<BR/>3 (50%)> color=black style=\"rounded,filled\" fillcolor=<#DEEBF7>  ]\nNode_13[label=<M<BR/>3 (50%)> color=black style=\"rounded,filled\" fillcolor=<#3182BD>  ]\n\n}\n", 

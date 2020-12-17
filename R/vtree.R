@@ -41,8 +41,11 @@ NULL
 #'
 #' @param data             Required: Data frame, or a single vector.
 #' @param vars             Required (unless \code{data} is a single vector):
-#'                         Either a character string of whitespace-separated variable names
-#'                         or a vector of variable names.
+#'                         Variables to use for the tree. Can be 
+#'                         (1) a character string of whitespace-separated variable names,
+#'                         (2) a vector of variable names,
+#'                         (3) a formula without a left-hand side,
+#'                         e.g. \code{~ Age + Sex}.
 #'                         
 #' @param prune,keep,prunebelow,follow
 #'                         List of named vectors that specify pruning.
@@ -182,6 +185,8 @@ NULL
 #'                         A logical vector of \code{FALSE} for named variables is interpreted as
 #'                         \code{FALSE} for those variables and \code{TRUE} for all others.
 #' @param showlegend       Show legend (including marginal frequencies) for each variable?
+#' @param showlegendsum    Show summary information in the legend?
+#'                         (Povided \code{summary} has been specified).
 #' @param showempty        Show nodes that do not contain any observations?
 #'
 #' @param seq              Display the variable tree using \emph{sequences}?
@@ -229,15 +234,22 @@ NULL
 #' Vector of character strings interpreted as "unchecked" and "checked" respectively.
 #' 
 #' @param just             Text justification ("l"=left, "c"=center, "r"=right).
-#' @param absolutePath     Use absolute path for saving graphics file?
-#' @param folder           Optional path to a folder where the PNG file should stored
-#'                         when called during knit
-#' @param imageFileOnly    Just generate an image file? (\code{format} specifies type of file)                 
-#' @param as.if.knit       Behave as if called while knitting?
+#' @param folder           Optional path to a folder where the image file should stored
+#'                         when called during knit.
+#'                         If not specified and knitting to LaTeX, folder will be 
+#'                         set to the value of \code{knitr::opts_chunk$get("fig.path")}.
+#'                         (If this folder does not exist, it will be created.)
+#'                         If not specified and knitting to another 
 #' @param format           Image file format: "png" or "pdf".
 #'                         If not specified and knitting is taking place,
 #'                         then a PNG file is generated, unless a LaTeX document is 
-#'                         being generated (e.g. Sweave), in which case a PDF file is generated.  
+#'                         being generated (e.g. via Sweave), in which case a PDF file is generated.                           
+#' @param imageFileOnly    Just generate an image file? 
+#'                         The image file will be stored in the folder specified by \code{folder}.
+#'                         If \code{format="pdf"} the file will be in PDF format
+#'                         and stored in \code{vtree.pdf}.
+#'                         If \code{format="png"} the file will be in PNG format
+#'                         and stored in \code{vtree.png}.                        
 #' @param pngknit          Generate a PNG file when called during knit?
 #'                         (If FALSE, and knitting to HTML, an htmlwidget will be embedded in the HTML file.)
 #' @param auto             Automatically choose variables? (\code{vars} should not be specified)
@@ -277,6 +289,7 @@ NULL
 #' 
 #' @param root             [Internal use only.] Is this the root node of the tree?
 #' @param subset           [Internal use only.] A vector representing the subset of observations.
+#' @param as.if.knit       (Deprecated) Behave as if called while knitting?
 #' @param prunelone        (Deprecated) A vector of values specifying "lone nodes" (of \emph{any} variable) to prune.
 #'                         A lone node is a node that has no siblings (an "only child").
 #' @param pruneNA          (Deprecated) Prune all missing values?
@@ -285,7 +298,7 @@ NULL
 #' @param lsplitwidth      (Deprecated) In legends, the minimum number of characters before an automatic
 #'                         linebreak is inserted.
 #' @param showlevels       (Deprecated) Same as showvarnames.
-#' @param z                (Deprecate) This was replaced by the \code{data} parameter
+#' @param z                (Deprecated) This was replaced by the \code{data} parameter
 #'
 #' @return
 #' The value returned by \code{vtree} varies
@@ -478,6 +491,12 @@ vtree <- function (
   title = "",
   sameline=FALSE,
   vp = TRUE,
+  prune=list(),
+  keep=list(),
+  prunebelow = list(),
+  follow=list(),
+  prunesmaller=NULL,
+  summary = "",
   shownodelabels=TRUE,
   showvarnames = TRUE, 
   showpct=TRUE, 
@@ -486,12 +505,7 @@ vtree <- function (
   showlegend=FALSE,
   showroot=TRUE,
   showvarinnode=FALSE,
-  prune=list(),
-  keep=list(),
-  prunebelow = list(),
-  follow=list(),
-  prunesmaller=NULL,
-  summary = "", 
+  showlegendsum=FALSE,  
   labelvar = NULL,
   labelnode = list(),
   tlabelnode=NULL,
@@ -531,10 +545,9 @@ vtree <- function (
   showempty = FALSE, 
   choicechecklist = TRUE,
   just="c",
-  absolutePath=TRUE,
   folder=NULL,
-  imageFileOnly=FALSE,
   format="",
+  imageFileOnly=FALSE,
   pngknit=TRUE,
   pxwidth=NULL,
   pxheight=NULL,
@@ -542,7 +555,6 @@ vtree <- function (
   imageheight="",  
   width=NULL,
   height=NULL,  
-  as.if.knit=FALSE,
   maxNodes=1000,
   unchecked=c("0","FALSE","No","no"),
   checked=c("1","TRUE","Yes","yes"),
@@ -568,6 +580,7 @@ vtree <- function (
   last = 1,
   root = TRUE,
   subset = 1:nrow(z),
+  as.if.knit=FALSE,
   prunelone=NULL,
   pruneNA=FALSE,
   lsplitwidth=15,
@@ -2752,9 +2765,34 @@ vtree <- function (
         
         legendlabel <- paste0(displayCAT,", ",npctString)
         
+       
+        ThisLevelText <- rep("",length(legendlabel)) 
+        
+        if (showlegendsum) {
+          if (!is.null(nodefunc)) {
+            if (numvars == 1)
+              nodeargs$leaf <- TRUE
+            ThisLevelText <- c()
+            current_var <- as.character(thisvar)
+            current_var[is.na(current_var)] <- "NA"
+            summarytext <- vector("list",length=length(CAT))
+            names(summarytext) <- CAT
+            for (value in displayCAT) {
+              df_subset <- z[current_var == value,,drop=FALSE]
+              summarytext[[value]] <- nodefunc(df_subset, vars[1], value, args = nodeargs)
+              nodetext <- paste0(summarytext[[value]],collapse="")
+              nodetext <- splitlines(nodetext, width = splitwidth, sp = sepN, at=" ")
+              ThisLevelText <- c(ThisLevelText, paste0(nodetext,sepN))
+            }
+          }
+        }
+        
+        extendedlegendlabel <- paste0(legendlabel,convertToHTML(ThisLevelText,just=just))
+
+        
         labels <- paste0(
           'label=<<FONT POINT-SIZE="',legendpointsize,'">',
-          legendlabel,
+          extendedlegendlabel,
           '</FONT>>')        
         
         if (!horiz) {
@@ -2771,6 +2809,7 @@ vtree <- function (
           collapse = '\n')
         
         nl_allnodes <- paste0("Node_L",i,"_",seq(0,length(categoryCounts)),collapse=" ")
+        
 
         if (showlegend) {
           nl <- paste0(
@@ -2806,14 +2845,31 @@ vtree <- function (
       NL <- ''
     }
     
+    if (imageFileOnly) {
+      if (is.null(folder)) {
+        folder <- "."
+      }
+      options(vtree_folder=folder)
+    }
+    
     if (is.null(getOption("vtree_count"))) {
       options("vtree_count"=0)
       if (is.null(folder)) {
-        options("vtree_folder"=tempdir())
+        if (isTRUE(getOption('knitr.in.progress'))) {
+          if (is.null(options()$vtree_folder)) {
+            if (knitr::opts_knit$get("out.format") %in% c("latex","sweave")) {
+              knitr.fig.path <- knitr::opts_chunk$get("fig.path")
+              options(vtree_folder=knitr.fig.path)
+              dir.create(file.path(knitr.fig.path), showWarnings = FALSE)
+            } else {
+              options(vtree_folder=tempdir())
+            }
+          }
+        }
       } else {
-        options("vtree_folder"=folder)
+        options(vtree_folder=folder)
       }        
-    }    
+    }
     
     if (ptable) {
       pt <- patternTable[nrow(patternTable):1,]
@@ -2856,15 +2912,22 @@ vtree <- function (
         return(flowchart)
       }
       
-      options("vtree_count"=getOption("vtree_count")+1)
       
-      padCount <- sprintf("%03d",getOption("vtree_count"))
+      if (isTRUE(getOption('knitr.in.progress')) || as.if.knit) {
+        options("vtree_count"=getOption("vtree_count")+1)
+      
+        padCount <- sprintf("%03d",getOption("vtree_count"))
 
-      filenamestem <- paste0("vtree",padCount)
-      
+        filenamestem <- paste0("vtree",padCount)
+      } else {
+        filenamestem <- "vtree"
+      }
+  
       outfmt <- knitr::opts_knit$get("out.format")
       if (format=="") {
-        if (!is.null(outfmt)) {
+        if (is.null(outfmt)) {
+          format <- "png"
+        } else {
           if (outfmt %in% c("latex","sweave")) {
             format <- "pdf"
           } else
@@ -2890,12 +2953,20 @@ vtree <- function (
           fullpath <- grVizToImageFile(flowchart,width=pxwidth,height=pxheight,
             format=format,filename=filenamestem,folder=getOption("vtree_folder"))
         }
-      }  
+      }
+      
+      # fullpath <- normalizePath(fullpath,"/")
+
+      if (verbose) message("Image file saved to ",fullpath)
       
       if (imagewidth=="" && imageheight=="") {
-        output <- knitr::include_graphics(fullpath)
-        attributes(output)$info <- tree
-        return(output)
+        if (imageFileOnly && (!isTRUE(getOption('knitr.in.progress')) && !as.if.knit)) {
+          return(invisible(NULL))
+        } else {
+          output <- knitr::include_graphics(fullpath)
+          attributes(output)$info <- tree
+          return(output)
+        }
       }
 
       fmt <- knitr::opts_knit$get("out.format")
@@ -2918,11 +2989,15 @@ vtree <- function (
               imagewidth,", height=",imageheight)          
           }
         }
-        if (absolutePath) {
-          np <- normalizePath(fullpath,"/")
-        } else {
-          np <- fullpath
-        }
+        
+        #if (absolutePath) {
+        #  np <- normalizePath(fullpath,"/")
+        #} else {
+        
+        np <- fullpath
+        
+        #}
+          
         result <- paste0(result,",keepaspectratio]{",
           np,"}\n")
         
@@ -2944,8 +3019,9 @@ vtree <- function (
           }
         }
       }
+      
       if (imageFileOnly && (!isTRUE(getOption('knitr.in.progress')) && !as.if.knit)) {
-        return(NULL)
+        return(invisible(NULL))
       } else {
         output <- knitr::asis_output(result)
         attributes(output)$info <- tree
@@ -2956,20 +3032,6 @@ vtree <- function (
       fc
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

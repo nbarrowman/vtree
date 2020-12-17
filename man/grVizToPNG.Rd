@@ -4,8 +4,7 @@
 \alias{grVizToPNG}
 \title{Export an htmlwidget object into a PNG file}
 \usage{
-grVizToPNG(g, width = NULL, height = NULL, format = "png",
-  folder = ".", filename)
+grVizToPNG(g, width = NULL, height = NULL, folder = ".", filename)
 }
 \arguments{
 \item{g}{an object produced by the \code{grViz} function from the DiagrammmeR package}
@@ -14,13 +13,13 @@ grVizToPNG(g, width = NULL, height = NULL, format = "png",
 
 \item{height}{the height in pixels of the bitmap}
 
-\item{format}{Graphics file format. Currently "png" and "pdf" are supported.}
-
 \item{folder}{path to folder where the PNG file should stored}
 
 \item{filename}{an optional filename.
 If not provided, the filename will be derived from the name 
 of the argument of \code{g}.}
+
+\item{format}{Graphics file format. Currently "png" and "pdf" are supported.}
 }
 \value{
 Returns the full path of the PNG file.

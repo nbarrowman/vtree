@@ -5,42 +5,44 @@
 \title{Draw a variable tree}
 \usage{
 vtree(data, vars, horiz = TRUE, title = "", sameline = FALSE,
-  vp = TRUE, shownodelabels = TRUE, showvarnames = TRUE,
-  showpct = TRUE, showlpct = TRUE, showcount = TRUE,
-  showlegend = FALSE, showroot = TRUE, showvarinnode = FALSE,
-  prune = list(), keep = list(), prunebelow = list(), follow = list(),
-  prunesmaller = NULL, summary = "", labelvar = NULL,
-  labelnode = list(), tlabelnode = NULL, digits = 0, cdigits = 1,
-  fillcolor = NULL, fillnodes = TRUE, NAfillcolor = "white",
-  rootfillcolor = "#EFF3FF", palette = NULL, gradient = TRUE,
-  revgradient = FALSE, sortfill = FALSE, singlecolor = 2,
-  colorvarlabels = TRUE, color = c("blue", "forestgreen", "red", "orange",
-  "pink"), colornodes = FALSE, Venn = FALSE, check.is.na = FALSE,
-  seq = FALSE, pattern = FALSE, ptable = FALSE, text = list(),
-  ttext = list(), plain = FALSE, varlabelloc = NULL,
-  varnamepointsize = 24, varnamebold = FALSE, legendpointsize = 14,
-  HTMLtext = FALSE, splitwidth = 20, vsplitwidth = 8,
-  splitspaces = TRUE, getscript = FALSE, mincount = 1, maxcount,
-  showempty = FALSE, rounded = TRUE, choicechecklist = TRUE,
-  just = "c", absolutePath = TRUE, folder = NULL,
-  imageFileOnly = FALSE, format = "", pngknit = TRUE, pxwidth = NULL,
-  pxheight = NULL, imagewidth = "", imageheight = "", width = NULL,
-  height = NULL, as.if.knit = FALSE, maxNodes = 1000,
-  unchecked = c("0", "FALSE", "No", "no"), checked = c("1", "TRUE", "Yes",
-  "yes"), trim = NULL, auto = FALSE, varminwidth = NULL,
-  varminheight = NULL, squeeze = 1, arrowhead = "normal",
-  nodesep = 0.5, ranksep = 0.5, margin = 0.2, graphattr = "",
-  nodeattr = "", edgeattr = "", nodefunc = NULL, nodeargs = NULL,
-  verbose = FALSE, runsummary = NULL, retain = NULL, parent = 1,
-  last = 1, root = TRUE, subset = 1:nrow(z), prunelone = NULL,
+  vp = TRUE, prune = list(), keep = list(), prunebelow = list(),
+  follow = list(), prunesmaller = NULL, summary = "",
+  shownodelabels = TRUE, showvarnames = TRUE, showpct = TRUE,
+  showlpct = TRUE, showcount = TRUE, showlegend = FALSE,
+  showroot = TRUE, showvarinnode = FALSE, showlegendsum = FALSE,
+  labelvar = NULL, labelnode = list(), tlabelnode = NULL, digits = 0,
+  cdigits = 1, fillcolor = NULL, fillnodes = TRUE,
+  NAfillcolor = "white", rootfillcolor = "#EFF3FF", palette = NULL,
+  gradient = TRUE, revgradient = FALSE, sortfill = FALSE,
+  singlecolor = 2, colorvarlabels = TRUE, color = c("blue",
+  "forestgreen", "red", "orange", "pink"), colornodes = FALSE,
+  Venn = FALSE, check.is.na = FALSE, seq = FALSE, pattern = FALSE,
+  ptable = FALSE, text = list(), ttext = list(), plain = FALSE,
+  varlabelloc = NULL, varnamepointsize = 24, varnamebold = FALSE,
+  legendpointsize = 14, HTMLtext = FALSE, splitwidth = 20,
+  vsplitwidth = 8, splitspaces = TRUE, getscript = FALSE, mincount = 1,
+  maxcount, showempty = FALSE, choicechecklist = TRUE, just = "c",
+  folder = NULL, format = "", imageFileOnly = FALSE, pngknit = TRUE,
+  pxwidth = NULL, pxheight = NULL, imagewidth = "", imageheight = "",
+  width = NULL, height = NULL, maxNodes = 1000, unchecked = c("0",
+  "FALSE", "No", "no"), checked = c("1", "TRUE", "Yes", "yes"),
+  trim = NULL, rounded = TRUE, varminwidth = NULL, varminheight = NULL,
+  squeeze = 1, arrowhead = "normal", nodesep = 0.5, ranksep = 0.5,
+  margin = 0.2, graphattr = "", nodeattr = "", edgeattr = "",
+  nodefunc = NULL, nodeargs = NULL, verbose = FALSE, runsummary = NULL,
+  retain = NULL, auto = FALSE, parent = 1, last = 1, root = TRUE,
+  subset = 1:nrow(z), as.if.knit = FALSE, prunelone = NULL,
   pruneNA = FALSE, lsplitwidth = 15, showlevels = TRUE, z)
 }
 \arguments{
 \item{data}{Required: Data frame, or a single vector.}
 
 \item{vars}{Required (unless \code{data} is a single vector):
-Either a character string of whitespace-separated variable names
-or a vector of variable names.}
+Variables to use for the tree. Can be 
+(1) a character string of whitespace-separated variable names,
+(2) a vector of variable names,
+(3) a formula without a left-hand side,
+e.g. \code{~ Age + Sex}.}
 
 \item{horiz}{Should the tree be drawn horizontally?
 (i.e. root node on the left, with the tree growing to the right)}
@@ -58,6 +60,14 @@ but do not show a percentage;
 all the other nodes show valid percentages.
 When \code{vp=FALSE}, all nodes (including nodes for missing values)
 show percentages of the total number of observations.}
+
+\item{prune, keep, prunebelow, follow}{List of named vectors that specify pruning.
+(see \strong{Pruning} below)}
+
+\item{prunesmaller}{Prune any nodes with count less than specified number.}
+
+\item{summary}{A character string used to specify summary statistics to display in the nodes.
+See \strong{Displaying summary information} below for details.}
 
 \item{shownodelabels}{Show node labels?
 A single value (with no names) specifies the setting for all variables.
@@ -89,13 +99,8 @@ When \code{seq=TRUE}, it may be useful to set \code{showroot=FALSE}.}
 
 \item{showvarinnode}{Show the variable name in each node?}
 
-\item{prune, keep, prunebelow, follow}{List of named vectors that specify pruning.
-(see \strong{Pruning} below)}
-
-\item{prunesmaller}{Prune any nodes with count less than specified number.}
-
-\item{summary}{A character string used to specify summary statistics to display in the nodes.
-See \strong{Displaying summary information} below for details.}
+\item{showlegendsum}{Show summary information in the legend?
+(Povided \code{summary} has been specified).}
 
 \item{labelvar}{A named vector of labels for variables.}
 
@@ -227,21 +232,29 @@ return the DOT script as a character string?}
 
 \item{showempty}{Show nodes that do not contain any observations?}
 
-\item{rounded}{[Graphviz] Use rounded boxes for nodes?}
-
 \item{choicechecklist}{When REDCap checklists are specified using the \code{stem:} syntax,
 automatically extract the names of choices and use them as variable names?}
 
 \item{just}{Text justification ("l"=left, "c"=center, "r"=right).}
 
-\item{absolutePath}{Use absolute path for saving graphics file?}
+\item{folder}{Optional path to a folder where the image file should stored
+when called during knit.
+If not specified and knitting to LaTeX, folder will be 
+set to the value of \code{knitr::opts_chunk$get("fig.path")}.
+(If this folder does not exist, it will be created.)
+If not specified and knitting to another}
 
-\item{folder}{Optional path to a folder where the PNG file should stored
-when called during knit}
+\item{format}{Image file format: "png" or "pdf".
+If not specified and knitting is taking place,
+then a PNG file is generated, unless a LaTeX document is 
+being generated (e.g. via Sweave), in which case a PDF file is generated.}
 
-\item{imageFileOnly}{Just generate an image file? (\code{format} specifies type of file)}
-
-\item{format}{Image file format: png or pdf}
+\item{imageFileOnly}{Just generate an image file? 
+The image file will be stored in the folder specified by \code{folder}.
+If \code{format="pdf"} the file will be in PDF format
+and stored in \code{vtree.pdf}.
+If \code{format="png"} the file will be in PNG format
+and stored in \code{vtree.png}.}
 
 \item{pngknit}{Generate a PNG file when called during knit?
 (If FALSE, and knitting to HTML, an htmlwidget will be embedded in the HTML file.)}
@@ -259,8 +272,6 @@ If neither \code{imageheight} nor \code{imagewidth} is specified,
 
 \item{width, height}{Width and height (in pixels) to be passed to \code{DiagrammeR::grViz}.}
 
-\item{as.if.knit}{Behave as if called while knitting?}
-
 \item{maxNodes}{An error occurs if the number of nodes exceeds \code{maxNodes}.}
 
 \item{unchecked, checked}{Vector of character strings interpreted as "unchecked" and "checked" respectively.}
@@ -270,7 +281,12 @@ of \code{\\includegraphics}.
 Vector of bp (big points) to trim in the order
 left, lower, right, upper.}
 
-\item{auto}{Automatically choose variables? (\code{vars} should not be specified)}
+\item{rounded}{[Graphviz] Use rounded boxes for nodes?}
+
+\item{varminwidth, varminheight}{[Graphviz] Named vector of minimum initial widths or heights for nodes of each variable.
+
+\code{varminwidth} sets the Graphviz \code{width} attribute.
+\code{varminheight} sets the Graphviz \code{height} attribute.}
 
 \item{squeeze}{[GraphViz] The degree (between 0 and 1) to which the tree will be "squeezed".
 This controls two Graphviz parameters: \code{margin} and \code{nodesep}.}
@@ -297,11 +313,15 @@ the corresponding string in \code{summary} will be evaluated.}
 \item{retain}{Vector of names of additional variables in the data frame that need to be
 available to execute the functions in \code{runsummary}.}
 
+\item{auto}{Automatically choose variables? (\code{vars} should not be specified)}
+
 \item{parent, last}{[Internal use only.] Node number of parent and last node.}
 
 \item{root}{[Internal use only.] Is this the root node of the tree?}
 
 \item{subset}{[Internal use only.] A vector representing the subset of observations.}
+
+\item{as.if.knit}{(Deprecated) Behave as if called while knitting?}
 
 \item{prunelone}{(Deprecated) A vector of values specifying "lone nodes" (of \emph{any} variable) to prune.
 A lone node is a node that has no siblings (an "only child").}
@@ -315,12 +335,7 @@ linebreak is inserted.}
 
 \item{showlevels}{(Deprecated) Same as showvarnames.}
 
-\item{z}{(Deprecate) This was replaced by the \code{data} parameter}
-
-\item{[Graphviz]}{varminwidth,varminheight
-Named vector of minimum initial widths or heights for nodes of each variable.
-\code{varminwidth} sets the Graphviz \code{width} attribute.
-\code{varminheight} sets the Graphviz \code{height} attribute.}
+\item{z}{(Deprecated) This was replaced by the \code{data} parameter}
 }
 \value{
 The value returned by \code{vtree} varies
