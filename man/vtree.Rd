@@ -42,7 +42,8 @@ Variables to use for the tree. Can be
 (1) a character string of whitespace-separated variable names,
 (2) a vector of variable names,
 (3) a formula without a left-hand side,
-e.g. \code{~ Age + Sex}.}
+e.g. \code{~ Age + Sex},
+but note that extended variable specifications cannnot be used in this case.}
 
 \item{horiz}{Should the tree be drawn horizontally?
 (i.e. root node on the left, with the tree growing to the right)}
@@ -237,27 +238,12 @@ automatically extract the names of choices and use them as variable names?}
 
 \item{just}{Text justification ("l"=left, "c"=center, "r"=right).}
 
-\item{folder}{Optional path to a folder where the image file should stored
-when called during knit.
-If not specified and knitting to LaTeX, folder will be 
-set to the value of \code{knitr::opts_chunk$get("fig.path")}.
-(If this folder does not exist, it will be created.)
-If not specified and knitting to another}
-
-\item{format}{Image file format: "png" or "pdf".
-If not specified and knitting is taking place,
-then a PNG file is generated, unless a LaTeX document is 
-being generated (e.g. via Sweave), in which case a PDF file is generated.}
-
-\item{imageFileOnly}{Just generate an image file? 
-The image file will be stored in the folder specified by \code{folder}.
-If \code{format="pdf"} the file will be in PDF format
-and stored in \code{vtree.pdf}.
-If \code{format="png"} the file will be in PNG format
-and stored in \code{vtree.png}.}
-
-\item{pngknit}{Generate a PNG file when called during knit?
-(If FALSE, and knitting to HTML, an htmlwidget will be embedded in the HTML file.)}
+\item{folder, format, imageFileOnly, pngknit}{Control image file generation.
+\code{folder}: a path to a folder where image file will be stored.
+\code{format}: "png" or "pdf" format.
+\code{imageFileOnly}: should an image file should be produced but not displayed?
+\code{pngknit}: generate a PNG file when called during knit?
+(See \strong{Knitr, R Markdown, Sweave} below for more information.)}
 
 \item{pxwidth, pxheight}{Width and height of the PNG bitmap to be rendered
 when \code{vtree} is called from R Markdown.
@@ -358,6 +344,20 @@ If knitting is \emph{not} taking place
         It will intelligently print itself into HTML in a variety of contexts
         including the R console, within R Markdown documents,
         and within Shiny output bindings.
+        
+        The `info` attribute of the return object is a list whose top
+        level represents the root node of the tree.
+        Within this list is a list named after the first variable in the tree.
+        In turn, within this list are lists named after the observed
+        values of that variable.
+        In turn, each of these lists is an element named after
+        the next variable in the tree.
+        And so on.
+        The root element as well as each list element named after a value of a variable also 
+        contains elements \code{.n} (representing the number of observations),
+        \code{.pct} (representing the percentage), and
+        \code{.txt} (representing additional text such as summaries).
+        
 }
 
 If knitting \emph{is} taking place:
@@ -377,38 +377,20 @@ If knitting \emph{is} taking place:
 Variable trees display information about nested subsets of a data frame,
 in which the subsetting is defined by the values of categorical variables.
 }
-\section{Pruning}{
+\section{Knitr, R Markdown, Sweave}{
 
-Each of the parameters \code{prune}, \code{keep}, \code{prunebelow}, \code{follow}
-takes a named list of vectors as its argument.
-Each vector specifies nodes of a variable.
-\itemize{
-  \item \code{prune} Specifies which nodes should be pruned.
-  \item \code{keep} Specifies which nodes should \emph{not} be pruned.
-  \item \code{prunebelow} Specifies which nodes should have their decendants pruned.
-  \item \code{follow} Specifies which nodes should \emph{not} have their descendants pruned.
-}
-}
+If \code{folder} is not specified and knitting to LaTeX,
+the folder will be set to the value of \code{knitr::opts_chunk$get("fig.path")}.
+(If this folder does not exist, it will be created.)
+If \code{folder} is not specified and knitting to markdown,
+a temporary folder will be used.
 
-\section{Nested list returned as the `info` attribute}{
-
-\itemize{
-  \item The top level of the list represents the root node.
-        Within this list is a list named after the first variable in the tree.
-  \item In turn, within this list are lists named after the observed
-        values of that variable.
-  \item In turn, each of these lists is an element named after
-        the next variable in the tree.
-  \item And so on ...
-}
-The root element as well as each list element named after a value of a variable also 
-contains elements \code{.n} (representing the number of observations),
-\code{.pct} (representing the percentage), and
-\code{.txt} (representing additional text such as summaries).
-}
-
-\section{R Markdown}{
-
+If \code{format} is not specified and knitting is taking place,
+then a PNG file is generated, unless a LaTeX document is 
+being generated (e.g. via Sweave), in which case a PDF file is generated.   
+PNG image files will end in \code{.png}.
+PDF image files will end in \code{.pdf}.
+                                                
 As noted in the \strong{Value} section above,
 \code{vtree} has special support for R Markdown.
 
@@ -428,8 +410,21 @@ The folder can also be specified using the \code{folder} parameter.
 (Using the base R function \code{options}, 
 a custom option \code{vtree_folder} is used to automatically keep track of this.)
 Successive PNG files generated by an R Markdown file
-are named \code{vtree1.png}, \code{vtree2.png}, etc.
+are named \code{vtree001.png}, \code{vtree002.png}, etc.
 (A custom option \code{vtree_count} is used to automatically keep track of the number of PNG files.)
+}
+
+\section{Pruning}{
+
+Each of the parameters \code{prune}, \code{keep}, \code{prunebelow}, \code{follow}
+takes a named list of vectors as its argument.
+Each vector specifies nodes of a variable.
+\itemize{
+  \item \code{prune}: which nodes should be pruned.
+  \item \code{keep}: which nodes should \emph{not} be pruned.
+  \item \code{prunebelow}: which nodes should have their decendants pruned.
+  \item \code{follow}: which nodes should \emph{not} have their descendants pruned.
+}
 }
 
 \section{Displaying summary information}{
@@ -508,17 +503,11 @@ The following palettes
 
 \examples{
 
-# Call to vtree 
-vtree(FakeData,"Sex Severity")
+# Call vtree and give the root node a title
+vtree(FakeData,"Sex Severity",title="People")
 
 # R Markdown inline call to vtree
 # `r vtree(FakeData,"Sex Severity")`
-
-# A single-level hierarchy
-vtree(FakeData,"Severity")
-
-# A two-level hierarchy
-vtree(FakeData,"Severity Sex")
 
 # Rename some nodes
 vtree(FakeData,"Severity Sex",labelnode=list(Sex=(c("Male"="M","Female"="F"))))
@@ -529,10 +518,10 @@ vtree(FakeData,"Severity Sex",labelvar=c(Severity="How bad?"))
 # Show legend. Put labels on the same line as counts and percentages
 vtree(FakeData,"Severity Sex Viral",sameline=TRUE,showlegend=TRUE)
 
-# Using the summary parameter to list ID numbers (truncated to 40 characters) in specified nodes
+# Use the summary parameter to list ID numbers (truncated to 40 characters) in specified nodes
 vtree(FakeData,"Severity Sex",summary="id \nid = \%list\% \%var=Severity\% \%trunc=40\%")
 
-# Adding text to specified nodes of a tree ("targeted text")
+# Add text to specified nodes of a tree ("targeted text")
 vtree(FakeData,"Severity Sex",ttext=list(
   c(Severity="Severe",Sex="M",text="\nMales with Severe disease"),
   c(Severity="NA",text="\nUnknown severity")))

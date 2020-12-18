@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 5.0.8"
+title: "Introduction to vtree 5.0.9"
 subtitle: "*Exploring subsets of data using variable trees*"
 author: '`r paste("Nick Barrowman",strftime(Sys.time(),format="%d-%b-%Y"))`'
 output:
@@ -37,7 +37,7 @@ vtree can be used to:
 
 2. produce customized figures for reports and publications.
 
-* Note, however, that vtree is *not* designed to build or display decision trees.
+Note, however, that vtree is *not* designed to build or display decision trees.
 
 Given a data frame and simple specifications,
 vtree will produce a variable tree and automatically labels it with counts,
@@ -1020,17 +1020,21 @@ The following control codes are available:
 The control codes can be specified by adding them to the end of the summary
 string, separated with a space.
 For example, to only show summary information for nodes of the `Category` variable 
-with the value `triple`:
+with the value `single`:
 
 ```{r, eval=FALSE}
-vtree(FakeData,"Severity Category",summary="Score<10 %var=Category%%node=triple%",
-  sameline=TRUE)
+vtree(FakeData,"Severity Category",summary="Score<10 %var=Category%%node=single%",
+  sameline=TRUE, showlegend=TRUE, showlegendsum=TRUE)
 ```
 
 `r spaces(35)`
-`r vtree(FakeData,"Severity Category",summary="Score<10 %var=Category%%node=triple%",
-  sameline=TRUE,
-  pxwidth=1000,imageheight="3.0in")`
+`r vtree(FakeData,"Severity Category",summary="Score<10 %var=Category%%node=single%",
+  sameline=TRUE, showlegend=TRUE, showlegendsum=TRUE,
+  pxwidth=1500,imageheight="4.5in")`
+
+Here `showlegend=TRUE` was specified,
+and additionally `showlegendsum=TRUE`,
+which indicates that summaries should also be shown in legend nodes.
 
 
 ### Customized summaries
