@@ -29,7 +29,10 @@
 #' @export
 #'
 
-grVizToImageFile <- function (g, width=NULL, height=NULL, format="png", folder = ".",filenamestem) {
+grVizToImageFile <- function (g, width=NULL, height=NULL, format="png", folder = ".",filename) {
+  
+  filenamestem <- sub(pattern = "(.*)\\..*$", replacement = "\\1", filename)
+  
   if (!("htmlwidget" %in% class(g)))
     stop("Argument must be of class htmlwidget.")
     
@@ -39,14 +42,17 @@ grVizToImageFile <- function (g, width=NULL, height=NULL, format="png", folder =
     filenamestem <- paste0(sapply(as.list(substitute({g})[-1]), deparse))
   }
   
-  filename <- 
-    ifelse(
-      format=="png",
-      paste0(filenamestem,".png"),
+  # If the filename doesn't have an extension, add one
+  if (filename==filenamestem) {  
+    filename <- 
       ifelse(
-        format=="pdf",
-        paste0(filenamestem,".pdf"),
-        stop("Unsupported format")))
+        format=="png",
+        paste0(filenamestem,".png"),
+        ifelse(
+          format=="pdf",
+          paste0(filenamestem,".pdf"),
+          stop("Unsupported format")))
+  }
   
   if (is.null(g)) {
     g <- format(DiagrammeR::grViz("digraph empty{ Node1[label='Empty'] }"))

@@ -35,5 +35,5 @@ grVizToPNG <- function (g, width=NULL, height=NULL, folder = ".",filename) {
     filename <- paste0(sapply(as.list(substitute({g})[-1]), deparse),".png")
   }
   
-  grVizToImage(g=g,width=width,height=heignt,format="png",folder=folder,filename=filename)
+  grVizToImageFile(g=g,width=width,height=height,format="png",folder=folder,filename=filename)
 }

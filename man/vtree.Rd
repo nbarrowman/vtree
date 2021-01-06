@@ -18,19 +18,20 @@ vtree(data, vars, horiz = TRUE, title = "", sameline = FALSE,
   "forestgreen", "red", "orange", "pink"), colornodes = FALSE,
   Venn = FALSE, check.is.na = FALSE, seq = FALSE, pattern = FALSE,
   ptable = FALSE, text = list(), ttext = list(), plain = FALSE,
-  varlabelloc = NULL, varnamepointsize = 24, varnamebold = FALSE,
-  legendpointsize = 14, HTMLtext = FALSE, splitwidth = 20,
-  vsplitwidth = 8, splitspaces = TRUE, getscript = FALSE, mincount = 1,
-  maxcount, showempty = FALSE, choicechecklist = TRUE, just = "c",
-  folder = NULL, format = "", imageFileOnly = FALSE, pngknit = TRUE,
-  pxwidth = NULL, pxheight = NULL, imagewidth = "", imageheight = "",
-  width = NULL, height = NULL, maxNodes = 1000, unchecked = c("0",
-  "FALSE", "No", "no"), checked = c("1", "TRUE", "Yes", "yes"),
-  trim = NULL, rounded = TRUE, varminwidth = NULL, varminheight = NULL,
-  squeeze = 1, arrowhead = "normal", nodesep = 0.5, ranksep = 0.5,
-  margin = 0.2, graphattr = "", nodeattr = "", edgeattr = "",
-  nodefunc = NULL, nodeargs = NULL, verbose = FALSE, runsummary = NULL,
-  retain = NULL, auto = FALSE, parent = 1, last = 1, root = TRUE,
+  varlabelloc = NULL, font = "Arial", varnamepointsize = 24,
+  varnamebold = FALSE, legendpointsize = 14, HTMLtext = FALSE,
+  splitwidth = 20, vsplitwidth = 8, splitspaces = TRUE,
+  getscript = FALSE, mincount = 1, maxcount, showempty = FALSE,
+  choicechecklist = TRUE, just = "c", folder = NULL, format = "",
+  imageFileOnly = FALSE, pngknit = TRUE, pxwidth = NULL,
+  pxheight = NULL, imagewidth = "", imageheight = "", width = NULL,
+  height = NULL, maxNodes = 1000, unchecked = c("0", "FALSE", "No",
+  "no"), checked = c("1", "TRUE", "Yes", "yes"), trim = NULL,
+  rounded = TRUE, varminwidth = NULL, varminheight = NULL, squeeze = 1,
+  arrowhead = "normal", nodesep = 0.5, ranksep = 0.5, margin = 0.2,
+  graphattr = "", nodeattr = "", edgeattr = "", nodefunc = NULL,
+  nodeargs = NULL, verbose = FALSE, runsummary = NULL, retain = NULL,
+  auto = FALSE, parent = 1, last = 1, root = TRUE,
   subset = 1:nrow(z), as.if.knit = FALSE, prunelone = NULL,
   pruneNA = FALSE, lsplitwidth = 15, showlevels = TRUE, z)
 }
@@ -206,6 +207,8 @@ all variable labels are black; and the \code{squeeze} parameter is set to 0.6.}
 ("t", "c", or "b" for top, center, or bottom, respectively)
 for nodes of each variable.
 (Sets the Graphviz \code{labelloc} attribute.)}
+
+\item{font}{Font.}
 
 \item{varnamepointsize}{Font size (in points) to use when displaying variable names.}
 

@@ -1,4 +1,4 @@
-showflow <- function(flow,getscript=FALSE,nodesep=0.5,ranksep=0.5,margin=0.2,
+showflow <- function(flow,getscript=FALSE,font,nodesep=0.5,ranksep=0.5,margin=0.2,
 nodelevels="",horiz=FALSE,width=NULL,height=NULL,
 graphattr="",nodeattr="",edgeattr="") {
 #
@@ -9,7 +9,7 @@ graphattr="",nodeattr="",edgeattr="") {
 # ranksep    The ranksep graph attribute.
 #
 
-  nodePart <- 'node [fontname = Helvetica, fontcolor = black,shape = rectangle, color = black, tooltip=" "'
+  nodePart <- paste0('node [fontname = ',font,', fontcolor = black,shape = rectangle, color = black, tooltip=" "')
   nodePart <- paste0(nodePart,",margin=",margin)
   nodePart <- paste0(nodePart,ifelse(nodeattr=="","",","),nodeattr)
   nodePart <- paste0(nodePart,"]\n")

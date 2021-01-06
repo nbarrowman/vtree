@@ -5,7 +5,7 @@
 \title{Export an htmlwidget object into an image file}
 \usage{
 grVizToImageFile(g, width = NULL, height = NULL, format = "png",
-  folder = ".", filenamestem)
+  folder = ".", filename)
 }
 \arguments{
 \item{g}{an object produced by the \code{grViz} function from the DiagrammmeR package}

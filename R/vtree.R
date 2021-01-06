@@ -77,6 +77,7 @@ NULL
 #'                         for nodes of each variable.
 #'                         (Sets the Graphviz \code{labelloc} attribute.)
 #' @param title            Label for the root node of the tree.
+#' @param font             Font.
 #' @param varnamepointsize Font size (in points) to use when displaying variable names.
 #' @param varnamebold      Show the variable name in bold?
 #' @param legendpointsize  Font size (in points) to use when displaying legend.
@@ -527,7 +528,8 @@ vtree <- function (
   text = list(),
   ttext=list(),
   plain = FALSE, 
-  varlabelloc=NULL,  
+  varlabelloc=NULL,
+  font = "Arial",
   varnamepointsize = 24,
   varnamebold=FALSE,
   legendpointsize = 14,
@@ -863,7 +865,7 @@ vtree <- function (
       # Process complex variable name specification
       # including REDCap variables, intersections, and wildcards
       #
-      regex <- "^((i|r|any|all)+:)*([^([:space:]|:)@\\*#]*)([@\\*#]?)$"
+      regex <- "^((i|r|any|all|notall|none|some)+:)*([^([:space:]|:)@\\*#]*)([@\\*#]?)$"
       match_regex <- grep(regex,vars)
       if (length(match_regex)>0) {
         expandedvars <- c()
@@ -1034,6 +1036,31 @@ vtree <- function (
                 expandedvars <- c(expandedvars,REDCap_var_label_any)
                 
               } else
+              if (prefix=="rnotall:" || prefix=="notallr:") {    # with wildcard @
+                
+                lab1 <- attributes(z[[matching_vars[1]]])$label
+                if (length(grep(rexp0,lab1))>0) {
+                  REDCap_var_label <- sub(rexp1,"\\1",lab1)
+                } else {
+                  REDCap_var_label <- sub(rexp2,"\\1",lab1)
+                }
+                if (choicechecklist) {
+                  for (j in 1:length(matching_vars)) {
+                    convertedToLogical <- 
+                      ifelse(z[[matching_vars[j]]] %in% checked,TRUE,
+                        ifelse(z[[matching_vars[j]]] %in% unchecked,FALSE,NA))
+                    if (j==1) {
+                      output <- convertedToLogical
+                    } else {
+                      output <- output & convertedToLogical
+                    }
+                  }
+                } 
+                REDCap_var_label_any <- paste0("Notall: ",REDCap_var_label)
+                z[[REDCap_var_label_any]] <- !output
+                expandedvars <- c(expandedvars,REDCap_var_label_any)
+                
+              } else                
               if (prefix=="rany:" || prefix=="anyr:") {     # with wildcard @
                 
                 lab1 <- attributes(z[[matching_vars[1]]])$label
@@ -1058,6 +1085,29 @@ vtree <- function (
                 z[[REDCap_var_label_any]] <- output
                 expandedvars <- c(expandedvars,REDCap_var_label_any)
                 
+              } else
+              if (prefix=="rnone:" || prefix=="noner:") {     # with wildcard @
+                  lab1 <- attributes(z[[matching_vars[1]]])$label
+                  if (length(grep(rexp0,lab1))>0) {
+                    REDCap_var_label <- sub(rexp1,"\\1",lab1)
+                  } else {
+                    REDCap_var_label <- sub(rexp2,"\\1",lab1)
+                  }
+                  if (choicechecklist) {
+                    for (j in 1:length(matching_vars)) {
+                      convertedToLogical <- 
+                        ifelse(!(z[[matching_vars[j]]] %in% checked),TRUE,
+                          ifelse(!(z[[matching_vars[j]]] %in% unchecked),FALSE,NA))
+                      if (j==1) {
+                        output <- convertedToLogical
+                      } else {
+                        output <- output & convertedToLogical
+                      }
+                    }
+                  } 
+                  REDCap_var_label_none <- paste0("None: ",REDCap_var_label)
+                  z[[REDCap_var_label_none]] <- output
+                  expandedvars <- c(expandedvars,REDCap_var_label_none)
               } else                
               if (prefix=="r:") {                         # with wildcard @
                 if (choicechecklist) {
@@ -1462,7 +1512,11 @@ vtree <- function (
               summaryformatlist[[i]] <- rep(summaryformatlist[[i]],length(matching_vars))
             
             } else
-            if (prefix=="r:" || prefix=="ir:" || prefix=="ri:" || prefix=="anyr:" || prefix=="rany:" || prefix=="allr:" || prefix=="rall:") {
+            if (prefix=="r:" || prefix=="ir:" || prefix=="ri:" ||
+                prefix=="anyr:" || prefix=="rany:" ||
+                prefix=="allr:" || prefix=="rall:" || 
+                prefix=="noner:" || prefix=="rnone:" ||
+                prefix=="notallr:" || prefix=="rnotall:") {
               if (wildcard=="@") {
                 matching_vars <- names(z)[grep(paste0("^",text_part,"___[0-9]+$"),names(z))]
               } else {
@@ -1530,6 +1584,33 @@ vtree <- function (
                 extra_variables <- c(extra_variables,matching_vars)
                 summaryformatlist[[i]] <- rep(summaryformatlist[[i]],length(matching_vars))
               } else
+              if (prefix=="noner:" || prefix=="rnone:") {
+                lab1 <- attributes(z[[matching_vars[1]]])$label
+                if (length(grep(rexp0,lab1))>0) {
+                  REDCap_var_label <- sub(rexp1,"\\1",lab1)
+                } else {
+                  REDCap_var_label <- sub(rexp2,"\\1",lab1)
+                }
+                if (choicechecklist) {
+                  for (j in 1:length(matching_vars)) {
+                    convertedToLogical <- 
+                      ifelse(!(z[[matching_vars[j]]] %in% checked),TRUE,
+                        ifelse(!(z[[matching_vars[j]]] %in% unchecked),FALSE,NA))
+                    if (j==1) {
+                      output <- convertedToLogical
+                    } else {
+                      output <- output | convertedToLogical
+                    }
+                  }
+                } 
+                REDCap_var_label_none <- paste0("None: ",REDCap_var_label)
+                z[[REDCap_var_label_none]] <- output
+                expandedvars <- c(expandedvars,REDCap_var_label_none)
+                summaryvarlist[[i]] <- expandedvars
+                headinglist[[i]] <- expandedvars            
+                extra_variables <- c(extra_variables,matching_vars)
+                summaryformatlist[[i]] <- rep(summaryformatlist[[i]],length(matching_vars))
+              } else                
               if (prefix=="allr:" || prefix=="rall:") {
                 lab1 <- attributes(z[[matching_vars[1]]])$label
                 if (length(grep(rexp0,lab1))>0) {
@@ -1556,7 +1637,34 @@ vtree <- function (
                 headinglist[[i]] <- expandedvars            
                 extra_variables <- c(extra_variables,matching_vars)
                 summaryformatlist[[i]] <- rep(summaryformatlist[[i]],length(matching_vars))
-              } else                                
+              } else
+              if (prefix=="notallr:" || prefix=="rnotall:") {
+                lab1 <- attributes(z[[matching_vars[1]]])$label
+                if (length(grep(rexp0,lab1))>0) {
+                  REDCap_var_label <- sub(rexp1,"\\1",lab1)
+                } else {
+                  REDCap_var_label <- sub(rexp2,"\\1",lab1)
+                }
+                if (choicechecklist) {
+                  for (j in 1:length(matching_vars)) {
+                    convertedToLogical <- 
+                      ifelse(z[[matching_vars[j]]] %in% checked,TRUE,
+                        ifelse(z[[matching_vars[j]]] %in% unchecked,FALSE,NA))
+                    if (j==1) {
+                      output <- convertedToLogical
+                    } else {
+                      output <- output & convertedToLogical
+                    }
+                  }
+                } 
+                REDCap_var_label_any <- paste0("All: ",REDCap_var_label)
+                z[[REDCap_var_label_any]] <- !output
+                expandedvars <- c(expandedvars,REDCap_var_label_any)
+                summaryvarlist[[i]] <- expandedvars
+                headinglist[[i]] <- expandedvars            
+                extra_variables <- c(extra_variables,matching_vars)
+                summaryformatlist[[i]] <- rep(summaryformatlist[[i]],length(matching_vars))
+              } else                                                
               if (prefix=="ri:" | prefix=="ir:") {
                 if (choicechecklist) {
                   for (j in seq_len(length(matching_vars))) {
@@ -2847,7 +2955,7 @@ vtree <- function (
       pt
     } else {    
       if (novars) NL <- ""
-      flowchart <- showflow(fc, getscript = getscript, nodesep = nodesep,
+      flowchart <- showflow(fc, getscript = getscript, font = font, nodesep = nodesep,
         ranksep=ranksep, margin=margin, nodelevels = NL, horiz = horiz,
         width=width,height=height,
         graphattr=graphattr,nodeattr=nodeattr,edgeattr=edgeattr)
