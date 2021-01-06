@@ -8,7 +8,6 @@
 #' @param g        an object produced by the \code{grViz} function from the DiagrammmeR package
 #' @param width    the width in pixels of the bitmap
 #' @param height   the height in pixels of the bitmap
-#' @param format   Graphics file format. Currently "png" and "pdf" are supported.
 #' @param folder   path to folder where the PNG file should stored
 #' @param filename an optional filename.
 #'                 If not provided, the filename will be derived from the name 

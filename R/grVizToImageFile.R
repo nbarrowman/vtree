@@ -10,7 +10,7 @@
 #' @param height   the height in pixels of the bitmap
 #' @param format   Graphics file format. Currently "png" and "pdf" are supported.
 #' @param folder   path to folder where the PNG file should stored
-#' @param filenamestem an optional filename stem.
+#' @param filename an optional filename stem.
 #'                 If not provided, the filename stem will be derived from the name 
 #'                 of the argument of \code{g}.
 #'

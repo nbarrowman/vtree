@@ -18,8 +18,6 @@ grVizToPNG(g, width = NULL, height = NULL, folder = ".", filename)
 \item{filename}{an optional filename.
 If not provided, the filename will be derived from the name 
 of the argument of \code{g}.}
-
-\item{format}{Graphics file format. Currently "png" and "pdf" are supported.}
 }
 \value{
 Returns the full path of the PNG file.

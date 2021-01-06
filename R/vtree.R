@@ -618,8 +618,10 @@ vtree <- function (
 
   if (missing(z)) z <- data
   
-  ### ----------- Begin code for root only ------------
-
+  # *************************************************************************
+  # Begin code for root only ----
+  # *************************************************************************
+  
   if (root) {
 
     unknowncolor <- "pink"
@@ -698,9 +700,9 @@ vtree <- function (
         message("Additional variables excluded: ",paste(non_discrete_vars,collapse=" "))
     }
      
-    # -------------------------------------------------------------------------
-    # Variable specifications
-    # -------------------------------------------------------------------------
+    # *************************************************************************
+    # Begin: Variable specifications ----
+    # *************************************************************************
     
     if (!(all(vars==""))) {
  
@@ -862,10 +864,10 @@ vtree <- function (
   
       
       #
-      # Process complex variable name specification
+      # >> Process complex variable name specification ----
       # including REDCap variables, intersections, and wildcards
       #
-      regex <- "^((i|r|any|all|notall|none|some)+:)*([^([:space:]|:)@\\*#]*)([@\\*#]?)$"
+      regex <- "^((i|r|any|all|notall|none)+:)*([^([:space:]|:)@\\*#]*)([@\\*#]?)$"
       match_regex <- grep(regex,vars)
       if (length(match_regex)>0) {
         expandedvars <- c()
@@ -1056,7 +1058,7 @@ vtree <- function (
                     }
                   }
                 } 
-                REDCap_var_label_any <- paste0("Notall: ",REDCap_var_label)
+                REDCap_var_label_any <- paste0("Not all: ",REDCap_var_label)
                 z[[REDCap_var_label_any]] <- !output
                 expandedvars <- c(expandedvars,REDCap_var_label_any)
                 
@@ -1217,7 +1219,10 @@ vtree <- function (
         vars <- expandedvars
       }    
     }
-    # end of variable specifications
+    
+    # *************************************************************************
+    # End: Variable specifications ----
+    # *************************************************************************
     
   
     
@@ -1226,9 +1231,9 @@ vtree <- function (
     allvars <- vars
 
     
-    # -------------------------------------------------------------------------
-    # Set up summaries if requested
-    # -------------------------------------------------------------------------
+    # *************************************************************************
+    # Begin: Summaries  ----
+    # *************************************************************************
     
     regex <- "^(\\S+)\\s(.+)$"
     if (!all(summary=="")) {
@@ -1447,10 +1452,10 @@ vtree <- function (
       }      
       
       #
-      # Process complex summary specification
+      # >> Process complex summary specification ----
       # including REDCap variables, intersections, and wildcards
       #
-      regex <- "^((i|r|any|all)+:)*([^[:space:]]*)([\\*#@])$"
+      regex <- "^((i|r|any|all|none|notall)+:)*([^[:space:]]*)([\\*#@])$"
       match_regex <- grep(regex,codevar)
       if (length(match_regex)>0) {
         for (i in seq_len(length(codevar))) {    
@@ -1657,7 +1662,7 @@ vtree <- function (
                     }
                   }
                 } 
-                REDCap_var_label_any <- paste0("All: ",REDCap_var_label)
+                REDCap_var_label_any <- paste0("Not all: ",REDCap_var_label)
                 z[[REDCap_var_label_any]] <- !output
                 expandedvars <- c(expandedvars,REDCap_var_label_any)
                 summaryvarlist[[i]] <- expandedvars
@@ -1755,7 +1760,10 @@ vtree <- function (
         original_var=headings,
         sf = runsummary, digits = digits, cdigits = cdigits, sepN=sepN)
     }
-    # end of section for summary argument
+    
+    # *************************************************************************
+    # End: Summaries  ----
+    # *************************************************************************
     
 
     # Add any extra variables needed
@@ -2471,9 +2479,10 @@ vtree <- function (
   }
 
   
-  ### -------------------------------------------------------------------  
-  ### --------------------- End code for root only ----------------------
-  ### -------------------------------------------------------------------  
+  # *************************************************************************
+  # End code for root only ----
+  # *************************************************************************
+  
   
   numvars <- length(vars)
 

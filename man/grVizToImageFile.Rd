@@ -18,7 +18,7 @@ grVizToImageFile(g, width = NULL, height = NULL, format = "png",
 
 \item{folder}{path to folder where the PNG file should stored}
 
-\item{filenamestem}{an optional filename stem.
+\item{filename}{an optional filename stem.
 If not provided, the filename stem will be derived from the name 
 of the argument of \code{g}.}
 }

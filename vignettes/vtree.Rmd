@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 5.1.1"
+title: "Introduction to vtree 5.1.3"
 subtitle: "*Exploring subsets of data using variable trees*"
 author: '`r paste("Nick Barrowman",strftime(Sys.time(),format="%d-%b-%Y"))`'
 output:
@@ -333,7 +333,7 @@ FakeData %>% rename("HowBad"=Severity) %>% vtree("HowBad")
 ```
 
 Note that `vtree` also has a [built-in way of renaming variables](#labeling),
-so it is not necessary to use dplyr.
+which is an alternative to using dplyr.
 
 Large variable trees can be difficult to display in a readable way.
 One approach that helps is to display the count and percentage on the same line
@@ -755,14 +755,20 @@ vtree(FakeData,"Group Severity",horiz=FALSE,showvarnames=FALSE,
 ## Specification of variables {#VariableSpecification}
 
 *This section shows how to control how variables appear in a variable tree.* 
+
+Sometimes it is desirable to modify a variable for use in a variable tree.
+For example,
+suppose you wish to determine how many values of `Score` are missing.
+This is easy to do with dplyr:
+
+```{r,eval=FALSE}
+library(dplyr)
+FakeData %>% mutate(missingScore=is.na(Score)) %>% vtree("missingScore")
+```
  
-For convenience,
-you can specify variable names (separated by whitespace) in a single character string.
-(If, however, any of the variable names have internal spaces,
-the variable names must be specified as a vector of character strings.)
-Additionally, several modifiers can be used, as detailed below.
-
-
+But, vtree also offers built-in tools for variable specification.
+Although limited, they can be very convenient.
+ 
 ### prefix `is.na:`
 
 If an individual variable name is preceded by `is.na:`,
@@ -806,7 +812,7 @@ combinations of values of `Ind1`, `Ind2`, `Ind3`, and `Ind4`.
 
 Vtree includes special support for [REDCap](https://www.project-redcap.org/) data sets.
 The prefix `r:` is used to indicate REDCap checkbox variables,
-and can be combined with other     prefixes.
+and can be combined with other prefixes.
 This is described in the section on [REDCap checkboxes](#REDCapCheckboxes)
 later in this vignette.
 
@@ -843,10 +849,17 @@ and have the following defaults:
 
 Values not listed in `checked` or `unchecked` are treated as missing values.
 
+### prefix `none:`
+
+The logical complement (negation) of the `any:` prefix. 
 
 ### prefix `all:`
 
 A specification like `all:open*` generates a variable which is TRUE if *all* of the matching variables have a "checked" value.
+
+### prefix `notall:`
+
+The logical complement (negation) of the `all:` prefix.
 
 
 ### prefix `tri:` {#detectingOutliers}
@@ -1473,15 +1486,16 @@ vtree(dessert,"r:IceCream@")
 ```
  
 
-### variable prefixes `rany:` and `rall:`
+### variable prefixes `rany:`, `rnone:`, `rall:`, and `rnotall:`
 
-The variable prefixes `any:` and `all:` can be combined with the `r:` prefix
-in the form `rany:` and `rall:`.
+The variable prefixes `any:`, `none:`, `all:`, and `notall:`
+can be combined with the `r:` prefix 
+to form `rany:`, `rnone:`, `rall:`, and `rnotall:`.
 For example, to determine whether anyone did not like *any* of the 
 flavours (Chocolate, Vanilla, or Strawberry):
 
 ```{r eval=FALSE}
-vtree(dessert,"rany:IceCream@")
+vtree(dessert,"rnone:IceCream@")
 ```
 
 
