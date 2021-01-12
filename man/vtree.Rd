@@ -80,7 +80,7 @@ it is interpreted as \code{TRUE} for those variables and \code{FALSE} for all ot
 Similarly, if the vector consists of only \code{FALSE} values, 
 it is interpreted as \code{FALSE} for those variables and \code{TRUE} for all others.}
 
-\item{showvarnames}{Show the name of the variable next to each level of the tree?}
+\item{showvarnames}{Show the name of the variable next to each layer of the tree?}
 
 \item{showpct, showlpct}{Show percentage? \code{showpct} is for nodes, \code{showlpct} is for legends.
 A single value (with no names) specifies the setting for all variables.
@@ -162,7 +162,7 @@ specify \code{singlecolor=1} to assign a light shade.}
 
 \item{colorvarlabels}{[Color] Color the variable labels?}
 
-\item{color}{[Color] A vector of color names for the \emph{outline} of the nodes at each level.}
+\item{color}{[Color] A vector of color names for the \emph{outline} of the nodes in each layer.}
 
 \item{colornodes}{[Color] Color the node outlines?}
 

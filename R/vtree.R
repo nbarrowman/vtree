@@ -151,7 +151,7 @@ NULL
 #'                         this parameter is used to specify whether nodes should have a
 #'                         (1) light shade, (2) a medium shade, or (3) a dark shade.
 #'                         specify \code{singlecolor=1} to assign a light shade.
-#' @param color            [Color] A vector of color names for the \emph{outline} of the nodes at each level.
+#' @param color            [Color] A vector of color names for the \emph{outline} of the nodes in each layer.
 #' @param colornodes       [Color] Color the node outlines?
 #' @param plain            [Color] Use "plain" settings?
 #'                         These settings are as follows: for each variable all nodes are the same color,
@@ -179,7 +179,7 @@ NULL
 #'                         Similarly, if the vector consists of only \code{FALSE} values, 
 #'                         it is interpreted as \code{FALSE} for those variables and \code{TRUE} for all others.
 #'                         
-#' @param showvarnames     Show the name of the variable next to each level of the tree?
+#' @param showvarnames     Show the name of the variable next to each layer of the tree?
 #' @param showcount        Show count in each node?
 #'                         A single value (with no names) specifies the setting for all variables.
 #'                         A logical vector of \code{TRUE} for named variables is interpreted as
@@ -681,17 +681,17 @@ vtree <- function (
   
       # Calculate a quick approximation to the cumulative number of nodes
       nodes <- 1
-      level <- 1
+      layer <- 1
       excluded_discrete_vars <- c()
-      while (level<=length(vars)) {
-        nodes <- nodes*length(unique(z[[vars[level]]]))
+      while (layer<=length(vars)) {
+        nodes <- nodes*length(unique(z[[vars[layer]]]))
         if (nodes>maxNodes) {
-          ev <- vars[-seq_len(level)]
-          vars <- vars[seq_len(level)]
+          ev <- vars[-seq_len(layer)]
+          vars <- vars[seq_len(layer)]
           excluded_discrete_vars <- c(ev,excluded_discrete_vars)
           break
         }
-        level <- level+1
+        layer <- layer+1
       }
       if (verbose) message("--Discrete variables included: ",paste(vars,collapse=" "))
       if (verbose && length(excluded_discrete_vars)>0) 
@@ -867,7 +867,7 @@ vtree <- function (
       # >> Process complex variable name specification ----
       # including REDCap variables, intersections, and wildcards
       #
-      regex <- "^((i|r|any|all|notall|none)+:)*([^([:space:]|:)@\\*#]*)([@\\*#]?)$"
+      regex <- "^((i|r|any|all|notall|none)+:)*([^([:space:]|:)@\\*#]*)([@\\*#]?)(.*)$"
       match_regex <- grep(regex,vars)
       if (length(match_regex)>0) {
         expandedvars <- c()
@@ -885,15 +885,16 @@ vtree <- function (
             prefix <- sub(regex,"\\1",vars[i])
             text_part <- sub(regex,"\\3",vars[i])
             wildcard <- sub(regex,"\\4",vars[i])
+            tail <- sub(regex,"\\5",vars[i])
             if (prefix=="" && wildcard=="") {
               expandedvars <- c(expandedvars,vars[i]) 
             } else
             if (prefix=="") {
               if (wildcard=="*") {
-                matching_vars <- names(z)[grep(paste0("^",text_part,".*$"),names(z))]
+                matching_vars <- names(z)[grep(paste0("^",text_part,".*",tail,"$"),names(z))]
               } else
               if (wildcard=="#") {
-                matching_vars <- names(z)[grep(paste0("^",text_part,"[0-9]+$"),names(z))]
+                matching_vars <- names(z)[grep(paste0("^",text_part,"[0-9]+",tail,"$"),names(z))]
               } else {
                 stop("Invalid wildcard in variable specification")
               }
@@ -1339,25 +1340,6 @@ vtree <- function (
         }
       } 
       
-      # If an element of codevar is not the name of a variable in z,
-      # perhaps it's an expression that can be evaluated in z
-      for (i in seq_len(length(summaryvarlist))) { 
-        if (length(grep("^([oair]+[oair]*:)*(\\S*)([\\*#@])$",summaryvarlist[[i]]))==0) {
-          if (length(grep("^stem:",summaryvarlist[[i]]))==0) {   # except for stems
-            if (length(grep("^stemc:",summaryvarlist[[i]]))==0) {   # except for stems
-              if (length(grep("\\*$",summaryvarlist[[i]]))==0) {   # except for ending in *
-               if (length(grep("#$",summaryvarlist[[i]]))==0) {   # except for ending in #
-                 if (!(summaryvarlist[[i]] %in% names(z))) {
-                   derivedvar <- with(z,eval(parse(text=summaryvarlist[[i]],keep.source=FALSE))) 
-                   z[[summaryvarlist[[i]]]] <- derivedvar
-                 }
-                }
-              }
-            }
-          }
-        }
-      }      
-      
       # Process stem: tag in variable names in summary argument
       regex <- "^stem:(\\S+)$"
       findstem <- grep(regex,codevar)
@@ -1455,7 +1437,7 @@ vtree <- function (
       # >> Process complex summary specification ----
       # including REDCap variables, intersections, and wildcards
       #
-      regex <- "^((i|r|any|all|none|notall)+:)*([^[:space:]]*)([\\*#@])$"
+      regex <- "^((i|r|any|all|none|notall)+:)*([^[:space:]]*)([\\*#@])(.*)$"
       match_regex <- grep(regex,codevar)
       if (length(match_regex)>0) {
         for (i in seq_len(length(codevar))) {    
@@ -1465,12 +1447,13 @@ vtree <- function (
             prefix <- sub(regex,"\\1",codevar[i])
             text_part <- sub(regex,"\\3",codevar[i])
             wildcard <- sub(regex,"\\4",codevar[i])
+            tail <- sub(regex,"\\5",codevar[i])
             if (prefix=="any:" | prefix=="all:") {
               if (wildcard=="*") {
-                matching_vars <- names(z)[grep(paste0("^",text_part,".*$"),names(z))]
+                matching_vars <- names(z)[grep(paste0("^",text_part,".*",tail,"$"),names(z))]
               } else
               if (wildcard=="#") {
-                matching_vars <- names(z)[grep(paste0("^",text_part,"[0-9]+$"),names(z))]
+                matching_vars <- names(z)[grep(paste0("^",text_part,"[0-9]+",tail,"$"),names(z))]
               } else {
                 stop("Invalid wildcard in summary specification")
               }
@@ -1604,7 +1587,7 @@ vtree <- function (
                     if (j==1) {
                       output <- convertedToLogical
                     } else {
-                      output <- output | convertedToLogical
+                      output <- output & convertedToLogical
                     }
                   }
                 } 
@@ -1635,9 +1618,9 @@ vtree <- function (
                     }
                   }
                 } 
-                REDCap_var_label_any <- paste0("All: ",REDCap_var_label)
-                z[[REDCap_var_label_any]] <- output
-                expandedvars <- c(expandedvars,REDCap_var_label_any)
+                REDCap_var_label_all <- paste0("All: ",REDCap_var_label)
+                z[[REDCap_var_label_all]] <- output
+                expandedvars <- c(expandedvars,REDCap_var_label_all)
                 summaryvarlist[[i]] <- expandedvars
                 headinglist[[i]] <- expandedvars            
                 extra_variables <- c(extra_variables,matching_vars)
@@ -1653,18 +1636,18 @@ vtree <- function (
                 if (choicechecklist) {
                   for (j in 1:length(matching_vars)) {
                     convertedToLogical <- 
-                      ifelse(z[[matching_vars[j]]] %in% checked,TRUE,
-                        ifelse(z[[matching_vars[j]]] %in% unchecked,FALSE,NA))
+                      ifelse(!(z[[matching_vars[j]]] %in% checked),TRUE,
+                        ifelse(!(z[[matching_vars[j]]] %in% unchecked),FALSE,NA))
                     if (j==1) {
                       output <- convertedToLogical
                     } else {
-                      output <- output & convertedToLogical
+                      output <- output | convertedToLogical
                     }
                   }
                 } 
-                REDCap_var_label_any <- paste0("Not all: ",REDCap_var_label)
-                z[[REDCap_var_label_any]] <- !output
-                expandedvars <- c(expandedvars,REDCap_var_label_any)
+                REDCap_var_label_notall <- paste0("Not all: ",REDCap_var_label)
+                z[[REDCap_var_label_notall]] <- output
+                expandedvars <- c(expandedvars,REDCap_var_label_notall)
                 summaryvarlist[[i]] <- expandedvars
                 headinglist[[i]] <- expandedvars            
                 extra_variables <- c(extra_variables,matching_vars)
@@ -1702,10 +1685,10 @@ vtree <- function (
               }  
             } else {
               if (wildcard=="*") {
-                matching_vars <- names(z)[grep(paste0("^",text_part,".*$"),names(z))]
+                matching_vars <- names(z)[grep(paste0("^",text_part,".*",tail,"$"),names(z))]
               } else
               if (wildcard=="#") {
-                matching_vars <- names(z)[grep(paste0("^",text_part,"[0-9]+$"),names(z))]
+                matching_vars <- names(z)[grep(paste0("^",text_part,"[0-9]+",tail,"$"),names(z))]
               } else {
                 stop("Invalid wildcard")
               }
@@ -1737,6 +1720,27 @@ vtree <- function (
                 summaryformatlist[[i]] <- rep(summaryformatlist[[i]],length(matching_vars))
               } else {
                 stop("Unknown prefix")
+              }
+            }
+          }
+        }
+      }     
+      
+      # If an element of codevar is not the name of a variable in z,
+      # perhaps it's an expression that can be evaluated in z
+      for (i in seq_len(length(summaryvarlist))) { 
+        if (length(summaryvarlist[[i]])==1) {
+          if (length(grep("^([oair]+[oair]*:)*(\\S*)([\\*#@])$",summaryvarlist[[i]]))==0) {
+            if (length(grep("^stem:",summaryvarlist[[i]]))==0) {   # except for stems
+              if (length(grep("^stemc:",summaryvarlist[[i]]))==0) {   # except for stems
+                if (length(grep("\\*$",summaryvarlist[[i]]))==0) {   # except for ending in *
+                  if (length(grep("#$",summaryvarlist[[i]]))==0) {   # except for ending in #
+                    if (!(summaryvarlist[[i]] %in% names(z))) {
+                      derivedvar <- with(z,eval(parse(text=summaryvarlist[[i]],keep.source=FALSE))) 
+                      z[[summaryvarlist[[i]]]] <- derivedvar
+                    }
+                  }
+                }
               }
             }
           }
@@ -2520,7 +2524,7 @@ vtree <- function (
   if (!is.null(nodefunc)) {
     if (numvars == 1)
         nodeargs$leaf <- TRUE
-    ThisLevelText <- c()
+    ThisLayerText <- c()
     qqq <- z[[vars[1]]]
     qqq <- as.character(qqq)
     qqq[is.na(qqq)] <- "NA"
@@ -2536,7 +2540,7 @@ vtree <- function (
       summarytext[[value]] <- nodefunc(zselect, vars[1], value, args = nodeargs)
       nodetext <- paste0(summarytext[[value]],collapse="")
       nodetext <- splitlines(nodetext, width = splitwidth, sp = sepN, at=" ")
-      ThisLevelText <- c(ThisLevelText, paste0(nodetext,sepN))
+      ThisLayerText <- c(ThisLayerText, paste0(nodetext,sepN))
     }
     if (root) {
       topnodeargs <- nodeargs
@@ -2547,14 +2551,14 @@ vtree <- function (
       nodetext <- splitlines(nodetext, width = splitwidth,sp = sepN, at=" ")
       TopText <- paste0(nodetext,sepN)
     }
-    names(ThisLevelText) <- CAT
+    names(ThisLayerText) <- CAT
   } else {
-    ThisLevelText <- text[[vars[1]]]
+    ThisLayerText <- text[[vars[1]]]
     summarytext <- NULL
   }
   
-  if (pattern & vars[1]!="pattern") ThisLevelText <- ""
-  if (seq  & vars[1]!="sequence") ThisLevelText <- ""
+  if (pattern & vars[1]!="pattern") ThisLayerText <- ""
+  if (seq  & vars[1]!="sequence") ThisLayerText <- ""
 
   if (novars) {
     zvalue <- rep(0,nrow(z))
@@ -2581,7 +2585,7 @@ vtree <- function (
     HTMLtext = HTMLtext, showvarnames = showvarnames,
     keep=keep[[vars[1]]],
     pruneNA=pruneNA,
-    text = ThisLevelText, ttext=ttext,TopText = TopText, digits = digits, cdigits = cdigits,
+    text = ThisLayerText, ttext=ttext,TopText = TopText, digits = digits, cdigits = cdigits,
     splitwidth = splitwidth, showempty = showempty, topcolor = color[1],
     color = color[2], topfillcolor = rootfillcolor, fillcolor = fillcolor[[vars[1]]],
     vp = vp, rounded = rounded, just=just, showroot=showroot,verbose=verbose,sortfill=sortfill)
@@ -2879,13 +2883,13 @@ vtree <- function (
         legendlabel <- paste0(displayCAT,", ",npctString)
         
        
-        ThisLevelText <- rep("",length(legendlabel)) 
+        ThisLayerText <- rep("",length(legendlabel)) 
         
         if (showlegendsum) {
           if (!is.null(nodefunc)) {
             if (numvars == 1)
               nodeargs$leaf <- TRUE
-            ThisLevelText <- c()
+            ThisLayerText <- c()
             current_var <- as.character(thisvar)
             current_var[is.na(current_var)] <- "NA"
             summarytext <- vector("list",length=length(CAT))
@@ -2895,12 +2899,12 @@ vtree <- function (
               summarytext[[value]] <- nodefunc(df_subset, vars[i], value, args = nodeargs)
               nodetext <- paste0(summarytext[[value]],collapse="")
               nodetext <- splitlines(nodetext, width = splitwidth, sp = sepN, at=" ")
-              ThisLevelText <- c(ThisLevelText, paste0(nodetext,sepN))
+              ThisLayerText <- c(ThisLayerText, paste0(nodetext,sepN))
             }
           }
         }
         
-        extendedlegendlabel <- paste0(legendlabel,convertToHTML(ThisLevelText,just=just))
+        extendedlegendlabel <- paste0(legendlabel,convertToHTML(ThisLayerText,just=just))
 
         
         labels <- paste0(
