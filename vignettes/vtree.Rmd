@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 5.1.4"
+title: "Introduction to vtree 5.1.5"
 subtitle: "*Exploring subsets of data using variable trees*"
 author: '`r paste("Nick Barrowman",strftime(Sys.time(),format="%d-%b-%Y"))`'
 output:
@@ -849,6 +849,12 @@ and have the following defaults:
 
 Values not listed in `checked` or `unchecked` are treated as missing values.
 
+An alternative prefix, `anyx:`,
+is used to specify that missing values will be removed when 
+performing the calculation. 
+This matches the behavior of the R function `any` when `na.rm=TRUE` is specified.
+
+
 ### prefix `none:`
 
 The logical complement (negation) of the `any:` prefix. 
@@ -856,6 +862,11 @@ The logical complement (negation) of the `any:` prefix.
 ### prefix `all:`
 
 A specification like `all:open*` generates a variable which is TRUE if *all* of the matching variables have a "checked" value.
+
+An alternative prefix, `allx:`,
+is used to specify that missing values will be removed when 
+performing the calculation. 
+This matches the behavior of the R function `all` when `na.rm=TRUE` is specified.
 
 ### prefix `notall:`
 

@@ -704,6 +704,13 @@ vtree <- function (
     # Begin: Variable specifications ----
     # *************************************************************************
     
+    #
+    # The following complex regular expression is used for both 
+    # variable specifications and summary arguments.
+    #
+    
+    regexComplex <- "^((i|r|any|anyx|all|allx|notall|notallx|none|nonex)+:)*([^([:space:]|:)@\\*#]*)([@\\*#]?)(.*)$"
+    
     if (!(all(vars==""))) {
  
       # Process != tag in variable names 
@@ -867,8 +874,10 @@ vtree <- function (
       # >> Process complex variable name specification ----
       # including REDCap variables, intersections, and wildcards
       #
-      regex <- "^((i|r|any|all|notall|none)+:)*([^([:space:]|:)@\\*#]*)([@\\*#]?)(.*)$"
-      match_regex <- grep(regex,vars)
+      # Uses the same regular expression as for variable specifications,
+      # namely the string regex
+      
+      match_regex <- grep(regexComplex,vars)
       if (length(match_regex)>0) {
         expandedvars <- c()
         #
@@ -882,10 +891,10 @@ vtree <- function (
         for (i in seq_len(length(vars))) {
           if (i %in% match_regex) {
             y <- rep("",nrow(z))
-            prefix <- sub(regex,"\\1",vars[i])
-            text_part <- sub(regex,"\\3",vars[i])
-            wildcard <- sub(regex,"\\4",vars[i])
-            tail <- sub(regex,"\\5",vars[i])
+            prefix <- sub(regexComplex,"\\1",vars[i])
+            text_part <- sub(regexComplex,"\\3",vars[i])
+            wildcard <- sub(regexComplex,"\\4",vars[i])
+            tail <- sub(regexComplex,"\\5",vars[i])
             if (prefix=="" && wildcard=="") {
               expandedvars <- c(expandedvars,vars[i]) 
             } else
@@ -934,7 +943,7 @@ vtree <- function (
                 }
               } 
             } else   
-            if (prefix=="any:" || prefix=="all:") {
+            if (prefix=="any:" || prefix=="anyx:" || prefix=="all:" || prefix=="allx:") {
               
               if (wildcard=="*") {
                 matching_vars <- names(z)[grep(paste0("^",text_part,".*$"),names(z))]
@@ -948,29 +957,29 @@ vtree <- function (
                 stop("Could not find variables with names matching variable specification")
               }      
               if (verbose) message(paste0(vars[i]," expands to: ",paste(matching_vars,collapse=", ")))
-              if (prefix=="any:") {
+              if (prefix=="any:" || prefix=="anyx:") {
+                output <- rep(FALSE,nrow(z))
                 for (j in 1:length(matching_vars)) {
                   convertedToLogical <- 
                     ifelse(z[[matching_vars[j]]] %in% checked,TRUE,
                       ifelse(z[[matching_vars[j]]] %in% unchecked,FALSE,NA))
-                  if (j==1) {
-                    output <- convertedToLogical
-                  } else {
-                   output <- output | convertedToLogical
+                  if (prefix=="anyx:") {
+                    convertedToLogical[is.na(convertedToLogical)] <- FALSE
                   }
+                  output <- output | convertedToLogical
                 }
                 NewVarName <- paste0("Any: ",text_part)
               } else
-              if (prefix=="all:") {
-                for (j in 1:length(matching_vars)) {
+              if (prefix=="all:" || prefix=="allx:") {
+                output <- rep(TRUE,nrow(z))
+                for (j in seq_len(length(matching_vars))) {
                   convertedToLogical <- 
                     ifelse(z[[matching_vars[j]]] %in% checked,TRUE,
                       ifelse(z[[matching_vars[j]]] %in% unchecked,FALSE,NA))
-                  if (j==1) {
-                    output <- convertedToLogical
-                  } else {
-                    output <- output & convertedToLogical
+                  if (prefix=="allx:") {
+                    convertedToLogical[is.na(convertedToLogical)] <- TRUE
                   }
+                  output <- output & convertedToLogical
                 }
                 NewVarName <- paste0("All: ",text_part)
               } else {
@@ -1437,18 +1446,24 @@ vtree <- function (
       # >> Process complex summary specification ----
       # including REDCap variables, intersections, and wildcards
       #
-      regex <- "^((i|r|any|all|none|notall)+:)*([^[:space:]]*)([\\*#@])(.*)$"
-      match_regex <- grep(regex,codevar)
+      # Uses the same regular expression as for variable specifications,
+      # namely the string regexComplex
+      
+      match_regex <- grep(regexComplex,codevar)
       if (length(match_regex)>0) {
+        expandedvars <- c()
         for (i in seq_len(length(codevar))) {    
           if (i %in% match_regex) {
             y <- rep("",nrow(z))
             none <- rep(TRUE,nrow(z))
-            prefix <- sub(regex,"\\1",codevar[i])
-            text_part <- sub(regex,"\\3",codevar[i])
-            wildcard <- sub(regex,"\\4",codevar[i])
-            tail <- sub(regex,"\\5",codevar[i])
-            if (prefix=="any:" | prefix=="all:") {
+            prefix <- sub(regexComplex,"\\1",codevar[i])
+            text_part <- sub(regexComplex,"\\3",codevar[i])
+            wildcard <- sub(regexComplex,"\\4",codevar[i])
+            tail <- sub(regexComplex,"\\5",codevar[i])
+            if (prefix=="" && wildcard=="") {
+              expandedvars <- c(expandedvars,vars[i]) 
+            } else            
+            if (prefix=="any:" || prefix=="anyx:" || prefix=="all:" || prefix=="allx:") {
               if (wildcard=="*") {
                 matching_vars <- names(z)[grep(paste0("^",text_part,".*",tail,"$"),names(z))]
               } else
@@ -1462,36 +1477,36 @@ vtree <- function (
                 stop("Could not find variables matching summary specification")
               }      
               if (verbose) message(paste0(vars[i]," expands to: ",paste(matching_vars,collapse=", ")))
-              if (prefix=="any:") {
+              if (prefix=="any:" || prefix=="anyx:") {
+                output <- rep(FALSE,nrow(z))
                 for (j in 1:length(matching_vars)) {
                   convertedToLogical <- 
                     ifelse(z[[matching_vars[j]]] %in% checked,TRUE,
                       ifelse(z[[matching_vars[j]]] %in% unchecked,FALSE,NA))
-                  if (j==1) {
-                    output <- convertedToLogical
-                  } else {
-                    output <- output | convertedToLogical
+                  if (prefix=="anyx:") {
+                    convertedToLogical[is.na(convertedToLogical)] <- FALSE
                   }
+                  output <- output | convertedToLogical
                 }
                 NewVarName <- paste0("Any: ",text_part)
               } else
-              if (prefix=="all:") {
-                for (j in 1:length(matching_vars)) {
+              if (prefix=="all:" || prefix=="allx:") {
+                output <- rep(TRUE,nrow(z))
+                for (j in seq_len(length(matching_vars))) {
                   convertedToLogical <- 
                     ifelse(z[[matching_vars[j]]] %in% checked,TRUE,
                       ifelse(z[[matching_vars[j]]] %in% unchecked,FALSE,NA))
-                  if (j==1) {
-                    output <- convertedToLogical
-                  } else {
-                    output <- output & convertedToLogical
+                  if (prefix=="allx:") {
+                    convertedToLogical[is.na(convertedToLogical)] <- TRUE
                   }
+                  output <- output & convertedToLogical
                 }
                 NewVarName <- paste0("All: ",text_part)
               } else {
                 stop("Unknown prefix")
-              }           
+              }            
               z[[NewVarName]] <- output
-              expandedvars <- c(expandedvars,NewVarName)            
+              expandedvars <- c(expandedvars,NewVarName)          
                 
               newvarheading <- NewVarName
               summaryvarlist[[i]] <- NewVarName
@@ -1690,7 +1705,7 @@ vtree <- function (
               if (wildcard=="#") {
                 matching_vars <- names(z)[grep(paste0("^",text_part,"[0-9]+",tail,"$"),names(z))]
               } else {
-                stop("Invalid wildcard")
+                stop("Invalid wildcard in summary specification")
               }
               if (length(matching_vars)==0) {
                 stop("summary: Could not find variables with matching names")
