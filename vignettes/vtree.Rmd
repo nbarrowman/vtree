@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 5.1.5"
+title: "Introduction to vtree 5.1.6"
 subtitle: "*Exploring subsets of data using variable trees*"
 author: '`r paste("Nick Barrowman",strftime(Sys.time(),format="%d-%b-%Y"))`'
 output:
@@ -858,6 +858,9 @@ This matches the behavior of the R function `any` when `na.rm=TRUE` is specified
 ### prefix `none:`
 
 The logical complement (negation) of the `any:` prefix. 
+An alternative prefix, `nonex:`,
+is used to specify that missing values will be removed when 
+performing the calculation. 
 
 ### prefix `all:`
 
@@ -871,6 +874,9 @@ This matches the behavior of the R function `all` when `na.rm=TRUE` is specified
 ### prefix `notall:`
 
 The logical complement (negation) of the `all:` prefix.
+An alternative prefix, `notallx:`,
+is used to specify that missing values will be removed when 
+performing the calculation. 
 
 
 ### prefix `tri:` {#detectingOutliers}

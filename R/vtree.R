@@ -943,7 +943,10 @@ vtree <- function (
                 }
               } 
             } else   
-            if (prefix=="any:" || prefix=="anyx:" || prefix=="all:" || prefix=="allx:") {
+            if (prefix=="any:"    || prefix=="anyx:"    || 
+                prefix=="none:"   || prefix=="nonex:"   ||
+                prefix=="all:"    || prefix=="allx:"    ||
+                prefix=="notall:" || prefix=="notallx:" ) {
               
               if (wildcard=="*") {
                 matching_vars <- names(z)[grep(paste0("^",text_part,".*$"),names(z))]
@@ -957,34 +960,9 @@ vtree <- function (
                 stop("Could not find variables with names matching variable specification")
               }      
               if (verbose) message(paste0(vars[i]," expands to: ",paste(matching_vars,collapse=", ")))
-              if (prefix=="any:" || prefix=="anyx:") {
-                output <- rep(FALSE,nrow(z))
-                for (j in 1:length(matching_vars)) {
-                  convertedToLogical <- 
-                    ifelse(z[[matching_vars[j]]] %in% checked,TRUE,
-                      ifelse(z[[matching_vars[j]]] %in% unchecked,FALSE,NA))
-                  if (prefix=="anyx:") {
-                    convertedToLogical[is.na(convertedToLogical)] <- FALSE
-                  }
-                  output <- output | convertedToLogical
-                }
-                NewVarName <- paste0("Any: ",text_part)
-              } else
-              if (prefix=="all:" || prefix=="allx:") {
-                output <- rep(TRUE,nrow(z))
-                for (j in seq_len(length(matching_vars))) {
-                  convertedToLogical <- 
-                    ifelse(z[[matching_vars[j]]] %in% checked,TRUE,
-                      ifelse(z[[matching_vars[j]]] %in% unchecked,FALSE,NA))
-                  if (prefix=="allx:") {
-                    convertedToLogical[is.na(convertedToLogical)] <- TRUE
-                  }
-                  output <- output & convertedToLogical
-                }
-                NewVarName <- paste0("All: ",text_part)
-              } else {
-                stop("Unknown prefix")
-              }            
+              out <- combineVars(prefix,text_part,matching_vars,checked,unchecked,z)
+              output <- out$output
+              NewVarName <- out$NewVarName   
               z[[NewVarName]] <- output
               expandedvars <- c(expandedvars,NewVarName)            
               
@@ -1463,7 +1441,10 @@ vtree <- function (
             if (prefix=="" && wildcard=="") {
               expandedvars <- c(expandedvars,vars[i]) 
             } else            
-            if (prefix=="any:" || prefix=="anyx:" || prefix=="all:" || prefix=="allx:") {
+            if (prefix=="any:"    || prefix=="anyx:"    || 
+                prefix=="none:"   || prefix=="nonex:"   ||
+                prefix=="all:"    || prefix=="allx:"    ||
+                prefix=="notall:" || prefix=="notallx:" ) {
               if (wildcard=="*") {
                 matching_vars <- names(z)[grep(paste0("^",text_part,".*",tail,"$"),names(z))]
               } else
@@ -1477,34 +1458,10 @@ vtree <- function (
                 stop("Could not find variables matching summary specification")
               }      
               if (verbose) message(paste0(vars[i]," expands to: ",paste(matching_vars,collapse=", ")))
-              if (prefix=="any:" || prefix=="anyx:") {
-                output <- rep(FALSE,nrow(z))
-                for (j in 1:length(matching_vars)) {
-                  convertedToLogical <- 
-                    ifelse(z[[matching_vars[j]]] %in% checked,TRUE,
-                      ifelse(z[[matching_vars[j]]] %in% unchecked,FALSE,NA))
-                  if (prefix=="anyx:") {
-                    convertedToLogical[is.na(convertedToLogical)] <- FALSE
-                  }
-                  output <- output | convertedToLogical
-                }
-                NewVarName <- paste0("Any: ",text_part)
-              } else
-              if (prefix=="all:" || prefix=="allx:") {
-                output <- rep(TRUE,nrow(z))
-                for (j in seq_len(length(matching_vars))) {
-                  convertedToLogical <- 
-                    ifelse(z[[matching_vars[j]]] %in% checked,TRUE,
-                      ifelse(z[[matching_vars[j]]] %in% unchecked,FALSE,NA))
-                  if (prefix=="allx:") {
-                    convertedToLogical[is.na(convertedToLogical)] <- TRUE
-                  }
-                  output <- output & convertedToLogical
-                }
-                NewVarName <- paste0("All: ",text_part)
-              } else {
-                stop("Unknown prefix")
-              }            
+              out <- combineVars(prefix,text_part,matching_vars,checked,unchecked,z)
+              output <- out$output
+              NewVarName <- out$NewVarName   
+                  
               z[[NewVarName]] <- output
               expandedvars <- c(expandedvars,NewVarName)          
                 
@@ -1568,18 +1525,10 @@ vtree <- function (
                   REDCap_var_label <- sub(rexp2,"\\1",lab1)
                 }
                 if (choicechecklist) {
-                  for (j in 1:length(matching_vars)) {
-                    convertedToLogical <- 
-                      ifelse(z[[matching_vars[j]]] %in% checked,TRUE,
-                        ifelse(z[[matching_vars[j]]] %in% unchecked,FALSE,NA))
-                    if (j==1) {
-                      output <- convertedToLogical
-                    } else {
-                      output <- output | convertedToLogical
-                    }
-                  }
-                } 
-                REDCap_var_label_any <- paste0("Any: ",REDCap_var_label)
+                  out <- combineVars(prefix,REDCap_var_label,matching_vars,checked,unchecked,z)
+                }
+                output <- out$output
+                REDCap_var_label_any <- out$NewVarName
                 z[[REDCap_var_label_any]] <- output
                 expandedvars <- c(expandedvars,REDCap_var_label_any)
                 summaryvarlist[[i]] <- expandedvars
