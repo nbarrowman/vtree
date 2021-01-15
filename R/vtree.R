@@ -626,7 +626,7 @@ vtree <- function (
 
     unknowncolor <- "pink"
 
-    argname <- sapply(as.list(substitute({z})[-1]), deparse)
+    argname <- sapply(as.list(substitute({data})[-1]), deparse)
 
     if (!missing(lsplitwidth) & missing(vsplitwidth)) vsplitwidth=lsplitwidth
     
@@ -1961,7 +1961,7 @@ vtree <- function (
         }
       }
     }
-
+    
     # Check that all of named variables are in the data frame
     if (novars) ALLVARS <- ALLVARS[ALLVARS!=""]
     findallvars <- ALLVARS %in% names(z)
@@ -2756,6 +2756,7 @@ vtree <- function (
       marginalText <- rep("",numvars)
       
       #-------------------------------------------------------------------------
+      # Begin: Legend stuff  ----
       #-V------------------------------V--------------------------------------V-
       
       if (showroot) {
@@ -2845,7 +2846,6 @@ vtree <- function (
         }
         
         legendlabel <- paste0(displayCAT,", ",npctString)
-        
        
         ThisLayerText <- rep("",length(legendlabel)) 
         
@@ -2916,7 +2916,8 @@ vtree <- function (
         }
         NL <- paste0(NL,"\n",nl)
         
-      #-^------------------------------^--------------------------------------^-       
+      #-^------------------------------^--------------------------------------^-
+      # End: Legend stuff  ----
       #-------------------------------------------------------------------------
           
       }
@@ -2925,6 +2926,11 @@ vtree <- function (
     else {
       NL <- ''
     }
+    
+    
+    #-^------------------------------^--------------------------------------^-
+    # Outputs  ----
+    #-------------------------------------------------------------------------   
     
     if (ptable) {
       pt <- patternTable[nrow(patternTable):1,]
@@ -3043,7 +3049,7 @@ vtree <- function (
         if (imageFileOnly && (!isTRUE(getOption('knitr.in.progress')) && !as.if.knit)) {
           return(invisible(NULL))
         } else {
-          output <- knitr::include_graphics(fullpath)
+          output <- knitr::include_graphics(fullpath,dpi=72)
           attributes(output)$info <- tree
           return(output)
         }
