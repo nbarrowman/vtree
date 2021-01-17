@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 5.1.8"
+title: "Introduction to vtree 5.1.9"
 subtitle: "*Exploring subsets of data using variable trees*"
 author: '`r paste("Nick Barrowman",strftime(Sys.time(),format="%d-%b-%Y"))`'
 output:
@@ -1511,7 +1511,7 @@ The variable prefixes `any:`, `none:`, `all:`, and `notall:`
 can be combined with the `r:` prefix 
 to form `rany:`, `rnone:`, `rall:`, and `rnotall:`.
 For example, to determine whether anyone did not like *any* of the 
-flavours (Chocolate, Vanilla, or Strawberry):
+flavors (Chocolate, Vanilla, or Strawberry):
 
 ```{r eval=FALSE}
 vtree(dessert,"rnone:IceCream@")
@@ -1530,7 +1530,7 @@ vtree(dessert,"ri:IceCream@")
 
 ### Deprecated: variable prefixes `stem:` and `rc:`
 
-To examine the pattern of ice-cream flavour choices,
+To examine the pattern of ice-cream flavor choices,
 the following can be used:
 
 ```{r eval=FALSE}
@@ -1675,7 +1675,7 @@ The PNG or PDF file is stored in the folder specified by the `folder` parameter,
 or if not specified, a temporary folder will be used.
 Successive PNG files are named `vtree001.png`, `vtree002.png`, 
 and so forth and are stored in the  folder.
-(Similaryly PDF files are named `vtree001.pdf`, etc.)
+(Similarly PDF files are named `vtree001.pdf`, etc.)
 During knitting, `vtree` uses the `options` function in base R to store
 a variable called `vtcount` to count the PNG files,
 and a variable called `vtfolder` to identify the folder where they will be stored.

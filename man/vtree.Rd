@@ -44,7 +44,7 @@ Variables to use for the tree. Can be
 (2) a vector of variable names,
 (3) a formula without a left-hand side,
 e.g. \code{~ Age + Sex},
-but note that extended variable specifications cannnot be used in this case.}
+but note that extended variable specifications cannot be used in this case.}
 
 \item{horiz}{Should the tree be drawn horizontally?
 (i.e. root node on the left, with the tree growing to the right)}
@@ -102,7 +102,7 @@ When \code{seq=TRUE}, it may be useful to set \code{showroot=FALSE}.}
 \item{showvarinnode}{Show the variable name in each node?}
 
 \item{showlegendsum}{Show summary information in the legend?
-(Povided \code{summary} has been specified).}
+(Provided \code{summary} has been specified).}
 
 \item{labelvar}{A named vector of labels for variables.}
 
@@ -424,7 +424,7 @@ Each vector specifies nodes of a variable.
 \itemize{
   \item \code{prune}: which nodes should be pruned.
   \item \code{keep}: which nodes should \emph{not} be pruned.
-  \item \code{prunebelow}: which nodes should have their decendants pruned.
+  \item \code{prunebelow}: which nodes should have their descendants pruned.
   \item \code{follow}: which nodes should \emph{not} have their descendants pruned.
 }
 }

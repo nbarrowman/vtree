@@ -46,7 +46,7 @@ NULL
 #'                         (2) a vector of variable names,
 #'                         (3) a formula without a left-hand side,
 #'                         e.g. \code{~ Age + Sex},
-#'                         but note that extended variable specifications cannnot be used in this case.
+#'                         but note that extended variable specifications cannot be used in this case.
 #'                         
 #' @param prune,keep,prunebelow,follow
 #'                         List of named vectors that specify pruning.
@@ -186,7 +186,7 @@ NULL
 #'                         \code{FALSE} for those variables and \code{TRUE} for all others.
 #' @param showlegend       Show legend (including marginal frequencies) for each variable?
 #' @param showlegendsum    Show summary information in the legend?
-#'                         (Povided \code{summary} has been specified).
+#'                         (Provided \code{summary} has been specified).
 #' @param showempty        Show nodes that do not contain any observations?
 #'
 #' @param seq              Display the variable tree using \emph{sequences}?
@@ -383,7 +383,7 @@ NULL
 #' \itemize{
 #'   \item \code{prune}: which nodes should be pruned.
 #'   \item \code{keep}: which nodes should \emph{not} be pruned.
-#'   \item \code{prunebelow}: which nodes should have their decendants pruned.
+#'   \item \code{prunebelow}: which nodes should have their descendants pruned.
 #'   \item \code{follow}: which nodes should \emph{not} have their descendants pruned.
 #' }
 #'
