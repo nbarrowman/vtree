@@ -16,8 +16,8 @@ vtree(data, vars, horiz = TRUE, title = "", sameline = FALSE,
   gradient = TRUE, revgradient = FALSE, sortfill = FALSE,
   singlecolor = 2, colorvarlabels = TRUE, color = c("blue",
   "forestgreen", "red", "orange", "pink"), colornodes = FALSE,
-  Venn = FALSE, check.is.na = FALSE, seq = FALSE, pattern = FALSE,
-  ptable = FALSE, text = list(), ttext = list(), plain = FALSE,
+  plain = FALSE, Venn = FALSE, check.is.na = FALSE, seq = FALSE,
+  pattern = FALSE, ptable = FALSE, text = list(), ttext = list(),
   varlabelloc = NULL, font = "Arial", varnamepointsize = 24,
   varnamebold = FALSE, legendpointsize = 14, HTMLtext = FALSE,
   splitwidth = 20, vsplitwidth = 8, splitspaces = TRUE,
@@ -166,6 +166,11 @@ specify \code{singlecolor=1} to assign a light shade.}
 
 \item{colornodes}{[Color] Color the node outlines?}
 
+\item{plain}{[Color] Use "plain" settings?
+These settings are as follows: for each variable all nodes are the same color,
+namely a shade of blue (with each successive variable using a darker shade);
+all variable labels are black; and the \code{squeeze} parameter is set to 0.6.}
+
 \item{Venn}{Display multi-way set membership information?
 This provides an alternative to a Venn diagram.
 This sets \code{showpct=FALSE} and \code{shownodelabels=FALSE}.
@@ -178,7 +183,8 @@ whether or not each of its values is missing?}
 Each unique sequence (i.e. pattern) of values will be shown separately.
 The sequences are sorted from least frequent to most frequent.}
 
-\item{pattern}{Same as \code{seq}, but lines without arrows are drawn,
+\item{pattern}{Display the variable tree using \emph{patterns}?
+These are the same as \code{seq}, but lines without arrows are drawn,
 and instead of a sequence variable, a pattern variable is shown.}
 
 \item{ptable}{Generate a pattern table instead of a variable tree? 
@@ -189,19 +195,12 @@ nodes corresponding to specified values of a specified variable.
 The name of each element of the list
 must be one of the variable names in \code{vars}.
 Each element is a vector of character strings.
-The names of the vector identify the nodes to which the text should be added.
-(See \strong{Formatting codes} below for information
-on how to format text.)}
+The names of the vector identify the nodes to which the text should be added.}
 
 \item{ttext}{A list of vectors, each of which specifies a particular node,
 as well as text to add to that node ("targeted" text).
 The names of each vector specify variable names,
 except for an element named \code{text}, which specifies the text to add.}
-
-\item{plain}{[Color] Use "plain" settings?
-These settings are as follows: for each variable all nodes are the same color,
-namely a shade of blue (with each successive variable using a darker shade);
-all variable labels are black; and the \code{squeeze} parameter is set to 0.6.}
 
 \item{varlabelloc}{A named vector of vertical label locations
 ("t", "c", or "b" for top, center, or bottom, respectively)
@@ -348,7 +347,7 @@ If knitting is \emph{not} taking place
         including the R console, within R Markdown documents,
         and within Shiny output bindings.
         
-        The `info` attribute of the return object is a list whose top
+        The \code{info} attribute of the return object is a list whose top
         level represents the root node of the tree.
         Within this list is a list named after the first variable in the tree.
         In turn, within this list are lists named after the observed
@@ -444,63 +443,19 @@ is specified as a character string with the following structure:
 \itemize{
   \item{First, the name of the variable for which a summary is desired.}
   \item{Next a space.}
-  \item{The remainder of the string specifies what to display, with text as well as special codes (see \strong{Summary codes} below) to indicate the type of summary desired and to control which nodes display the summary, etc.}
-}
-}
-
-\section{Summary codes}{
-
-\itemize{
- \item{\code{\%mean\%} }{mean. Variant \code{\%meanx\%} does not report missing values.}
- \item{\code{\%SD\%} }{standard deviation. Variant \code{\%SDx\%} does not report missing values.}
- \item{\code{\%sum\%} }{sum. Variant \code{\%sumx\%} does not report missing values.}
- \item{\code{\%min\%} }{minimum. Variant \code{\%minx\%} does not report missing values.}
- \item{\code{\%max\%} }{maximum. Variant \code{\%maxx\%} does not report missing values.}
- \item{\code{\%range\%} }{range. Variant \code{\%rangex\%} does not report missing values.}
- \item{\code{\%pX\%} }{Xth percentile, e.g. p50 means the 50th percentile}
- \item{\code{\%median\%} }{median. Variant \code{\%medianx\%} does not report missing values.}
- \item{\code{\%IQR\%} }{interquartile range. Variant \code{\%IQRx\%} does not report missing values.}
- \item{\code{\%npct\%} }{number and percentage of \code{TRUE} values}
- \item{\code{\%pct\%} }{percentage of \code{TRUE} values}
- \item{\code{\%freqpct\%} }{frequency and percentage of values of a variable. Variant \code{\%freqpct_\%} shows each value on a separate line }
- \item{\code{\%freq\%} }{frequency of values of a variable. Variant \code{\%freq_\%} shows each value on a separate line}
- \item{\code{\%list\%} }{list of the individual values. Variant \code{\%list_\%} shows each value on a separate line}
- \item{\code{\%mv\%} }{the number of missing values}
- \item{\code{\%nonmv\%} }{the number of non-missing values}
- \item{\code{\%v\%} }{the name of the variable}
- \item{\code{\%noroot\%} }{flag: Do not show summary in the root node.}
- \item{\code{\%leafonly\%} }{flag: Only show summary in leaf nodes.}
- \item{\code{\%var=}V\code{\%} }{flag: Only show summary in nodes of variable V.}
- \item{\code{\%node=}N\code{\%} }{flag: Only show summary in nodes with value N.}
- \item{\code{\%trunc=}n\code{\%} }{flag: Truncate the summary to the first n characters.}
-}
-}
-
-\section{Formatting codes}{
-
-Formatting codes for the \code{text} argument.
-Also used by \code{labelnode} and \code{labelvar}.
-\itemize{
- \item{\code{\\n} }{line break}
- \item{\code{*...*} }{italics}
- \item{\code{**...**} }{bold}
- \item{\code{^...^} }{superscript (using 10 point font)}
- \item{\code{~...~} }{subscript (using 10 point font)}
- \item{\code{\%\%red ...\%\%} }{display text in red (or whichever color is specified)}
+  \item{The remainder of the string specifies what to display, with text as well as special codes (such as \code{\%mean\%}) to indicate the type of summary desired and to control which nodes display the summary, etc. See the vignette for more details.}
 }
 }
 
 \section{Palettes}{
 
-
 The following palettes
 (obtained from \code{RColorBrewer}) are used in the order indicated:
 
-\tabular{rlcrlcrlcrl}{
- 1 \tab Reds     \tab \tab 5 \tab Purples  \tab \tab 9  \tab YlOrBr \tab \tab 13 \tab RdYlGn \cr
- 2 \tab Blues    \tab \tab 6 \tab YlGn     \tab \tab 10 \tab PuBuGn \tab \tab 14 \tab Set1 \cr 
- 3 \tab Greens   \tab \tab 7 \tab PuBu     \tab \tab 11 \tab BuPu   \tab \tab    \tab \cr
- 4 \tab Oranges  \tab \tab 8 \tab PuRd     \tab \tab 12 \tab YlOrRd \tab \tab    \tab \cr
+\tabular{rlcrlcrlcrlcclcr}{
+ 1 \tab Reds     \tab \tab 4 \tab Oranges  \tab \tab 7  \tab PuBu   \tab \tab 10 \tab PuBuGn \tab \tab 13 \tab RdYlGn \cr
+ 2 \tab Blues    \tab \tab 5 \tab Purples  \tab \tab 8  \tab PuRd   \tab \tab 11 \tab BuPu   \tab \tab 14 \tab Set1   \cr 
+ 3 \tab Greens   \tab \tab 6 \tab YlGn     \tab \tab 9  \tab YlOrBr \tab \tab 12 \tab YlOrRd \tab \tab    \tab        \cr
 }
 }
 
@@ -529,6 +484,9 @@ vtree(FakeData,"Severity Sex",ttext=list(
   c(Severity="Severe",Sex="M",text="\nMales with Severe disease"),
   c(Severity="NA",text="\nUnknown severity")))
 
+}
+\seealso{
+\href{../doc/vtree.html}{\code{vignette("vtree")}}
 }
 \author{
 Nick Barrowman <nbarrowman@cheo.on.ca>

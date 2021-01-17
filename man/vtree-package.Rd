@@ -17,7 +17,7 @@ With vtree, you can:
   \item produce customized figures for reports and publications.
 }
 
-For a comprehensive introduction, type: \code{vignette("vtree")}
+For a comprehensive introduction see the \href{../doc/vtree.html}{vignette}.
 }
 \seealso{
 \itemize{

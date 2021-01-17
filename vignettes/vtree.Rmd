@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 5.1.7"
+title: "Introduction to vtree 5.1.8"
 subtitle: "*Exploring subsets of data using variable trees*"
 author: '`r paste("Nick Barrowman",strftime(Sys.time(),format="%d-%b-%Y"))`'
 output:
@@ -222,7 +222,7 @@ including a variety of summary statistics;
 
 * features for [dichotomizing variables](#dichotomizing) and [checking for outliers](#detectingOutliers);
 
-* automatic generation of PNG image files and [embedding in R Markdown](#embeddingInRmarkdown) documents; and
+* automatic generation of PNG image files and [embedding in R Markdown](#embeddingInKnitrRmarkdown) documents; and
 
 * interactive panning and zooming using the `svtree` function to launch a [Shiny app](#svtree).
 
@@ -785,19 +785,20 @@ vtree(FakeData,"is.na:Score")
 `r vtree(FakeData,"is.na:Score",
   pxwidth=500,imageheight="1.5in")`
 
-### suffix `#`
+### wildcard `#`
 
 Specifying `Ind#` matches all variable names that start with `Ind`
-and end with one or more numeric digits, namely `Ind1`, `Ind2`, `Ind3`, and `Ind4`.
+and end with one or more numeric digits, namely `Ind1`, `Ind2`, `Ind3`, and `Ind4`. This wildcard can also be used within a variable name. For example, `visit#duration` would match `visit1duration`, `visit2duration`, etc.
 
 
-### suffix `*`
+### wildcard `*`
 
 Specifying `Ind*` matches all variable names that start with `Ind`
 and end with any other characters (or no other characters).
 In `FakeData` this matches `Ind1`, `Ind2`, `Ind3`, and `Ind4` (just like `Ind#` does).
 But if `FakeData` contained variables named `Ind` and `Index`,
 they would also be matched by `Ind*`.
+As with the `#` wildcard, the `*` wildcard can be used within a variable name.
 
 
 ### prefix `i:`
@@ -1027,8 +1028,8 @@ vtree(FakeData,"Severity",summary="Ind*",sameline=TRUE,horiz=FALSE,just="l")
 Incidentally, note that `just="l"` specifies that all text should be left-justified,
 which conveniently lines up all of the rows of the summary.
 
-The `summary` argument can also use the prefixes `i:`, `any:`, `none:`, `all:`, `notall:`,
-and the suffixes `#` and `*`
+The `summary` argument can also use the prefixes `i:`, `any:`, `none:`, `all:`, `notall:` (as well as `anyx:`, `nonex:`, `allx:`, and `notallx:`)
+and wildcards `#` and `*`
 (similar to [variable specifications](#VariableSpecification)).
 Additionally, specifications for [REDCap checkboxes](#REDCapCheckboxes) can be used.
 
@@ -1630,16 +1631,19 @@ text (`.text`) that appear in the tree.
 it displays the variable tree in a browser window.
 
 
-## Calling vtree from R Markdown {#embeddingInRmarkdown}
+## Calling vtree from knitr and R Markdown {#embeddingInKnitrRmarkdown}
 
-By default, when `vtree` is called from R Markdown,
-it generates a PNG image file.
+When `vtree` is called from knitr, it generates
+
+* A PNG file if the output format is Markdown
+
+* A PDF file if the output format is LaTeX.
 
 Here's how it does that. `vtree` uses the `DiagrammeR` package,
 which automatically generates an `htmlwidget` object for display in HTML,
 using the [htmlwidgets](https://www.htmlwidgets.org/) framework.
 Then `vtree` converts the `htmlwidget` object into an SVG image,
-and finally into a PNG file. 
+and finally into a PNG or PDF file. 
  
 ### Generating PNG files
 
@@ -1665,10 +1669,13 @@ If neither is specified, `imageheight` is automatically set to 3 inches.
 ```
 Although distracting, this message is irrelevant.
 
-The PNG file is stored in the folder specified by the `folder` parameter,
+### Embedding image files
+
+The PNG or PDF file is stored in the folder specified by the `folder` parameter,
 or if not specified, a temporary folder will be used.
 Successive PNG files are named `vtree001.png`, `vtree002.png`, 
 and so forth and are stored in the  folder.
+(Similaryly PDF files are named `vtree001.pdf`, etc.)
 During knitting, `vtree` uses the `options` function in base R to store
 a variable called `vtcount` to count the PNG files,
 and a variable called `vtfolder` to identify the folder where they will be stored.
@@ -1688,6 +1695,10 @@ vtree(FakeData,"Sex Severity")
 
 One advantage of code chunks is that they can also be run interactively
 (for example within RStudio, by clicking on the green arrow at the top right of a code chunk).
+
+### Generating an image file but not displaying it
+
+Specifying `imageFileOnly=TRUE` instructs vtree to generate an image file but not display it.
 
 
 ### Generating an htmlwidget in an HTML document
