@@ -589,8 +589,31 @@ vtree <- function (
     unknowncolor <- "pink"
 
     argname <- sapply(as.list(substitute({data})[-1]), deparse)
+    
+    #
+    # Start of section: Show messages about deprecated parameters
+    #
+    
+    if (!missing(prunelone)) {
+      message("prunelone is deprecated and will be removed in an upcoming release.")
+    }
 
-    if (!missing(lsplitwidth) & missing(vsplitwidth)) vsplitwidth=lsplitwidth
+    if (!missing(pruneNA)) {
+      message("pruneNA is deprecated and will be removed in an upcoming release.")
+    }
+    
+    if (!missing(showlevels)) {
+      message("showlevels is deprecated and will be removed in an upcoming release. Use showvarnames instead.")
+    }
+    
+    if (!missing(lsplitwidth) & missing(vsplitwidth)) {
+      message("lsplitwidth is deprecated and will be removed in an upcoming release. Use vsplitwidth instead")
+      vsplitwidth=lsplitwidth
+    }
+    
+    #
+    # End of section about deprecated parameters
+    #
     
     # Check some inputs
     if (!is.logical(splitspaces)) stop("splitspaces must be TRUE or FALSE")
@@ -671,12 +694,13 @@ vtree <- function (
     # variable specifications and summary arguments.
     #
     
+    regexVarName <- "([a-zA-Z0-9~@#()_|,.]+)"
     regexComplex <- "^((i|r|any|anyx|all|allx|notall|notallx|none|nonex)+:)*([^([:space:]|:)@\\*#]*)([@\\*#]?)(.*)$"
     
     if (!(all(vars==""))) {
  
       # Process != tag in variable names 
-      regex <- "(\\S+)(\\!=)(\\S+)"
+      regex <- paste0("^",regexVarName,"(\\!=)",regexVarName)
       findnotequal <- grep(regex,vars)
       if (length(findnotequal)>0) {
         for (i in seq_len(length(vars))) {    
@@ -699,7 +723,7 @@ vtree <- function (
       }
       
       # Process = tag in variable names 
-      regex <- "(\\S+)(=)(\\S+)"
+      regex <- paste0("^",regexVarName,"(=)",regexVarName)
       findequal <- grep(regex,vars)
       if (length(findequal)>0) {
         for (i in seq_len(length(vars))) {    
@@ -722,15 +746,15 @@ vtree <- function (
       }
       
       # Process > tag in variable names
-      regex <- "(\\S+)(>)(\\S+)"
+      regex <- paste0("^",regexVarName,"(>)",regexVarName)
       findgt <- grep(regex,vars)
       if (length(findgt)>0) {
         for (i in seq_len(length(vars))) {    
           if (i %in% findgt) {
             gtvar <- sub(regex,"\\1",vars[i])
             if (is.null(z[[gtvar]]))
-              stop(paste("Unknown variable:",gtvar))                    
-            gtval <- sub("(\\S+)(>)(\\S+)","\\3",vars[i])
+              stop(paste("Unknown variable:",gtvar))
+            gtval <- sub(regex,"\\3",vars[i])
             # Check to see if any of the values of the specified variable contain spaces
             # If they do, replace underscores in the specified value with spaces.
             if (any(length(grep(" ",names(table(z[[gtvar]]))))>0)) {
@@ -745,7 +769,7 @@ vtree <- function (
       }    
       
       # Process < tag in variable names
-      regex <- "(\\S+)(<)(\\S+)"
+      regex <- paste0("^",regexVarName,"(<)",regexVarName)
       findlt <- grep(regex,vars)
       if (length(findlt)>0) {
         for (i in seq_len(length(vars))) {    
@@ -768,7 +792,7 @@ vtree <- function (
       }        
       
       # Process is.na: tag in variable names to handle individual missing value checks
-      regex <- "^is\\.na:(\\S+)$"
+      regex <- paste0("^is\\.na:",regexVarName,"$")
       findna <- grep(regex,vars)
       if (length(findna)>0) {
         for (i in seq_len(length(vars))) {
@@ -789,7 +813,7 @@ vtree <- function (
       }
       
       # Process stem: tag in variable names to handle REDCap checklists automatically
-      regex <- "^stem:(\\S+)$"
+      regex <- paste0("^stem:",regexVarName,"$")
       findstem <- grep(regex,vars)
       if (length(findstem)>0) {
         expandedvars <- c()
@@ -1196,9 +1220,33 @@ vtree <- function (
       
       extra_variables <- NULL
 
+      # Process >= tag in variable names in summary argument
+      regex <- paste0("^",regexVarName,"(>=)",regexVarName)
+      findgte <- grep(regex,codevar)
+      if (length(findgte)>0) {
+        for (i in seq_len(length(codevar))) {    
+          if (i %in% findgte) {
+            gtevar <- sub(regex,"\\1",codevar[i])
+            if (is.null(z[[gtevar]]))
+              stop(paste("Unknown variable in summary:",gtevar))                             
+            gteval <- sub(regex,"\\3",codevar[i])
+            newvarname <- paste0(gtevar,"_gte_",gteval)
+            # Check to see if any of the values of the specified variable contain spaces
+            # If they do, replace underscores in the specified value with spaces.
+            if (any(length(grep(" ",names(table(z[[gtevar]]))))>0)) {
+              gteval <- gsub("_"," ",gteval)
+            }
+            m <- z[[gtevar]]>=as.numeric(gteval)
+            z[[newvarname]] <- m
+            summaryvarlist[[i]] <- newvarname
+            # codevar[i] <- gtvar			
+          }
+        }
+      }
+      
       # Process != tag in variable names in summary argument
       # (Note that this comes before the = tag so that it doesn't match first.)
-	    regex <- "^(\\S+)(\\!=)(\\S+)$"
+      regex <- paste0("^",regexVarName,"(\\!=)",regexVarName)
       findnotequal <- grep(regex,codevar)
       if (length(findnotequal)>0) {
         for (i in seq_len(length(codevar))) {    
@@ -1220,9 +1268,11 @@ vtree <- function (
         }
       }
       
+
       # Process = tag in variable names in summary argument
-      regex <- "^(\\S+)(=)(\\S+)"
+      regex <- paste0("^",regexVarName,"(=)",regexVarName)
       findequal <- grep(regex,codevar)
+      #browser()
       if (length(findequal)>0) {
         for (i in seq_len(length(codevar))) {    
           if ((i %in% findequal) && !(i %in% findnotequal)) {
@@ -1230,21 +1280,22 @@ vtree <- function (
             if (is.null(z[[equalvar]]))
               stop(paste("Unknown variable in summary:",equalvar))                      
             equalval <- sub(regex,"\\3",codevar[i])
+            newvarname <- paste0(equalvar,equalval)
             # Check to see if any of the values of the specified variable contain spaces.
             # If they do, replace underscores in the specified value with spaces.
             if (any(length(grep(" ",names(table(z[[equalvar]]))))>0)) {
               equalval <- gsub("_"," ",equalval)
             }
             m <- z[[equalvar]]==equalval
-            z[[equalvar]] <- m
-            summaryvarlist[[i]] <- equalvar
+            z[[newvarname]] <- m
+            summaryvarlist[[i]] <- newvarname
 			      # codevar[i] <- equalvar			
           }
         }
       } 
       
       # Process > tag in variable names in summary argument
-      regex <- "(\\S+)(>)(\\S+)"
+      regex <- paste0("^",regexVarName,"(>)",regexVarName)
       findgt <- grep(regex,codevar)
       if (length(findgt)>0) {
         for (i in seq_len(length(codevar))) {    
@@ -1253,21 +1304,22 @@ vtree <- function (
             if (is.null(z[[gtvar]]))
               stop(paste("Unknown variable in summary:",gtvar))                             
             gtval <- sub(regex,"\\3",codevar[i])
+            newvarname <- paste0(gtvar,"_gt_",gtval)
             # Check to see if any of the values of the specified variable contain spaces
             # If they do, replace underscores in the specified value with spaces.
             if (any(length(grep(" ",names(table(z[[gtvar]]))))>0)) {
               gtval <- gsub("_"," ",gtval)
             }
             m <- z[[gtvar]]>as.numeric(gtval)
-            z[[gtvar]] <- m
-            summaryvarlist[[i]] <- gtvar
+            z[[newvarname]] <- m
+            summaryvarlist[[i]] <- newvarname
 			      # codevar[i] <- gtvar			
           }
         }
       }
       
       # Process < tag in variable names in summary argument
-      regex <- "(\\S+)(<)(\\S+)"
+      regex <- paste0("^",regexVarName,"(<)",regexVarName)
       findlt <- grep(regex,codevar)
       if (length(findlt)>0) {
         for (i in seq_len(length(codevar))) {    
@@ -1276,21 +1328,39 @@ vtree <- function (
             if (is.null(z[[ltvar]]))
               stop(paste("Unknown variable in summary:",ltvar))                             
             ltval <- sub(regex,"\\3",codevar[i])
+            newvarname <- paste0(ltvar,"_lt_",ltval)
             # Check to see if any of the values of the specified variable contain spaces
             # If they do, replace underscores in the specified value with spaces.
             if (any(length(grep(" ",names(table(z[[ltvar]]))))>0)) {
               ltval <- gsub("_"," ",ltval)
             }
             m <- z[[ltvar]]<as.numeric(ltval)
-            z[[ltvar]] <- m
-            summaryvarlist[[i]] <- ltvar
+            z[[newvarname]] <- m
+            summaryvarlist[[i]] <- newvarname
 			      # codevar[i] <- ltvar			
           }
         }
       } 
       
+      # Process is.na: tag in variable names to handle individual missing value checks
+      regex <- paste0("^is\\.na:",regexVarName,"$")
+      findna <- grep(regex,codevar)
+      if (length(findna)>0) {
+        for (i in seq_len(length(vars))) {
+          if (i %in% findna) {
+            navar <- sub(regex,"\\1",codevar[i])
+            if (is.null(z[[navar]]))
+              stop(paste("Unknown variable:",navar))
+            NewVar <- paste0("is.na:",navar)
+            m <- is.na(z[[navar]])
+            z[[NewVar]] <- factor(m, levels = c(FALSE, TRUE),c("not N/A","N/A"))
+            summaryvarlist[[i]] <- NewVar
+          }
+        }
+      }      
+      
       # Process stem: tag in variable names in summary argument
-      regex <- "^stem:(\\S+)$"
+      regex <- paste0("^stem:",regexVarName,"$")
       findstem <- grep(regex,codevar)
       if (length(findstem)>0) {
         for (i in seq_len(length(codevar))) {    
@@ -1333,7 +1403,7 @@ vtree <- function (
       }
       
       # Process stemc: tag in variable names in summary argument
-      regex <- "^stemc:(\\S+)$"
+      regex <- paste0("^stemc:",regexVarName,"$")
       findstem <- grep(regex,codevar)
       if (length(findstem)>0) {
         for (i in seq_len(length(codevar))) {    
@@ -1689,6 +1759,7 @@ vtree <- function (
         var = summaryvars, format = unlist(summaryformatlist),
         original_var=headings,
         sf = runsummary, digits = digits, cdigits = cdigits, sepN=sepN)
+      
     }
     
     # *************************************************************************
