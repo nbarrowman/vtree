@@ -13,7 +13,7 @@
 #'   \item produce customized figures for reports and publications.
 #' }
 #' 
-#' For a comprehensive introduction, type: \code{vignette("vtree")}
+#' For a comprehensive introduction see the \href{../doc/vtree.html}{vignette}.
 #' 
 #' @author Nick Barrowman <nbarrowman@cheo.on.ca>
 #' 
@@ -34,24 +34,32 @@ NULL
 #' Draw a variable tree
 #'
 #' @description
-#' \code{vtree} is a tool for drawing variable trees.
 #' Variable trees display information about nested subsets of a data frame,
 #' in which the subsetting is defined by the values of categorical variables.
 #'
 #' @author Nick Barrowman <nbarrowman@cheo.on.ca>
 #'
-#' @param z                Required: Data frame, or a single vector.
-#' @param vars             Required (unless \code{z} is a vector):
-#'                         Either a character string of whitespace-separated variable names
-#'                         or a vector of variable names.
-#' @param auto             Automatically choose variables? (\code{vars} should not be specified)
+#' @param data             Required: Data frame, or a single vector.
+#' @param vars             Required (unless \code{data} is a single vector):
+#'                         Variables to use for the tree. Can be 
+#'                         (1) a character string of whitespace-separated variable names,
+#'                         (2) a vector of variable names,
+#'                         (3) a formula without a left-hand side,
+#'                         e.g. \code{~ Age + Sex},
+#'                         but note that extended variable specifications cannot be used in this case.
+#'                         
+#' @param prune,keep,prunebelow,follow
+#'                         List of named vectors that specify pruning.
+#'                          (see \strong{Pruning} below)
+#'                          
+#' @param prunesmaller     Prune any nodes with count less than specified number.
 #' @param splitspaces      When \code{vars} is a character string,
 #'                         split it by spaces to get variable names?
 #'                         It is only rarely necessary to use this parameter.
 #'                         This should only be \code{FALSE} when a single variable name
 #'                         that contains spaces is specified.
 #' @param horiz            Should the tree be drawn horizontally?
-#'                         (i.e. parent node on the left, with the tree growing to the right)
+#'                         (i.e. root node on the left, with the tree growing to the right)
 #' @param labelnode        List of vectors used to change how values of variables are displayed.
 #'                         The name of each element of the
 #'                         list is one of the variable names in \code{vars}.
@@ -63,15 +71,102 @@ NULL
 #'                         The names of each vector specify variable names,
 #'                         except for an element named \code{label}, which specifies the label to use.
 #' @param labelvar         A named vector of labels for variables.
-#' @param varminwidth      A named vector of minimum initial widths for nodes of each variable.
-#'                         (Sets the Graphviz \code{width} attribute.)
-#' @param varminheight     A named vector of minimum initial heights for nodes of each variable.
-#'                         (Sets the Graphviz \code{height} attribute.)
+#' 
 #' @param varlabelloc      A named vector of vertical label locations
 #'                         ("t", "c", or "b" for top, center, or bottom, respectively)
 #'                         for nodes of each variable.
 #'                         (Sets the Graphviz \code{labelloc} attribute.)
-#' @param title            Optional title for the root node of the tree.
+#' @param title            Label for the root node of the tree.
+#' @param font             Font.
+#' @param varnamepointsize Font size (in points) to use when displaying variable names.
+#' @param varnamebold      Show the variable name in bold?
+#' @param legendpointsize  Font size (in points) to use when displaying legend.
+#' @param sameline         Display node label on the same line as the count and percentage?
+#' @param check.is.na      Replace each variable named in \code{vars} with a logical vector indicating
+#'                         whether or not each of its values is missing?
+#' @param summary          A character string used to specify summary statistics to display in the nodes.
+#'                         See \strong{Displaying summary information} below for details.
+#' @param text             A list of vectors containing extra text to add to
+#'                         nodes corresponding to specified values of a specified variable.
+#'                         The name of each element of the list
+#'                         must be one of the variable names in \code{vars}.
+#'                         Each element is a vector of character strings.
+#'                         The names of the vector identify the nodes to which the text should be added.
+#' @param ttext            A list of vectors, each of which specifies a particular node,
+#'                         as well as text to add to that node ("targeted" text).
+#'                         The names of each vector specify variable names,
+#'                         except for an element named \code{text}, which specifies the text to add.
+#' @param HTMLtext         Is the text formatted in HTML?
+#' @param splitwidth,vsplitwidth
+#'                         The minimum number of characters before an automatic
+#'                         linebreak is inserted.
+#'                         \code{splitwidth} is for node labels, \code{vsplitwidth} is for variable names.
+#' @param vp               Use \emph{valid percentages}?
+#'                         Valid percentages are computed by first excluding any missing values,
+#'                         i.e. restricting attention to the set of "valid" observations.
+#'                         The denominator is thus the number of non-missing observations.
+#'                         When \code{vp=TRUE}, nodes for missing values show the number of missing values
+#'                         but do not show a percentage;
+#'                         all the other nodes show valid percentages.
+#'                         When \code{vp=FALSE}, all nodes (including nodes for missing values)
+#'                         show percentages of the total number of observations.
+#' @param getscript        Instead of displaying the variable tree,
+#'                         return the DOT script as a character string?
+#' 
+#' @param digits,cdigits
+#'                         Number of decimal digits to show in percentages (\code{digits})
+#'                         and in continuous values displayed via the summary parameter (\code{cdigits}).
+#'
+#' @param fillnodes        [Color] Fill the nodes with color?
+#' @param gradient         [Color] Use gradients of fill color across the values of each variable?
+#'                         A single value (with no names) specifies the setting for all variables.
+#'                         A logical vector of \code{TRUE} values for named variables is interpreted as
+#'                         \code{TRUE} for those variables and \code{FALSE} for all others.
+#'                         A logical vector of \code{FALSE} values for named variables is interpreted as
+#'                         \code{FALSE} for those variables and \code{TRUE} for all others.
+#' @param revgradient      [Color] Should the gradient be reversed (i.e. dark to light instead of light to dark)?
+#'                         A single value (with no names) specifies the setting for all variables.
+#'                         A logical vector of \code{TRUE} values for named variables is interpreted as
+#`                         \code{TRUE} for those variables and \code{FALSE} for all others.
+#'                         A logical vector of \code{FALSE} values for named variables is interpreted as
+#'                         \code{FALSE} for those variables and \code{TRUE} for all others.
+#' @param sortfill         [Color] Sort colors in order of node count?
+#'                         When a \code{gradient} fill is used, this results in
+#'                         the nodes with the smallest counts having the lightest shades
+#'                         and the nodes with the largest counts having the darkest shades.
+#' @param colorvarlabels   [Color] Color the variable labels?
+#' @param fillcolor        [Color] A named vector of colors for filling the nodes of each variable.
+#'                         If an unnamed, scalar color is specified,
+#'                         all nodes will have this color.
+#' @param NAfillcolor      [Color] Fill-color for missing-value nodes.
+#'                         If \code{NULL}, fill colors of missing value nodes will be consistent
+#'                         with the fill colors in the rest of the tree.
+#' @param rootfillcolor    [Color] Fill-color for the root node.                         
+#' @param palette          [Color] A vector of palette numbers (which can range between 1 and 14).
+#'                         The names of the vector indicate the corresponding variable.
+#'                         See \strong{Palettes} below for more information.
+#' @param singlecolor      [Color] When a variable has a single value,
+#'                         this parameter is used to specify whether nodes should have a
+#'                         (1) light shade, (2) a medium shade, or (3) a dark shade.
+#'                         specify \code{singlecolor=1} to assign a light shade.
+#' @param color            [Color] A vector of color names for the \emph{outline} of the nodes in each layer.
+#' @param colornodes       [Color] Color the node outlines?
+#' @param plain            [Color] Use "plain" settings?
+#'                         These settings are as follows: for each variable all nodes are the same color,
+#'                         namely a shade of blue (with each successive variable using a darker shade);
+#'                         all variable labels are black; and the \code{squeeze} parameter is set to 0.6.
+#' 
+#' @param width,height
+#' Width and height (in pixels) to be passed to \code{DiagrammeR::grViz}.
+#'
+#'                         
+#' @param showpct,showlpct
+#' Show percentage? \code{showpct} is for nodes, \code{showlpct} is for legends.                     
+#'                         A single value (with no names) specifies the setting for all variables.
+#'                         A logical vector of \code{TRUE} for named variables is interpreted as
+#`                         \code{TRUE} for those variables and \code{FALSE} for all others.
+#'                         A logical vector of \code{FALSE} for named variables is interpreted as
+#'                         \code{FALSE} for those variables and TRUE for all others.
 #' @param showvarinnode    Show the variable name in each node?
 #' @param shownodelabels   Show node labels?
 #'                         A single value (with no names) specifies the setting for all variables.
@@ -81,122 +176,8 @@ NULL
 #'                         it is interpreted as \code{TRUE} for those variables and \code{FALSE} for all others.
 #'                         Similarly, if the vector consists of only \code{FALSE} values, 
 #'                         it is interpreted as \code{FALSE} for those variables and \code{TRUE} for all others.
-#' @param showvarnames     Show the name of the variable next to each level of the tree?
-#' @param showlevels       (Deprecated) Same as showvarnames.
-#' @param varnamepointsize Font size (in points) to use when displaying variable names.
-#' @param varnamebold      Show the variable name in bold?
-#' @param legendpointsize  Font size (in points) to use when displaying legend.
-#' @param prune            List of vectors that specifies nodes to prune.
-#'                         The name of each element of the
-#'                         list must be one of the variable names in \code{vars}.
-#'                         Each element is a vector of character strings that
-#'                         identifies the values of the variable (i.e. the nodes) to prune.
-#' @param prunebelow       Like \code{prune} but instead of pruning the specified nodes,
-#'                         their descendants are pruned.
-#' @param prunesmaller     Prune any nodes with count less than specified number.
-#' @param keep             Like \code{prune} but specifies which nodes to \emph{keep}.
-#'                         The other nodes will be pruned.
-#' @param follow           Like \code{keep} but specifies which nodes to "follow",
-#'                         i.e. which nodes' \emph{descendants} to keep.
-#' @param prunelone        (Deprecated) A vector of values specifying "lone nodes" (of \emph{any} variable) to prune.
-#'                         A lone node is a node that has no siblings (an "only child").
-#' @param pruneNA          (Deprecated) Prune all missing values?
-#'                         This is problematic because "valid" percentages
-#'                         are hard to interpret when NAs are pruned.
-#' @param sameline         Display node labels on the same line as the count and percentage?
-#' @param gradient         Use gradients of fill color across the values of each variable?
-#'                         A single value (with no names) specifies the setting for all variables.
-#'                         A logical vector of \code{TRUE} values for named variables is interpreted as
-#'                         \code{TRUE} for those variables and \code{FALSE} for all others.
-#'                         A logical vector of \code{FALSE} values for named variables is interpreted as
-#'                         \code{FALSE} for those variables and \code{TRUE} for all others.
-#' @param revgradient      Should the gradient be reversed (i.e. dark to light instead of light to dark)?
-#'                         A single value (with no names) specifies the setting for all variables.
-#'                         A logical vector of \code{TRUE} values for named variables is interpreted as
-#`                         \code{TRUE} for those variables and \code{FALSE} for all others.
-#'                         A logical vector of \code{FALSE} values for named variables is interpreted as
-#'                         \code{FALSE} for those variables and \code{TRUE} for all others.
-#' @param sortfill         Sort colors in order of node count?
-#'                         When a \code{gradient} fill is used, this results in
-#'                         the nodes with the smallest counts having the lightest shades
-#'                         and the nodes with the largest counts having the darkest shades.
-#' @param colorvarlabels   Color the variable labels?
-#' @param check.is.na      Replace each variable named in \code{vars} with a logical vector indicating
-#'                         whether or not each of its values is missing?
-#' @param summary          A character string used to specify summary statistics to display in the nodes.
-#'                         See \strong{Displaying summary information} below for details.
-#' @param runsummary       A list of functions, with the same length as \code{summary}.
-#'                         Each function must take a data frame as its sole argument,
-#'                         and return a logical value.
-#'                         Each string in \code{summary} will only be interpreted if
-#'                         the corresponding logical value is \code{TRUE}.
-#'                         the corresponding string in \code{summary} will be evaluated.
-#' @param retain           Vector of names of additional variables in the data frame that need to be
-#'                         available to execute the functions in \code{runsummary}.
-#' @param fillnodes        Fill the nodes with color?
-#' @param fillcolor        A named vector of colors for filling the nodes of each variable.
-#'                         If an unnamed, scalar color is specified,
-#'                         all nodes will have this color.
-#' @param NAfillcolor      Fill-color for missing-value nodes.
-#'                         If \code{NULL}, fill colors of missing value nodes will be consistent
-#'                         with the fill colors in the rest of the tree.
-#' @param rootfillcolor    Fill-color for the root node.
-#' @param text             A list of vectors containing extra text to add to
-#'                         nodes corresponding to specified values of a specified variable.
-#'                         The name of each element of the list
-#'                         must be one of the variable names in \code{vars}.
-#'                         Each element is a vector of character strings.
-#'                         The names of the vector identify the nodes to which the text should be added.
-#'                         (See \strong{Formatting codes} below for information
-#'                         on how to format text.)
-#' @param ttext            A list of vectors, each of which specifies a particular node,
-#'                         as well as text to add to that node ("targeted" text).
-#'                         The names of each vector specify variable names,
-#'                         except for an element named \code{text}, which specifies the text to add.
-#' @param HTMLtext         Is the text formatted in HTML?
-#' @param splitwidth       The minimum number of characters before an automatic
-#'                         linebreak is inserted.
-#' @param vsplitwidth      In variable names, the minimum number of characters before an automatic
-#'                         linebreak is inserted.
-#' @param lsplitwidth      (Deprecated) In legends, the minimum number of characters before an automatic
-#'                         linebreak is inserted.                        
-#' @param nodesep          Graphviz attribute: Node separation amount.
-#' @param ranksep          Graphviz attribute: Rank separation amount.
-#' @param margin           Graphviz attribute: node margin.
-#' @param vp               Use "valid percentages"?
-#'                         Valid percentages are computed by first excluding any missing values,
-#'                         i.e. restricting attention to the set of "valid" observations.
-#'                         The denominator is thus the number of non-missing observations.
-#'                         When \code{vp=TRUE}, nodes for missing values show the number of missing values
-#'                         but do not show a percentage;
-#'                         all the other nodes how valid percentages.
-#'                         When \code{vp=FALSE}, all nodes (including nodes for missing values)
-#'                         show percentages of the total number of observations.
-#' @param nodefunc         A node function (see \strong{Node functions} below).
-#' @param nodeargs         A list containing named arguments for the node function
-#'                         specified by \code{nodefunc}.
-#' @param rounded          Use rounded boxes for nodes?
-#' @param getscript        Instead of displaying the variable tree,
-#'                         return the DOT script as a character string?
-#' @param showempty        Show nodes that do not contain any observations?
-#' @param digits           Number of decimal digits to show in percentages.
-#' @param cdigits          Number of decimal digits to show in continuous values displayed via the summary parameter.
-#' @param color            A vector of color names for the \emph{outline} of the nodes at each level.
-#' @param colornodes       Color the node outlines?
-#' @param width            Width (in pixels) to be passed to \code{DiagrammeR::grViz}.
-#' @param height           Height (in pixels) to be passed to \code{DiagrammeR::grViz}.
-#' @param squeeze          The degree (between 0 and 1) to which the tree will be "squeezed".
-#'                         This controls two Graphviz parameters: \code{margin} and \code{nodesep}.
-#' @param plain            Use "plain" settings?
-#'                         These settings are as follows: for each variable all nodes are the same color,
-#'                         namely a shade of blue (with each successive variable using a darker shade);
-#'                         all variable labels are black; and the \code{squeeze} parameter is set to 0.6.
-#' @param showpct          Show percentage in each node?
-#'                         A single value (with no names) specifies the setting for all variables.
-#'                         A logical vector of \code{TRUE} for named variables is interpreted as
-#`                         \code{TRUE} for those variables and \code{FALSE} for all others.
-#'                         A logical vector of \code{FALSE} for named variables is interpreted as
-#'                         \code{FALSE} for those variables and TRUE for all others.
+#'                         
+#' @param showvarnames     Show the name of the variable next to each layer of the tree?
 #' @param showcount        Show count in each node?
 #'                         A single value (with no names) specifies the setting for all variables.
 #'                         A logical vector of \code{TRUE} for named variables is interpreted as
@@ -204,15 +185,16 @@ NULL
 #'                         A logical vector of \code{FALSE} for named variables is interpreted as
 #'                         \code{FALSE} for those variables and \code{TRUE} for all others.
 #' @param showlegend       Show legend (including marginal frequencies) for each variable?
-#' @param showlpct         Show percentages (for the marginal frequencies) in the legend?
-#' @param graphattr        Character string: Additional attributes for the Graphviz graph.
-#' @param nodeattr         Character string: Additional attributes for Graphviz nodes.
-#' @param edgeattr         Character string: Additional attributes for Graphviz edges.
-#' @param seq              Display the variable tree using "sequences"?
+#' @param showlegendsum    Show summary information in the legend?
+#'                         (Provided \code{summary} has been specified).
+#' @param showempty        Show nodes that do not contain any observations?
+#'
+#' @param seq              Display the variable tree using \emph{sequences}?
 #'                         Each unique sequence (i.e. pattern) of values will be shown separately.
 #'                         The sequences are sorted from least frequent to most frequent.
-#' @param pattern          Same as \code{seq}, but lines without arrows are drawn,
-#'                         and instead of a \code{sequence} variable, a \code{pattern} variable is shown.
+#' @param pattern          Display the variable tree using \emph{patterns}?
+#'                         These are the same as \code{seq}, but lines without arrows are drawn,
+#'                         and instead of a sequence variable, a pattern variable is shown.
 #' @param ptable           Generate a pattern table instead of a variable tree? 
 #'                         Only applies when \code{pattern=TRUE}.
 #' @param showroot         Show the root node?
@@ -221,48 +203,93 @@ NULL
 #'                         This provides an alternative to a Venn diagram.
 #'                         This sets \code{showpct=FALSE} and \code{shownodelabels=FALSE}.
 #'                         Assumption: all of the specified variables are logicals or 0/1 numeric variables.
-#' @param palette          A vector of palette numbers (which can range between 1 and 14).
-#'                         The names of the vector indicate the corresponding variable.
-#'                         See \strong{Palettes} below for more information.
-#' @param singlecolor      When a variable has a single value,
-#'                         this parameter is used to specify whether nodes should have a
-#'                         (1) light shade, (2) a medium shade, or (3) a dark shade.
-#'                         specify \code{singlecolor=1} to assign a light shade.
+#'                         
 #' @param choicechecklist  When REDCap checklists are specified using the \code{stem:} syntax,
 #'                         automatically extract the names of choices and use them as variable names? 
-#' @param parent           Parent node number (Internal use only.)
-#' @param last             Last node number (Internal use only.)
-#' @param root             Is this the root node of the tree? (Internal use only.)
-#' @param subset           A vector representing the subset of observations. (Internal use only.)
-#' @param mincount         Minimum count to include in a pattern tree or pattern table.
-#' @param maxcount         Maximum count to include in a pattern tree or pattern table.
-#'                         (Overrides mincount.)
-#' @param pxwidth          Width in pixels of the PNG bitmap to be rendered
+#'                         
+#' @param mincount,maxcount
+#'                         Minimum or maximum count to include in a pattern tree or pattern table.
+#'                         (\code{maxcount} overrides \code{mincount}.)
+#'                         
+#' @param pxwidth,pxheight
+#'                         Width and height of the PNG bitmap to be rendered
 #'                         when \code{vtree} is called from R Markdown.
 #'                         If neither \code{pxwidth} nor \code{pxheight} is specified,
 #'                         \code{pxwidth} is automatically set to 2000 pixels.
-#' @param pxheight         Height in pixels of the PNG bitmap to be rendered
-#'                         when \code{vtree} is called from R Markdown.
-#' @param imagewidth       A character string specifying the width of the PNG image
+#'                         
+#' @param trim             (LaTeX Sweave only.) Crop the image using a feature
+#'                         of \code{\\includegraphics}.
+#'                         Vector of bp (big points) to trim in the order
+#'                         left, lower, right, upper.
+#'                         
+#' @param imagewidth,imageheight
+#' Character strings representing width and height of the PNG image
 #'                         to be rendered when \code{vtree} is called from R Markdown,
 #'                         e.g. \code{"4in"}
-#' @param imageheight      A character string specifying the height of the PNG image
-#'                         to be rendered when \code{vtree} is called from R Markdown,
-#'                         e.g. \code{"5in"}.
 #'                         If neither \code{imageheight} nor \code{imagewidth} is specified,
 #'                         \code{imageheight} is set to 3 inches.
-#' @param arrowhead        DOT arrowhead style. Defaults to \code{"normal"}.
-#'                         Other choices include \code{"none"}, \code{"vee"}.
-#' @param maxNodes         An error occurs if the number of nodes exceeds \code{maxNodes},
-#'                         which defaults to 1000.
-#' @param unchecked        Vector of string values interpreted as "unchecked". 
-#' @param checked          Vector of string values interpreted as "checked".
+#'                         
+#' @param maxNodes         An error occurs if the number of nodes exceeds \code{maxNodes}.
+#'                         
+#' @param unchecked,checked
+#' Vector of character strings interpreted as "unchecked" and "checked" respectively.
+#' 
 #' @param just             Text justification ("l"=left, "c"=center, "r"=right).
+#' @param folder,format,imageFileOnly,pngknit
+#' Control image file generation.
+#' \code{folder}: a path to a folder where image file will be stored.
+#' \code{format}: "png" or "pdf" format.
+#' \code{imageFileOnly}: should an image file should be produced but not displayed?
+#' \code{pngknit}: generate a PNG file when called during knit?
+#' (See \strong{Knitr, R Markdown, Sweave} below for more information.)
+#'
+#' @param auto             Automatically choose variables? (\code{vars} should not be specified)
+#' 
+#' @param rounded          [Graphviz] Use rounded boxes for nodes?
+#'
+#' @param varminwidth,varminheight
+#' [Graphviz] Named vector of minimum initial widths or heights for nodes of each variable.
+#' 
+#' \code{varminwidth} sets the Graphviz \code{width} attribute.
+#' \code{varminheight} sets the Graphviz \code{height} attribute.
+#' 
+#' @param squeeze          [GraphViz] The degree (between 0 and 1) to which the tree will be "squeezed".
+#'                         This controls two Graphviz parameters: \code{margin} and \code{nodesep}.                         
+#' @param arrowhead        [Graphviz] arrowhead style. Defaults to \code{"normal"}.
+#'                         Other choices include \code{"none"}, \code{"vee"}.                         
+#' @param nodesep,ranksep,margin
+#'                         [Graphviz] attributes for node separation amount,
+#'                         rank separation amount, and node margin.
+#' 
+#' @param graphattr,nodeattr,edgeattr
+#' [Graphviz] Character string: Graphviz attributes for the graph, node, and edge respectively.
+#' 
+#' @param nodefunc,nodeargs
+#'                         Node function and node arguments (see \strong{Node functions} below).
 #' @param verbose          Report additional details?
-#' @param folder           Optional path to a folder where the PNG file should stored
-#'                         when called during knit
-#' @param as.if.knit       Behave as if called while knitting?
-#' @param pngknit          Generate a PNG file when called during knit?
+#' @param runsummary       A list of functions, with the same length as \code{summary}.
+#'                         Each function must take a data frame as its sole argument,
+#'                         and return a logical value.
+#'                         Each string in \code{summary} will only be interpreted if
+#'                         the corresponding logical value is \code{TRUE}.
+#'                         the corresponding string in \code{summary} will be evaluated.
+#' @param retain           Vector of names of additional variables in the data frame that need to be
+#'                         available to execute the functions in \code{runsummary}.
+#'
+#' @param parent,last      [Internal use only.] Node number of parent and last node.
+#' 
+#' @param root             [Internal use only.] Is this the root node of the tree?
+#' @param subset           [Internal use only.] A vector representing the subset of observations.
+#' @param as.if.knit       (Deprecated) Behave as if called while knitting?
+#' @param prunelone        (Deprecated) A vector of values specifying "lone nodes" (of \emph{any} variable) to prune.
+#'                         A lone node is a node that has no siblings (an "only child").
+#' @param pruneNA          (Deprecated) Prune all missing values?
+#'                         This is problematic because "valid" percentages
+#'                         are hard to interpret when NAs are pruned.
+#' @param lsplitwidth      (Deprecated) In legends, the minimum number of characters before an automatic
+#'                         linebreak is inserted.
+#' @param showlevels       (Deprecated) Same as showvarnames.
+#' @param z                (Deprecated) This was replaced by the \code{data} parameter
 #'
 #' @return
 #' The value returned by \code{vtree} varies
@@ -285,6 +312,20 @@ NULL
 #'         It will intelligently print itself into HTML in a variety of contexts
 #'         including the R console, within R Markdown documents,
 #'         and within Shiny output bindings.
+#'         
+#'         The \code{info} attribute of the return object is a list whose top
+#'         level represents the root node of the tree.
+#'         Within this list is a list named after the first variable in the tree.
+#'         In turn, within this list are lists named after the observed
+#'         values of that variable.
+#'         In turn, each of these lists is an element named after
+#'         the next variable in the tree.
+#'         And so on.
+#'         The root element as well as each list element named after a value of a variable also 
+#'         contains elements \code{.n} (representing the number of observations),
+#'         \code{.pct} (representing the percentage), and
+#'         \code{.txt} (representing additional text such as summaries).
+#'         
 #' }
 #' 
 #' If knitting \emph{is} taking place:
@@ -300,22 +341,19 @@ NULL
 #'         taking place, i.e. an object of class \code{htmlwidget}.
 #' }
 #'
-#' @section Nested list returned as the `info` attribute:
-#' \itemize{
-#'   \item The top level of the list represents the root node.
-#'         Within this list is a list named after the first variable in the tree.
-#'   \item In turn, within this list are lists named after the observed
-#'         values of that variable.
-#'   \item In turn, each of these lists is an element named after
-#'         the next variable in the tree.
-#'   \item And so on ...
-#' }
-#' The root element as well as each list element named after a value of a variable also 
-#' contains elements \code{.n} (representing the number of observations),
-#' \code{.pct} (representing the percentage), and
-#' \code{.txt} (representing additional text such as summaries).
-#'
-#' @section R Markdown:
+#' @section Knitr, R Markdown, Sweave:
+#' If \code{folder} is not specified and knitting to LaTeX,
+#' the folder will be set to the value of \code{knitr::opts_chunk$get("fig.path")}.
+#' (If this folder does not exist, it will be created.)
+#' If \code{folder} is not specified and knitting to markdown,
+#' a temporary folder will be used.
+#' 
+#' If \code{format} is not specified and knitting is taking place,
+#' then a PNG file is generated, unless a LaTeX document is 
+#' being generated (e.g. via Sweave), in which case a PDF file is generated.   
+#' PNG image files will end in \code{.png}.
+#' PDF image files will end in \code{.pdf}.
+#'                                                 
 #' As noted in the \strong{Value} section above,
 #' \code{vtree} has special support for R Markdown.
 #' 
@@ -335,9 +373,20 @@ NULL
 #' (Using the base R function \code{options}, 
 #' a custom option \code{vtree_folder} is used to automatically keep track of this.)
 #' Successive PNG files generated by an R Markdown file
-#' are named \code{vtree1.png}, \code{vtree2.png}, etc.
+#' are named \code{vtree001.png}, \code{vtree002.png}, etc.
 #' (A custom option \code{vtree_count} is used to automatically keep track of the number of PNG files.)
 #' 
+#' @section Pruning:
+#' Each of the parameters \code{prune}, \code{keep}, \code{prunebelow}, \code{follow}
+#' takes a named list of vectors as its argument.
+#' Each vector specifies nodes of a variable.
+#' \itemize{
+#'   \item \code{prune}: which nodes should be pruned.
+#'   \item \code{keep}: which nodes should \emph{not} be pruned.
+#'   \item \code{prunebelow}: which nodes should have their descendants pruned.
+#'   \item \code{follow}: which nodes should \emph{not} have their descendants pruned.
+#' }
+#'
 #' @section Displaying summary information:
 #' The \code{summary} parameter allows you to specify information to display
 #' in each node. The parameter can be specified as a vector of character strings,
@@ -351,72 +400,29 @@ NULL
 #' \itemize{
 #'   \item{First, the name of the variable for which a summary is desired.}
 #'   \item{Next a space.}
-#'   \item{The remainder of the string specifies what to display, with text as well as special codes (see \strong{Summary codes} below) to indicate the type of summary desired and to control which nodes display the summary, etc.}
-#' }
-#'
-#' @section Summary codes:
-#' \itemize{
-#'  \item{\code{\%mean\%} }{mean. Variant \code{\%meanx\%} does not report missing values.}
-#'  \item{\code{\%SD\%} }{standard deviation. Variant \code{\%SDx\%} does not report missing values.}
-#'  \item{\code{\%sum\%} }{sum. Variant \code{\%sumx\%} does not report missing values.}
-#'  \item{\code{\%min\%} }{minimum. Variant \code{\%minx\%} does not report missing values.}
-#'  \item{\code{\%max\%} }{maximum. Variant \code{\%maxx\%} does not report missing values.}
-#'  \item{\code{\%range\%} }{range. Variant \code{\%rangex\%} does not report missing values.}
-#'  \item{\code{\%pX\%} }{Xth percentile, e.g. p50 means the 50th percentile}
-#'  \item{\code{\%median\%} }{median. Variant \code{\%medianx\%} does not report missing values.}
-#'  \item{\code{\%IQR\%} }{interquartile range. Variant \code{\%IQRx\%} does not report missing values.}
-#'  \item{\code{\%npct\%} }{number and percentage of \code{TRUE} values}
-#'  \item{\code{\%pct\%} }{percentage of \code{TRUE} values}
-#'  \item{\code{\%freqpct\%} }{frequency and percentage of values of a variable. Variant \code{\%freqpct_\%} shows each value on a separate line }
-#'  \item{\code{\%freq\%} }{frequency of values of a variable. Variant \code{\%freq_\%} shows each value on a separate line}
-#'  \item{\code{\%list\%} }{list of the individual values. Variant \code{\%list_\%} shows each value on a separate line}
-#'  \item{\code{\%mv\%} }{the number of missing values}
-#'  \item{\code{\%nonmv\%} }{the number of non-missing values}
-#'  \item{\code{\%v\%} }{the name of the variable}
-#'  \item{\code{\%noroot\%} }{flag: Do not show summary in the root node.}
-#'  \item{\code{\%leafonly\%} }{flag: Only show summary in leaf nodes.}
-#'  \item{\code{\%var=}V\code{\%} }{flag: Only show summary in nodes of variable V.}
-#'  \item{\code{\%node=}N\code{\%} }{flag: Only show summary in nodes with value N.}
-#'  \item{\code{\%trunc=}n\code{\%} }{flag: Truncate the summary to the first n characters.}
-#' }
-#'
-#' @section Formatting codes:
-#' Formatting codes for the \code{text} argument.
-#' Also used by \code{labelnode} and \code{labelvar}.
-#' \itemize{
-#'  \item{\code{\\n} }{line break}
-#'  \item{\code{*...*} }{italics}
-#'  \item{\code{**...**} }{bold}
-#'  \item{\code{^...^} }{superscript (using 10 point font)}
-#'  \item{\code{~...~} }{subscript (using 10 point font)}
-#'  \item{\code{\%\%red ...\%\%} }{display text in red (or whichever color is specified)}
+#'   \item{The remainder of the string specifies what to display, with text as well as special codes (such as \code{\%mean\%}) to indicate the type of summary desired and to control which nodes display the summary, etc. See the vignette for more details.}
 #' }
 #'
 #' @section Palettes:
-#' 
 #' The following palettes
 #' (obtained from \code{RColorBrewer}) are used in the order indicated:
 #' 
-#' \tabular{rlcrlcrlcrl}{
-#'  1 \tab Reds     \tab \tab 5 \tab Purples  \tab \tab 9  \tab YlOrBr \tab \tab 13 \tab RdYlGn \cr
-#'  2 \tab Blues    \tab \tab 6 \tab YlGn     \tab \tab 10 \tab PuBuGn \tab \tab 14 \tab Set1 \cr 
-#'  3 \tab Greens   \tab \tab 7 \tab PuBu     \tab \tab 11 \tab BuPu   \tab \tab    \tab \cr
-#'  4 \tab Oranges  \tab \tab 8 \tab PuRd     \tab \tab 12 \tab YlOrRd \tab \tab    \tab \cr
+#' \tabular{rlcrlcrlcrlcclcr}{
+#'  1 \tab Reds     \tab \tab 4 \tab Oranges  \tab \tab 7  \tab PuBu   \tab \tab 10 \tab PuBuGn \tab \tab 13 \tab RdYlGn \cr
+#'  2 \tab Blues    \tab \tab 5 \tab Purples  \tab \tab 8  \tab PuRd   \tab \tab 11 \tab BuPu   \tab \tab 14 \tab Set1   \cr 
+#'  3 \tab Greens   \tab \tab 6 \tab YlGn     \tab \tab 9  \tab YlOrBr \tab \tab 12 \tab YlOrRd \tab \tab    \tab        \cr
 #' }
 #'
+#' @seealso
+#' \href{../doc/vtree.html}{\code{vignette("vtree")}}
+#' 
 #' @examples
 #' 
-#' # Call to vtree 
-#' vtree(FakeData,"Sex Severity")
+#' # Call vtree and give the root node a title
+#' vtree(FakeData,"Sex Severity",title="People")
 #' 
 #' # R Markdown inline call to vtree
 #' # `r vtree(FakeData,"Sex Severity")`
-#'
-#' # A single-level hierarchy
-#' vtree(FakeData,"Severity")
-#'
-#' # A two-level hierarchy
-#' vtree(FakeData,"Severity Sex")
 #'
 #' # Rename some nodes
 #' vtree(FakeData,"Severity Sex",labelnode=list(Sex=(c("Male"="M","Female"="F"))))
@@ -427,63 +433,119 @@ NULL
 #' # Show legend. Put labels on the same line as counts and percentages
 #' vtree(FakeData,"Severity Sex Viral",sameline=TRUE,showlegend=TRUE)
 #'
-#' # Using the summary parameter to list ID numbers (truncated to 40 characters) in specified nodes
+#' # Use the summary parameter to list ID numbers (truncated to 40 characters) in specified nodes
 #' vtree(FakeData,"Severity Sex",summary="id \nid = %list% %var=Severity% %trunc=40%")
 #'
-#' # Adding text to specified nodes of a tree ("targeted text")
+#' # Add text to specified nodes of a tree ("targeted text")
 #' vtree(FakeData,"Severity Sex",ttext=list(
 #'   c(Severity="Severe",Sex="M",text="\nMales with Severe disease"),
 #'   c(Severity="NA",text="\nUnknown severity")))
 #'
 #' @export
 
-vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
-  prune=list(), prunebelow = list(), keep=list(), follow=list(),
-  prunelone=NULL,pruneNA=FALSE,prunesmaller=NULL,
-  labelnode = list(),tlabelnode=NULL,labelvar = NULL,
-  varminwidth=NULL,varminheight=NULL,varlabelloc=NULL,
-  fillcolor = NULL, fillnodes = TRUE,
-  NAfillcolor="white",rootfillcolor="#EFF3FF",
-  palette=NULL,
-  gradient=TRUE, revgradient=FALSE,sortfill=FALSE,
-  singlecolor=2,
-  colorvarlabels=TRUE,
+vtree <- function (
+  data,
+  vars, 
+  horiz = TRUE, 
   title = "",
   sameline=FALSE,
-  Venn = FALSE, check.is.na = FALSE,
-  seq=FALSE, pattern=FALSE, ptable=FALSE,
+  vp = TRUE,
+  prune=list(),
+  keep=list(),
+  prunebelow = list(),
+  follow=list(),
+  prunesmaller=NULL,
+  summary = "",
+  shownodelabels=TRUE,
+  showvarnames = TRUE, 
+  showpct=TRUE, 
+  showlpct=TRUE,
+  showcount=TRUE, 
+  showlegend=FALSE,
   showroot=TRUE,
-  text = list(),ttext=list(),
-  plain = FALSE, squeeze = 1,
-  showvarinnode=FALSE,shownodelabels=TRUE,
-  showvarnames = TRUE, showlevels = TRUE,
-  showpct=TRUE, showlpct=TRUE,
-  showcount=TRUE, showlegend=FALSE,
+  showvarinnode=FALSE,
+  showlegendsum=FALSE,  
+  labelvar = NULL,
+  labelnode = list(),
+  tlabelnode=NULL,
+  digits = 0,
+  cdigits=1,  
+  fillcolor = NULL, 
+  fillnodes = TRUE,
+  NAfillcolor="white",
+  rootfillcolor="#EFF3FF",
+  palette=NULL,
+  gradient=TRUE,
+  revgradient=FALSE,
+  sortfill=FALSE,
+  singlecolor=2,
+  colorvarlabels=TRUE,
+  color = c("blue", "forestgreen", "red", "orange", "pink"), 
+  colornodes = FALSE,
+  plain = FALSE, 
+  Venn = FALSE, 
+  check.is.na = FALSE,
+  seq=FALSE, 
+  pattern=FALSE, 
+  ptable=FALSE,
+  text = list(),
+  ttext=list(),
+  varlabelloc=NULL,
+  font = "Arial",
   varnamepointsize = 24,
   varnamebold=FALSE,
   legendpointsize = 14,
   HTMLtext = FALSE,
-  digits = 0,cdigits=1,
-  splitwidth = 20, vsplitwidth=8,lsplitwidth=15,
+  splitwidth = 20, 
+  vsplitwidth=8,
+  splitspaces=TRUE,
   getscript = FALSE,
-  nodesep = 0.5, ranksep = 0.5, margin=0.2, vp = TRUE,
-  horiz = TRUE, summary = "", runsummary = NULL, retain=NULL,
-  width=NULL,height=NULL,
-  graphattr="",nodeattr="",edgeattr="",
-  color = c("blue", "forestgreen", "red", "orange", "pink"), colornodes = FALSE,
-  mincount=1,maxcount,
-  showempty = FALSE, rounded = TRUE,
-  nodefunc = NULL, nodeargs = NULL, 
+  mincount=1,
+  maxcount,
+  showempty = FALSE, 
   choicechecklist = TRUE,
-  arrowhead="normal",
-  pxwidth,pxheight,imagewidth="",imageheight="",folder,
-  pngknit=TRUE,as.if.knit=FALSE,
+  just="c",
+  folder=NULL,
+  format="",
+  imageFileOnly=FALSE,
+  pngknit=TRUE,
+  pxwidth=NULL,
+  pxheight=NULL,
+  imagewidth="",
+  imageheight="",  
+  width=NULL,
+  height=NULL,  
   maxNodes=1000,
   unchecked=c("0","FALSE","No","no"),
   checked=c("1","TRUE","Yes","yes"),
-  just="c",
+  trim=NULL,
+  rounded = TRUE,
+  varminwidth=NULL,
+  varminheight=NULL,  
+  squeeze = 1,
+  arrowhead="normal",
+  nodesep = 0.5, 
+  ranksep = 0.5, 
+  margin = 0.2,   
+  graphattr="",
+  nodeattr="",
+  edgeattr="",  
+  nodefunc = NULL, 
+  nodeargs = NULL,
   verbose=FALSE,
-  parent = 1, last = 1, root = TRUE, subset = 1:nrow(z))
+  runsummary = NULL, 
+  retain=NULL,  
+  auto=FALSE, 
+  parent = 1,
+  last = 1,
+  root = TRUE,
+  subset = 1:nrow(z),
+  as.if.knit=FALSE,
+  prunelone=NULL,
+  pruneNA=FALSE,
+  lsplitwidth=15,
+  showlevels = TRUE,
+  z)
 {
   
   makeHTML <- function(x) {
@@ -516,14 +578,17 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
 
   novars <- FALSE
 
+  if (missing(z)) z <- data
   
-  ### ----------- Begin code for root only ------------
-
+  # *************************************************************************
+  # Begin code for root only ----
+  # *************************************************************************
+  
   if (root) {
 
     unknowncolor <- "pink"
 
-    argname <- sapply(as.list(substitute({z})[-1]), deparse)
+    argname <- sapply(as.list(substitute({data})[-1]), deparse)
 
     if (!missing(lsplitwidth) & missing(vsplitwidth)) vsplitwidth=lsplitwidth
     
@@ -533,7 +598,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
     if (ptable & !(pattern | seq | check.is.na)) {
       pattern <- TRUE
     }
-
+    
     if (!auto) {
       if (missing(vars)) {
         # Special case where z is provided as a vector instead of a data frame
@@ -546,19 +611,22 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
           vars <- ""
         }
       } else
-      if (length(vars)==1) {
-        if (!is.na(vars) & vars=="") {
-          novars <- TRUE
+        if (inherits(vars,"formula")) {  # There is no is.formula function in R
+          vars <- all.vars(vars)
         } else
-        if (splitspaces) {
-          vars <- strsplit(vars,"\\s+")[[1]]
-          # In case the first element is empty
-          # (due to whitespace at the beginning of the string)
-          if (vars[1]=="") vars <- vars[-1]
-        }
-      }
+          if (length(vars)==1) {
+            if (!is.na(vars) & vars=="") {
+              novars <- TRUE
+            } else
+              if (splitspaces) {
+                vars <- strsplit(vars,"\\s+")[[1]]
+                # In case the first element is empty
+                # (due to whitespace at the beginning of the string)
+                if (vars[1]=="") vars <- vars[-1]
+              }
+          }
     }
-
+    
     
     if (auto) {
       if (missing(showvarinnode) & !check.is.na) showvarinnode <- TRUE
@@ -575,17 +643,17 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
   
       # Calculate a quick approximation to the cumulative number of nodes
       nodes <- 1
-      level <- 1
+      layer <- 1
       excluded_discrete_vars <- c()
-      while (level<=length(vars)) {
-        nodes <- nodes*length(unique(z[[vars[level]]]))
+      while (layer<=length(vars)) {
+        nodes <- nodes*length(unique(z[[vars[layer]]]))
         if (nodes>maxNodes) {
-          ev <- vars[-seq_len(level)]
-          vars <- vars[seq_len(level)]
+          ev <- vars[-seq_len(layer)]
+          vars <- vars[seq_len(layer)]
           excluded_discrete_vars <- c(ev,excluded_discrete_vars)
           break
         }
-        level <- level+1
+        layer <- layer+1
       }
       if (verbose) message("--Discrete variables included: ",paste(vars,collapse=" "))
       if (verbose && length(excluded_discrete_vars)>0) 
@@ -594,9 +662,16 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
         message("Additional variables excluded: ",paste(non_discrete_vars,collapse=" "))
     }
      
-    # -------------------------------------------------------------------------
-    # Variable specifications
-    # -------------------------------------------------------------------------
+    # *************************************************************************
+    # Begin: Variable specifications ----
+    # *************************************************************************
+    
+    #
+    # The following complex regular expression is used for both 
+    # variable specifications and summary arguments.
+    #
+    
+    regexComplex <- "^((i|r|any|anyx|all|allx|notall|notallx|none|nonex)+:)*([^([:space:]|:)@\\*#]*)([@\\*#]?)(.*)$"
     
     if (!(all(vars==""))) {
  
@@ -758,11 +833,13 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
   
       
       #
-      # Process complex variable name specification
+      # >> Process complex variable name specification ----
       # including REDCap variables, intersections, and wildcards
       #
-      regex <- "^((i|r|any|all)+:)*([^([:space:]|:)@\\*#]*)([@\\*#]?)$"
-      match_regex <- grep(regex,vars)
+      # Uses the same regular expression as for variable specifications,
+      # namely the string regex
+      
+      match_regex <- grep(regexComplex,vars)
       if (length(match_regex)>0) {
         expandedvars <- c()
         #
@@ -776,18 +853,19 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
         for (i in seq_len(length(vars))) {
           if (i %in% match_regex) {
             y <- rep("",nrow(z))
-            prefix <- sub(regex,"\\1",vars[i])
-            text_part <- sub(regex,"\\3",vars[i])
-            wildcard <- sub(regex,"\\4",vars[i])
+            prefix <- sub(regexComplex,"\\1",vars[i])
+            text_part <- sub(regexComplex,"\\3",vars[i])
+            wildcard <- sub(regexComplex,"\\4",vars[i])
+            tail <- sub(regexComplex,"\\5",vars[i])
             if (prefix=="" && wildcard=="") {
               expandedvars <- c(expandedvars,vars[i]) 
             } else
             if (prefix=="") {
               if (wildcard=="*") {
-                matching_vars <- names(z)[grep(paste0("^",text_part,".*$"),names(z))]
+                matching_vars <- names(z)[grep(paste0("^",text_part,".*",tail,"$"),names(z))]
               } else
               if (wildcard=="#") {
-                matching_vars <- names(z)[grep(paste0("^",text_part,"[0-9]+$"),names(z))]
+                matching_vars <- names(z)[grep(paste0("^",text_part,"[0-9]+",tail,"$"),names(z))]
               } else {
                 stop("Invalid wildcard in variable specification")
               }
@@ -827,7 +905,10 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
                 }
               } 
             } else   
-            if (prefix=="any:" || prefix=="all:") {
+            if (prefix=="any:"    || prefix=="anyx:"    || 
+                prefix=="none:"   || prefix=="nonex:"   ||
+                prefix=="all:"    || prefix=="allx:"    ||
+                prefix=="notall:" || prefix=="notallx:" ) {
               
               if (wildcard=="*") {
                 matching_vars <- names(z)[grep(paste0("^",text_part,".*$"),names(z))]
@@ -841,34 +922,9 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
                 stop("Could not find variables with names matching variable specification")
               }      
               if (verbose) message(paste0(vars[i]," expands to: ",paste(matching_vars,collapse=", ")))
-              if (prefix=="any:") {
-                for (j in 1:length(matching_vars)) {
-                  convertedToLogical <- 
-                    ifelse(z[[matching_vars[j]]] %in% checked,TRUE,
-                      ifelse(z[[matching_vars[j]]] %in% unchecked,FALSE,NA))
-                  if (j==1) {
-                    output <- convertedToLogical
-                  } else {
-                   output <- output | convertedToLogical
-                  }
-                }
-                NewVarName <- paste0("Any: ",text_part)
-              } else
-              if (prefix=="all:") {
-                for (j in 1:length(matching_vars)) {
-                  convertedToLogical <- 
-                    ifelse(z[[matching_vars[j]]] %in% checked,TRUE,
-                      ifelse(z[[matching_vars[j]]] %in% unchecked,FALSE,NA))
-                  if (j==1) {
-                    output <- convertedToLogical
-                  } else {
-                    output <- output & convertedToLogical
-                  }
-                }
-                NewVarName <- paste0("All: ",text_part)
-              } else {
-                stop("Unknown prefix")
-              }            
+              out <- combineVars(prefix,text_part,matching_vars,checked,unchecked,z)
+              output <- out$output
+              NewVarName <- out$NewVarName   
               z[[NewVarName]] <- output
               expandedvars <- c(expandedvars,NewVarName)            
               
@@ -932,6 +988,31 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
                 expandedvars <- c(expandedvars,REDCap_var_label_any)
                 
               } else
+              if (prefix=="rnotall:" || prefix=="notallr:") {    # with wildcard @
+                
+                lab1 <- attributes(z[[matching_vars[1]]])$label
+                if (length(grep(rexp0,lab1))>0) {
+                  REDCap_var_label <- sub(rexp1,"\\1",lab1)
+                } else {
+                  REDCap_var_label <- sub(rexp2,"\\1",lab1)
+                }
+                if (choicechecklist) {
+                  for (j in 1:length(matching_vars)) {
+                    convertedToLogical <- 
+                      ifelse(z[[matching_vars[j]]] %in% checked,TRUE,
+                        ifelse(z[[matching_vars[j]]] %in% unchecked,FALSE,NA))
+                    if (j==1) {
+                      output <- convertedToLogical
+                    } else {
+                      output <- output & convertedToLogical
+                    }
+                  }
+                } 
+                REDCap_var_label_any <- paste0("Not all: ",REDCap_var_label)
+                z[[REDCap_var_label_any]] <- !output
+                expandedvars <- c(expandedvars,REDCap_var_label_any)
+                
+              } else                
               if (prefix=="rany:" || prefix=="anyr:") {     # with wildcard @
                 
                 lab1 <- attributes(z[[matching_vars[1]]])$label
@@ -956,6 +1037,29 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
                 z[[REDCap_var_label_any]] <- output
                 expandedvars <- c(expandedvars,REDCap_var_label_any)
                 
+              } else
+              if (prefix=="rnone:" || prefix=="noner:") {     # with wildcard @
+                  lab1 <- attributes(z[[matching_vars[1]]])$label
+                  if (length(grep(rexp0,lab1))>0) {
+                    REDCap_var_label <- sub(rexp1,"\\1",lab1)
+                  } else {
+                    REDCap_var_label <- sub(rexp2,"\\1",lab1)
+                  }
+                  if (choicechecklist) {
+                    for (j in 1:length(matching_vars)) {
+                      convertedToLogical <- 
+                        ifelse(!(z[[matching_vars[j]]] %in% checked),TRUE,
+                          ifelse(!(z[[matching_vars[j]]] %in% unchecked),FALSE,NA))
+                      if (j==1) {
+                        output <- convertedToLogical
+                      } else {
+                        output <- output & convertedToLogical
+                      }
+                    }
+                  } 
+                  REDCap_var_label_none <- paste0("None: ",REDCap_var_label)
+                  z[[REDCap_var_label_none]] <- output
+                  expandedvars <- c(expandedvars,REDCap_var_label_none)
               } else                
               if (prefix=="r:") {                         # with wildcard @
                 if (choicechecklist) {
@@ -1065,7 +1169,10 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
         vars <- expandedvars
       }    
     }
-    # end of variable specifications
+    
+    # *************************************************************************
+    # End: Variable specifications ----
+    # *************************************************************************
     
   
     
@@ -1074,9 +1181,9 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
     allvars <- vars
 
     
-    # -------------------------------------------------------------------------
-    # Set up summaries if requested
-    # -------------------------------------------------------------------------
+    # *************************************************************************
+    # Begin: Summaries  ----
+    # *************************************************************************
     
     regex <- "^(\\S+)\\s(.+)$"
     if (!all(summary=="")) {
@@ -1182,25 +1289,6 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
         }
       } 
       
-      # If an element of codevar is not the name of a variable in z,
-      # perhaps it's an expression that can be evaluated in z
-      for (i in seq_len(length(summaryvarlist))) { 
-        if (length(grep("^([oair]+[oair]*:)*(\\S*)([\\*#@])$",summaryvarlist[[i]]))==0) {
-          if (length(grep("^stem:",summaryvarlist[[i]]))==0) {   # except for stems
-            if (length(grep("^stemc:",summaryvarlist[[i]]))==0) {   # except for stems
-              if (length(grep("\\*$",summaryvarlist[[i]]))==0) {   # except for ending in *
-               if (length(grep("#$",summaryvarlist[[i]]))==0) {   # except for ending in #
-                 if (!(summaryvarlist[[i]] %in% names(z))) {
-                   derivedvar <- with(z,eval(parse(text=summaryvarlist[[i]],keep.source=FALSE))) 
-                   z[[summaryvarlist[[i]]]] <- derivedvar
-                 }
-                }
-              }
-            }
-          }
-        }
-      }      
-      
       # Process stem: tag in variable names in summary argument
       regex <- "^stem:(\\S+)$"
       findstem <- grep(regex,codevar)
@@ -1295,25 +1383,35 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
       }      
       
       #
-      # Process complex summary specification
+      # >> Process complex summary specification ----
       # including REDCap variables, intersections, and wildcards
       #
-      regex <- "^((i|r|any|all)+:)*([^[:space:]]*)([\\*#@])$"
-      match_regex <- grep(regex,codevar)
+      # Uses the same regular expression as for variable specifications,
+      # namely the string regexComplex
+      
+      match_regex <- grep(regexComplex,codevar)
       if (length(match_regex)>0) {
+        expandedvars <- c()
         for (i in seq_len(length(codevar))) {    
           if (i %in% match_regex) {
             y <- rep("",nrow(z))
             none <- rep(TRUE,nrow(z))
-            prefix <- sub(regex,"\\1",codevar[i])
-            text_part <- sub(regex,"\\3",codevar[i])
-            wildcard <- sub(regex,"\\4",codevar[i])
-            if (prefix=="any:" | prefix=="all:") {
+            prefix <- sub(regexComplex,"\\1",codevar[i])
+            text_part <- sub(regexComplex,"\\3",codevar[i])
+            wildcard <- sub(regexComplex,"\\4",codevar[i])
+            tail <- sub(regexComplex,"\\5",codevar[i])
+            if (prefix=="" && wildcard=="") {
+              expandedvars <- c(expandedvars,vars[i]) 
+            } else            
+            if (prefix=="any:"    || prefix=="anyx:"    || 
+                prefix=="none:"   || prefix=="nonex:"   ||
+                prefix=="all:"    || prefix=="allx:"    ||
+                prefix=="notall:" || prefix=="notallx:" ) {
               if (wildcard=="*") {
-                matching_vars <- names(z)[grep(paste0("^",text_part,".*$"),names(z))]
+                matching_vars <- names(z)[grep(paste0("^",text_part,".*",tail,"$"),names(z))]
               } else
               if (wildcard=="#") {
-                matching_vars <- names(z)[grep(paste0("^",text_part,"[0-9]+$"),names(z))]
+                matching_vars <- names(z)[grep(paste0("^",text_part,"[0-9]+",tail,"$"),names(z))]
               } else {
                 stop("Invalid wildcard in summary specification")
               }
@@ -1322,36 +1420,12 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
                 stop("Could not find variables matching summary specification")
               }      
               if (verbose) message(paste0(vars[i]," expands to: ",paste(matching_vars,collapse=", ")))
-              if (prefix=="any:") {
-                for (j in 1:length(matching_vars)) {
-                  convertedToLogical <- 
-                    ifelse(z[[matching_vars[j]]] %in% checked,TRUE,
-                      ifelse(z[[matching_vars[j]]] %in% unchecked,FALSE,NA))
-                  if (j==1) {
-                    output <- convertedToLogical
-                  } else {
-                    output <- output | convertedToLogical
-                  }
-                }
-                NewVarName <- paste0("Any: ",text_part)
-              } else
-              if (prefix=="all:") {
-                for (j in 1:length(matching_vars)) {
-                  convertedToLogical <- 
-                    ifelse(z[[matching_vars[j]]] %in% checked,TRUE,
-                      ifelse(z[[matching_vars[j]]] %in% unchecked,FALSE,NA))
-                  if (j==1) {
-                    output <- convertedToLogical
-                  } else {
-                    output <- output & convertedToLogical
-                  }
-                }
-                NewVarName <- paste0("All: ",text_part)
-              } else {
-                stop("Unknown prefix")
-              }           
+              out <- combineVars(prefix,text_part,matching_vars,checked,unchecked,z)
+              output <- out$output
+              NewVarName <- out$NewVarName   
+                  
               z[[NewVarName]] <- output
-              expandedvars <- c(expandedvars,NewVarName)            
+              expandedvars <- c(expandedvars,NewVarName)          
                 
               newvarheading <- NewVarName
               summaryvarlist[[i]] <- NewVarName
@@ -1360,7 +1434,11 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
               summaryformatlist[[i]] <- rep(summaryformatlist[[i]],length(matching_vars))
             
             } else
-            if (prefix=="r:" || prefix=="ir:" || prefix=="ri:" || prefix=="anyr:" || prefix=="rany:" || prefix=="allr:" || prefix=="rall:") {
+            if (prefix=="r:" || prefix=="ir:" || prefix=="ri:" ||
+                prefix=="anyr:" || prefix=="rany:" ||
+                prefix=="allr:" || prefix=="rall:" || 
+                prefix=="noner:" || prefix=="rnone:" ||
+                prefix=="notallr:" || prefix=="rnotall:") {
               if (wildcard=="@") {
                 matching_vars <- names(z)[grep(paste0("^",text_part,"___[0-9]+$"),names(z))]
               } else {
@@ -1409,18 +1487,10 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
                   REDCap_var_label <- sub(rexp2,"\\1",lab1)
                 }
                 if (choicechecklist) {
-                  for (j in 1:length(matching_vars)) {
-                    convertedToLogical <- 
-                      ifelse(z[[matching_vars[j]]] %in% checked,TRUE,
-                        ifelse(z[[matching_vars[j]]] %in% unchecked,FALSE,NA))
-                    if (j==1) {
-                      output <- convertedToLogical
-                    } else {
-                      output <- output | convertedToLogical
-                    }
-                  }
-                } 
-                REDCap_var_label_any <- paste0("Any: ",REDCap_var_label)
+                  out <- combineVars(prefix,REDCap_var_label,matching_vars,checked,unchecked,z)
+                }
+                output <- out$output
+                REDCap_var_label_any <- out$NewVarName
                 z[[REDCap_var_label_any]] <- output
                 expandedvars <- c(expandedvars,REDCap_var_label_any)
                 summaryvarlist[[i]] <- expandedvars
@@ -1428,6 +1498,33 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
                 extra_variables <- c(extra_variables,matching_vars)
                 summaryformatlist[[i]] <- rep(summaryformatlist[[i]],length(matching_vars))
               } else
+              if (prefix=="noner:" || prefix=="rnone:") {
+                lab1 <- attributes(z[[matching_vars[1]]])$label
+                if (length(grep(rexp0,lab1))>0) {
+                  REDCap_var_label <- sub(rexp1,"\\1",lab1)
+                } else {
+                  REDCap_var_label <- sub(rexp2,"\\1",lab1)
+                }
+                if (choicechecklist) {
+                  for (j in 1:length(matching_vars)) {
+                    convertedToLogical <- 
+                      ifelse(!(z[[matching_vars[j]]] %in% checked),TRUE,
+                        ifelse(!(z[[matching_vars[j]]] %in% unchecked),FALSE,NA))
+                    if (j==1) {
+                      output <- convertedToLogical
+                    } else {
+                      output <- output & convertedToLogical
+                    }
+                  }
+                } 
+                REDCap_var_label_none <- paste0("None: ",REDCap_var_label)
+                z[[REDCap_var_label_none]] <- output
+                expandedvars <- c(expandedvars,REDCap_var_label_none)
+                summaryvarlist[[i]] <- expandedvars
+                headinglist[[i]] <- expandedvars            
+                extra_variables <- c(extra_variables,matching_vars)
+                summaryformatlist[[i]] <- rep(summaryformatlist[[i]],length(matching_vars))
+              } else                
               if (prefix=="allr:" || prefix=="rall:") {
                 lab1 <- attributes(z[[matching_vars[1]]])$label
                 if (length(grep(rexp0,lab1))>0) {
@@ -1447,14 +1544,41 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
                     }
                   }
                 } 
-                REDCap_var_label_any <- paste0("All: ",REDCap_var_label)
-                z[[REDCap_var_label_any]] <- output
-                expandedvars <- c(expandedvars,REDCap_var_label_any)
+                REDCap_var_label_all <- paste0("All: ",REDCap_var_label)
+                z[[REDCap_var_label_all]] <- output
+                expandedvars <- c(expandedvars,REDCap_var_label_all)
                 summaryvarlist[[i]] <- expandedvars
                 headinglist[[i]] <- expandedvars            
                 extra_variables <- c(extra_variables,matching_vars)
                 summaryformatlist[[i]] <- rep(summaryformatlist[[i]],length(matching_vars))
-              } else                                
+              } else
+              if (prefix=="notallr:" || prefix=="rnotall:") {
+                lab1 <- attributes(z[[matching_vars[1]]])$label
+                if (length(grep(rexp0,lab1))>0) {
+                  REDCap_var_label <- sub(rexp1,"\\1",lab1)
+                } else {
+                  REDCap_var_label <- sub(rexp2,"\\1",lab1)
+                }
+                if (choicechecklist) {
+                  for (j in 1:length(matching_vars)) {
+                    convertedToLogical <- 
+                      ifelse(!(z[[matching_vars[j]]] %in% checked),TRUE,
+                        ifelse(!(z[[matching_vars[j]]] %in% unchecked),FALSE,NA))
+                    if (j==1) {
+                      output <- convertedToLogical
+                    } else {
+                      output <- output | convertedToLogical
+                    }
+                  }
+                } 
+                REDCap_var_label_notall <- paste0("Not all: ",REDCap_var_label)
+                z[[REDCap_var_label_notall]] <- output
+                expandedvars <- c(expandedvars,REDCap_var_label_notall)
+                summaryvarlist[[i]] <- expandedvars
+                headinglist[[i]] <- expandedvars            
+                extra_variables <- c(extra_variables,matching_vars)
+                summaryformatlist[[i]] <- rep(summaryformatlist[[i]],length(matching_vars))
+              } else                                                
               if (prefix=="ri:" | prefix=="ir:") {
                 if (choicechecklist) {
                   for (j in seq_len(length(matching_vars))) {
@@ -1487,12 +1611,12 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
               }  
             } else {
               if (wildcard=="*") {
-                matching_vars <- names(z)[grep(paste0("^",text_part,".*$"),names(z))]
+                matching_vars <- names(z)[grep(paste0("^",text_part,".*",tail,"$"),names(z))]
               } else
               if (wildcard=="#") {
-                matching_vars <- names(z)[grep(paste0("^",text_part,"[0-9]+$"),names(z))]
+                matching_vars <- names(z)[grep(paste0("^",text_part,"[0-9]+",tail,"$"),names(z))]
               } else {
-                stop("Invalid wildcard")
+                stop("Invalid wildcard in summary specification")
               }
               if (length(matching_vars)==0) {
                 stop("summary: Could not find variables with matching names")
@@ -1526,6 +1650,27 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
             }
           }
         }
+      }     
+      
+      # If an element of codevar is not the name of a variable in z,
+      # perhaps it's an expression that can be evaluated in z
+      for (i in seq_len(length(summaryvarlist))) { 
+        if (length(summaryvarlist[[i]])==1) {
+          if (length(grep("^([oair]+[oair]*:)*(\\S*)([\\*#@])$",summaryvarlist[[i]]))==0) {
+            if (length(grep("^stem:",summaryvarlist[[i]]))==0) {   # except for stems
+              if (length(grep("^stemc:",summaryvarlist[[i]]))==0) {   # except for stems
+                if (length(grep("\\*$",summaryvarlist[[i]]))==0) {   # except for ending in *
+                  if (length(grep("#$",summaryvarlist[[i]]))==0) {   # except for ending in #
+                    if (!(summaryvarlist[[i]] %in% names(z))) {
+                      derivedvar <- with(z,eval(parse(text=summaryvarlist[[i]],keep.source=FALSE))) 
+                      z[[summaryvarlist[[i]]]] <- derivedvar
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }            
       
       summaryvars <- unlist(summaryvarlist)
@@ -1545,7 +1690,10 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
         original_var=headings,
         sf = runsummary, digits = digits, cdigits = cdigits, sepN=sepN)
     }
-    # end of section for summary argument
+    
+    # *************************************************************************
+    # End: Summaries  ----
+    # *************************************************************************
     
 
     # Add any extra variables needed
@@ -1775,7 +1923,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
         }
       }
     }
-
+    
     # Check that all of named variables are in the data frame
     if (novars) ALLVARS <- ALLVARS[ALLVARS!=""]
     findallvars <- ALLVARS %in% names(z)
@@ -2057,15 +2205,15 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
 
     singleColor <- FALSE
     # Single color specified
-    if (!missing(fillcolor) && (length(fillcolor)==1) && (is.null(names(fillcolor)))) {
+    if (!is.null(fillcolor) && (length(fillcolor)==1) && (is.null(names(fillcolor)))) {
       singleColor <- TRUE
       fillcolor <- rep(fillcolor,numvars)
       names(fillcolor) <- vars
-      if (missing(rootfillcolor)) rootfillcolor <- fillcolor
+      if (is.null(rootfillcolor)) rootfillcolor <- fillcolor
     }
 
     holdvarlabelcolors <- FALSE
-    if (missing(fillcolor)) {
+    if (is.null(fillcolor)) {
       varlabelcolors <- rep(unknowncolor,numvars)
     } else {
       varlabelcolors <- fillcolor
@@ -2080,7 +2228,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
           # Use the specified palette for all variables.
           palette <- rep(palette,numvars)
           names(palette) <- vars
-          if (missing(rootfillcolor)) rootfillcolor <- col[[1]][palette,1]
+          if (is.null(rootfillcolor)) rootfillcolor <- col[[1]][palette,1]
         }
       } else {
         if (length(vars)<=length(palette)) {
@@ -2134,13 +2282,13 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
           valuecolors <- rep(NAfillcolor,length(values))
         }
         if (Nnonmissing>0) {
-          if (missing(fillcolor) & (Nnonmissing>length(col) || (seq & (vars[i]=="sequence")) || (pattern & (vars[i]=="pattern")) || (row==0))) {
+          if (is.null(fillcolor) & (Nnonmissing>length(col) || (seq & (vars[i]=="sequence")) || (pattern & (vars[i]=="pattern")) || (row==0))) {
             # Too many values to permit distinct colors
             valuecolors[values!="NA"] <- col[[1]][row] # "grey90"
             names(valuecolors) <- values
             varlabelcolors[i] <- col[[1]][row] # "grey90"
           } else {
-            if (!missing(fillcolor) && (vars[i] %in% names(fillcolor))) {
+            if (!is.null(fillcolor) && (vars[i] %in% names(fillcolor))) {
               if (is.null(NAfillcolor)) {
                 valuecolors[TRUE] <- fillcolor[names(fillcolor)==vars[i]]
               } else {
@@ -2261,9 +2409,10 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
   }
 
   
-  ### -------------------------------------------------------------------  
-  ### --------------------- End code for root only ----------------------
-  ### -------------------------------------------------------------------  
+  # *************************************************************************
+  # End code for root only ----
+  # *************************************************************************
+  
   
   numvars <- length(vars)
 
@@ -2301,7 +2450,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
   if (!is.null(nodefunc)) {
     if (numvars == 1)
         nodeargs$leaf <- TRUE
-    ThisLevelText <- c()
+    ThisLayerText <- c()
     qqq <- z[[vars[1]]]
     qqq <- as.character(qqq)
     qqq[is.na(qqq)] <- "NA"
@@ -2317,7 +2466,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
       summarytext[[value]] <- nodefunc(zselect, vars[1], value, args = nodeargs)
       nodetext <- paste0(summarytext[[value]],collapse="")
       nodetext <- splitlines(nodetext, width = splitwidth, sp = sepN, at=" ")
-      ThisLevelText <- c(ThisLevelText, paste0(nodetext,sepN))
+      ThisLayerText <- c(ThisLayerText, paste0(nodetext,sepN))
     }
     if (root) {
       topnodeargs <- nodeargs
@@ -2328,14 +2477,14 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
       nodetext <- splitlines(nodetext, width = splitwidth,sp = sepN, at=" ")
       TopText <- paste0(nodetext,sepN)
     }
-    names(ThisLevelText) <- CAT
+    names(ThisLayerText) <- CAT
   } else {
-    ThisLevelText <- text[[vars[1]]]
+    ThisLayerText <- text[[vars[1]]]
     summarytext <- NULL
   }
   
-  if (pattern & vars[1]!="pattern") ThisLevelText <- ""
-  if (seq  & vars[1]!="sequence") ThisLevelText <- ""
+  if (pattern & vars[1]!="pattern") ThisLayerText <- ""
+  if (seq  & vars[1]!="sequence") ThisLayerText <- ""
 
   if (novars) {
     zvalue <- rep(0,nrow(z))
@@ -2362,7 +2511,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
     HTMLtext = HTMLtext, showvarnames = showvarnames,
     keep=keep[[vars[1]]],
     pruneNA=pruneNA,
-    text = ThisLevelText, ttext=ttext,TopText = TopText, digits = digits, cdigits = cdigits,
+    text = ThisLayerText, ttext=ttext,TopText = TopText, digits = digits, cdigits = cdigits,
     splitwidth = splitwidth, showempty = showempty, topcolor = color[1],
     color = color[2], topfillcolor = rootfillcolor, fillcolor = fillcolor[[vars[1]]],
     vp = vp, rounded = rounded, just=just, showroot=showroot,verbose=verbose,sortfill=sortfill)
@@ -2569,6 +2718,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
       marginalText <- rep("",numvars)
       
       #-------------------------------------------------------------------------
+      # Begin: Legend stuff  ----
       #-V------------------------------V--------------------------------------V-
       
       if (showroot) {
@@ -2642,7 +2792,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
          '[',
          labels,
           ' shape=none margin=0]',collapse = '\n')
-          
+        
         FILLCOLOR <- fillcolor[[thisvarname]][seq_len(length(categoryCounts))]
 
         if (HTMLtext) {
@@ -2658,10 +2808,34 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
         }
         
         legendlabel <- paste0(displayCAT,", ",npctString)
+       
+        ThisLayerText <- rep("",length(legendlabel)) 
+        
+        if (showlegendsum) {
+          if (!is.null(nodefunc)) {
+            if (numvars == 1)
+              nodeargs$leaf <- TRUE
+            ThisLayerText <- c()
+            current_var <- as.character(thisvar)
+            current_var[is.na(current_var)] <- "NA"
+            summarytext <- vector("list",length=length(CAT))
+            names(summarytext) <- CAT
+            for (value in displayCAT) {
+              df_subset <- z[current_var == value,,drop=FALSE]
+              summarytext[[value]] <- nodefunc(df_subset, vars[i], value, args = nodeargs)
+              nodetext <- paste0(summarytext[[value]],collapse="")
+              nodetext <- splitlines(nodetext, width = splitwidth, sp = sepN, at=" ")
+              ThisLayerText <- c(ThisLayerText, paste0(nodetext,sepN))
+            }
+          }
+        }
+        
+        extendedlegendlabel <- paste0(legendlabel,convertToHTML(ThisLayerText,just=just))
+
         
         labels <- paste0(
           'label=<<FONT POINT-SIZE="',legendpointsize,'">',
-          legendlabel,
+          extendedlegendlabel,
           '</FONT>>')        
         
         if (!horiz) {
@@ -2678,6 +2852,7 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
           collapse = '\n')
         
         nl_allnodes <- paste0("Node_L",i,"_",seq(0,length(categoryCounts)),collapse=" ")
+        
 
         if (showlegend) {
           nl <- paste0(
@@ -2689,7 +2864,10 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
             "\n",
             nl,
             "\n}\n",
-            paste0("Node_L",i-1,"_0 -> Node_L",i,"_0 [style=invisible arrowhead=none]\n"))  
+            paste0("Node_L",i-1,"_0 -> Node_L",i,"_0 [style=invisible arrowhead=none]\n"))
+          if ((pattern | check.is.na) && i==1) {
+            nl <- "Node_L1_0[style=invisible arrowhead=none]\n"
+          }
         } else {
           link <- paste0("Node_L",i-1,"_0 -> Node_L",i,"_0 [style=invisible arrowhead=none]\n")
           if (i==1 & !showroot) link <- ""
@@ -2700,7 +2878,8 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
         }
         NL <- paste0(NL,"\n",nl)
         
-      #-^------------------------------^--------------------------------------^-       
+      #-^------------------------------^--------------------------------------^-
+      # End: Legend stuff  ----
       #-------------------------------------------------------------------------
           
       }
@@ -2710,89 +2889,198 @@ vtree <- function (z, vars, auto=FALSE, splitspaces=TRUE,
       NL <- ''
     }
     
+    
+    #-^------------------------------^--------------------------------------^-
+    # Outputs  ----
+    #-------------------------------------------------------------------------   
+    
     if (ptable) {
       pt <- patternTable[nrow(patternTable):1,]
       rownames(pt) <- NULL
       pt
     } else {    
       if (novars) NL <- ""
-      flowchart <- showflow(fc, getscript = getscript, nodesep = nodesep,
+      flowchart <- showflow(fc, getscript = getscript, font = font, nodesep = nodesep,
         ranksep=ranksep, margin=margin, nodelevels = NL, horiz = horiz,
         width=width,height=height,
         graphattr=graphattr,nodeattr=nodeattr,edgeattr=edgeattr)
       
       attributes(flowchart)$info <- tree
+      
+      #result <- paste(names(knitr::opts_knit$get()),knitr::opts_knit$get(),collapse="\n")
+      #output <- knitr::asis_output(result)
+      #attributes(output)$info <- tree
+      #return(output)          
+      
+      
+      # if (is.null(g)) {
+      #   return("NULL value")
+      # } else {
+      #   return(g)
+      # }
+      
+      #return(knitr::opts_knit$get())
 
-      if (getscript || !pngknit || (!isTRUE(getOption('knitr.in.progress')) && !as.if.knit)) {
+      #thing <- knitr::opts_knit$get('rmarkdown.pandoc.to')
+      
+      #result <- paste("\nTrying to get LaTeX output\n",
+      #  "\nthing =",thing,"\n",
+      #  "\nknitr::is_latex_output() =",knitr::is_latex_output(),"\n")
+      #output <- knitr::asis_output(result)
+      #attributes(output)$info <- tree
+      #return(output)             
+      
+      if (!imageFileOnly && 
+        (getscript || !pngknit || (!isTRUE(getOption('knitr.in.progress')) && !as.if.knit))) {
         return(flowchart)
+      }
+      
+      if (imageFileOnly) {
+        if (is.null(folder)) {
+          folder <- "."
+        }
+        options(vtree_folder=folder)
       }
       
       if (is.null(getOption("vtree_count"))) {
         options("vtree_count"=0)
-        if (missing(folder)) {
-          options("vtree_folder"=tempdir())
+        if (is.null(folder)) {
+          if (isTRUE(getOption('knitr.in.progress'))) {
+            if (is.null(options()$vtree_folder)) {
+              if (knitr::opts_knit$get("out.format") %in% c("latex","sweave")) {
+                knitr.fig.path <- knitr::opts_chunk$get("fig.path")
+                options(vtree_folder=knitr.fig.path)
+                dir.create(file.path(knitr.fig.path), showWarnings = FALSE)
+              } else {
+                options(vtree_folder=tempdir())
+              }
+            }
+          }
         } else {
-          options("vtree_folder"=folder)
+          options(vtree_folder=folder)
         }        
-      }
+      }      
       
-      options("vtree_count"=getOption("vtree_count")+1)
+      if (isTRUE(getOption('knitr.in.progress')) || as.if.knit) {
+        options("vtree_count"=getOption("vtree_count")+1)
+      
+        padCount <- sprintf("%03d",getOption("vtree_count"))
 
-      filename <- paste0("vtree",getOption("vtree_count"),".png")
-      
-      if (missing(pxheight)) {
-        if (missing(pxwidth)) {
-          grVizToPNG(flowchart,width=2000,filename=filename,folder=getOption("vtree_folder"))
-        } else {
-          grVizToPNG(flowchart,width=pxwidth,filename=filename,folder=getOption("vtree_folder"))
-        }
+        filenamestem <- paste0("vtree",padCount)
       } else {
-        if (missing(pxwidth)) {
-          grVizToPNG(flowchart,height=pxheight,filename=filename,folder=getOption("vtree_folder"))
+        filenamestem <- "vtree"
+      }
+  
+      outfmt <- knitr::opts_knit$get("out.format")
+      if (format=="") {
+        if (is.null(outfmt)) {
+          format <- "png"
         } else {
-          grVizToPNG(flowchart,width=pxwidth,height=pxheight,filename=filename,folder=getOption("vtree_folder"))
-        }
-      }  
-      
-      fullpath <- file.path(folder=getOption("vtree_folder"),filename)
-    
-      embedded <- paste0("![](",fullpath,")")
-    
-      if (imageheight=="") {
-        if (imagewidth=="") {
-          result <- paste0(embedded,"{ height=3in }")
-        } else {
-          result <- paste0(embedded,"{width=",imagewidth,"}")
-        }
-      } else {
-        if (imagewidth=="") {
-          result <- paste0(embedded,"{height=",imageheight,"}")
-        } else {
-          result <- paste0(embedded,"{width=",imagewidth," height=",imageheight,"}")
+          if (outfmt %in% c("latex","sweave")) {
+            format <- "pdf"
+          } else
+          if (outfmt %in% c("markdown")) {
+            format <- "png"
+          }
         }
       }
-      output <- knitr::asis_output(result)
-      attributes(output)$info <- tree
-      output
+      
+      if (is.null(pxheight)) {
+        if (is.null(pxwidth)) {
+          fullpath <- grVizToImageFile(flowchart,width=2000,
+            format=format,filename=filenamestem,folder=getOption("vtree_folder"))
+        } else {
+          fullpath <- grVizToImageFile(flowchart,width=pxwidth,
+            format=format,filename=filenamestem,folder=getOption("vtree_folder"))
+        }
+      } else {
+        if (is.null(pxwidth)) {
+          fullpath <- grVizToImageFile(flowchart,height=pxheight,
+            format=format,filename=filenamestem,folder=getOption("vtree_folder"))
+        } else {
+          fullpath <- grVizToImageFile(flowchart,width=pxwidth,height=pxheight,
+            format=format,filename=filenamestem,folder=getOption("vtree_folder"))
+        }
+      }
+      
+      # fullpath <- normalizePath(fullpath,"/")
+
+      if (verbose) message("Image file saved to ",fullpath)
+      
+      if (imagewidth=="" && imageheight=="") {
+        if (imageFileOnly && (!isTRUE(getOption('knitr.in.progress')) && !as.if.knit)) {
+          return(invisible(NULL))
+        } else {
+          # message("Right here")
+          output <- knitr::include_graphics(fullpath)
+          attributes(output)$info <- tree
+          return(output)
+        }
+      }
+
+      fmt <- knitr::opts_knit$get("out.format")
+      if (!is.null(fmt) && fmt %in% c("latex","sweave")) {
+        stuff <- "\n\\includegraphics["
+        if (!is.null(trim)) {
+          stuff <- paste0(stuff,"trim=",paste(trim,collapse=" "),", clip,")
+        }    
+        if (imageheight=="") {
+          if (imagewidth=="") {
+            result <- paste0(stuff," width=5.5in")
+          } else {
+            result <- paste0(stuff," width=",imagewidth)
+          }
+        } else {
+          if (imagewidth=="") {
+            result <- paste0(stuff," height=",imageheight) 
+          } else {
+            result <- paste0(stuff," width=",
+              imagewidth,", height=",imageheight)          
+          }
+        }
+        
+        #if (absolutePath) {
+        #  np <- normalizePath(fullpath,"/")
+        #} else {
+        
+        np <- fullpath
+        
+        #}
+          
+        result <- paste0(result,",keepaspectratio]{",
+          np,"}\n")
+        
+      } else {
+    
+        embedded <- paste0("![](",fullpath,")")
+      
+        if (imageheight=="") {
+          if (imagewidth=="") {
+            result <- paste0(embedded,"{ height=3in }")
+          } else {
+            result <- paste0(embedded,"{width=",imagewidth,"}")
+          }
+        } else {
+          if (imagewidth=="") {
+            result <- paste0(embedded,"{height=",imageheight,"}")
+          } else {
+            result <- paste0(embedded,"{width=",imagewidth," height=",imageheight,"}")
+          }
+        }
+      }
+      
+      if (imageFileOnly && (!isTRUE(getOption('knitr.in.progress')) && !as.if.knit)) {
+        return(invisible(NULL))
+      } else {
+        output <- knitr::asis_output(result)
+        attributes(output)$info <- tree
+        output
+      }
     }
   } else {
       fc
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -3,8 +3,10 @@ convertToHTML <- function(x,just="c") {
   # Note that order matters here!
 
   x <- gsub("&","&amp;",x)
-  x <- gsub("<=","&le;",x)
-  x <- gsub(">=","&ge;",x)
+  # x <- gsub("<=","&le;",x)
+  x <- gsub("<=","&lt;=",x)
+  x <- gsub(">=","&gt;=",x)
+  # x <- gsub(">=","&ge;",x)
   x <- gsub("<","&lt;",x)
   x <- gsub(">","&gt;",x)
 

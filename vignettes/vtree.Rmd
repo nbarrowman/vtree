@@ -1,5 +1,5 @@
 ---
-title: "Introduction to vtree 5.0.0"
+title: "Introduction to vtree 5.1.9"
 subtitle: "*Exploring subsets of data using variable trees*"
 author: '`r paste("Nick Barrowman",strftime(Sys.time(),format="%d-%b-%Y"))`'
 output:
@@ -30,17 +30,17 @@ spaces <- function (n) {
 # Introduction
 
 vtree is a flexible tool for calculating and displaying *variable trees* &mdash;
-diagrams that display information about nested subsets of a data frame.
+diagrams that show information about nested subsets of a data frame.
 vtree can be used to:
 
 1. explore a data set interactively
 
 2. produce customized figures for reports and publications.
 
-* Note, however, that vtree is *not* designed to build or display decision trees.
+Note, however, that vtree is *not* designed to build or display decision trees.
 
 Given a data frame and simple specifications,
-vtree will produce a variable tree and automatically labels it with counts,
+vtree will produce a variable tree and automatically label it with counts,
 percentages, and other summaries.
 
 The sections below introduce variable trees and provide an
@@ -55,9 +55,9 @@ Imagine a data set of countries
 that includes variables named `population`, `continent`, and `landlocked`.
 Suppose we wish to examine subsets of the data set based on the `continent` variable.
 Within each of these subsets,
-we might want to examine *nested* subsets based on the `population` variable,
+we could examine *nested* subsets based on the `population` variable,
 for example, countries with populations under 30 million and over 30 million.
-We might continue to a third level of nesting based on the `landlocked` variable.
+We might continue to a third nesting based on the `landlocked` variable.
 
 Nested subsets are at the heart of questions like the following:
 *Among African countries with a population over 30 million, what percentage are landlocked?* The variable tree below provides the answer:
@@ -112,13 +112,13 @@ The ability to reproducibly generate variable trees also means that
 when a data set is updated, a revised tree can be automatically produced.
 
 At the end of this vignette, there is a collection of
-[variable tree examples using R datasets](#RdatasetExamples) that you can try.
+[examples of variable trees using R datasets](#RdatasetExamples) that you can try.
 
 ## Basic features of a variable tree
 
 The examples that follow use a data set called `FakeData` which represents
 `r nrow(FakeData)` fictitious patients.
-For convenience, the first example involves just two variables,
+We'll start by using just two variables,
 although variable trees are especially useful with three or more variables.
 The variable tree below depicts subsets defined by `Sex` (M or F)
 nested within subsets defined by disease `Severity`
@@ -129,13 +129,13 @@ nested within subsets defined by disease `Severity`
 
 A variable tree consists of *nodes* connected by arrows.
 At the top of the diagram above, the *root* node of the tree contains all 46 patients.
-The rest of the nodes are arranged in successive levels,
-where each level corresponds to a specific variable.
+The rest of the nodes are arranged in successive layers,
+where each layer corresponds to a specific variable.
 Note that this highlights one difference between variable trees
 and some other kinds of trees:
-each level of a variable tree corresponds to just one variable.
-(Different branches of *decision trees*, in contrast,
-can have splits on different variables.)
+each layer of a variable tree corresponds to just one variable.
+(In a *decision tree*, by contrast, different branches can have different
+sequences of variable splits.)
  
 Continuing with the variable tree above,
 the nodes immediately below the root represent values of `Severity` and
@@ -149,7 +149,7 @@ i.e. the denominator used to calculate the percentage is the
 total number of *non-missing* values,
 `r sum(!is.na(FakeData$Severity))`.
 
-The final level of the tree corresponds to values of `Sex`.
+The final layer of the tree corresponds to values of `Sex`.
 These nodes represent males and females *within subsets* defined by each value of `Severity`.
 In each of these nodes the percentage is calculated in terms of
 the number of patients in its parent node.
@@ -182,7 +182,7 @@ a contingency table with *row percentages*.
 
 While the contingency table above is more compact than the corresponding variable tree,
 some people find the variable tree more intuitive.
-When three of more variables are of interest,
+When three or more variables are of interest,
 multi-way contingency tables are often used.
 These are typically displayed using several two-way tables,
 but as the number of variables increases,
@@ -222,7 +222,7 @@ including a variety of summary statistics;
 
 * features for [dichotomizing variables](#dichotomizing) and [checking for outliers](#detectingOutliers);
 
-* automatic generation of PNG image files and [embedding in R Markdown](#embeddingInRmarkdown) documents; and
+* automatic generation of PNG image files and [embedding in R Markdown](#embeddingInKnitrRmarkdown) documents; and
 
 * interactive panning and zooming using the `svtree` function to launch a [Shiny app](#svtree).
 
@@ -251,9 +251,9 @@ A formal description of variable trees follows.
 The root node of the variable tree represents the entire data frame.
 The root node has a child for each observed value of the first variable that was specified.
 Each of these child nodes represents a subset of the data frame with a specific value of the variable, and is labeled with the number of observations in the subset and the corresponding percentage of the number of observations in the entire data frame.
-The *n*^th^ level below the root of the variable tree corresponds to the *n*^th^ variable specified.
+The *n*^th^ layer below the root of the variable tree corresponds to the *n*^th^ variable specified.
 Apart from the root node,
-each node in the variable tree represents the subset of its parent defined by a specific observed value of the variable at that level of the tree,
+each node in the variable tree represents the subset of its parent defined by a specific observed value of the variable at that layer of the tree,
 and is labeled with the number of observations in that subset and the corresponding percentage of the number of observations in its parent node.
 
 Note that a node always represents at least one observation.
@@ -318,14 +318,15 @@ vtree(FakeData,"Severity")
 `r spaces(45)`
 `r vtree(FakeData,"Severity",width=250,height=250,pxwidth=300,imageheight="2.5in")`
 
-By default, next to each level of the tree, a variable name is shown.
+By default, next to each layer of the tree, a variable name is shown.
 In the example above, "Severity" is shown below the corresponding nodes.
 (For a vertical tree, "Severity" would be shown to the left of the nodes.)
 If you specify `showvarnames=FALSE`, no variable names will be shown.
 
-`vtree` can also be used with tidyverse tools.
-Here is an example that uses the pipe operator `%>%` and the
-`rename` function from dplyr:
+`vtree` can also be used with dplyr.
+For example, to rename the `Severity` variable as `HowBad`,
+we can pipe the data frame into the `rename` function in dplyr,
+and then pipe the result into `vtree`:
 
 ```{r,eval=FALSE}
 library(dplyr)
@@ -333,7 +334,7 @@ FakeData %>% rename("HowBad"=Severity) %>% vtree("HowBad")
 ```
 
 Note that `vtree` also has a [built-in way of renaming variables](#labeling),
-so it is not necessary to use dplyr.
+which is an alternative to using dplyr.
 
 Large variable trees can be difficult to display in a readable way.
 One approach that helps is to display the count and percentage on the same line
@@ -378,8 +379,8 @@ To display a legend, specify `showlegend=TRUE`.
 Next to each variable name are "legend nodes" representing the values of that variable
 and colored accordingly.
 For each variable, the legend nodes are grouped within a light gray box.
-Each legend node also contains a count (with a percentage), 
-representing the frequency of the value represented by that node in the whole data frame.
+Each legend node also contains a count (with a percentage) 
+for the value represented by that node in the whole data frame.
 This is known as the *marginal* count (and percentage).
 
 When the legend is shown, labels in the nodes of the variable tree are redundant,
@@ -477,7 +478,7 @@ indicating the values of `Severity` to prune.
 **Caution**: Once a variable tree has been pruned,
 it is no longer complete.
 This can sometimes be confusing since not all observations
-are represented at certain levels of the tree.
+are represented at certain layers of the tree.
 For example in the tree above, only 11 observations are shown in the `Severity` nodes
 and their children.
 
@@ -555,7 +556,7 @@ vtree(FakeData,"Severity Sex Age Category",sameline=TRUE)
 ```
 
 `r spaces(50)`
-`r vtree(FakeData,"Severity Sex Age Category",sameline=TRUE,imageheight="5in",pxwidth=500)`
+`r vtree(FakeData,"Severity Sex Age Category",sameline=TRUE,imageheight="5.5in",pxwidth=500)`
 
 One solution is to prune nodes that contain small numbers of observations.
 For example if you want to only see nodes with at least 3 observations,
@@ -567,7 +568,7 @@ vtree(FakeData,"Severity Sex Age Category",sameline=TRUE,prunesmaller=3)
 
 `r spaces(35)`
 `r vtree(FakeData,"Severity Sex Age Category",sameline=TRUE,prunesmaller=3,
-  imageheight="3.5in",pxwidth=800)`
+  imageheight="4in",pxwidth=800)`
 
 As with the `keep` parameter,
 when valid percentages are used (`vp=TRUE`, which is the default), 
@@ -605,7 +606,6 @@ vtree(FakeData,"Severity Sex",horiz=FALSE,labelvar=c(Severity="Initial severity"
 
 By default, `vtree` labels nodes (except for the root node)
 using the values of the variable in question.
-(If the variable is a factor, the levels of the factor are used).
 Sometimes it is convenient to instead specify custom labels for nodes.
 The `labelnode` argument can be used to relabel the values.
 For example, you might want to use "Male" and "Female" instead of "M" and "F".
@@ -755,14 +755,20 @@ vtree(FakeData,"Group Severity",horiz=FALSE,showvarnames=FALSE,
 ## Specification of variables {#VariableSpecification}
 
 *This section shows how to control how variables appear in a variable tree.* 
+
+Sometimes it is desirable to modify a variable for use in a variable tree.
+For example,
+suppose you wish to determine how many values of `Score` are missing.
+This is easy to do with dplyr:
+
+```{r,eval=FALSE}
+library(dplyr)
+FakeData %>% mutate(missingScore=is.na(Score)) %>% vtree("missingScore")
+```
  
-For convenience,
-you can specify variable names (separated by whitespace) in a single character string.
-(If, however, any of the variable names have internal spaces,
-the variable names must be specified as a vector of character strings.)
-Additionally, several modifiers can be used, as detailed below.
-
-
+But vtree also offers built-in tools for variable specification.
+Although limited, they can be very convenient.
+ 
 ### prefix `is.na:`
 
 If an individual variable name is preceded by `is.na:`,
@@ -779,19 +785,20 @@ vtree(FakeData,"is.na:Score")
 `r vtree(FakeData,"is.na:Score",
   pxwidth=500,imageheight="1.5in")`
 
-### suffix `#`
+### wildcard `#`
 
 Specifying `Ind#` matches all variable names that start with `Ind`
-and end with one or more numeric digits, namely `Ind1`, `Ind2`, `Ind3`, and `Ind4`.
+and end with one or more numeric digits, namely `Ind1`, `Ind2`, `Ind3`, and `Ind4`. This wildcard can also be used within a variable name. For example, `visit#duration` would match `visit1duration`, `visit2duration`, etc.
 
 
-### suffix `*`
+### wildcard `*`
 
 Specifying `Ind*` matches all variable names that start with `Ind`
 and end with any other characters (or no other characters).
 In `FakeData` this matches `Ind1`, `Ind2`, `Ind3`, and `Ind4` (just like `Ind#` does).
 But if `FakeData` contained variables named `Ind` and `Index`,
 they would also be matched by `Ind*`.
+As with the `#` wildcard, the `*` wildcard can be used within a variable name.
 
 
 ### prefix `i:`
@@ -806,7 +813,7 @@ combinations of values of `Ind1`, `Ind2`, `Ind3`, and `Ind4`.
 
 Vtree includes special support for [REDCap](https://www.project-redcap.org/) data sets.
 The prefix `r:` is used to indicate REDCap checkbox variables,
-and can be combined with other     prefixes.
+and can be combined with other prefixes.
 This is described in the section on [REDCap checkboxes](#REDCapCheckboxes)
 later in this vignette.
 
@@ -843,10 +850,34 @@ and have the following defaults:
 
 Values not listed in `checked` or `unchecked` are treated as missing values.
 
+An alternative prefix, `anyx:`,
+is used to specify that missing values will be removed when 
+performing the calculation. 
+This matches the behavior of the R function `any` when `na.rm=TRUE` is specified.
+
+
+### prefix `none:`
+
+The logical complement (negation) of the `any:` prefix. 
+An alternative prefix, `nonex:`,
+is used to specify that missing values will be removed when 
+performing the calculation. 
 
 ### prefix `all:`
 
 A specification like `all:open*` generates a variable which is TRUE if *all* of the matching variables have a "checked" value.
+
+An alternative prefix, `allx:`,
+is used to specify that missing values will be removed when 
+performing the calculation. 
+This matches the behavior of the R function `all` when `na.rm=TRUE` is specified.
+
+### prefix `notall:`
+
+The logical complement (negation) of the `all:` prefix.
+An alternative prefix, `notallx:`,
+is used to specify that missing values will be removed when 
+performing the calculation. 
 
 
 ### prefix `tri:` {#detectingOutliers}
@@ -997,8 +1028,8 @@ vtree(FakeData,"Severity",summary="Ind*",sameline=TRUE,horiz=FALSE,just="l")
 Incidentally, note that `just="l"` specifies that all text should be left-justified,
 which conveniently lines up all of the rows of the summary.
 
-The `summary` argument can also use the prefixes `i:`, `any:`, `all:`,
-and the suffixes `#` and `*`
+The `summary` argument can also use the prefixes `i:`, `any:`, `none:`, `all:`, `notall:` (as well as `anyx:`, `nonex:`, `allx:`, and `notallx:`)
+and wildcards `#` and `*`
 (similar to [variable specifications](#VariableSpecification)).
 Additionally, specifications for [REDCap checkboxes](#REDCapCheckboxes) can be used.
 
@@ -1020,17 +1051,21 @@ The following control codes are available:
 The control codes can be specified by adding them to the end of the summary
 string, separated with a space.
 For example, to only show summary information for nodes of the `Category` variable 
-with the value `triple`:
+with the value `single`:
 
 ```{r, eval=FALSE}
-vtree(FakeData,"Severity Category",summary="Score<10 %var=Category%%node=triple%",
-  sameline=TRUE)
+vtree(FakeData,"Severity Category",summary="Score<10 %var=Category%%node=single%",
+  sameline=TRUE, showlegend=TRUE, showlegendsum=TRUE)
 ```
 
 `r spaces(35)`
-`r vtree(FakeData,"Severity Category",summary="Score<10 %var=Category%%node=triple%",
-  sameline=TRUE,
-  pxwidth=1000,imageheight="3.0in")`
+`r vtree(FakeData,"Severity Category",summary="Score<10 %var=Category%%node=single%",
+  sameline=TRUE, showlegend=TRUE, showlegendsum=TRUE,
+  pxwidth=1500,imageheight="4.5in")`
+
+Here `showlegend=TRUE` was specified,
+and additionally `showlegendsum=TRUE`,
+which indicates that summaries should also be shown in legend nodes.
 
 
 ### Customized summaries
@@ -1179,7 +1214,7 @@ vtree(FakeData,"Severity Sex",pattern=TRUE)
 
 Pattern trees are simpler to read than ordinary variable trees,
 but they involve a considerable loss of information,
-since they only represent the *n*th-level subsets
+since they only represent the *n*th-degree subsets
 (where *n* is the number of variables).
 
 Note that by default, when `pattern=TRUE` is specified,
@@ -1188,7 +1223,7 @@ A disadvantage of this is that the total sample size is not shown.
 You can override this behavior by specifying `showroot=TRUE`.
 
 A pattern tree has two other special characteristics.
-First, note that after the first level (representing `pattern`),
+First, note that after the first layer (representing `pattern`),
 counts and percentages are not shown,
 since they are not informative:
 by definition, all nodes within a branch have the same count.
@@ -1437,6 +1472,7 @@ dessert <- build.data.frame(
   list("A",     1,             0,             0,              7),
   list("A",     1,             0,             1,              2),
   list("A",     0,             0,             0,              1),
+  list("A",     1,             1,             1,              1),
   list("B",     1,             0,             1,              1),
   list("B",     1,             0,             0,              2), 
   list("B",     0,             1,             1,              1),
@@ -1469,15 +1505,16 @@ vtree(dessert,"r:IceCream@")
 ```
  
 
-### variable prefixes `rany:` and `rall:`
+### variable prefixes `rany:`, `rnone:`, `rall:`, and `rnotall:`
 
-The variable prefixes `any:` and `all:` can be combined with the `r:` prefix
-in the form `rany:` and `rall:`.
+The variable prefixes `any:`, `none:`, `all:`, and `notall:`
+can be combined with the `r:` prefix 
+to form `rany:`, `rnone:`, `rall:`, and `rnotall:`.
 For example, to determine whether anyone did not like *any* of the 
-flavours (Chocolate, Vanilla, or Strawberry):
+flavors (Chocolate, Vanilla, or Strawberry):
 
 ```{r eval=FALSE}
-vtree(dessert,"rany:IceCream@")
+vtree(dessert,"rnone:IceCream@")
 ```
 
 
@@ -1493,7 +1530,7 @@ vtree(dessert,"ri:IceCream@")
 
 ### Deprecated: variable prefixes `stem:` and `rc:`
 
-To examine the pattern of ice-cream flavour choices,
+To examine the pattern of ice-cream flavor choices,
 the following can be used:
 
 ```{r eval=FALSE}
@@ -1594,16 +1631,19 @@ text (`.text`) that appear in the tree.
 it displays the variable tree in a browser window.
 
 
-## Calling vtree from R Markdown {#embeddingInRmarkdown}
+## Calling vtree from knitr and R Markdown {#embeddingInKnitrRmarkdown}
 
-By default, when `vtree` is called from R Markdown,
-it generates a PNG image file.
+When `vtree` is called from knitr, it generates
+
+* A PNG file if the output format is Markdown
+
+* A PDF file if the output format is LaTeX.
 
 Here's how it does that. `vtree` uses the `DiagrammeR` package,
 which automatically generates an `htmlwidget` object for display in HTML,
 using the [htmlwidgets](https://www.htmlwidgets.org/) framework.
 Then `vtree` converts the `htmlwidget` object into an SVG image,
-and finally into a PNG file. 
+and finally into a PNG or PDF file. 
  
 ### Generating PNG files
 
@@ -1629,10 +1669,13 @@ If neither is specified, `imageheight` is automatically set to 3 inches.
 ```
 Although distracting, this message is irrelevant.
 
-The PNG file is stored in the folder specified by the `folder` parameter,
+### Embedding image files
+
+The PNG or PDF file is stored in the folder specified by the `folder` parameter,
 or if not specified, a temporary folder will be used.
-Successive PNG files are named `vtree1.png`, `vtree2.png`, 
+Successive PNG files are named `vtree001.png`, `vtree002.png`, 
 and so forth and are stored in the  folder.
+(Similarly PDF files are named `vtree001.pdf`, etc.)
 During knitting, `vtree` uses the `options` function in base R to store
 a variable called `vtcount` to count the PNG files,
 and a variable called `vtfolder` to identify the folder where they will be stored.
@@ -1652,6 +1695,10 @@ vtree(FakeData,"Sex Severity")
 
 One advantage of code chunks is that they can also be run interactively
 (for example within RStudio, by clicking on the green arrow at the top right of a code chunk).
+
+### Generating an image file but not displaying it
+
+Specifying `imageFileOnly=TRUE` instructs vtree to generate an image file but not display it.
 
 
 ### Generating an htmlwidget in an HTML document
@@ -1682,7 +1729,7 @@ To show the variable name in each node, specify `showvarinnode=TRUE`.
 # Generating a data frame by specifying subset sizes {#GeneratingDataFrames}
 
 `vtree` is designed to generate a variable tree based on a data frame.
-However, sometimes no data frame is available, but the sizes of subsets are known.
+However, sometimes the sizes of subsets are known but no data frame is available.
 
 The `build.data.frame` function allows you to build a data frame by specifying the size of subsets.
 Here's an example involving pets:

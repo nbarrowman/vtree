@@ -1,3 +1,41 @@
+# vtree 5.1.8
+
+## Changes
+
+* Variables can now be specified as a formula with no left-hand side.
+
+* Added support for generating PDF images.
+
+* Added `none:` and `notall:` for variable specifications and summaries (these are the complements of `any:` and `all:`} respectively).
+
+* Added prefixes `anyx:`, `nonex:`, `allx:`, and `notallx:` where the `x` indicates that missing values will be removed.
+
+* PNG files are now automatically named `vtree001.png`, `vtree002.png`, etc. (PDF files are named `vtree001.pdf`, etc.)
+
+* Support was added for embedded variable trees in Sweave.
+
+* New `trim` parameter to support trim feature in the `\includegraphics` LaTeX command.
+
+* Renamed `z` parameter to `data`.
+
+* Reorganized parameters in help file and added details.
+
+* New parameter `showlegendsum` to show summary in legend nodes.
+
+* New parameter `font` to specify font to use.
+
+* Extended wildcard matching in variable specifications and summary specifications to match `this*that` expressions and `this#that` expressions.
+
+
+## Bug fixes
+
+* Codes for less-than-or-equal and greater-than-or-equal were removed due to rendering issues with DiagrammeRsvg.
+
+* Fixed bug when using `showlegend=TRUE` with `pattern=TRUE` or with `check.is.na=TRUE`.
+
+* Fix by trafficonese for tabPanels.
+
+
 # vtree 5.0.0
 
 ## Changes

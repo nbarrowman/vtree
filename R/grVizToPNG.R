@@ -29,19 +29,10 @@
 #'
 
 grVizToPNG <- function (g, width=NULL, height=NULL, folder = ".",filename) {
-  if (!("htmlwidget" %in% class(g)))
-    stop("Argument must be of class htmlwidget.")
-    
+
   if (missing(filename)) {
     filename <- paste0(sapply(as.list(substitute({g})[-1]), deparse),".png")
   }
-  if (is.null(g)) {
-    g <- format(DiagrammeR::grViz("digraph empty{ Node1[label='Empty'] }"))
-  }
-  # Convert any double backslashes to forward slashes.
-  folder <- gsub("\\\\","/",folder)
-  fullpath <- file.path(folder,filename)
-  message <- utils::capture.output(svg <- format(DiagrammeRsvg::export_svg(g)))
-  result <- rsvg::rsvg_png(charToRaw(svg),fullpath, width = width, height=height)
-  invisible(fullpath)
+  
+  grVizToImageFile(g=g,width=width,height=height,format="png",folder=folder,filename=filename)
 }

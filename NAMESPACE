@@ -3,6 +3,7 @@
 export(VennTable)
 export(build.data.frame)
 export(crosstabToCases)
+export(grVizToImageFile)
 export(grVizToPNG)
 export(renderVtree)
 export(svtree)

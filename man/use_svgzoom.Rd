@@ -4,17 +4,11 @@
 \alias{use_svgzoom}
 \title{Setup for interactive Vtree}
 \usage{
-use_svgzoom(
-  minheight = "200px",
-  cursor_all = "all-scroll",
-  overflow = "inherit !important",
-  position = "sticky",
-  fill = "transparent",
-  cursor_text = "pointer",
+use_svgzoom(minheight = "200px", cursor_all = "all-scroll",
+  overflow = "inherit !important", position = "sticky",
+  fill = "transparent", cursor_text = "pointer",
   init_event = c("mouseenter", "click", "dblclick"),
-  onwindow_resize = TRUE,
-  shortcuts = TRUE
-)
+  onwindow_resize = TRUE, shortcuts = TRUE)
 }
 \arguments{
 \item{minheight}{minimum height in \code{"px"}. Default is "200px".}
