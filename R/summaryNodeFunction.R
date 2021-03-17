@@ -200,8 +200,10 @@ summaryNodeFunction <- function (u, varname, value, args) {
   freqfunc <- function(w,digits=2,vp=TRUE,empty="",
     pcs = "%",  showN = FALSE, shown = TRUE, showp = TRUE, 
     nmiss = FALSE, nmiss0 = FALSE, includemiss = TRUE, showzero = FALSE, 
-    percentfirst = FALSE, sep = ", ",sort=FALSE,varname="") {
+    percentfirst = FALSE, sep = ", ",sort=FALSE,varname="",na.rm = FALSE) {
+    
     x <- w
+    if (na.rm) { x <- x[!is.na(x)] }
  
     nmissString <- ""
     missingNum <- sum(is.na(x))
@@ -331,11 +333,15 @@ summaryNodeFunction <- function (u, varname, value, args) {
     if (length(grep("%listlines%"    ,args$format[i])>0)) ShowSimpleSummary <- FALSE
     if (length(grep("%list_%"        ,args$format[i])>0)) ShowSimpleSummary <- FALSE
     if (length(grep("%freqpct%"      ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%freqpctx%"    ,args$format[i])>0)) ShowSimpleSummary <- FALSE
     if (length(grep("%freq%"         ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%freqx%"        ,args$format[i])>0)) ShowSimpleSummary <- FALSE
     if (length(grep("%freqpctlines%" ,args$format[i])>0)) ShowSimpleSummary <- FALSE
     if (length(grep("%freqpct_%"     ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%freqpctx_%"    ,args$format[i])>0)) ShowSimpleSummary <- FALSE
     if (length(grep("%freqlines%"    ,args$format[i])>0)) ShowSimpleSummary <- FALSE
     if (length(grep("%freq_%"        ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%freqx_%"       ,args$format[i])>0)) ShowSimpleSummary <- FALSE
     if (length(grep("%mv%"           ,args$format[i])>0)) ShowSimpleSummary <- FALSE
     if (length(grep("%nonmv%"        ,args$format[i])>0)) ShowSimpleSummary <- FALSE    
     if (length(grep("%npct%"         ,args$format[i])>0)) ShowSimpleSummary <- FALSE
@@ -524,11 +530,15 @@ summaryNodeFunction <- function (u, varname, value, args) {
           result <- gsub("%listlines%",listLinesOutput,result)
           result <- gsub("%list_%",listLinesOutput,result)
           result <- gsub("%freqpct%",freqfunc(y,digits=digits,sort=SortIt),result)
+          result <- gsub("%freqpctx%",freqfunc(y,digits=digits,sort=SortIt,na.rm=TRUE),result)
           result <- gsub("%freq%",freqfunc(y,digits=digits,showp=FALSE,sort=SortIt),result)
+          result <- gsub("%freqx%",freqfunc(y,digits=digits,showp=FALSE,sort=SortIt,na.rm=TRUE),result)
           result <- gsub("%freqpctlines%",freqfunc(y,digits=digits,sep="\n",sort=SortIt),result)
           result <- gsub("%freqpct_%",freqfunc(y,digits=digits,sep="\n",sort=SortIt),result)
+          result <- gsub("%freqpctx_%",freqfunc(y,digits=digits,sep="\n",sort=SortIt,na.rm=TRUE),result)
           result <- gsub("%freqlines%",freqfunc(y,digits=digits,showp=FALSE,sep="\n",sort=SortIt),result)
           result <- gsub("%freq_%",freqfunc(y,digits=digits,showp=FALSE,sep="\n",sort=SortIt),result)
+          result <- gsub("%freqx_%",freqfunc(y,digits=digits,showp=FALSE,sep="\n",sort=SortIt,na.rm=TRUE),result)
           result <- gsub("%mv%",paste0(missingNum),result)
           result <- gsub("%nonmv%",paste0(nonmissingNum),result)
           
