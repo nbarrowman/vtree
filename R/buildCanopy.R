@@ -5,6 +5,7 @@ labelvar=NULL,
 varminwidth=NULL,varminheight=NULL,varlabelloc=NULL,
 showvarinnode=FALSE,shownodelabels=TRUE,sameline=FALSE,
 prune=NULL,
+tprune=NULL,
 prunelone=NULL,prunesmaller=NULL,
 keep=NULL,
 text=NULL,ttext=NULL,TopText="",showempty=FALSE,digits=0,cdigits=2,
@@ -96,7 +97,21 @@ vp=TRUE,rounded=FALSE,just="c",showroot=TRUE,verbose=FALSE,sortfill=FALSE) {
     categoryCounts <- categoryCounts[s]
     npctString <- npctString[s]
   }
+  
 
+  if (length(tprune)>0) {
+    for (j in seq_len(length(tprune))) {
+      if (length(tprune[[j]])==1 && any(names(tprune[[j]])==var)) {
+        #browser()
+        tpruneLevel <- names(categoryCounts[-1]) == tprune[[j]][names(tprune[[j]])==var]
+        categoryCounts <- c(categoryCounts[1],categoryCounts[-1][!tpruneLevel])
+        npctString <- c(npctString[1],npctString[-1][!tpruneLevel])
+        pctString <- c(pctString[1],pctString[-1][!tpruneLevel])
+        nString <- c(nString[1],nString[-1][!tpruneLevel])
+      }
+    }
+  }
+  
   if (!is.null(prune)) {
     if (is.numeric(prune)) {
       categoryCounts <- c(categoryCounts[1],categoryCounts[-1][-prune])

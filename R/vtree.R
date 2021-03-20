@@ -51,6 +51,7 @@ NULL
 #' @param prune,keep,prunebelow,follow
 #'                         List of named vectors that specify pruning.
 #'                          (see \strong{Pruning} below)
+#' @param tprune           Prune a specific ("targetted") node.
 #'                          
 #' @param prunesmaller     Prune any nodes with count less than specified number.
 #' @param splitspaces      When \code{vars} is a character string,
@@ -386,6 +387,10 @@ NULL
 #'   \item \code{prunebelow}: which nodes should have their descendants pruned.
 #'   \item \code{follow}: which nodes should \emph{not} have their descendants pruned.
 #' }
+#' The \code{tprune} parameter specifies "targetted" pruning.
+#' Standard pruning removes all nodes with the specified value of the specified variable.
+#' The \code{tprnue} parameter specify a particular path from the root of the tree
+#' down to the specific node.
 #'
 #' @section Displaying summary information:
 #' The \code{summary} parameter allows you to specify information to display
@@ -451,6 +456,7 @@ vtree <- function (
   sameline=FALSE,
   vp = TRUE,
   prune=list(),
+  tprune=list(),
   keep=list(),
   prunebelow = list(),
   follow=list(),
@@ -2577,6 +2583,7 @@ vtree <- function (
     showpct=showPCT,
     showcount=showCOUNT,
     prune=prune[[vars[1]]],
+    tprune=tprune,
     prunelone=prunelone,
     prunesmaller=prunesmaller,
     HTMLtext = HTMLtext, showvarnames = showvarnames,
@@ -2692,6 +2699,23 @@ vtree <- function (
       j <-j + 1
     }
 
+    TPRUNE <- tprune
+    j <- 1
+    while (j <= length(TPRUNE)) {
+      if (!any(names(TPRUNE[[j]])==CurrentVar)) {
+        TPRUNE[[j]] <- ""
+      } else {
+        if (TPRUNE[[j]][CurrentVar]==varlevel) {
+          TPRUNE[[j]] <- TPRUNE[[j]][names(TPRUNE[[j]])!=CurrentVar]
+        } else {
+          if (TPRUNE[[j]][CurrentVar]!=varlevel) {
+            TPRUNE[[j]] <- ""
+          }
+        }
+      }
+      j <-j + 1
+    } 
+    #browser()
 
     i <- i + 1
     condition_to_follow <- 
@@ -2724,6 +2748,7 @@ vtree <- function (
           sameline=sameline, showempty = showempty,
           root = FALSE, #subset=subsetselect,
           prune=prune, prunebelow = prunebelow, prunesmaller=prunesmaller,
+          tprune=TPRUNE,
           labelvar = labelvar,
           varminwidth = varminwidth, varminheight = varminheight, varlabelloc=varlabelloc,
           prunelone=prunelone,
