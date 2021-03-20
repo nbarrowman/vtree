@@ -1,4 +1,4 @@
-flowcat <- function(z,root=TRUE,novars=FALSE,title="",parent=1,last=1,labels=NULL,tlabelnode=NULL,HTMLtext=FALSE,
+buildCanopy <- function(z,root=TRUE,novars=FALSE,title="",parent=1,last=1,labels=NULL,tlabelnode=NULL,HTMLtext=FALSE,
 var,
 check.is.na=FALSE,
 labelvar=NULL,

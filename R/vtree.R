@@ -2567,7 +2567,7 @@ vtree <- function (
     showPCT <- showpct[vars[1]]
   }
   
-  fc <- flowcat(zvalue, root = root, novars=novars, title = title, parent = parent,
+  fc <- buildCanopy(zvalue, root = root, novars=novars, title = title, parent = parent,
     var=vars[[1]],
     last = last, labels = labelnode[[vars[1]]], tlabelnode=tlabelnode, labelvar = labelvar[vars[1]],
     varminwidth=varminwidth[vars[1]],varminheight=varminheight[vars[1]],varlabelloc=varlabelloc[vars[1]],
