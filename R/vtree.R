@@ -51,7 +51,9 @@ NULL
 #' @param prune,keep,prunebelow,follow
 #'                         List of named vectors that specify pruning.
 #'                          (see \strong{Pruning} below)
-#' @param tprune           Prune a specific ("targetted") node.
+#' @param tprune,tkeep,tprunebelow,tfollow
+#'                         List of named vectors that specify "targetted" pruning.
+#'                          (see \strong{Pruning} below)
 #'                          
 #' @param prunesmaller     Prune any nodes with count less than specified number.
 #' @param splitspaces      When \code{vars} is a character string,
@@ -458,8 +460,11 @@ vtree <- function (
   prune=list(),
   tprune=list(),
   keep=list(),
+  tkeep=list(),
   prunebelow = list(),
+  tprunebelow = list(),
   follow=list(),
+  tfollow=list(),
   prunesmaller=NULL,
   summary = "",
   shownodelabels=TRUE,
@@ -2663,8 +2668,45 @@ vtree <- function (
   }
   
   
+  tfollow_this_var <- FALSE
+  if (length(tfollow)>0) {
+    for (j in seq_len(length(tfollow))) {
+      if (length(tfollow[[j]])==1 && any(names(tfollow[[j]])==CurrentVar)) {
+        tfollow_this_var <- TRUE
+      }
+    }
+  }
+  
+  tprunebelow_this_var <- FALSE
+  if (length(tprunebelow)>0) {
+    for (j in seq_len(length(tprunebelow))) {
+      if (length(tprunebelow[[j]])==1 && any(names(tprunebelow[[j]])==CurrentVar)) {
+        tprunebelow_this_var <- TRUE
+      }
+    }
+  }  
+  
   i <- 0
+  
+  tfollowlevels <- NULL
+  tprunebelowlevels <- NULL
+  
   for (varlevel in fc$levels) {  # Loop over variable levels
+    
+    # message("CurrentVar ",CurrentVar,"  varlevel ",varlevel)
+    
+    if (tfollow_this_var) {
+      for (j in seq_len(length(tfollow))) {
+        tfollowlevels <- c(tfollowlevels,tfollow[[j]][names(tfollow[[j]])==CurrentVar])
+      }
+    }    
+
+    if (tprunebelow_this_var) {
+      for (j in seq_len(length(tprunebelow))) {
+        tprunebelowlevels <- c(tprunebelowlevels,tprunebelow[[j]][names(tprunebelow[[j]])==CurrentVar])
+      }
+    }
+    
     TTEXT <- ttext
     j <- 1
     while (j <= length(TTEXT)) {
@@ -2715,8 +2757,66 @@ vtree <- function (
       }
       j <-j + 1
     } 
-    #browser()
 
+    TKEEP <- tkeep
+    j <- 1
+    while (j <= length(TKEEP)) {
+      if (!any(names(TKEEP[[j]])==CurrentVar)) {
+        TKEEP[[j]] <- ""
+      } else {
+        if (TKEEP[[j]][CurrentVar]==varlevel) {
+          TKEEP[[j]] <- TKEEP[[j]][names(TKEEP[[j]])!=CurrentVar]
+        } else {
+          if (TKEEP[[j]][CurrentVar]!=varlevel) {
+            TKEEP[[j]] <- ""
+          }
+        }
+      }
+      j <-j + 1
+    } 
+    
+    TFOLLOW <- tfollow
+    j <- 1
+    while (j <= length(TFOLLOW)) {
+      if (!any(names(TFOLLOW[[j]])==CurrentVar)) {
+        TFOLLOW[[j]] <- ""
+      } else {
+        if (TFOLLOW[[j]][CurrentVar]==varlevel) {
+          TFOLLOW[[j]] <- TFOLLOW[[j]][names(TFOLLOW[[j]])!=CurrentVar]
+        } else {
+          if (TFOLLOW[[j]][CurrentVar]!=varlevel) {
+            TFOLLOW[[j]] <- ""
+          }
+        }
+      }
+      j <-j + 1
+    }     
+
+    TPRUNEBELOW <- tprunebelow
+    j <- 1
+    while (j <= length(TPRUNEBELOW)) {
+      if (!any(names(TPRUNEBELOW[[j]])==CurrentVar)) {
+        TPRUNEBELOW[[j]] <- ""
+      } else {
+        if (TPRUNEBELOW[[j]][CurrentVar]==varlevel) {
+          TPRUNEBELOW[[j]] <- TPRUNEBELOW[[j]][names(TPRUNEBELOW[[j]])!=CurrentVar]
+        } else {
+          if (TPRUNEBELOW[[j]][CurrentVar]!=varlevel) {
+            TPRUNEBELOW[[j]] <- ""
+          }
+        }
+      }
+      j <-j + 1
+    }     
+    
+    if (tfollow_this_var) {
+      followlevels <- tfollowlevels
+    }
+    
+    if (tprunebelow_this_var) {
+      prunebelowlevels <- tprunebelowlevels
+    }    
+    
     i <- i + 1
     condition_to_follow <- 
       !(varlevel %in% prunebelowlevels) & 
@@ -2747,8 +2847,10 @@ vtree <- function (
           showcount=showcount,
           sameline=sameline, showempty = showempty,
           root = FALSE, #subset=subsetselect,
-          prune=prune, prunebelow = prunebelow, prunesmaller=prunesmaller,
+          prune=prune, prunebelow = prunebelow, tprunebelow=TPRUNEBELOW,
+          prunesmaller=prunesmaller,
           tprune=TPRUNE,
+          tkeep=TKEEP,
           labelvar = labelvar,
           varminwidth = varminwidth, varminheight = varminheight, varlabelloc=varlabelloc,
           prunelone=prunelone,
@@ -2756,6 +2858,7 @@ vtree <- function (
           showvarnames = showvarnames,
           keep=keep,
           follow=follow,
+          tfollow=TFOLLOW,
           pruneNA=pruneNA,
           pattern=pattern,seq=seq,
           text = text, ttext=TTEXT,gradient=gradient,sortfill=sortfill,

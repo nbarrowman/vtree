@@ -7,7 +7,7 @@ showvarinnode=FALSE,shownodelabels=TRUE,sameline=FALSE,
 prune=NULL,
 tprune=NULL,
 prunelone=NULL,prunesmaller=NULL,
-keep=NULL,
+keep=NULL,tkeep=NULL,
 text=NULL,ttext=NULL,TopText="",showempty=FALSE,digits=0,cdigits=2,
 showpct=TRUE,
 showcount=TRUE,
@@ -111,6 +111,20 @@ vp=TRUE,rounded=FALSE,just="c",showroot=TRUE,verbose=FALSE,sortfill=FALSE) {
       }
     }
   }
+  
+  if (length(tkeep)>0) {
+    for (j in seq_len(length(tkeep))) {
+      #browser()
+      if (length(tkeep[[j]])==1 && any(names(tkeep[[j]])==var)) {
+        #browser()
+        tkeepLevel <- names(categoryCounts[-1]) == tkeep[[j]][names(tkeep[[j]])==var]
+        categoryCounts <- c(categoryCounts[1],categoryCounts[-1][tkeepLevel])
+        npctString <- c(npctString[1],npctString[-1][tkeepLevel])
+        pctString <- c(pctString[1],pctString[-1][tkeepLevel])
+        nString <- c(nString[1],nString[-1][tkeepLevel])
+      }
+    }
+  }  
   
   if (!is.null(prune)) {
     if (is.numeric(prune)) {
