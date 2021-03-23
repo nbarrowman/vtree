@@ -238,6 +238,7 @@ NULL
 #' Vector of character strings interpreted as "unchecked" and "checked" respectively.
 #' 
 #' @param just             Text justification ("l"=left, "c"=center, "r"=right).
+#' @param justtext         Like \code{just}, but only for extra text, like summaries.
 #' @param folder,format,imageFileOnly,pngknit
 #' Control image file generation.
 #' \code{folder}: a path to a folder where image file will be stored.
@@ -516,6 +517,7 @@ vtree <- function (
   showempty = FALSE, 
   choicechecklist = TRUE,
   just="c",
+  justtext=NULL,
   folder=NULL,
   format="",
   imageFileOnly=FALSE,
@@ -628,6 +630,8 @@ vtree <- function (
     
     # Check some inputs
     if (!is.logical(splitspaces)) stop("splitspaces must be TRUE or FALSE")
+    
+    if (is.null(justtext)) justtext <- just
     
     if (ptable & !(pattern | seq | check.is.na)) {
       pattern <- TRUE
@@ -2597,7 +2601,7 @@ vtree <- function (
     text = ThisLayerText, ttext=ttext,TopText = TopText, digits = digits, cdigits = cdigits,
     splitwidth = splitwidth, showempty = showempty, topcolor = color[1],
     color = color[2], topfillcolor = rootfillcolor, fillcolor = fillcolor[[vars[1]]],
-    vp = vp, rounded = rounded, just=just, showroot=showroot,verbose=verbose,sortfill=sortfill)
+    vp = vp, rounded = rounded, just=just, justtext=justtext, showroot=showroot,verbose=verbose,sortfill=sortfill)
 
   if (root){
     tree <- list(.n=nrow(z),.pct=100)
@@ -2865,7 +2869,7 @@ vtree <- function (
           maxNodes=maxNodes,
           colornodes = colornodes, color = color[-1], fillnodes = fillnodes,
           fillcolor = fillcolor, splitwidth = splitwidth,
-          vp = vp, rounded = rounded, just=just,verbose=verbose)
+          vp = vp, rounded = rounded, just=just, justtext=justtext, verbose=verbose)
         # tree[[vars[1]]][[varlevel]] <- c(tree[[vars[1]]][[varlevel]],.subset=list(subsetselect))
         if (!is.null(fcChild$tree)){
           tree[[vars[1]]][[varlevel]] <- c(tree[[vars[1]]][[varlevel]],fcChild$tree)

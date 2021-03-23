@@ -14,7 +14,7 @@ showcount=TRUE,
 showvarnames=FALSE,
 pruneNA=FALSE,
 splitwidth=Inf,topcolor="black",color="blue",topfillcolor="olivedrab3",fillcolor="olivedrab2",
-vp=TRUE,rounded=FALSE,just="c",showroot=TRUE,verbose=FALSE,sortfill=FALSE) {
+vp=TRUE,rounded=FALSE,just="c",justtext=NULL,showroot=TRUE,verbose=FALSE,sortfill=FALSE) {
 #
 # Write DOT code for a single-level {flow}chart of {cat}egories using the
 # DiagrammeR framework.
@@ -308,8 +308,17 @@ vp=TRUE,rounded=FALSE,just="c",showroot=TRUE,verbose=FALSE,sortfill=FALSE) {
   extra_text <- extraText
 
   if (!HTMLtext) {
+    # Move any linebreaks at the start of extraText to
+    # the end of npctString, so that justification works right
+    for (i in 1:length(extraText)) {
+      if (grep("^\n",extraText[i])) {
+        npctString[i] <- paste0(npctString[i],"\n")
+        extraText[i] <- sub("^(\n)","",extraText[i])
+      }
+    }
     displayCAT <- convertToHTML(displayCAT,just=just)
-    extraText <- convertToHTML(extraText,just=just)
+    npctString <- convertToHTML(npctString,just=just)
+    extraText <- convertToHTML(extraText,just=justtext)
   }
   
   # Write DOT code for assigning labels (using the DiagrammeR framework)
@@ -339,6 +348,7 @@ vp=TRUE,rounded=FALSE,just="c",showroot=TRUE,verbose=FALSE,sortfill=FALSE) {
       ' fillcolor=<',FILLCOLOR,'>',VARLABELLOC,' ',VARMINWIDTH,' ',VARMINHEIGHT,']'),collapse='\n')
   }
   
+  #browser()
   
   return(list(
     root=root,
