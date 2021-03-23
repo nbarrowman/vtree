@@ -310,7 +310,7 @@ vp=TRUE,rounded=FALSE,just="c",justtext=NULL,showroot=TRUE,verbose=FALSE,sortfil
   if (!HTMLtext) {
     # Move any linebreaks at the start of extraText to
     # the end of npctString, so that justification works right
-    for (i in 1:length(extraText)) {
+    for (i in seq_len(length(extraText))) {
       if (grep("^\n",extraText[i])) {
         npctString[i] <- paste0(npctString[i],"\n")
         extraText[i] <- sub("^(\n)","",extraText[i])
