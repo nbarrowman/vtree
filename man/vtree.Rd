@@ -5,8 +5,9 @@
 \title{Draw a variable tree}
 \usage{
 vtree(data, vars, horiz = TRUE, title = "", sameline = FALSE,
-  vp = TRUE, prune = list(), keep = list(), prunebelow = list(),
-  follow = list(), prunesmaller = NULL, summary = "",
+  vp = TRUE, prune = list(), tprune = list(), keep = list(),
+  tkeep = list(), prunebelow = list(), tprunebelow = list(),
+  follow = list(), tfollow = list(), prunesmaller = NULL, summary = "",
   shownodelabels = TRUE, showvarnames = TRUE, showpct = TRUE,
   showlpct = TRUE, showcount = TRUE, showlegend = FALSE,
   showroot = TRUE, showvarinnode = FALSE, showlegendsum = FALSE,
@@ -64,6 +65,9 @@ When \code{vp=FALSE}, all nodes (including nodes for missing values)
 show percentages of the total number of observations.}
 
 \item{prune, keep, prunebelow, follow}{List of named vectors that specify pruning.
+(see \strong{Pruning} below)}
+
+\item{tprune, tkeep, tprunebelow, tfollow}{List of named vectors that specify "targetted" pruning.
 (see \strong{Pruning} below)}
 
 \item{prunesmaller}{Prune any nodes with count less than specified number.}
@@ -427,6 +431,10 @@ Each vector specifies nodes of a variable.
   \item \code{prunebelow}: which nodes should have their descendants pruned.
   \item \code{follow}: which nodes should \emph{not} have their descendants pruned.
 }
+The \code{tprune} parameter specifies "targetted" pruning.
+Standard pruning removes all nodes with the specified value of the specified variable.
+The \code{tprnue} parameter specify a particular path from the root of the tree
+down to the specific node.
 }
 
 \section{Displaying summary information}{
