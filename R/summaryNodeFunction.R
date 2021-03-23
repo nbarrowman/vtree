@@ -371,10 +371,10 @@ summaryNodeFunction <- function (u, varname, value, args) {
     
     if (length(grep("%sort%",args$format[i]))>0) {
       SortIt <- TRUE
-    } 
-    #else {
-    #  SortIt <- FALSE
-    #}    
+    } else
+    if (length(grep("%nosort%",args$format[i]))>0) {
+      SortIt <- FALSE
+    }     
     
     # check if it's a stem
     StemSpecified <- StarSpecified <- HashmarkSpecified <- FALSE
@@ -524,6 +524,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
           result <- gsub("%noroot%","",result)
           result <- gsub("%combo%","",result)
           result <- gsub("%sort%","",result)
+          result <- gsub("%nosort%","",result)
           result <- gsub("%leafonly%","",result)
           result <- gsub("%v%",args$var[i],result)
           result <- gsub("%list%",listOutput,result)
