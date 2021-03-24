@@ -2597,6 +2597,7 @@ vtree <- function (
     prunesmaller=prunesmaller,
     HTMLtext = HTMLtext, showvarnames = showvarnames,
     keep=keep[[vars[1]]],
+    tkeep=tkeep,
     pruneNA=pruneNA,
     text = ThisLayerText, ttext=ttext,TopText = TopText, digits = digits, cdigits = cdigits,
     splitwidth = splitwidth, showempty = showempty, topcolor = color[1],
@@ -3164,16 +3165,10 @@ vtree <- function (
         }        
       }      
       
-      if (isTRUE(getOption('knitr.in.progress')) || as.if.knit) {
-        options("vtree_count"=getOption("vtree_count")+1)
+      options("vtree_count"=getOption("vtree_count")+1)
+      padCount <- sprintf("%03d",getOption("vtree_count"))
+      filenamestem <- paste0("vtree",padCount)          
       
-        padCount <- sprintf("%03d",getOption("vtree_count"))
-
-        filenamestem <- paste0("vtree",padCount)
-      } else {
-        filenamestem <- "vtree"
-      }
-  
       outfmt <- knitr::opts_knit$get("out.format")
       if (format=="") {
         if (is.null(outfmt)) {

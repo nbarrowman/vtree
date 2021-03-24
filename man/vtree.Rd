@@ -23,8 +23,8 @@ vtree(data, vars, horiz = TRUE, title = "", sameline = FALSE,
   varnamebold = FALSE, legendpointsize = 14, HTMLtext = FALSE,
   splitwidth = 20, vsplitwidth = 8, splitspaces = TRUE,
   getscript = FALSE, mincount = 1, maxcount, showempty = FALSE,
-  choicechecklist = TRUE, just = "c", folder = NULL, format = "",
-  imageFileOnly = FALSE, pngknit = TRUE, pxwidth = NULL,
+  choicechecklist = TRUE, just = "c", justtext = NULL, folder = NULL,
+  format = "", imageFileOnly = FALSE, pngknit = TRUE, pxwidth = NULL,
   pxheight = NULL, imagewidth = "", imageheight = "", width = NULL,
   height = NULL, maxNodes = 1000, unchecked = c("0", "FALSE", "No",
   "no"), checked = c("1", "TRUE", "Yes", "yes"), trim = NULL,
@@ -243,6 +243,8 @@ return the DOT script as a character string?}
 automatically extract the names of choices and use them as variable names?}
 
 \item{just}{Text justification ("l"=left, "c"=center, "r"=right).}
+
+\item{justtext}{Like \code{just}, but only for extra text, like summaries.}
 
 \item{folder, format, imageFileOnly, pngknit}{Control image file generation.
 \code{folder}: a path to a folder where image file will be stored.
