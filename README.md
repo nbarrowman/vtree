@@ -27,7 +27,7 @@ remotes::install_github("nbarrowman/vtree@v5.1.9")
 To get the vignette as well you need to specify `build_vignettes=TRUE`:
 
 ```
-remotes::install_github("nbarrowman/vtree@v5.0.0",build_vignettes=TRUE)
+remotes::install_github("nbarrowman/vtree@v5.1.9",build_vignettes=TRUE)
 ```
 
 # More information
