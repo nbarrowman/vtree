@@ -547,15 +547,18 @@ this allows you to specify which nodes should be "followed" (that is, *not* prun
 
 The arguments of the `prune`, `keep`, `prunebelow`, and `follow` parameters
 have a relatively simple structure because the pruning applies across all branches of the tree.
-For example, when pruning `Severity` nested within levels of `Sex`,
-the pruning takes place in both the M and F branches.
+For example, if you were pruning `Severity` nested within levels of `Sex`,
+the pruning would take place in both the M and F branches.
 Sometimes, however, it is preferable to perform pruning only in specified
 branches of the tree.
 This is called *targeted* pruning, and the parameters
 `tprune`, `tkeep`, `tprunebelow`, and `tfollow` provide this functionality.
-Their arguments are more elaborate because they specify the path from the
+Their arguments have a different form than those of the corresponding
+`prune`, `keep`, `prunebelow`, and `follow` parameters
+because they specify the full path from the
 root of the tree down to the nodes to be pruned.
-For example
+For example to remove every `Severity` node except Moderate,
+but only for males, the following command can be used:
 
 ```{r,eval=FALSE}
 vtree(FakeData,"Sex Severity",tkeep=list(c(Sex="M",Severity="Moderate")))
@@ -565,7 +568,18 @@ vtree(FakeData,"Sex Severity",tkeep=list(c(Sex="M",Severity="Moderate")))
 `r vtree(FakeData,"Sex Severity",tkeep=list(c(Sex="M",Severity="Moderate")),
   pxwidth=400,imageheight="3in")`
 
+In general, the argument of a targeted pruning parameter is a list of one or more vectors,
+each of which specifies a path through the tree.
+The path can lead to only one node. 
+For example, to prune both Moderate and Severe, again only in males,
+you could use this rather lengthy form:
 
+```{r,eval=FALSE}
+vtree(FakeData,"Sex Severity",
+  tprune=list(c(Sex="M",Severity="Moderate"),c(Sex="M",Severity="Severe")))
+```
+
+(Alternatively, in this case, you could simply specify `tkeep=list(Sex="M",Severity="Mild")`.)
 
 ### The `prunesmaller` parameter
 
