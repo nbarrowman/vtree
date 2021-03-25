@@ -114,14 +114,28 @@ vp=TRUE,rounded=FALSE,just="c",justtext=NULL,showroot=TRUE,verbose=FALSE,sortfil
   
   if (length(tkeep)>0) {
     for (j in seq_len(length(tkeep))) {
-      #browser()
       if (length(tkeep[[j]])==1 && any(names(tkeep[[j]])==var)) {
+        matching <- names(categoryCounts[-1]) == tkeep[[j]][names(tkeep[[j]])==var]
+        matching <- matching[!is.na(matching)]
+        removed <- categoryCounts[-1][!matching]
+        npctremoved <- npctString[-1][!matching]
+        if (!vp) {
+          if (any(names(removed)=="NA")) {
+            NAremoved <- names(removed)=="NA"
+            nr <- npctremoved[NAremoved]
+            #if (nr>1) description <- "NAs" else description <- "NA"
+            #warning(paste0(var,": keep removed ",npctremoved[NAremoved]," ",description),call.=FALSE)
+          }  
+        } else {
+          newkeep <- c(names(categoryCounts[-1])[matching],"NA")
+          matching <- match(newkeep,names(categoryCounts)[-1])
+          matching <- matching[!is.na(matching)]        
+        }
         #browser()
-        tkeepLevel <- names(categoryCounts[-1]) == tkeep[[j]][names(tkeep[[j]])==var]
-        categoryCounts <- c(categoryCounts[1],categoryCounts[-1][tkeepLevel])
-        npctString <- c(npctString[1],npctString[-1][tkeepLevel])
-        pctString <- c(pctString[1],pctString[-1][tkeepLevel])
-        nString <- c(nString[1],nString[-1][tkeepLevel])
+        categoryCounts <- c(categoryCounts[1],categoryCounts[-1][matching])
+        npctString <- c(npctString[1],npctString[-1][matching])
+        pctString <- c(pctString[1],pctString[-1][matching])
+        nString <- c(nString[1],nString[-1][matching])
       }
     }
   }  
