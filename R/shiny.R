@@ -86,13 +86,13 @@ use_svgzoom <-  function(minheight = "200px",
                          shortcuts = TRUE
                          ) {
   init_event <- match.arg(init_event)
-  addResourcePath("vtree", system.file(package = "vtree"))
-  singleton(
-    tags$head(
-      tags$script(src = "vtree/www/svg_pan_zoom.js"),
-      tags$style(inlineCssSetup(minheight, cursor_all, overflow, position, 
+  shiny::addResourcePath("vtree", system.file(package = "vtree"))
+  shiny::singleton(
+    shiny::tags$head(
+      shiny::tags$script(src = "vtree/www/svg_pan_zoom.js"),
+      shiny::tags$style(inlineCssSetup(minheight, cursor_all, overflow, position, 
                                 fill, cursor_text)),
-      tags$script(init_js(init_event, onwindow_resize, shortcuts))
+      shiny::tags$script(init_js(init_event, onwindow_resize, shortcuts))
     )
   )
 }
@@ -132,9 +132,9 @@ init_js <- function(init_event, onwindow_resize, shortcuts) {
 
   ## Output ##################
   if (onwindow_resize) {
-    initjs <- HTML(sprintf(wrap_conn, initjs, resize))
+    initjs <- shiny::HTML(sprintf(wrap_conn, initjs, resize))
   } else {
-    initjs <- HTML(sprintf(wrap_conn, initjs, ""))
+    initjs <- shiny::HTML(sprintf(wrap_conn, initjs, ""))
   }
   
   if (shortcuts) {
@@ -190,7 +190,7 @@ $(document).on('keydown', function(e) {
   }
 });"
     #######################
-    HTML(paste(initjs, shcts))
+    shiny::HTML(paste(initjs, shcts))
   } else {
     initjs
   }

@@ -2702,13 +2702,13 @@ vtree <- function (
     
     if (tfollow_this_var) {
       for (j in seq_len(length(tfollow))) {
-        tfollowlevels <- c(tfollowlevels,tfollow[[j]][names(tfollow[[j]])==CurrentVar])
+        tfollowlevels <- c(tfollowlevels,unlist(tfollow[[j]][names(tfollow[[j]])==CurrentVar]))
       }
     }    
 
     if (tprunebelow_this_var) {
       for (j in seq_len(length(tprunebelow))) {
-        tprunebelowlevels <- c(tprunebelowlevels,tprunebelow[[j]][names(tprunebelow[[j]])==CurrentVar])
+        tprunebelowlevels <- c(tprunebelowlevels,unlist(tprunebelow[[j]][names(tprunebelow[[j]])==CurrentVar]))
       }
     }
     

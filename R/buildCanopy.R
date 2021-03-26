@@ -22,7 +22,7 @@ vp=TRUE,rounded=FALSE,just="c",justtext=NULL,showroot=TRUE,verbose=FALSE,sortfil
 # https://en.wikipedia.org/wiki/DOT_(graph_description_language)
 #
 
-    if (HTMLtext) {
+  if (HTMLtext) {
     sepN <- "<BR/>"
   } else {
     sepN <- "\n"
@@ -102,8 +102,7 @@ vp=TRUE,rounded=FALSE,just="c",justtext=NULL,showroot=TRUE,verbose=FALSE,sortfil
   if (length(tprune)>0) {
     for (j in seq_len(length(tprune))) {
       if (length(tprune[[j]])==1 && any(names(tprune[[j]])==var)) {
-        #browser()
-        tpruneLevel <- names(categoryCounts[-1]) == tprune[[j]][names(tprune[[j]])==var]
+        tpruneLevel <- names(categoryCounts[-1]) %in% unlist(tprune[[j]][names(tprune[[j]])==var])
         categoryCounts <- c(categoryCounts[1],categoryCounts[-1][!tpruneLevel])
         npctString <- c(npctString[1],npctString[-1][!tpruneLevel])
         pctString <- c(pctString[1],pctString[-1][!tpruneLevel])
@@ -115,10 +114,10 @@ vp=TRUE,rounded=FALSE,just="c",justtext=NULL,showroot=TRUE,verbose=FALSE,sortfil
   if (length(tkeep)>0) {
     for (j in seq_len(length(tkeep))) {
       if (length(tkeep[[j]])==1 && any(names(tkeep[[j]])==var)) {
-        matching <- names(categoryCounts[-1]) == tkeep[[j]][names(tkeep[[j]])==var]
+        matching <- match(unlist(tkeep[[j]][names(tkeep[[j]])==var]),names(categoryCounts)[-1])
         matching <- matching[!is.na(matching)]
-        removed <- categoryCounts[-1][!matching]
-        npctremoved <- npctString[-1][!matching]
+        removed <- categoryCounts[-1][-matching]
+        npctremoved <- npctString[-1][-matching]
         if (!vp) {
           if (any(names(removed)=="NA")) {
             NAremoved <- names(removed)=="NA"
