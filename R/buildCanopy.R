@@ -21,7 +21,7 @@ vp=TRUE,rounded=FALSE,just="c",justtext=NULL,showroot=TRUE,verbose=FALSE,sortfil
 #
 # https://en.wikipedia.org/wiki/DOT_(graph_description_language)
 #
-
+  
   if (HTMLtext) {
     sepN <- "<BR/>"
   } else {
@@ -140,53 +140,43 @@ vp=TRUE,rounded=FALSE,just="c",justtext=NULL,showroot=TRUE,verbose=FALSE,sortfil
   }  
   
   if (!is.null(prune)) {
-    if (is.numeric(prune)) {
-      categoryCounts <- c(categoryCounts[1],categoryCounts[-1][-prune])
-      npctString <- c(npctString[1],npctString[-1][-prune])
-    } else {
-      matching <- names(categoryCounts)[-1] %in% prune
-      removed <- categoryCounts[-1][matching]
-      npctremoved <- npctString[-1][matching]
-      if (any(names(removed)=="NA")) {
-        NAremoved <- names(removed)=="NA"
-        nr <- npctremoved[NAremoved]
-        if (nr>1) description <- "NAs" else description <- "NA"
-        warning(paste0(var,": prune removed ",npctremoved[NAremoved]," ",description),call.=FALSE)
-      }  
-      categoryCounts <- c(categoryCounts[1],categoryCounts[-1][!matching])
-      npctString <- c(npctString[1],npctString[-1][!matching])
-      pctString <- c(pctString[1],pctString[-1][!matching])
-      nString <- c(nString[1],nString[-1][!matching])
-    }
+    matching <- names(categoryCounts)[-1] %in% prune
+    removed <- categoryCounts[-1][matching]
+    npctremoved <- npctString[-1][matching]
+    if (any(names(removed)=="NA")) {
+      NAremoved <- names(removed)=="NA"
+      nr <- npctremoved[NAremoved]
+      if (nr>1) description <- "NAs" else description <- "NA"
+      warning(paste0(var,": prune removed ",npctremoved[NAremoved]," ",description),call.=FALSE)
+    }  
+    categoryCounts <- c(categoryCounts[1],categoryCounts[-1][!matching])
+    npctString <- c(npctString[1],npctString[-1][!matching])
+    pctString <- c(pctString[1],pctString[-1][!matching])
+    nString <- c(nString[1],nString[-1][!matching])
   }
 
   if (!is.null(keep)) {
-    if (is.numeric(keep)) {
-      categoryCounts <- c(categoryCounts[1],categoryCounts[-1][keep])
-      npctString <- c(npctString[1],npctString[-1][keep])
-    } else {      
-      matching <- match(keep,names(categoryCounts)[-1])
-      matching <- matching[!is.na(matching)]
-      removed <- categoryCounts[-1][-matching]
-      npctremoved <- npctString[-1][-matching]
-      if (!vp) {
-        if (any(names(removed)=="NA")) {
-          NAremoved <- names(removed)=="NA"
-          nr <- npctremoved[NAremoved]
-          #if (nr>1) description <- "NAs" else description <- "NA"
-          #warning(paste0(var,": keep removed ",npctremoved[NAremoved]," ",description),call.=FALSE)
-        }  
-      } else {
-        newkeep <- c(keep,"NA")
-        matching <- match(newkeep,names(categoryCounts)[-1])
-        matching <- matching[!is.na(matching)]        
-      }
-      #browser()
-      categoryCounts <- c(categoryCounts[1],categoryCounts[-1][matching])
-      npctString <- c(npctString[1],npctString[-1][matching])
-      pctString <- c(pctString[1],pctString[-1][matching])
-      nString <- c(nString[1],nString[-1][matching])
+    matching <- match(keep,names(categoryCounts)[-1])
+    matching <- matching[!is.na(matching)]
+    removed <- categoryCounts[-1][-matching]
+    npctremoved <- npctString[-1][-matching]
+    if (!vp) {
+      if (any(names(removed)=="NA")) {
+        NAremoved <- names(removed)=="NA"
+        nr <- npctremoved[NAremoved]
+        #if (nr>1) description <- "NAs" else description <- "NA"
+        #warning(paste0(var,": keep removed ",npctremoved[NAremoved]," ",description),call.=FALSE)
+      }  
+    } else {
+      newkeep <- c(keep,"NA")
+      matching <- match(newkeep,names(categoryCounts)[-1])
+      matching <- matching[!is.na(matching)]        
     }
+    #browser()
+    categoryCounts <- c(categoryCounts[1],categoryCounts[-1][matching])
+    npctString <- c(npctString[1],npctString[-1][matching])
+    pctString <- c(pctString[1],pctString[-1][matching])
+    nString <- c(nString[1],nString[-1][matching])
   }
 
   if (pruneNA) {
