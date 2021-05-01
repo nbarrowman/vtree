@@ -23,7 +23,7 @@ crosstabToCases <- function(x) {
 
   if (!is.table(x)) {
     if (is.matrix(x)) {
-      x <- table(x)
+      x <- as.table(x)
     } else {
       stop("not a matrix")
     }

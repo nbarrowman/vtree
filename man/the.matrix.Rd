@@ -8,7 +8,6 @@
 A tibble with 35 rows and 14 variables:
 
 \describe{
-  \item{id}{A unique number}
   \item{name}{Name of character}
   \item{height}{Height (m)}
   \item{sex}{male, female; by appearance}
@@ -31,5 +30,8 @@ This data set was abstracted from the three movies.
 # ship within sunglasses within nature
 vtree(the.matrix,"nature sunglasses ship")
 
+}
+\author{
+Franco Momoli
 }
 \keyword{datasets}

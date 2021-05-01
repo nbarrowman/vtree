@@ -55,7 +55,6 @@
 #' @format A tibble with 35 rows and 14 variables:
 #'
 #' \describe{
-#'   \item{id}{A unique number}
 #'   \item{name}{Name of character}
 #'   \item{height}{Height (m)}
 #'   \item{sex}{male, female; by appearance}
@@ -67,6 +66,7 @@
 #'   \item{the.matrix, the.matrix.reloaded., the.matrix.revolutions}{Indicates if the character was in the movie}
 #' }
 #' 
+#' @author Franco Momoli
 #' @examples
 #' 
 #' # ship within sunglasses within nature
