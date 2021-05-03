@@ -10,6 +10,7 @@ prunelone=NULL,prunesmaller=NULL,
 keep=NULL,tkeep=NULL,
 text=NULL,ttext=NULL,TopText="",showempty=FALSE,digits=0,cdigits=2,
 showpct=TRUE,
+showrootcount=FALSE,
 showcount=TRUE,
 showvarnames=FALSE,
 pruneNA=FALSE,
@@ -334,8 +335,9 @@ vp=TRUE,rounded=FALSE,just="c",justtext=NULL,showroot=TRUE,verbose=FALSE,sortfil
   labelassign <- c()
   if (root) {
     if (showroot) {
-      #if (title!="") displayCAT[1] <- paste0(displayCAT[1],"<BR/>")
-      if (title!="") displayCAT[1] <- displayCAT[1]
+      if (!showrootcount) {
+        npctString[1] <- ""
+      }
       labelassign <- paste(paste0(
         nodenames[1],'[label=<',displayCAT[1],npctString[1],extraText[1],'> color=',topcolor,styleString,
         ' fillcolor=<',topfillcolor,'>]'),collapse='\n')

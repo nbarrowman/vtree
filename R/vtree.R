@@ -47,7 +47,9 @@ NULL
 #'                         (3) a formula without a left-hand side,
 #'                         e.g. \code{~ Age + Sex},
 #'                         but note that extended variable specifications cannot be used in this case.
-#'                         
+#'
+#' @param words            A list of vectors of named values.
+#'                                                                           
 #' @param prune,keep,prunebelow,follow
 #'                         List of named vectors that specify pruning.
 #'                          (see \strong{Pruning} below)
@@ -187,6 +189,7 @@ NULL
 #`                         \code{TRUE} for those variables and \code{FALSE} for all others.
 #'                         A logical vector of \code{FALSE} for named variables is interpreted as
 #'                         \code{FALSE} for those variables and \code{TRUE} for all others.
+#' @param showrootcount    Should count in root node?
 #' @param showlegend       Show legend (including marginal frequencies) for each variable?
 #' @param showlegendsum    Show summary information in the legend?
 #'                         (Provided \code{summary} has been specified).
@@ -392,7 +395,7 @@ NULL
 #' }
 #' The \code{tprune} parameter specifies "targetted" pruning.
 #' Standard pruning removes all nodes with the specified value of the specified variable.
-#' The \code{tprnue} parameter specify a particular path from the root of the tree
+#' The \code{tprune} parameter specifies a particular path from the root of the tree
 #' down to the specific node.
 #'
 #' @section Displaying summary information:
@@ -452,8 +455,9 @@ NULL
 #' @export
 
 vtree <- function (
-  data,
-  vars, 
+  data=NULL,
+  vars,
+  words = NULL,
   horiz = TRUE, 
   title = "",
   sameline=FALSE,
@@ -472,7 +476,8 @@ vtree <- function (
   showvarnames = TRUE, 
   showpct=TRUE, 
   showlpct=TRUE,
-  showcount=TRUE, 
+  showcount=TRUE,
+  showrootcount=TRUE,
   showlegend=FALSE,
   showroot=TRUE,
   showvarinnode=FALSE,
@@ -558,7 +563,7 @@ vtree <- function (
   pruneNA=FALSE,
   lsplitwidth=15,
   showlevels = TRUE,
-  z)
+  z=NULL)
 {
   
   makeHTML <- function(x) {
@@ -590,15 +595,24 @@ vtree <- function (
   }  
 
   novars <- FALSE
-
-  if (missing(z)) z <- data
   
+  if (missing(z)) z <- data
+
   # *************************************************************************
   # Begin code for root only ----
   # *************************************************************************
   
   if (root) {
-
+    
+    if (!missing(words)) {
+      showcount <- FALSE
+      showpct <- FALSE
+      showrootcount <- FALSE
+      data <- expand.grid(words)
+      z <- data
+      vars <- names(words)
+    } 
+    
     unknowncolor <- "pink"
 
     argname <- sapply(as.list(substitute({data})[-1]), deparse)
@@ -1287,7 +1301,6 @@ vtree <- function (
       # Process = tag in variable names in summary argument
       regex <- paste0("^",regexVarName,"(=)",regexVarName)
       findequal <- grep(regex,codevar)
-      #browser()
       if (length(findequal)>0) {
         for (i in seq_len(length(codevar))) {    
           if ((i %in% findequal) && !(i %in% findnotequal)) {
@@ -2499,7 +2512,7 @@ vtree <- function (
   # End code for root only ----
   # *************************************************************************
   
-  
+
   numvars <- length(vars)
 
   # Node outline colors
@@ -2582,6 +2595,7 @@ vtree <- function (
     showPCT <- showpct[vars[1]]
   }
   
+  #browser()
   fc <- buildCanopy(zvalue, root = root, novars=novars, title = title, parent = parent,
     var=vars[[1]],
     last = last, labels = labelnode[[vars[1]]], tlabelnode=tlabelnode, labelvar = labelvar[vars[1]],
@@ -2590,6 +2604,7 @@ vtree <- function (
     sameline=sameline,
     showvarinnode=showvarinnode,shownodelabels=shownodelabels[vars[1]],
     showpct=showPCT,
+    showrootcount=showrootcount,
     showcount=showCOUNT,
     prune=prune[[vars[1]]],
     tprune=tprune,
@@ -2841,8 +2856,9 @@ vtree <- function (
         for (index in seq_len(ncol(zselect))) {
           attr(zselect[[index]],"label") <- attr(z[[index]],"label")
         }
-        fcChild <- vtree(zselect,
-          vars[-1], auto=FALSE,parent = fc$nodenum[i], last = max(fc$nodenum),
+        #browser()
+        fcChild <- vtree(data=zselect,
+          vars=vars[-1], auto=FALSE,parent = fc$nodenum[i], last = max(fc$nodenum),
           labelnode = labelnode,
           tlabelnode = TLABELNODE,
           colorvarlabels=colorvarlabels,
@@ -2870,6 +2886,7 @@ vtree <- function (
           maxNodes=maxNodes,
           colornodes = colornodes, color = color[-1], fillnodes = fillnodes,
           fillcolor = fillcolor, splitwidth = splitwidth,
+          HTMLtext=HTMLtext,
           vp = vp, rounded = rounded, just=just, justtext=justtext, verbose=verbose)
         # tree[[vars[1]]][[varlevel]] <- c(tree[[vars[1]]][[varlevel]],.subset=list(subsetselect))
         if (!is.null(fcChild$tree)){
