@@ -945,10 +945,16 @@ vtree <- function (
                   if (length(grep(rexp0,lab))>0) {
                     REDCap_var_label <- sub(rexp1,"\\1",lab)
                     choice <- sub(rexp1,"\\2",lab)
+                    if (choice %in% names(z)) {
+                      choice <- paste0(choice,".")
+                    }
                     z[[choice]] <- z[[matching_vars[j]]]
                   } else
                   if (length(grep(rexp2,lab))>0) {
                     choice <- sub(rexp2,"\\2",lab)
+                    if (choice %in% names(z)) {
+                      choice <- paste0(choice,".")
+                    }                    
                     z[[choice]] <- z[[matching_vars[j]]]
                   } else {
                     #stop("Could not find value of REDCap checklist item in variable specification")
@@ -1121,10 +1127,16 @@ vtree <- function (
                     if (length(grep(rexp0,lab))>0) {
                       REDCap_var_label <- sub(rexp1,"\\1",lab)
                       choice <- sub(rexp1,"\\2",lab)
+                      if (choice %in% names(z)) {
+                        choice <- paste0(choice,".")
+                      }                
                       z[[choice]] <- z[[matching_vars[j]]]
                     } else
                     if (length(grep(rexp2,lab))>0) {
                       choice <- sub(rexp2,"\\2",lab)
+                      if (choice %in% names(z)) {
+                        choice <- paste0(choice,".")
+                      }                      
                       z[[choice]] <- z[[matching_vars[j]]]
                     } else {
                       #stop("Could not find value of REDCap checklist item in variable specification")

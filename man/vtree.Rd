@@ -4,12 +4,13 @@
 \alias{vtree}
 \title{Draw a variable tree}
 \usage{
-vtree(data, vars, horiz = TRUE, title = "", sameline = FALSE,
-  vp = TRUE, prune = list(), tprune = list(), keep = list(),
-  tkeep = list(), prunebelow = list(), tprunebelow = list(),
-  follow = list(), tfollow = list(), prunesmaller = NULL, summary = "",
-  shownodelabels = TRUE, showvarnames = TRUE, showpct = TRUE,
-  showlpct = TRUE, showcount = TRUE, showlegend = FALSE,
+vtree(data = NULL, vars, words = NULL, horiz = TRUE, title = "",
+  sameline = FALSE, vp = TRUE, prune = list(), tprune = list(),
+  keep = list(), tkeep = list(), prunebelow = list(),
+  tprunebelow = list(), follow = list(), tfollow = list(),
+  prunesmaller = NULL, summary = "", shownodelabels = TRUE,
+  showvarnames = TRUE, showpct = TRUE, showlpct = TRUE,
+  showcount = TRUE, showrootcount = TRUE, showlegend = FALSE,
   showroot = TRUE, showvarinnode = FALSE, showlegendsum = FALSE,
   labelvar = NULL, labelnode = list(), tlabelnode = NULL, digits = 0,
   cdigits = 1, fillcolor = NULL, fillnodes = TRUE,
@@ -34,7 +35,7 @@ vtree(data, vars, horiz = TRUE, title = "", sameline = FALSE,
   nodeargs = NULL, verbose = FALSE, runsummary = NULL, retain = NULL,
   auto = FALSE, parent = 1, last = 1, root = TRUE,
   subset = 1:nrow(z), as.if.knit = FALSE, prunelone = NULL,
-  pruneNA = FALSE, lsplitwidth = 15, showlevels = TRUE, z)
+  pruneNA = FALSE, lsplitwidth = 15, showlevels = TRUE, z = NULL)
 }
 \arguments{
 \item{data}{Required: Data frame, or a single vector.}
@@ -46,6 +47,8 @@ Variables to use for the tree. Can be
 (3) a formula without a left-hand side,
 e.g. \code{~ Age + Sex},
 but note that extended variable specifications cannot be used in this case.}
+
+\item{words}{A list of vectors of named values.}
 
 \item{horiz}{Should the tree be drawn horizontally?
 (i.e. root node on the left, with the tree growing to the right)}
@@ -97,6 +100,8 @@ A single value (with no names) specifies the setting for all variables.
 A logical vector of \code{TRUE} for named variables is interpreted as
 A logical vector of \code{FALSE} for named variables is interpreted as
 \code{FALSE} for those variables and \code{TRUE} for all others.}
+
+\item{showrootcount}{Should count in root node?}
 
 \item{showlegend}{Show legend (including marginal frequencies) for each variable?}
 
@@ -435,7 +440,7 @@ Each vector specifies nodes of a variable.
 }
 The \code{tprune} parameter specifies "targetted" pruning.
 Standard pruning removes all nodes with the specified value of the specified variable.
-The \code{tprnue} parameter specify a particular path from the root of the tree
+The \code{tprune} parameter specifies a particular path from the root of the tree
 down to the specific node.
 }
 
