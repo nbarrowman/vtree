@@ -47,6 +47,8 @@ NULL
 #'                         (3) a formula without a left-hand side,
 #'                         e.g. \code{~ Age + Sex},
 #'                         but note that extended variable specifications cannot be used in this case.
+#'                         
+#' @param showuniform      Show variable even when it doesn't change?
 #'
 #' @param words            A list of vectors of named values.
 #'                                                                           
@@ -457,6 +459,7 @@ NULL
 vtree <- function (
   data=NULL,
   vars,
+  showuniform = TRUE,
   words = NULL,
   horiz = TRUE, 
   title = "",
@@ -678,7 +681,6 @@ vtree <- function (
               }
           }
     }
-    
     
     if (auto) {
       if (missing(showvarinnode) & !check.is.na) showvarinnode <- TRUE
@@ -2135,6 +2137,26 @@ vtree <- function (
       }
       PATTERN <- factor(PATTERN,levels=PATTERN_levels)
       
+      if (!is.null(prunesmaller)) {
+        tabpattern <- table(PATTERN)
+        if (!showuniform) {
+          sel <- PATTERN %in% names(tabpattern[tabpattern>=prunesmaller])
+          z <- z[sel,]
+          PATTERN <- PATTERN[sel]
+        }
+      }
+      
+      if (!showuniform) {
+        for (var in vars) {
+          #message(var)
+          #print(table(z[[var]]))
+          if (length(unique(z[[var]]))==1) {
+            message(paste0("Not showing ",var,", since the only value is ",z[[var]][1]))
+            vars <- vars[vars!=var]
+          }
+        }
+      }
+      
       if (pattern) {
         z$pattern <- PATTERN
         vars <- c("pattern",vars)
@@ -2160,7 +2182,23 @@ vtree <- function (
       if (arrowhead!="normal") {
         edgeattr <- paste(edgeattr,paste0("arrowhead=",arrowhead))
       }
+      
+      if (!showuniform) {
+        for (var in vars) {
+          #message(var)
+          #print(table(z[[var]]))
+          if (length(unique(z[[var]]))==1) {
+            message(paste0("Not showing ",var,", since the only value is ",z[[var]][1]))
+            vars <- vars[vars!=var]
+          }
+        }
+        if (length(vars)==0) {
+          novars <- TRUE
+          vars <- ""
+        }
+      }
     }
+    
 
     if (is.null(names(gradient))) {
       gradient <- rep(gradient[1],numvars)
@@ -2515,7 +2553,7 @@ vtree <- function (
     
     if (length(keep)>0 && (!is.list(keep) || is.null(names(keep)))) {
       stop("The argument of keep should be a named list.")
-    }        
+    }
     
   }
 
