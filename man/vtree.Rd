@@ -8,7 +8,7 @@ vtree(data = NULL, vars, showuniform = TRUE, words = NULL,
   horiz = TRUE, title = "", sameline = FALSE, vp = TRUE,
   prune = list(), tprune = list(), keep = list(), tkeep = list(),
   prunebelow = list(), tprunebelow = list(), follow = list(),
-  tfollow = list(), prunesmaller = NULL, summary = "",
+  tfollow = list(), prunesmaller = NULL, summary = "", tsummary = "",
   shownodelabels = TRUE, showvarnames = TRUE, showpct = TRUE,
   showlpct = TRUE, showcount = TRUE, showrootcount = TRUE,
   showlegend = FALSE, showroot = TRUE, showvarinnode = FALSE,
@@ -80,6 +80,10 @@ show percentages of the total number of observations.}
 
 \item{summary}{A character string used to specify summary statistics to display in the nodes.
 See \strong{Displaying summary information} below for details.}
+
+\item{tsummary}{A list of character strings,
+each of which specifies a particular node,
+as well as a summary string.}
 
 \item{shownodelabels}{Show node labels?
 A single value (with no names) specifies the setting for all variables.
