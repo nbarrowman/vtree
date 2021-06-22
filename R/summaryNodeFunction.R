@@ -496,7 +496,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
       countval[tabval==1] <- ""
       listOutput <- paste0(paste0(names(tabval),countval),collapse=", ")
       listLinesOutput <- paste0(paste0(names(tabval),countval),collapse=sepN)
-
+      
       if (ShowNodeText) {
         if (length(x)==0 || !is.numeric(x)) {
           minx <- maxx <- NA

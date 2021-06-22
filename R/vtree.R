@@ -478,7 +478,7 @@ vtree <- function (
   tfollow=list(),
   prunesmaller=NULL,
   summary = "",
-  tsummary="",
+  tsummary=NULL,
   shownodelabels=TRUE,
   showvarnames = TRUE, 
   showpct=TRUE, 
@@ -915,7 +915,6 @@ vtree <- function (
         #
         for (i in seq_len(length(vars))) {
           if (i %in% match_regex) {
-            #browser()
             y <- rep("",nrow(z))
             prefix <- sub(regexComplex,"\\1",vars[i])
             text_part <- sub(regexComplex,"\\3",vars[i])
@@ -1261,7 +1260,40 @@ vtree <- function (
     # Begin: Summaries  ----
     # *************************************************************************
     
-    summaryvarlist <- headinglist <- summaryformatlist <- list()
+    summaryvarlist <- summaryvaluelist <- headinglist <- summaryformatlist <- list()
+    
+    if (!is.null(tsummary)) {
+      for (TSUMMARY in tsummary) {
+        lastTSUMMARY <- TSUMMARY[length(TSUMMARY)]
+        result <- parseSummary(z,vars=vars,
+          summary=lastTSUMMARY,verbose=verbose,choicechecklist=choicechecklist,
+          checked=checked,unchecked=unchecked)
+        z <- result$z
+        summaryvarlist <- c(summaryvarlist,result$summaryvar)
+        summaryvaluelist <- c(summaryvaluelist,TSUMMARY[length(TSUMMARY)-1])
+        headingslist <- c(headinglist,result$heading)
+        summaryformatlist <- c(summaryformatlist,result$format)
+      }
+      
+      summaryvars <- unlist(summaryvarlist)
+      summaryvalues <- unlist(summaryvaluelist)
+      headings <- unlist(headingslist)
+      
+      allvars <- c(allvars,summaryvars) 
+      
+      if (!is.null(runsummary)) {
+        if (length(runsummary) != length(summary)) {
+          stop("runsummary argument is not the same length as summary argument.")
+        }
+      }
+      
+      nodefunc <- summaryNodeFunction
+      nodeargs <- list(
+        var = summaryvars, value = summaryvalues, format = unlist(summaryformatlist),
+        original_var=headings,
+        sf = runsummary, digits = digits, cdigits = cdigits, sepN=sepN)
+      
+    } else
     if (!all(summary=="")) {
       for (SUMMARY in summary) {
         result <- parseSummary(z,vars=vars,
@@ -2084,18 +2116,55 @@ vtree <- function (
   }
   
   TopText <- ""
+  
+  tsummaryLen <- sapply(tsummary,length)
+
+  qqq <- z[[vars[1]]]
+  qqq <- as.character(qqq)
+  qqq[is.na(qqq)] <- "NA"
+  categoryCounts <- table(qqq, exclude = NULL)
+  CAT <- names(categoryCounts)
+  
+  ThisLayerText <- rep("",length(CAT))       
+  
+  if (any(tsummaryLen==2)) {
+    for (i in seq_len(length(tsummary))) {
+      if (tsummaryLen[i]==2) {
+        if (numvars == 1)
+          nodeargs$leaf <- TRUE
+        summarytext <- vector("list",length=length(CAT))
+        names(summarytext) <- CAT
+        for (k in seq_len(length(CAT))) {
+          value <- CAT[k]
+          zselect <- z[qqq == value,,drop=FALSE]
+          for (j in seq_len(ncol(zselect))) {
+            attr(zselect[,j],"label") <- attr(z[,j],"label")
+          }
+          if (tsummary[[i]][1]==value) {
+            choose <- nodeargs$value==value
+            if (any(choose)) {
+              args <- nodeargs
+              args$var <- args$var[choose]
+              args$format <- args$format[choose]
+              args$value <- args$value[choose] # not really necessary
+              summarytext[[value]] <- nodefunc(zselect, vars[1], value, args = args)
+              nodetext <- paste0(summarytext[[value]],collapse="")
+              nodetext <- splitlines(nodetext, width = splitwidth, sp = sepN, at=" ")
+              ThisLayerText[k] <- paste0(ThisLayerText[k], paste0(nodetext,sepN))
+            } 
+          }
+        }
+        names(ThisLayerText) <- CAT
+      }
+    }
+  } else
   if (!is.null(nodefunc)) {
     if (numvars == 1)
         nodeargs$leaf <- TRUE
-    ThisLayerText <- c()
-    qqq <- z[[vars[1]]]
-    qqq <- as.character(qqq)
-    qqq[is.na(qqq)] <- "NA"
-    categoryCounts <- table(qqq, exclude = NULL)
-    CAT <- names(categoryCounts)
     summarytext <- vector("list",length=length(CAT))
     names(summarytext) <- CAT
-    for (value in CAT) {
+    for (k in seq_len(length(CAT))) {
+      value <- CAT[k]
       zselect <- z[qqq == value,,drop=FALSE]
       for (i in seq_len(ncol(zselect))) {
         attr(zselect[,i],"label") <- attr(z[,i],"label")
@@ -2103,7 +2172,7 @@ vtree <- function (
       summarytext[[value]] <- nodefunc(zselect, vars[1], value, args = nodeargs)
       nodetext <- paste0(summarytext[[value]],collapse="")
       nodetext <- splitlines(nodetext, width = splitwidth, sp = sepN, at=" ")
-      ThisLayerText <- c(ThisLayerText, paste0(nodetext,sepN))
+      ThisLayerText[k] <- paste0(ThisLayerText[k], paste0(nodetext,sepN))
     }
     if (root) {
       topnodeargs <- nodeargs
@@ -2133,7 +2202,6 @@ vtree <- function (
     showPCT <- showpct[vars[1]]
   }
   
-  #browser()
   fc <- buildCanopy(zvalue, root = root, novars=novars, title = title, parent = parent,
     var=vars[[1]],
     last = last, labels = labelnode[[vars[1]]], tlabelnode=tlabelnode, labelvar = labelvar[vars[1]],
@@ -2282,6 +2350,23 @@ vtree <- function (
       j <-j + 1
     }
 
+    TSUMMARY <- tsummary
+    j <- 1
+    while (j <= length(TSUMMARY)) {
+      if (!any(names(TSUMMARY[[j]])==CurrentVar)) {
+        TSUMMARY[[j]] <- ""
+      } else {
+        if (TSUMMARY[[j]][CurrentVar]==varlevel) {
+          TSUMMARY[[j]] <- TSUMMARY[[j]][names(TSUMMARY[[j]])!=CurrentVar]
+        } else {
+          if (TSUMMARY[[j]][CurrentVar]!=varlevel) {
+            TSUMMARY[[j]] <- ""
+          }
+        }
+      }
+      j <-j + 1
+    }
+    
     TLABELNODE <- tlabelnode
     j <- 1
     while (j <= length(TLABELNODE)) {
@@ -2394,13 +2479,13 @@ vtree <- function (
         for (index in seq_len(ncol(zselect))) {
           attr(zselect[[index]],"label") <- attr(z[[index]],"label")
         }
-        #browser()
         fcChild <- vtree(data=zselect,
           vars=vars[-1], auto=FALSE,parent = fc$nodenum[i], last = max(fc$nodenum),
           labelnode = labelnode,
           tlabelnode = TLABELNODE,
           colorvarlabels=colorvarlabels,
           check.is.na=check.is.na,
+          tsummary=tsummary,
           showvarinnode=showvarinnode,shownodelabels=shownodelabels,
           showpct=showpct,
           showcount=showcount,
