@@ -1008,7 +1008,7 @@ Sometimes it is helpful to extract summary information as text.
 For example, we might wish to access the summary information contained in the Mild node.
 This is explained [later on](#extracting), but here's a brief example:
 
-```{r}
+```{r attributes}
 vSeverity <- vtree(FakeData,"Severity",summary="Score",horiz=FALSE)
 info <- attributes(vSeverity)$info
 cat(info$Severity$Mild$.text)
@@ -1057,7 +1057,7 @@ vtree(FakeData,"Severity",summary="Category=single",horiz=FALSE)
 Summaries can be obtained for a collection of variables using pattern-matching,
 for example:
 
-```{r,eval=FALSE}
+```{r summary-pattern,eval=FALSE}
 vtree(FakeData,"Severity",summary="Ind*",sameline=TRUE,horiz=FALSE,just="l")
 ```
 
@@ -1221,7 +1221,24 @@ vtree(FakeData,"Severity",horiz=FALSE,showvarnames=FALSE,splitwidth=Inf,sameline
     "Score \nScore: mean (SD) %meanx% (%SD%)",
     "Pre \nPre: range %range%"),
  pxwidth=1400,imageheight="1.4in")`
-  
+
+### Targetted summaries
+
+Sometimes you only want to show a summary in a particular node.
+Targetted summaries are specified with the `tsummary` parameter
+as a list of character-string vectors.
+The initial elements of each character string vector point to a specific node.
+The final element of each character string vector is a summary string,
+with the same structure as \code{summary}.
+
+```{r,eval=FALSE}
+vtree(FakeData,"Age Sex",tsummary=list(c(Age="5",Sex="M","id \n%list%")))
+```
+
+`r vtree(FakeData,"Age Sex",tsummary=list(c(Age="5",Sex="M","id \n%list%")),
+pxwidth=1400,imageheight="1.6in")`
+
+
 
 ## Pattern trees and pattern tables {#patterns}
 

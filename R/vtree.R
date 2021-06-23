@@ -93,9 +93,10 @@ NULL
 #'                         whether or not each of its values is missing?
 #' @param summary          A character string used to specify summary statistics to display in the nodes.
 #'                         See \strong{Displaying summary information} below for details.
-#' @param tsummary         A list of character strings,
-#'                         each of which specifies a particular node,
-#'                         as well as a summary string.
+#' @param tsummary         A list of character-string vectors.
+#'                         The initial elements of each character string vector point to a specific node.
+#'                         The final element of each character string vector is a summary string,
+#'                         with the same structure as \code{summary}.
 #' @param text             A list of vectors containing extra text to add to
 #'                         nodes corresponding to specified values of a specified variable.
 #'                         The name of each element of the list
@@ -2127,6 +2128,8 @@ vtree <- function (
   
   ThisLayerText <- rep("",length(CAT))       
   
+  # Process summaries to include in nodes  ----
+  
   if (any(tsummaryLen==2)) {
     for (i in seq_len(length(tsummary))) {
       if (tsummaryLen[i]==2) {
@@ -2158,7 +2161,7 @@ vtree <- function (
       }
     }
   } else
-  if (!is.null(nodefunc)) {
+  if (is.null(tsummary) & !is.null(nodefunc)) {
     if (numvars == 1)
         nodeargs$leaf <- TRUE
     summarytext <- vector("list",length=length(CAT))
@@ -2333,6 +2336,9 @@ vtree <- function (
       }
     }
     
+    
+  # Targetted node tracking  ----
+    
     TTEXT <- ttext
     j <- 1
     while (j <= length(TTEXT)) {
@@ -2366,7 +2372,7 @@ vtree <- function (
       }
       j <-j + 1
     }
-    
+   
     TLABELNODE <- tlabelnode
     j <- 1
     while (j <= length(TLABELNODE)) {
@@ -2485,7 +2491,7 @@ vtree <- function (
           tlabelnode = TLABELNODE,
           colorvarlabels=colorvarlabels,
           check.is.na=check.is.na,
-          tsummary=tsummary,
+          tsummary=TSUMMARY,
           showvarinnode=showvarinnode,shownodelabels=shownodelabels,
           showpct=showpct,
           showcount=showcount,

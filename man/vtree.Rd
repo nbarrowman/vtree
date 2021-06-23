@@ -81,9 +81,10 @@ show percentages of the total number of observations.}
 \item{summary}{A character string used to specify summary statistics to display in the nodes.
 See \strong{Displaying summary information} below for details.}
 
-\item{tsummary}{A list of character strings,
-each of which specifies a particular node,
-as well as a summary string.}
+\item{tsummary}{A list of character-string vectors.
+The initial elements of each character string vector point to a specific node.
+The final element of each character string vector is a summary string,
+with the same structure as \code{summary}.}
 
 \item{shownodelabels}{Show node labels?
 A single value (with no names) specifies the setting for all variables.

@@ -519,14 +519,16 @@ parseSummary <- function(z,vars,summary,verbose,choicechecklist,checked,unchecke
   
   # If an element of codevar is not the name of a variable in z,
   # perhaps it's an expression that can be evaluated in z
-  if (length(grep("^([oair]+[oair]*:)*(\\S*)([\\*#@])$",summaryvar))==0) {
-    if (length(grep("^stem:",summaryvar))==0) {   # except for stems
-      if (length(grep("^stemc:",summaryvar))==0) {   # except for stems
-        if (length(grep("\\*$",summaryvar))==0) {   # except for ending in *
-          if (length(grep("#$",summaryvar))==0) {   # except for ending in #
-            if (length(summaryvar==1) & !(summaryvar %in% names(z))) {
-              derivedvar <- with(z,eval(parse(text=summaryvar,keep.source=FALSE))) 
-              z[[summaryvar]] <- derivedvar
+  if (length(summaryvar)==1) {
+    if (length(grep("^([oair]+[oair]*:)*(\\S*)([\\*#@])$",summaryvar))==0) {
+      if (length(grep("^stem:",summaryvar))==0) {   # except for stems
+        if (length(grep("^stemc:",summaryvar))==0) {   # except for stems
+          if (length(grep("\\*$",summaryvar))==0) {   # except for ending in *
+            if (length(grep("#$",summaryvar))==0) {   # except for ending in #
+              if (!(summaryvar %in% names(z))) {
+                derivedvar <- with(z,eval(parse(text=summaryvar,keep.source=FALSE))) 
+                z[[summaryvar]] <- derivedvar
+              }
             }
           }
         }
