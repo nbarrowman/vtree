@@ -2693,7 +2693,7 @@ vtree <- function (
           FILLCOLOR <- rev(FILLCOLOR)
         }
         
-        rgb <- col2rgb(FILLCOLOR)
+        rgb <- grDevices::col2rgb(FILLCOLOR)
         red <- rgb["red",]; green <- rgb["green",]; blue <- rgb["blue",]
         FONTCOLOR <- ifelse((red*0.299 + green*0.587 + blue*0.114) > 186,"#000000","#ffffff")    
         nl <- paste0("Node_L",i,"_",seq_len(length(categoryCounts)),

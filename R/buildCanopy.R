@@ -338,7 +338,7 @@ vp=TRUE,rounded=FALSE,just="c",justtext=NULL,showroot=TRUE,verbose=FALSE,sortfil
       if (!showrootcount) {
         npctString[1] <- ""
       }
-      rgb <- col2rgb(topfillcolor)
+      rgb <- grDevices::col2rgb(topfillcolor)
       red <- rgb["red",]; green <- rgb["green",]; blue <- rgb["blue",]
       FONTCOLOR <- ifelse((red*0.299 + green*0.587 + blue*0.114) > 186,"#000000","#ffffff")      
       labelassign <- paste(paste0(
@@ -346,7 +346,7 @@ vp=TRUE,rounded=FALSE,just="c",justtext=NULL,showroot=TRUE,verbose=FALSE,sortfil
         ' fillcolor=<',topfillcolor,'>]'),collapse='\n')
     }
     if (!novars) {
-      rgb <- col2rgb(FILLCOLOR)
+      rgb <- grDevices::col2rgb(FILLCOLOR)
       red <- rgb["red",]; green <- rgb["green",]; blue <- rgb["blue",]
       FONTCOLOR <- ifelse((red*0.299 + green*0.587 + blue*0.114) > 186,"#000000","#ffffff")
       labelassign <- paste0(labelassign,'\n',paste(paste0(
@@ -356,7 +356,7 @@ vp=TRUE,rounded=FALSE,just="c",justtext=NULL,showroot=TRUE,verbose=FALSE,sortfil
        
     }
   } else {
-    rgb <- col2rgb(FILLCOLOR)
+    rgb <- grDevices::col2rgb(FILLCOLOR)
     red <- rgb["red",]; green <- rgb["green",]; blue <- rgb["blue",]
     FONTCOLOR <- ifelse((red*0.299 + green*0.587 + blue*0.114) > 186,"#000000","#ffffff")    
     labelassign <- paste(paste0(
