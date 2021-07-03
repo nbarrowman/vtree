@@ -478,7 +478,7 @@ vtree <- function (
   follow=list(),
   tfollow=list(),
   prunesmaller=NULL,
-  summary = "",
+  summary =NULL,
   tsummary=NULL,
   shownodelabels=TRUE,
   showvarnames = TRUE, 
@@ -1295,7 +1295,7 @@ vtree <- function (
         sf = runsummary, digits = digits, cdigits = cdigits, sepN=sepN)
       
     } else
-    if (!all(summary=="")) {
+    if (!is.null(summary)) {
       for (SUMMARY in summary) {
         result <- parseSummary(z,vars=vars,
           summary=SUMMARY,verbose=verbose,choicechecklist=choicechecklist,
@@ -2693,9 +2693,13 @@ vtree <- function (
           FILLCOLOR <- rev(FILLCOLOR)
         }
         
+        rgb <- col2rgb(FILLCOLOR)
+        red <- rgb["red",]; green <- rgb["green",]; blue <- rgb["blue",]
+        FONTCOLOR <- ifelse((red*0.299 + green*0.587 + blue*0.114) > 186,"#000000","#ffffff")    
         nl <- paste0("Node_L",i,"_",seq_len(length(categoryCounts)),
           '[',
           labels,
+          ' fontcolor=<',FONTCOLOR,'>', 
           ' color=',color[i+1],' ',
           styleString,
           ' fillcolor=<',FILLCOLOR,'> height=0]',

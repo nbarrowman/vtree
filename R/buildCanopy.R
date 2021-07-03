@@ -338,18 +338,29 @@ vp=TRUE,rounded=FALSE,just="c",justtext=NULL,showroot=TRUE,verbose=FALSE,sortfil
       if (!showrootcount) {
         npctString[1] <- ""
       }
+      rgb <- col2rgb(topfillcolor)
+      red <- rgb["red",]; green <- rgb["green",]; blue <- rgb["blue",]
+      FONTCOLOR <- ifelse((red*0.299 + green*0.587 + blue*0.114) > 186,"#000000","#ffffff")      
       labelassign <- paste(paste0(
-        nodenames[1],'[label=<',displayCAT[1],npctString[1],extraText[1],'> color=',topcolor,styleString,
+        nodenames[1],'[label=<',displayCAT[1],npctString[1],extraText[1],'>  fontcolor=<',FONTCOLOR,'> color=',topcolor,styleString,
         ' fillcolor=<',topfillcolor,'>]'),collapse='\n')
     }
     if (!novars) {
+      rgb <- col2rgb(FILLCOLOR)
+      red <- rgb["red",]; green <- rgb["green",]; blue <- rgb["blue",]
+      FONTCOLOR <- ifelse((red*0.299 + green*0.587 + blue*0.114) > 186,"#000000","#ffffff")
       labelassign <- paste0(labelassign,'\n',paste(paste0(
-        nodenames[-1],'[label=<',displayCAT[-1],npctString[-1],extraText[-1],'> color=',color,styleString,
+        nodenames[-1],'[label=<',displayCAT[-1],npctString[-1],extraText[-1],'>  fontcolor=<',FONTCOLOR,'> color=',color,styleString,
         ' fillcolor=<',FILLCOLOR,'>',VARLABELLOC,' ',VARMINWIDTH,' ',VARMINHEIGHT,']')),collapse='\n')
+      #browser()
+       
     }
   } else {
+    rgb <- col2rgb(FILLCOLOR)
+    red <- rgb["red",]; green <- rgb["green",]; blue <- rgb["blue",]
+    FONTCOLOR <- ifelse((red*0.299 + green*0.587 + blue*0.114) > 186,"#000000","#ffffff")    
     labelassign <- paste(paste0(
-      nodenames[-1],'[label=<',displayCAT[-1],npctString[-1],extraText[-1],'> color=',color,styleString,
+      nodenames[-1],'[label=<',displayCAT[-1],npctString[-1],extraText[-1],'>  fontcolor=<',FONTCOLOR,'> color=',color,styleString,
       ' fillcolor=<',FILLCOLOR,'>',VARLABELLOC,' ',VARMINWIDTH,' ',VARMINHEIGHT,']'),collapse='\n')
   }
   
