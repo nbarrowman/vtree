@@ -1335,6 +1335,10 @@ vtree <- function (
 
     numvars <- length(vars)
     
+    # *************************************************************************
+    # Begin: Color palettes ----
+    # *************************************************************************
+    
     # Each element of the following list
     # is a matrix where the rows are the different hues (one for each variable).
     # The 1st matrix is for a single-valued variable,
@@ -1354,12 +1358,12 @@ vtree <- function (
         c("#1C9099"),
         c("#8856A7"),
         c("#F03B20"),
-        c("#91CF60"),
         c("#43A2CA"),
         c("#2C7FB8"),
         c("#C51B8A"),
         c("#2CA25F"),
-        c("#E34A33")
+        c("#E34A33"),
+        c("#636363")
       ),
       rbind(
         c("#FEE0D2","#DE2D26"),
@@ -1374,12 +1378,12 @@ vtree <- function (
         c("#ECE2F0","#1C9099"),
         c("#E0ECF4","#8856A7"),
         c("#FFEDA0","#F03B20"),
-        c("#FC8D59","#91CF60"),
         c("#E0F3DB","#43A2CA"),
         c("#EDF8B1","#2C7FB8"),
         c("#FDE0DD","#C51B8A"),
         c("#E5F5F9","#2CA25F"),
-        c("#FEE8C8","#E34A33")
+        c("#FEE8C8","#E34A33"),
+        c("#F0F0F0","#636363")
       ),
       rbind(
         c("#FEE0D2","#FC9272","#DE2D26"),
@@ -1394,12 +1398,12 @@ vtree <- function (
         c("#ECE2F0","#A6BDDB","#1C9099"),
         c("#E0ECF4","#9EBCDA","#8856A7"),
         c("#FFEDA0","#FEB24C","#F03B20"),
-        c("#FC8D59","#FFFFBF","#91CF60"),
         c("#E0F3DB","#A8DDB5","#43A2CA"),
         c("#EDF8B1","#7FCDBB","#2C7FB8"),
         c("#FDE0DD","#FA9FB5","#C51B8A"),
         c("#E5F5F9","#99D8C9","#2CA25F"),
-        c("#FEE8C8","#FDBB84","#E34A33")
+        c("#FEE8C8","#FDBB84","#E34A33"),
+        c("#F0F0F0","#BDBDBD","#636363")
       ),
       rbind(
         c("#FEE5D9","#FCAE91","#FB6A4A","#CB181D"),
@@ -1414,12 +1418,12 @@ vtree <- function (
         c("#F6EFF7","#BDC9E1","#67A9CF","#02818A"),
         c("#EDF8FB","#B3CDE3","#8C96C6","#88419D"),
         c("#FFFFB2","#FECC5C","#FD8D3C","#E31A1C"),
-        c("#D7191C","#FDAE61","#A6D96A","#1A9641"),
         c("#F0F9E8","#BAE4BC","#7BCCC4","#2B8CBE"),
         c("#FFFFCC","#A1DAB4","#41B6C4","#225EA8"),
         c("#FEEBE2","#FBB4B9","#F768A1","#AE017E"),
         c("#EDF8FB","#B2E2E2","#66C2A4","#238B45"),
-        c("#FEF0D9","#FDCC8A","#FC8D59","#D7301F")
+        c("#FEF0D9","#FDCC8A","#FC8D59","#D7301F"),
+        c("#F7F7F7","#CCCCCC","#969696","#525252")
       ),
       rbind(
         c("#FEE5D9","#FCAE91","#FB6A4A","#DE2D26","#A50F15"),
@@ -1434,12 +1438,12 @@ vtree <- function (
         c("#F6EFF7","#BDC9E1","#67A9CF","#1C9099","#016C59"),
         c("#EDF8FB","#B3CDE3","#8C96C6","#8856A7","#810F7C"),
         c("#FFFFB2","#FECC5C","#FD8D3C","#F03B20","#BD0026"),
-        c("#D7191C","#FDAE61","#FFFFBF","#A6D96A","#1A9641"),
         c("#F0F9E8","#BAE4BC","#7BCCC4","#43A2CA","#0868AC"),
         c("#FFFFCC","#A1DAB4","#41B6C4","#2C7FB8","#253494"),
         c("#FEEBE2","#FBB4B9","#F768A1","#C51B8A","#7A0177"),
         c("#EDF8FB","#B2E2E2","#66C2A4","#2CA25F","#006D2C"),
-        c("#FEF0D9","#FDCC8A","#FC8D59","#E34A33","#B30000")
+        c("#FEF0D9","#FDCC8A","#FC8D59","#E34A33","#B30000"),
+        c("#F7F7F7","#CCCCCC","#969696","#636363","#252525")
       ),
       rbind(
         c("#FEE5D9","#FCBBA1","#FC9272","#FB6A4A","#DE2D26","#A50F15"),
@@ -1454,12 +1458,12 @@ vtree <- function (
         c("#F6EFF7","#D0D1E6","#A6BDDB","#67A9CF","#1C9099","#016C59"),
         c("#EDF8FB","#BFD3E6","#9EBCDA","#8C96C6","#8856A7","#810F7C"),
         c("#FFFFB2","#FED976","#FEB24C","#FD8D3C","#F03B20","#BD0026"),
-        c("#D73027","#FC8D59","#FEE08B","#D9EF8B","#91CF60","#1A9850"),
         c("#F0F9E8","#CCEBC5","#A8DDB5","#7BCCC4","#43A2CA","#0868AC"),
         c("#FFFFCC","#C7E9B4","#7FCDBB","#41B6C4","#2C7FB8","#253494"),
         c("#FEEBE2","#FCC5C0","#FA9FB5","#F768A1","#C51B8A","#7A0177"),
         c("#EDF8FB","#CCECE6","#99D8C9","#66C2A4","#2CA25F","#006D2C"),
-        c("#FEF0D9","#FDD49E","#FDBB84","#FC8D59","#E34A33","#B30000")
+        c("#FEF0D9","#FDD49E","#FDBB84","#FC8D59","#E34A33","#B30000"),
+        c("#F7F7F7","#D9D9D9","#BDBDBD","#969696","#636363","#252525")
       ),
       rbind(
         c("#FEE5D9","#FCBBA1","#FC9272","#FB6A4A","#EF3B2C","#CB181D","#99000D"),
@@ -1474,12 +1478,12 @@ vtree <- function (
         c("#F6EFF7","#D0D1E6","#A6BDDB","#67A9CF","#3690C0","#02818A","#016450"),
         c("#EDF8FB","#BFD3E6","#9EBCDA","#8C96C6","#8C6BB1","#88419D","#6E016B"),
         c("#FFFFB2","#FED976","#FEB24C","#FD8D3C","#FC4E2A","#E31A1C","#B10026"),
-        c("#D73027","#FC8D59","#FEE08B","#FFFFBF","#D9EF8B","#91CF60","#1A9850"),
         c("#F0F9E8","#CCEBC5","#A8DDB5","#7BCCC4","#4EB3D3","#2B8CBE","#08589E"),
         c("#FFFFCC","#C7E9B4","#7FCDBB","#41B6C4","#1D91C0","#225EA8","#0C2C84"),
         c("#FEEBE2","#FCC5C0","#FA9FB5","#F768A1","#DD3497","#AE017E","#7A0177"),
         c("#EDF8FB","#CCECE6","#99D8C9","#66C2A4","#41AE76","#238B45","#005824"),
-        c("#FEF0D9","#FDD49E","#FDBB84","#FC8D59","#EF6548","#D7301F","#990000")
+        c("#FEF0D9","#FDD49E","#FDBB84","#FC8D59","#EF6548","#D7301F","#990000"),
+        c("#F7F7F7","#D9D9D9","#BDBDBD","#969696","#737373","#525252","#252525")
       ),
       rbind(
         c("#FFF5F0","#FEE0D2","#FCBBA1","#FC9272","#FB6A4A","#EF3B2C","#CB181D","#99000D"),
@@ -1494,12 +1498,12 @@ vtree <- function (
         c("#FFF7FB","#ECE2F0","#D0D1E6","#A6BDDB","#67A9CF","#3690C0","#02818A","#016450"),
         c("#F7FCFD","#E0ECF4","#BFD3E6","#9EBCDA","#8C96C6","#8C6BB1","#88419D","#6E016B"),
         c("#FFFFCC","#FFEDA0","#FED976","#FEB24C","#FD8D3C","#FC4E2A","#E31A1C","#B10026"),
-        c("#D73027","#F46D43","#FDAE61","#FEE08B","#D9EF8B","#A6D96A","#66BD63","#1A9850"),
         c("#F7FCF0","#E0F3DB","#CCEBC5","#A8DDB5","#7BCCC4","#4EB3D3","#2B8CBE","#08589E"),
         c("#FFFFD9","#EDF8B1","#C7E9B4","#7FCDBB","#41B6C4","#1D91C0","#225EA8","#0C2C84"),
         c("#FFF7F3","#FDE0DD","#FCC5C0","#FA9FB5","#F768A1","#DD3497","#AE017E","#7A0177"),
         c("#F7FCFD","#E5F5F9","#CCECE6","#99D8C9","#66C2A4","#41AE76","#238B45","#005824"),
-        c("#FFF7EC","#FEE8C8","#FDD49E","#FDBB84","#FC8D59","#EF6548","#D7301F","#990000")
+        c("#FFF7EC","#FEE8C8","#FDD49E","#FDBB84","#FC8D59","#EF6548","#D7301F","#990000"),
+        c("#FFFFFF","#F0F0F0","#D9D9D9","#BDBDBD","#969696","#737373","#525252","#252525")
       ),
       rbind(
         c("#FFF5F0","#FEE0D2","#FCBBA1","#FC9272","#FB6A4A","#EF3B2C","#CB181D","#A50F15","#67000D"),
@@ -1514,13 +1518,17 @@ vtree <- function (
         c("#FFF7FB","#ECE2F0","#D0D1E6","#A6BDDB","#67A9CF","#3690C0","#02818A","#016C59","#014636"),
         c("#F7FCFD","#E0ECF4","#BFD3E6","#9EBCDA","#8C96C6","#8C6BB1","#88419D","#810F7C","#4D004B"),
         c("#FFFFCC","#FFEDA0","#FED976","#FEB24C","#FD8D3C","#FC4E2A","#E31A1C","#BD0026","#800026"),
-        c("#D73027","#F46D43","#FDAE61","#FEE08B","#FFFFBF","#D9EF8B","#A6D96A","#66BD63","#1A9850"),
         c("#F7FCF0","#E0F3DB","#CCEBC5","#A8DDB5","#7BCCC4","#4EB3D3","#2B8CBE","#0868AC","#084081"),
         c("#FFFFD9","#EDF8B1","#C7E9B4","#7FCDBB","#41B6C4","#1D91C0","#225EA8","#253494","#081D58"),
         c("#FFF7F3","#FDE0DD","#FCC5C0","#FA9FB5","#F768A1","#DD3497","#AE017E","#7A0177","#49006A"),
         c("#F7FCFD","#E5F5F9","#CCECE6","#99D8C9","#66C2A4","#41AE76","#238B45","#006D2C","#00441B"),
-        c("#FFF7EC","#FEE8C8","#FDD49E","#FDBB84","#FC8D59","#EF6548","#D7301F","#B30000","#7F0000")
-    ))
+        c("#FFF7EC","#FEE8C8","#FDD49E","#FDBB84","#FC8D59","#EF6548","#D7301F","#B30000","#7F0000"),
+        c("#FFFFFF","#F0F0F0","#D9D9D9","#BDBDBD","#969696","#737373","#525252","#252525","#000000")
+      ))
+    
+    # *************************************************************************
+    # End: Color palettes ----
+    # *************************************************************************    
     
     # Now add some single-shade palettes
     #
@@ -2205,6 +2213,11 @@ vtree <- function (
     showPCT <- showpct[vars[1]]
   }
   
+  
+  # *************************************************************************
+  # Call buildCanopy  ----
+  # *************************************************************************
+  
   fc <- buildCanopy(zvalue, root = root, novars=novars, title = title, parent = parent,
     var=vars[[1]],
     last = last, labels = labelnode[[vars[1]]], tlabelnode=tlabelnode, labelvar = labelvar[vars[1]],
@@ -2320,7 +2333,12 @@ vtree <- function (
   tfollowlevels <- NULL
   tprunebelowlevels <- NULL
   
-  for (varlevel in fc$levels) {  # Loop over variable levels
+  
+  # *************************************************************************
+  # Begin: Loop over variable levels  ----
+  # *************************************************************************
+  
+  for (varlevel in fc$levels) { 
     
     # message("CurrentVar ",CurrentVar,"  varlevel ",varlevel)
     
@@ -2517,16 +2535,20 @@ vtree <- function (
           fillcolor = fillcolor, splitwidth = splitwidth,
           HTMLtext=HTMLtext,
           vp = vp, rounded = rounded, just=just, justtext=justtext, verbose=verbose)
-        # tree[[vars[1]]][[varlevel]] <- c(tree[[vars[1]]][[varlevel]],.subset=list(subsetselect))
         if (!is.null(fcChild$tree)){
           tree[[vars[1]]][[varlevel]] <- c(tree[[vars[1]]][[varlevel]],fcChild$tree)
         }
         fc <- joinflow(fc,fcChild)
       }
     }
-  } # end loop over variable levels
+  }
   fc$tree <- tree
 
+  # *************************************************************************
+  # End: Loop over variable levels  ----
+  # *************************************************************************
+  
+  
   if (length(fc$nodenum) == 0) {
       #cat("Setting fc to NULL\n")
       fc <- NULL
@@ -2534,6 +2556,10 @@ vtree <- function (
 
   # If desired, show variable levels and legend
 
+  # *************************************************************************
+  # Begin: Special steps at initial (root) call  ----
+  # *************************************************************************  
+  
   if (root) {
     if (showvarnames) {
       # Special case for check.is.na
