@@ -582,6 +582,7 @@ vtree <- function (
       convertToHTML(x,just=just)
     }
   }
+  
   makeHTMLnames <- function(x) {
     if (is.list(x)) {
       x <- lapply(x,
@@ -605,7 +606,7 @@ vtree <- function (
   novars <- FALSE
   
   if (missing(z)) z <- data
-
+  
   # *************************************************************************
   # Begin code for root only ----
   # *************************************************************************
@@ -726,7 +727,7 @@ vtree <- function (
     }
      
     # *************************************************************************
-    # Begin: Variable specifications ----
+    ## Begin: Variable specifications ----
     # *************************************************************************
     
     #
@@ -897,7 +898,7 @@ vtree <- function (
   
       
       #
-      # >> Process complex variable name specification ----
+      # Process complex variable name specification
       # including REDCap variables, intersections, and wildcards
       #
       # Uses the same regular expression as for variable specifications,
@@ -1326,7 +1327,7 @@ vtree <- function (
     }  
     
     # *************************************************************************
-    # End: Summaries  ----
+    # End: Summaries ----
     # *************************************************************************
     
 
@@ -1529,17 +1530,6 @@ vtree <- function (
     # *************************************************************************
     # End: Color palettes ----
     # *************************************************************************    
-    
-    # Now add some single-shade palettes
-    #
-    # for (i in seq_len(length(col))) {
-    #   singles <- c(
-    #     "#FFFFFF","#CCCCCC","#FFCC00","#CC99FF","#6699CC","#33CCFF",
-    #     "#FF9933","#CCFFCC","#FFCCCC","#99CC99","#99CCCC") 
-    #   for (this in singles) {
-    #     col[[i]] <- rbind(col[[i]],rep(this,i))
-    #   }
-    # }
     
     # Duplicate the color gradients 3 times to allow for huge trees.
     for (i in seq_len(length(col))) {
@@ -2086,7 +2076,6 @@ vtree <- function (
     
   }
 
-  
   # *************************************************************************
   # End code for root only ----
   # *************************************************************************
@@ -2246,7 +2235,7 @@ vtree <- function (
   }
   if (vars[[1]]!="") {
     if (root) {
-      tree <- list(.n=nrow(z),.pct=100) # ,.subset=subset)
+      tree <- list(.n=nrow(z),.pct=100)
     } else {
       tree <- list()
     }
@@ -2340,8 +2329,6 @@ vtree <- function (
   
   for (varlevel in fc$levels) { 
     
-    # message("CurrentVar ",CurrentVar,"  varlevel ",varlevel)
-    
     if (tfollow_this_var) {
       for (j in seq_len(length(tfollow))) {
         tfollowlevels <- c(tfollowlevels,unlist(tfollow[[j]][names(tfollow[[j]])==CurrentVar]))
@@ -2355,7 +2342,7 @@ vtree <- function (
     }
     
     
-  # Targetted node tracking  ----
+  ## Targetted node tracking  ----
     
     TTEXT <- ttext
     j <- 1
@@ -2499,7 +2486,6 @@ vtree <- function (
       }
       if (length(select)>0 & numvars>=1) {
         zselect <- z[select, , drop = FALSE]
-        # subsetselect <- subset[select]
         for (index in seq_len(ncol(zselect))) {
           attr(zselect[[index]],"label") <- attr(z[[index]],"label")
         }
@@ -2554,225 +2540,28 @@ vtree <- function (
       fc <- NULL
   }
 
-  # If desired, show variable levels and legend
-
+  
   # *************************************************************************
-  # Begin: Special steps at initial (root) call  ----
+  # Begin code for root call only  ----
   # *************************************************************************  
   
   if (root) {
-    if (showvarnames) {
-      # Special case for check.is.na
-      if (check.is.na) {
-        VARS <- OLDVARS
-      } else {
-        VARS <- vars
-      }
-      if (!is.null(labelvar)) {
-          for (i in 1:numvars) {
-            if (!is.na(labelvar[vars[i]])) {
-              VARS[i] <- labelvar[vars[i]]
-            }
-          }
-      }
 
-      if (!HTMLtext) {
-        VARS <- splitlines(VARS,width=vsplitwidth,sp='\n',at = c(" ", ".", "-", "+", "_", "=", "/"))
-        VARS <- convertToHTML(VARS,just=just)
-      }
-
-      if (colorvarlabels) {
-        if (varnamebold) {
-          colored_VARS <- paste0('<FONT COLOR="',varlabelcolors,'">',"<B>",VARS,'  </B>','</FONT>')
-        } else {
-          colored_VARS <- paste0('<FONT COLOR="',varlabelcolors,'">',VARS,'</FONT>')
-        }
-      } else {
-        colored_VARS <- VARS
-      }
-      colored_VARS <- paste0('<FONT POINT-SIZE="',varnamepointsize,'">',colored_VARS,'</FONT>')
-      marginalText <- rep("",numvars)
-      
-      #-------------------------------------------------------------------------
-      # Begin: Legend stuff  ----
-      #-V------------------------------V--------------------------------------V-
-      
-      if (showroot) {
-        NL <- "Node_L0_0 [style=invisible]\n"
-      } else {
-        NL <- ""
-      }
-      
-      if (rounded) {
-        styleString <- ' style="rounded,filled"'
-      } else {
-        styleString <- ' style=filled'
-      }
-      
-      for (i in seq_len(numvars)) {
-        thisvarname <- vars[i]
-        thisvar <- z[[thisvarname]]
-        if (is.logical(thisvar)) {
-          thisvar <- factor(thisvar, c("FALSE", "TRUE"))
-        }
-        categoryCounts <- table(thisvar,exclude=NULL)
-
-        if (Venn) {
-          names(categoryCounts)[which(names(categoryCounts)=="1" | names(categoryCounts)=="TRUE")] <- "Yes"
-          names(categoryCounts)[which(names(categoryCounts)=="0" | names(categoryCounts)=="FALSE")] <- "No"
-        }
-
-        names(categoryCounts)[is.na(names(categoryCounts))] <- "NA"
-
-        if (vp & any(is.na(thisvar))) {
-          cc <- categoryCounts
-          cc <- cc[names(cc)!="NA"]
-          if (length(cc)>0) {
-            if (showlpct) {
-              npctString <- paste0(cc," (",
-                around(100*cc/sum(cc),digits),"%)")
-            } else {
-              npctString <- cc
-            }
-          } else {
-            npctString <- NULL
-          }
-          npctString <- c(npctString,categoryCounts["NA"])
-        } else {
-          if (showlpct) {
-            npctString <- paste0(categoryCounts," (",
-              around(100*categoryCounts/length(thisvar),digits),"%)")
-          } else {
-            npctString <- categoryCounts
-          }
-        }
-        
-        CAT <- names(categoryCounts)
-
-        # Relabel the nodes if labels have been specified
-        labels <- labelnode[[thisvarname]]
-        for (label in labels) {
-          if (label %in% CAT) {
-            m <- match(label,CAT)
-            CAT[m] <- names(labels)[labels==label]
-          }
-        }
-        
-        
-        labels <- paste0(
-          'label=<',
-          colored_VARS[i],
-          '>')        
-        
-        nlheading <- paste0("Node_L",i,"_0",
-         '[',
-         labels,
-          ' shape=none margin=0]',collapse = '\n')
-        
-        FILLCOLOR <- fillcolor[[thisvarname]][seq_len(length(categoryCounts))]
-
-        if (HTMLtext) {
-          displayCAT <- splitlines(CAT,width=splitwidth,sp="<BR/>",at=" ")
-        } else {
-          displayCAT <- splitlines(CAT,width=splitwidth,sp="\n",at = c(" ", ".", "-", "+", "_", "=", "/"))
-        }      
-        
-        if (HTMLtext) {
-          displayCAT <- displayCAT
-        } else {
-          displayCAT <- convertToHTML(displayCAT,just=just)
-        }
-        
-        legendlabel <- paste0(displayCAT,", ",npctString)
-       
-        ThisLayerText <- rep("",length(legendlabel)) 
-        
-        if (showlegendsum) {
-          if (!is.null(nodefunc)) {
-            if (numvars == 1)
-              nodeargs$leaf <- TRUE
-            ThisLayerText <- c()
-            current_var <- as.character(thisvar)
-            current_var[is.na(current_var)] <- "NA"
-            summarytext <- vector("list",length=length(CAT))
-            names(summarytext) <- CAT
-            for (value in displayCAT) {
-              df_subset <- z[current_var == value,,drop=FALSE]
-              summarytext[[value]] <- nodefunc(df_subset, vars[i], value, args = nodeargs)
-              nodetext <- paste0(summarytext[[value]],collapse="")
-              nodetext <- splitlines(nodetext, width = splitwidth, sp = sepN, at=" ")
-              ThisLayerText <- c(ThisLayerText, paste0(nodetext,sepN))
-            }
-          }
-        }
-        
-        extendedlegendlabel <- paste0(legendlabel,convertToHTML(ThisLayerText,just=just))
-
-        
-        labels <- paste0(
-          'label=<<FONT POINT-SIZE="',legendpointsize,'">',
-          extendedlegendlabel,
-          '</FONT>>')        
-        
-        if (!horiz) {
-          labels <- rev(labels)
-          FILLCOLOR <- rev(FILLCOLOR)
-        }
-        
-        rgb <- grDevices::col2rgb(FILLCOLOR)
-        red <- rgb["red",]; green <- rgb["green",]; blue <- rgb["blue",]
-        FONTCOLOR <- ifelse((red*0.299 + green*0.587 + blue*0.114) > 186,"#000000","#ffffff")    
-        nl <- paste0("Node_L",i,"_",seq_len(length(categoryCounts)),
-          '[',
-          labels,
-          ' fontcolor=<',FONTCOLOR,'>', 
-          ' color=',color[i+1],' ',
-          styleString,
-          ' fillcolor=<',FILLCOLOR,'> height=0]',
-          collapse = '\n')
-        
-        nl_allnodes <- paste0("Node_L",i,"_",seq(0,length(categoryCounts)),collapse=" ")
-        
-
-        if (showlegend) {
-          nl <- paste0(
-            "subgraph cluster_",i," {\n",
-            "style=rounded\n",
-            "color=<#bdbdbd>\n",
-            "{rank=same"," ",nl_allnodes,"}\n",
-            nlheading,
-            "\n",
-            nl,
-            "\n}\n",
-            paste0("Node_L",i-1,"_0 -> Node_L",i,"_0 [style=invisible arrowhead=none]\n"))
-          if ((pattern | check.is.na) && i==1) {
-            nl <- "Node_L1_0[style=invisible arrowhead=none]\n"
-          }
-        } else {
-          link <- paste0("Node_L",i-1,"_0 -> Node_L",i,"_0 [style=invisible arrowhead=none]\n")
-          if (i==1 & !showroot) link <- ""
-          nl <- paste0(
-            nlheading,
-            "\n",
-            link)
-        }
-        NL <- paste0(NL,"\n",nl)
-        
-      #-^------------------------------^--------------------------------------^-
-      # End: Legend stuff  ----
-      #-------------------------------------------------------------------------
-          
-      }
-      
-    }
-    else {
-      NL <- ''
-    }
+    NL <- labelsAndLegends(z=z,OLDVARS=OLDVARS,vars=vars,labelvar=labelvar,
+      HTMLtext=HTMLtext,vsplitwidth=vsplitwidth,just=just,
+      colorvarlabels=colorvarlabels,varnamebold=varnamebold,
+      varlabelcolors=varlabelcolors,varnamepointsize=varnamepointsize,
+      showroot=showroot,rounded=rounded,numvars=numvars,Venn=Venn,
+      labelnode=labelnode,fillcolor=fillcolor,showlegendsum=showlegendsum,
+      splitwidth=splitwidth,nodefunc=nodefunc,nodeargs=nodeargs,
+      showvarnames=showvarnames,check.is.na=check.is.na,vp=vp,showlpct=showlpct,
+      digits=digits,legendpointsize=legendpointsize,horiz=horiz,color=color,
+      showlegend=showlegend,pattern=pattern,sepN=sepN)
     
     
-    #-^------------------------------^--------------------------------------^-
-    # Outputs  ----
-    #-------------------------------------------------------------------------   
+    # *************************************************************************
+    ## Outputs ----
+    # *************************************************************************   
     
     if (ptable) {
       pt <- patternTable[nrow(patternTable):1,]
@@ -2786,29 +2575,6 @@ vtree <- function (
         graphattr=graphattr,nodeattr=nodeattr,edgeattr=edgeattr)
       
       attributes(flowchart)$info <- tree
-      
-      #result <- paste(names(knitr::opts_knit$get()),knitr::opts_knit$get(),collapse="\n")
-      #output <- knitr::asis_output(result)
-      #attributes(output)$info <- tree
-      #return(output)          
-      
-      
-      # if (is.null(g)) {
-      #   return("NULL value")
-      # } else {
-      #   return(g)
-      # }
-      
-      #return(knitr::opts_knit$get())
-
-      #thing <- knitr::opts_knit$get('rmarkdown.pandoc.to')
-      
-      #result <- paste("\nTrying to get LaTeX output\n",
-      #  "\nthing =",thing,"\n",
-      #  "\nknitr::is_latex_output() =",knitr::is_latex_output(),"\n")
-      #output <- knitr::asis_output(result)
-      #attributes(output)$info <- tree
-      #return(output)             
       
       if (!imageFileOnly && 
         (getscript || !pngknit || (!isTRUE(getOption('knitr.in.progress')) && !as.if.knit))) {
@@ -2885,7 +2651,6 @@ vtree <- function (
         if (imageFileOnly && (!isTRUE(getOption('knitr.in.progress')) && !as.if.knit)) {
           return(invisible(NULL))
         } else {
-          # message("Right here")
           output <- knitr::include_graphics(fullpath)
           attributes(output)$info <- tree
           return(output)
@@ -2954,6 +2719,8 @@ vtree <- function (
   } else {
       fc
   }
+  
+  # The End ----
 }
 
 
