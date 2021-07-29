@@ -51,7 +51,10 @@ but note that extended variable specifications cannot be used in this case.}
 
 \item{showuniform}{Show variable even when it doesn't change?}
 
-\item{words}{A list of vectors of named values.}
+\item{words}{A list of named vectors of values.
+Used to build a variable tree 
+representing all permutations of these values.
+No counts will be shown.}
 
 \item{horiz}{Should the tree be drawn horizontally?
 (i.e. root node on the left, with the tree growing to the right)}
@@ -73,7 +76,7 @@ show percentages of the total number of observations.}
 \item{prune, keep, prunebelow, follow}{List of named vectors that specify pruning.
 (see \strong{Pruning} below)}
 
-\item{tprune, tkeep, tprunebelow, tfollow}{List of named vectors that specify "targetted" pruning.
+\item{tprune, tkeep, tprunebelow, tfollow}{List of lists of named vectors that specify "targeted" pruning.
 (see \strong{Pruning} below)}
 
 \item{prunesmaller}{Prune any nodes with count less than specified number.}
@@ -446,10 +449,10 @@ Each vector specifies nodes of a variable.
   \item \code{prunebelow}: which nodes should have their descendants pruned.
   \item \code{follow}: which nodes should \emph{not} have their descendants pruned.
 }
-The \code{tprune} parameter specifies "targetted" pruning.
+The \code{tprune} parameter specifies "targeted" pruning.
 Standard pruning removes all nodes with the specified value of the specified variable.
-The \code{tprune} parameter specifies a particular path from the root of the tree
-down to the specific node.
+The \code{tprune} parameter specifies one or more particular paths from the root of the tree
+down to a node to be pruned.
 }
 
 \section{Displaying summary information}{

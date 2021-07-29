@@ -74,6 +74,14 @@ df <- build.data.frame(
 `r spaces(30)`
 `r vtree(df,"continent population landlocked",showroot=FALSE,pxwidth=800,
   imageheight="3in")`
+  
+By default, vtree uses the colorful display above (to help distinguish variables and values),
+but if you prefer a more sedate version,
+you can specify a single fill color (or simply white):
+
+`r spaces(30)`
+`r vtree(df,"continent population landlocked",showroot=FALSE,fillcolor="aliceblue",
+  pxwidth=800,imageheight="3in")`
 
 Even in simple situations like this,
 it can be a chore to keep track of nested subsets and
@@ -543,7 +551,7 @@ The complement of `prunebelow` is `follow`.
 Instead of specifying which nodes should be pruned below,
 this allows you to specify which nodes should be "followed" (that is, *not* pruned below).
 
-### Targetted pruning
+### Targeted pruning
 
 This section describes a more flexible way to prune variable trees.
 To explain this,
@@ -559,7 +567,7 @@ This is called *targeted* pruning, and the parameters
 However, their arguments have a more complex form than those of the corresponding
 `prune`, `keep`, `prunebelow`, and `follow` parameters
 because they specify the *full path* from the
-root of the tree down to the nodes to be pruned.
+root of the tree all the way to the nodes to be pruned.
 For example to remove every `Severity` node except Moderate,
 but only for males, the following command can be used:
 
@@ -1232,11 +1240,11 @@ The final element of each character string vector is a summary string,
 with the same structure as \code{summary}.
 
 ```{r,eval=FALSE}
-vtree(FakeData,"Age Sex",tsummary=list(c(Age="5",Sex="M","id \n%list%")))
+vtree(FakeData,"Age Sex",tsummary=list(list(Age="5",Sex="M","id \n%list%")),horiz=FALSE)
 ```
 
-`r vtree(FakeData,"Age Sex",tsummary=list(c(Age="5",Sex="M","id \n%list%")),
-pxwidth=1400,imageheight="1.6in")`
+`r vtree(FakeData,"Age Sex",tsummary=list(list(Age="5",Sex="M","id \n%list%")),horiz=FALSE,
+pxwidth=1400,imageheight="2.3in")`
 
 
 
@@ -1655,12 +1663,13 @@ structured information about the counts and percentages in each node.
 Here is an example:
 
 ```{r,echo=TRUE,message=FALSE,eval=FALSE}
-v <- vtree(FakeData,"Group Viral")
+v <- vtree(FakeData,"Group Viral",horiz=FALSE)
 v
 ```
 
+`r spaces(30)`
 ```{r,echo=FALSE,message=FALSE}
-v <- vtree(FakeData,"Group Viral",pxwidth=300,imageheight="2.5in")
+v <- vtree(FakeData,"Group Viral",pxwidth=800,imageheight="2in",horiz=FALSE)
 v
 ```
 

@@ -50,13 +50,16 @@ NULL
 #'                         
 #' @param showuniform      Show variable even when it doesn't change?
 #'
-#' @param words            A list of vectors of named values.
+#' @param words            A list of named vectors of values.
+#'                         Used to build a variable tree 
+#'                         representing all permutations of these values.
+#'                         No counts will be shown.
 #'                                                                           
 #' @param prune,keep,prunebelow,follow
 #'                         List of named vectors that specify pruning.
 #'                          (see \strong{Pruning} below)
 #' @param tprune,tkeep,tprunebelow,tfollow
-#'                         List of named vectors that specify "targetted" pruning.
+#'                         List of lists of named vectors that specify "targeted" pruning.
 #'                          (see \strong{Pruning} below)
 #'                          
 #' @param prunesmaller     Prune any nodes with count less than specified number.
@@ -399,10 +402,10 @@ NULL
 #'   \item \code{prunebelow}: which nodes should have their descendants pruned.
 #'   \item \code{follow}: which nodes should \emph{not} have their descendants pruned.
 #' }
-#' The \code{tprune} parameter specifies "targetted" pruning.
+#' The \code{tprune} parameter specifies "targeted" pruning.
 #' Standard pruning removes all nodes with the specified value of the specified variable.
-#' The \code{tprune} parameter specifies a particular path from the root of the tree
-#' down to the specific node.
+#' The \code{tprune} parameter specifies one or more particular paths from the root of the tree
+#' down to a node to be pruned.
 #'
 #' @section Displaying summary information:
 #' The \code{summary} parameter allows you to specify information to display
@@ -620,12 +623,60 @@ vtree <- function (
       data <- expand.grid(words)
       z <- data
       vars <- names(words)
-    }
+    }    
     
+    # *************************************************************************
+    ## Begin: Check arguments  ----
+    # *************************************************************************
+
     if (!is.data.frame(z)) { 
-      stop("Not a data frame.")
+      stop("The argument of data must be a data frame.")
+    }
+    if (!missing(words) && !is.list(words)) {
+      stop("The argument of words must be a list.")
+    }
+    if (!is.logical(splitspaces)) {
+      stop("The argument of splitspaces must be TRUE or FALSE")
+    }
+    if (!missing(labelnode) && !is.list(labelnode)) {
+      stop("The argument of labelnode must be a list.")
+    }
+    if (!missing(tlabelnode) && !is.list(tlabelnode)) {
+      stop("The argument of tlabelnode must be a list.")
+    }
+    if (length(prune)>0 && (!is.list(prune) || is.null(names(prune)))) {
+      stop("The argument of prune should be a named list.")
+    }
+    if (!missing(tprune) && !is.list(tprune)) {
+      stop("The argument of tprune should be a list of lists.")
+    }
+    if (!missing(tkeep) && !is.list(tkeep)) {
+      stop("The argument of tkeep should be a list of lists.")
+    }  
+    if (!missing(tfollow) && !is.list(tfollow)) {
+      stop("The argument of tfollow should be a list of lists.")
+    }        
+    if (!missing(tprunebelow) && !is.list(tprunebelow)) { 
+        stop("The argument of tprunebelow should be a list of lists.")
+    }
+    if (!missing(tsummary) && (!is.list(tsummary))) {
+      stop("The argument of tsummary should be a list")
+    }
+    if (length(prunebelow)>0 && (!is.list(prunebelow) || is.null(names(prunebelow)))) {
+      stop("The argument of prunebelow should be a named list.")
+    }    
+    if (length(follow)>0 && (!is.list(follow) || is.null(names(follow)))) {
+      stop("The argument of follow should be a named list.")
+    }
+    if (length(keep)>0 && (!is.list(keep) || is.null(names(keep)))) {
+      stop("The argument of keep should be a named list.")
     }
     
+    # *************************************************************************
+    # End: Check arguments  ----
+    # *************************************************************************
+    
+ 
     unknowncolor <- "pink"
 
     argname <- sapply(as.list(substitute({data})[-1]), deparse)
@@ -655,8 +706,7 @@ vtree <- function (
     # End of section about deprecated parameters
     #
     
-    # Check some inputs
-    if (!is.logical(splitspaces)) stop("splitspaces must be TRUE or FALSE")
+
     
     if (is.null(justtext)) justtext <- just
     
@@ -727,7 +777,7 @@ vtree <- function (
     }
      
     # *************************************************************************
-    ## Begin: Variable specifications ----
+    # Begin: Variable specifications ----
     # *************************************************************************
     
     #
@@ -1151,7 +1201,6 @@ vtree <- function (
                       }                      
                       z[[choice]] <- z[[matching_vars[j]]]
                     } else {
-                      #stop("Could not find value of REDCap checklist item in variable specification")
                       choice <- matching_vars[j]
                     }
                     expandedvars <- c(expandedvars,choice)
@@ -1556,7 +1605,7 @@ vtree <- function (
       }
     }
     
-    # Check that all of named variables are in the data frame
+    # Check that all of the named variables are in the data frame
     if (novars) ALLVARS <- ALLVARS[ALLVARS!=""]
     findallvars <- ALLVARS %in% names(z)
     if (any(!findallvars)) {
@@ -1585,9 +1634,7 @@ vtree <- function (
         labelvar <- splitlines(labelvar, splitwidth, sp = sepN, at = c(" ", ".", "-", "+", "_", "=", "/"))
         names(labelvar) <- namesvarheaders
     }
-
-    if (!missing(labelnode) && !is.list(labelnode)) stop("labelnode must be a list.")
-
+    
     if (length(labelnode) > 0) {
       for (i in seq_len(length(labelnode))) {
         names(labelnode[[i]]) <- splitlines(names(labelnode[[i]]),splitwidth,sp =sepN, at=" ")
@@ -1609,6 +1656,10 @@ vtree <- function (
       }
       vars <- NEWVARS
     }
+    
+    # *************************************************************************
+    # Begin: Process patterns  ----
+    # *************************************************************************    
     
     if (pattern | seq) {
       if (missing(showroot)) showroot <- FALSE
@@ -1718,7 +1769,10 @@ vtree <- function (
       }
     }
     
-
+    # *************************************************************************
+    # End: Process patterns  ----
+    # *************************************************************************    
+    
     if (is.null(names(gradient))) {
       gradient <- rep(gradient[1],numvars)
       names(gradient) <- vars
@@ -1907,10 +1961,12 @@ vtree <- function (
       }
     }
 
-    # Assign colors
+    # *************************************************************************
+    # Begin: Assign colors  ----
+    # *************************************************************************    
     if (!plain) {
-      FC <- vector("list",numvars)
-      names(FC) <- vars
+      FILLCOLOR <- vector("list",numvars)
+      names(FILLCOLOR) <- vars
       numPalettes <- nrow(col[[1]])
       for (i in seq_len(numvars)) {
         if (tri.variable[i]) {
@@ -1994,28 +2050,31 @@ vtree <- function (
           }
         }
         names(valuecolors) <- values
-        FC[[vars[i]]] <- valuecolors
+        FILLCOLOR[[vars[i]]] <- valuecolors
       }
-      fillcolor <- FC
+      fillcolor <- FILLCOLOR
       colorIndex <- rep(1:numPalettes,length.out=numvars)
       names(varlabelcolors) <- vars
       if (check.is.na) {
         names(varlabelcolors) <- OLDVARS
       }
     }
+    # *************************************************************************
+    # End: Assign colors  ----
+    # *************************************************************************        
     
     # If fillcolor isn't a list, create a list
     if (!is.list(fillcolor)) {
-      FC <- vector("list",numvars)
-      names(FC) <- vars
+      FILLCOLOR <- vector("list",numvars)
+      names(FILLCOLOR) <- vars
       for (i in seq_len(length(vars))) {
         values <- names(table(z[[vars[i]]],exclude=NULL))
         values[is.na(values)] <- "NA"
         valuecolors <- rep(fillcolor[i],length(values))
         names(valuecolors) <- values
-        FC[[vars[i]]] <- valuecolors
+        FILLCOLOR[[vars[i]]] <- valuecolors
       }
-      fillcolor <- FC
+      fillcolor <- FILLCOLOR
     }
     
     z_names <- names(z)
@@ -2055,23 +2114,6 @@ vtree <- function (
     if (verbose && any(!findvars)) {
       message("The following variables named in keep were not found in vars: ",
         paste(names(keep)[!findvars], collapse = ", "))
-    }
-    
-  
-    if (length(prune)>0 && (!is.list(prune) || is.null(names(prune)))) {
-      stop("The argument of prune should be a named list.")
-    }
-    
-    if (length(prunebelow)>0 && (!is.list(prunebelow) || is.null(names(prunebelow)))) {
-      stop("The argument of prunebelow should be a named list.")
-    }    
-    
-    if (length(follow)>0 && (!is.list(follow) || is.null(names(follow)))) {
-      stop("The argument of follow should be a named list.")
-    }
-    
-    if (length(keep)>0 && (!is.list(keep) || is.null(names(keep)))) {
-      stop("The argument of keep should be a named list.")
     }
     
   }
@@ -2128,6 +2170,9 @@ vtree <- function (
   # Process summaries to include in nodes  ----
   
   if (any(tsummaryLen==2)) {
+    #
+    # Prepare targeted summaries
+    #
     for (i in seq_len(length(tsummary))) {
       if (tsummaryLen[i]==2) {
         if (numvars == 1)
@@ -2159,6 +2204,9 @@ vtree <- function (
     }
   } else
   if (is.null(tsummary) & !is.null(nodefunc)) {
+    #
+    # Prepare non-targeted summaries
+    #    
     if (numvars == 1)
         nodeargs$leaf <- TRUE
     summarytext <- vector("list",length=length(CAT))
@@ -2204,10 +2252,10 @@ vtree <- function (
   
   
   # *************************************************************************
-  # Call buildCanopy  ----
+  # Build a canopy ----
   # *************************************************************************
   
-  fc <- buildCanopy(zvalue, root = root, novars=novars, title = title, parent = parent,
+  tree <- buildCanopy(zvalue, root = root, novars=novars, title = title, parent = parent,
     var=vars[[1]],
     last = last, labels = labelnode[[vars[1]]], tlabelnode=tlabelnode, labelvar = labelvar[vars[1]],
     varminwidth=varminwidth[vars[1]],varminheight=varminheight[vars[1]],varlabelloc=varlabelloc[vars[1]],
@@ -2230,27 +2278,27 @@ vtree <- function (
     color = color[2], topfillcolor = rootfillcolor, fillcolor = fillcolor[[vars[1]]],
     vp = vp, rounded = rounded, just=just, justtext=justtext, showroot=showroot,verbose=verbose,sortfill=sortfill)
 
-  if (root){
-    tree <- list(.n=nrow(z),.pct=100)
+  if (root) {
+    treedata <- list(.n=nrow(z),.pct=100)
   }
   if (vars[[1]]!="") {
     if (root) {
-      tree <- list(.n=nrow(z),.pct=100)
+      treedata <- list(.n=nrow(z),.pct=100)
     } else {
-      tree <- list()
+      treedata <- list()
     }
     children <- list()
-    for (i in seq_len(length(fc$value))) {
-      if (fc$extraText[i]!="") {
-        children[[fc$value[i]]] <- list(.n=fc$n[i],.pct=fc$pct[i],.text=fc$extraText[i])
+    for (i in seq_len(length(tree$value))) {
+      if (tree$extraText[i]!="") {
+        children[[tree$value[i]]] <- list(.n=tree$n[i],.pct=tree$pct[i],.text=tree$extraText[i])
       } else  {
-         children[[fc$value[i]]] <- list(.n=fc$n[i],.pct=fc$pct[i])
+         children[[tree$value[i]]] <- list(.n=tree$n[i],.pct=tree$pct[i])
       }        
     }
-    tree[[vars[1]]] <- children
+    treedata[[vars[1]]] <- children
   }
 
-  if (length(fc$nodenum)>0 && fc$nodenum[length(fc$nodenum)]>maxNodes) {
+  if (length(tree$nodenum)>0 && tree$nodenum[length(tree$nodenum)]>maxNodes) {
     stop(
       "Too many nodes. ",
       "Specify different variables ",
@@ -2268,8 +2316,8 @@ vtree <- function (
       }
     }
     if (vars[1]=="pattern" | vars[1]=="sequence") {
-      patternTable <- data.frame(n=fc$n,pct=fc$pct,
-        PATTERN_values[seq_len(length(fc$n)),],check.names=FALSE)
+      patternTable <- data.frame(n=tree$n,pct=tree$pct,
+        PATTERN_values[seq_len(length(tree$n)),],check.names=FALSE)
       if (length(summarytext)>0) {
         numsum <- max(sapply(summarytext,length))
         for (j in 1:numsum) {
@@ -2317,7 +2365,6 @@ vtree <- function (
     }
   }  
   
-  i <- 0
   
   tfollowlevels <- NULL
   tprunebelowlevels <- NULL
@@ -2326,8 +2373,11 @@ vtree <- function (
   # *************************************************************************
   # Begin: Loop over variable levels  ----
   # *************************************************************************
-  
-  for (varlevel in fc$levels) { 
+
+  varlevelindex <- 0
+  for (varlevel in tree$levels) { 
+
+    varlevelindex <- varlevelindex + 1
     
     if (tfollow_this_var) {
       for (j in seq_len(length(tfollow))) {
@@ -2342,7 +2392,9 @@ vtree <- function (
     }
     
     
-  ## Targetted node tracking  ----
+    # *************************************************************************
+    ## Begin: Tracking of targeted nodes ----
+    # *************************************************************************    
     
     TTEXT <- ttext
     j <- 1
@@ -2471,7 +2523,12 @@ vtree <- function (
       prunebelowlevels <- tprunebelowlevels
     }    
     
-    i <- i + 1
+    # *************************************************************************
+    # End: Tracking of targeted nodes ----
+    # *************************************************************************    
+
+
+   
     condition_to_follow <- 
       !(varlevel %in% prunebelowlevels) & 
       (is.null(followlevels) | (varlevel %in% followlevels)) &
@@ -2489,8 +2546,12 @@ vtree <- function (
         for (index in seq_len(ncol(zselect))) {
           attr(zselect[[index]],"label") <- attr(z[[index]],"label")
         }
+        # *************************************************************************
+        # Recursive call to vtree  ----
+        # *************************************************************************                 
         fcChild <- vtree(data=zselect,
-          vars=vars[-1], auto=FALSE,parent = fc$nodenum[i], last = max(fc$nodenum),
+          vars=vars[-1], auto=FALSE,parent = tree$nodenum[varlevelindex],
+          last = max(tree$nodenum),
           labelnode = labelnode,
           tlabelnode = TLABELNODE,
           colorvarlabels=colorvarlabels,
@@ -2500,13 +2561,14 @@ vtree <- function (
           showpct=showpct,
           showcount=showcount,
           sameline=sameline, showempty = showempty,
-          root = FALSE, #subset=subsetselect,
+          root = FALSE,
           prune=prune, prunebelow = prunebelow, tprunebelow=TPRUNEBELOW,
           prunesmaller=prunesmaller,
           tprune=TPRUNE,
           tkeep=TKEEP,
           labelvar = labelvar,
-          varminwidth = varminwidth, varminheight = varminheight, varlabelloc=varlabelloc,
+          varminwidth = varminwidth, varminheight = varminheight,
+          varlabelloc=varlabelloc,
           prunelone=prunelone,
           nodefunc = nodefunc, nodeargs = nodeargs, digits = digits,
           showvarnames = showvarnames,
@@ -2520,24 +2582,25 @@ vtree <- function (
           colornodes = colornodes, color = color[-1], fillnodes = fillnodes,
           fillcolor = fillcolor, splitwidth = splitwidth,
           HTMLtext=HTMLtext,
-          vp = vp, rounded = rounded, just=just, justtext=justtext, verbose=verbose)
-        if (!is.null(fcChild$tree)){
-          tree[[vars[1]]][[varlevel]] <- c(tree[[vars[1]]][[varlevel]],fcChild$tree)
+          vp = vp, rounded = rounded, just=just, justtext=justtext,
+          verbose=verbose)
+        if (!is.null(fcChild$treedata)){
+          treedata[[vars[1]]][[varlevel]] <- 
+            c(treedata[[vars[1]]][[varlevel]],fcChild$treedata)
         }
-        fc <- joinflow(fc,fcChild)
+        tree <- joinflow(tree,fcChild)
       }
     }
   }
-  fc$tree <- tree
+  tree$treedata <- treedata
 
   # *************************************************************************
   # End: Loop over variable levels  ----
   # *************************************************************************
   
   
-  if (length(fc$nodenum) == 0) {
-      #cat("Setting fc to NULL\n")
-      fc <- NULL
+  if (length(tree$nodenum) == 0) {
+    tree <- NULL
   }
 
   
@@ -2569,12 +2632,13 @@ vtree <- function (
       pt
     } else {    
       if (novars) NL <- ""
-      flowchart <- showflow(fc, getscript = getscript, font = font, nodesep = nodesep,
+      flowchart <- showflow(tree, getscript = getscript, font = font,
+        nodesep = nodesep,
         ranksep=ranksep, margin=margin, nodelevels = NL, horiz = horiz,
         width=width,height=height,
         graphattr=graphattr,nodeattr=nodeattr,edgeattr=edgeattr)
       
-      attributes(flowchart)$info <- tree
+      attributes(flowchart)$info <- treedata
       
       if (!imageFileOnly && 
         (getscript || !pngknit || (!isTRUE(getOption('knitr.in.progress')) && !as.if.knit))) {
@@ -2652,7 +2716,7 @@ vtree <- function (
           return(invisible(NULL))
         } else {
           output <- knitr::include_graphics(fullpath)
-          attributes(output)$info <- tree
+          attributes(output)$info <- treedata
           return(output)
         }
       }
@@ -2712,12 +2776,12 @@ vtree <- function (
         return(invisible(NULL))
       } else {
         output <- knitr::asis_output(result)
-        attributes(output)$info <- tree
+        attributes(output)$info <- treedata
         output
       }
     }
   } else {
-      fc
+      tree
   }
   
   # The End ----
