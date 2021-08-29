@@ -1,21 +1,22 @@
 buildCanopy <- function(z,root=TRUE,novars=FALSE,title="",parent=1,last=1,labels=NULL,tlabelnode=NULL,HTMLtext=FALSE,
-var,
-check.is.na=FALSE,
-labelvar=NULL,
-varminwidth=NULL,varminheight=NULL,varlabelloc=NULL,
-showvarinnode=FALSE,shownodelabels=TRUE,sameline=FALSE,
-prune=NULL,
-tprune=NULL,
-prunelone=NULL,prunesmaller=NULL,
-keep=NULL,tkeep=NULL,
-text=NULL,ttext=NULL,TopText="",showempty=FALSE,digits=0,cdigits=2,
-showpct=TRUE,
-showrootcount=FALSE,
-showcount=TRUE,
-showvarnames=FALSE,
-pruneNA=FALSE,
-splitwidth=Inf,topcolor="black",color="blue",topfillcolor="olivedrab3",fillcolor="olivedrab2",
-vp=TRUE,rounded=FALSE,just="c",justtext=NULL,showroot=TRUE,verbose=FALSE,sortfill=FALSE) {
+  var,
+  check.is.na=FALSE,
+  labelvar=NULL,
+  varminwidth=NULL,varminheight=NULL,varlabelloc=NULL,
+  showvarinnode=FALSE,shownodelabels=TRUE,sameline=FALSE,
+  prune=NULL,
+  tprune=NULL,
+  prunelone=NULL,prunesmaller=NULL,
+  keep=NULL,tkeep=NULL,
+  text=NULL,ttext=NULL,TopText="",showempty=FALSE,digits=0,cdigits=2,
+  showpct=TRUE,
+  showrootcount=FALSE,
+  showcount=TRUE,
+  showvarnames=FALSE,
+  pruneNA=FALSE,
+  splitwidth=Inf,topcolor="black",color="blue",topfillcolor="olivedrab3",
+  fillcolor="olivedrab2",vp=TRUE,rounded=FALSE,just="c",justtext=NULL,thousands="",
+  showroot=TRUE,verbose=FALSE,sortfill=FALSE) {
 #
 # Write DOT code for a single-level {flow}chart of {cat}egories using the
 # DiagrammeR framework.
@@ -59,12 +60,11 @@ vp=TRUE,rounded=FALSE,just="c",justtext=NULL,showroot=TRUE,verbose=FALSE,sortfil
 
   if (vp & any(names(categoryCounts)=="NA")) { 
     cc <- categoryCounts[-1]
-    #cc <- cc[names(cc)!="NA"]
     if (length(cc)>0) {
       npctString <- rep("",length(cc))
       nString <- cc
       if (showcount) {
-        npctString <- cc
+        npctString <- format(cc,big.mark=thousands)
         #if (showpct) npctString <- paste0(npctString," ")
       }
       pctString <- ifelse(names(cc)=="NA","",around(100*cc/sampleSize,digits))
@@ -81,7 +81,7 @@ vp=TRUE,rounded=FALSE,just="c",justtext=NULL,showroot=TRUE,verbose=FALSE,sortfil
     nString <- categoryCounts[-1]
     if (showcount) {
       npctString <- categoryCounts[-1]
-      #if (showpct) npctString <- paste0(npctString," ")
+      npctString <- format(npctString,big.mark=thousands)      
     }
     pctString <- around(100*categoryCounts[-1]/length(z),digits)
     if (showpct) {
@@ -89,7 +89,7 @@ vp=TRUE,rounded=FALSE,just="c",justtext=NULL,showroot=TRUE,verbose=FALSE,sortfil
     }
   }
   
-  npctString <- c(length(z),npctString)
+  npctString <- c(format(length(z),big.mark=thousands),npctString)
   nString <- c(length(z),nString)
   pctString <- c("",pctString)
   

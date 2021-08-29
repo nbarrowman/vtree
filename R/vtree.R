@@ -251,6 +251,7 @@ NULL
 #' 
 #' @param just             Text justification ("l"=left, "c"=center, "r"=right).
 #' @param justtext         Like \code{just}, but only for extra text, like summaries.
+#' @param thousands        Thousands separator for big numbers.
 #' @param folder,format,imageFileOnly,pngknit
 #' Control image file generation.
 #' \code{folder}: a path to a folder where image file will be stored.
@@ -534,6 +535,7 @@ vtree <- function (
   choicechecklist = TRUE,
   just="c",
   justtext=NULL,
+  thousands="",
   folder=NULL,
   format="",
   imageFileOnly=FALSE,
@@ -1342,7 +1344,8 @@ vtree <- function (
       nodeargs <- list(
         var = summaryvars, value = summaryvalues, format = unlist(summaryformatlist),
         original_var=headings,
-        sf = runsummary, digits = digits, cdigits = cdigits, sepN=sepN)
+        sf = runsummary, digits = digits, cdigits = cdigits, sepN=sepN, 
+        thousands = thousands)
       
     } else
     if (!is.null(summary)) {
@@ -1371,7 +1374,8 @@ vtree <- function (
       nodeargs <- list(
         var = summaryvars, format = unlist(summaryformatlist),
         original_var=headings,
-        sf = runsummary, digits = digits, cdigits = cdigits, sepN=sepN)
+        sf = runsummary, digits = digits, cdigits = cdigits, sepN=sepN,
+        thousands = thousands)
       
     }  
     
@@ -2276,7 +2280,8 @@ vtree <- function (
     text = ThisLayerText, ttext=ttext,TopText = TopText, digits = digits, cdigits = cdigits,
     splitwidth = splitwidth, showempty = showempty, topcolor = color[1],
     color = color[2], topfillcolor = rootfillcolor, fillcolor = fillcolor[[vars[1]]],
-    vp = vp, rounded = rounded, just=just, justtext=justtext, showroot=showroot,verbose=verbose,sortfill=sortfill)
+    vp = vp, rounded = rounded, just=just, justtext=justtext, thousands=thousands, showroot=showroot,
+    verbose=verbose,sortfill=sortfill)
 
   if (root) {
     treedata <- list(.n=nrow(z),.pct=100)
@@ -2582,7 +2587,7 @@ vtree <- function (
           colornodes = colornodes, color = color[-1], fillnodes = fillnodes,
           fillcolor = fillcolor, splitwidth = splitwidth,
           HTMLtext=HTMLtext,
-          vp = vp, rounded = rounded, just=just, justtext=justtext,
+          vp = vp, rounded = rounded, just=just, justtext=justtext,thousands=thousands,
           verbose=verbose)
         if (!is.null(fcChild$treedata)){
           treedata[[vars[1]]][[varlevel]] <- 
