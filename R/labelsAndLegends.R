@@ -1,6 +1,6 @@
 labelsAndLegends <- function(z,OLDVARS,vars,labelvar,HTMLtext,vsplitwidth,just,colorvarlabels,
   varnamebold,varlabelcolors,varnamepointsize,showroot,rounded,numvars,Venn,labelnode,
-  fillcolor,showlegendsum,splitwidth,nodefunc,nodeargs,showvarnames,check.is.na,
+  fillcolor,showlegendsum,thousands,splitwidth,nodefunc,nodeargs,showvarnames,check.is.na,
   vp,showlpct,digits,legendpointsize,horiz,color,showlegend,pattern,sepN) {
   
   if (showvarnames) {
@@ -71,10 +71,13 @@ labelsAndLegends <- function(z,OLDVARS,vars,labelvar,HTMLtext,vsplitwidth,just,c
         cc <- cc[names(cc)!="NA"]
         if (length(cc)>0) {
           if (showlpct) {
-            npctString <- paste0(cc," (",
+            npctString <- paste0(
+              lapply(cc,function(x) format(x,big.mark=thousands)),
+              " (",
               around(100*cc/sum(cc),digits),"%)")
           } else {
-            npctString <- cc
+            npctString <- 
+              lapply(cc,function(x) format(x,big.mark=thousands))
           }
         } else {
           npctString <- NULL
@@ -82,10 +85,14 @@ labelsAndLegends <- function(z,OLDVARS,vars,labelvar,HTMLtext,vsplitwidth,just,c
         npctString <- c(npctString,categoryCounts["NA"])
       } else {
         if (showlpct) {
-          npctString <- paste0(categoryCounts," (",
+          #browser()
+          npctString <- paste0(
+            lapply(categoryCounts,function(x) format(x,big.mark=thousands)),
+            " (",
             around(100*categoryCounts/length(thisvar),digits),"%)")
         } else {
-          npctString <- categoryCounts
+          npctString <- 
+            lapply(categoryCounts,function(x) format(x,big.mark=thousands))
         }
       }
       

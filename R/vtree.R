@@ -2621,6 +2621,7 @@ vtree <- function (
       varlabelcolors=varlabelcolors,varnamepointsize=varnamepointsize,
       showroot=showroot,rounded=rounded,numvars=numvars,Venn=Venn,
       labelnode=labelnode,fillcolor=fillcolor,showlegendsum=showlegendsum,
+      thousands=thousands,
       splitwidth=splitwidth,nodefunc=nodefunc,nodeargs=nodeargs,
       showvarnames=showvarnames,check.is.na=check.is.na,vp=vp,showlpct=showlpct,
       digits=digits,legendpointsize=legendpointsize,horiz=horiz,color=color,

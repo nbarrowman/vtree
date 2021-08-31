@@ -25,18 +25,18 @@ vtree(data = NULL, vars, showuniform = TRUE, words = NULL,
   HTMLtext = FALSE, splitwidth = 20, vsplitwidth = 8,
   splitspaces = TRUE, getscript = FALSE, mincount = 1, maxcount,
   showempty = FALSE, choicechecklist = TRUE, just = "c",
-  justtext = NULL, folder = NULL, format = "", imageFileOnly = FALSE,
-  pngknit = TRUE, pxwidth = NULL, pxheight = NULL, imagewidth = "",
-  imageheight = "", width = NULL, height = NULL, maxNodes = 1000,
-  unchecked = c("0", "FALSE", "No", "no"), checked = c("1", "TRUE", "Yes",
-  "yes"), trim = NULL, rounded = TRUE, varminwidth = NULL,
-  varminheight = NULL, squeeze = 1, arrowhead = "normal",
-  nodesep = 0.5, ranksep = 0.5, margin = 0.2, graphattr = "",
-  nodeattr = "", edgeattr = "", nodefunc = NULL, nodeargs = NULL,
-  verbose = FALSE, runsummary = NULL, retain = NULL, auto = FALSE,
-  parent = 1, last = 1, root = TRUE, subset = 1:nrow(z),
-  as.if.knit = FALSE, prunelone = NULL, pruneNA = FALSE,
-  lsplitwidth = 15, showlevels = TRUE, z = NULL)
+  justtext = NULL, thousands = "", folder = NULL, format = "",
+  imageFileOnly = FALSE, pngknit = TRUE, pxwidth = NULL,
+  pxheight = NULL, imagewidth = "", imageheight = "", width = NULL,
+  height = NULL, maxNodes = 1000, unchecked = c("0", "FALSE", "No",
+  "no"), checked = c("1", "TRUE", "Yes", "yes"), trim = NULL,
+  rounded = TRUE, varminwidth = NULL, varminheight = NULL, squeeze = 1,
+  arrowhead = "normal", nodesep = 0.5, ranksep = 0.5, margin = 0.2,
+  graphattr = "", nodeattr = "", edgeattr = "", nodefunc = NULL,
+  nodeargs = NULL, verbose = FALSE, runsummary = NULL, retain = NULL,
+  auto = FALSE, parent = 1, last = 1, root = TRUE,
+  subset = 1:nrow(z), as.if.knit = FALSE, prunelone = NULL,
+  pruneNA = FALSE, lsplitwidth = 15, showlevels = TRUE, z = NULL)
 }
 \arguments{
 \item{data}{Required: Data frame, or a single vector.}
@@ -261,6 +261,8 @@ automatically extract the names of choices and use them as variable names?}
 \item{just}{Text justification ("l"=left, "c"=center, "r"=right).}
 
 \item{justtext}{Like \code{just}, but only for extra text, like summaries.}
+
+\item{thousands}{Thousands separator for big numbers.}
 
 \item{folder, format, imageFileOnly, pngknit}{Control image file generation.
 \code{folder}: a path to a folder where image file will be stored.
