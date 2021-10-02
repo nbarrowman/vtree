@@ -8,7 +8,13 @@ downloads](https://cranlogs.r-pkg.org/badges/grand-total/vtree)](https://cranlog
 
 *Variable trees are diagrams that display information about nested subsets of a data frame.*
 
-<img src="https://github.com/nbarrowman/vtree/blob/master/cheatsheets/png/v1.png" width="250">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/nbarrowman/vtree/blob/master/cheatsheets/png/t7.png" width="200">&nbsp;&nbsp;&nbsp;<img src="https://github.com/nbarrowman/vtree/blob/master/cheatsheets/png/t1.png" width="300">
+<p align="center">
+<img src="https://github.com/nbarrowman/vtree/blob/master/cheatsheets/png/v1.png" width="300">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="https://github.com/nbarrowman/vtree/blob/master/cheatsheets/png/t7.png" width="220">
+&nbsp;&nbsp;&nbsp;
+<img src="https://github.com/nbarrowman/vtree/blob/master/cheatsheets/png/t1.png" width="300">
+</p>
 
 # Installation
 
