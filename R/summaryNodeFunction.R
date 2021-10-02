@@ -492,7 +492,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
       }
 
       # Format %list% output
-      tabval <- tableWithoutSort(around(sort(y,na.last=TRUE),digits=digits,thousands=thousands),exclude=NULL)
+      tabval <- tableWithoutSort(around(sort(y,na.last=TRUE),digits=cdigits,thousands=thousands),exclude=NULL)
       countval <- paste0(" (n=",tabval,")")
       countval[tabval==1] <- ""
       listOutput <- paste0(paste0(names(tabval),countval),collapse=", ")

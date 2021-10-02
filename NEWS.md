@@ -1,3 +1,13 @@
+# vtree 5.4.6
+
+## Changes
+
+* Small changes to the vignette.
+
+* Added new parameter `thousands` to specify separator (such as ",") between thousands.
+
+* Fixed a small bug where the `%list%` summary option used `digits` rather than `cdigits`.
+
 # vtree 5.4.0
 
 ## Changes

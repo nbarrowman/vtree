@@ -631,9 +631,9 @@ vtree <- function (
     ## Begin: Check arguments  ----
     # *************************************************************************
 
-    if (!is.data.frame(z)) { 
-      stop("The argument of data must be a data frame.")
-    }
+    #if (!is.data.frame(z)) { 
+    #  stop("The argument of data must be a data frame.")
+    #}
     if (!missing(words) && !is.list(words)) {
       stop("The argument of words must be a list.")
     }
