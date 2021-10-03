@@ -250,9 +250,9 @@ which provides an interface to the
 [htmlwidgets](https://www.htmlwidgets.org/) framework.
 Additionally,
 vtree makes use of the
-[Shiny](https://rstudio.com/products/shiny/) package,
+[Shiny](https://www.rstudio.com/products/shiny/) package,
 and the
-[svg-pan-zoom](https://github.com/ariutta/svg-pan-zoom) JavaScript library.
+[svg-pan-zoom](https://github.com/bumbu/svg-pan-zoom) JavaScript library.
 
 A formal description of variable trees follows.
 
