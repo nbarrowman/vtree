@@ -1,27 +1,30 @@
-flowcat <- function(z,root=TRUE,novars=FALSE,title="",parent=1,last=1,labels=NULL,tlabelnode=NULL,HTMLtext=FALSE,
-var,
-check.is.na=FALSE,
-labelvar=NULL,
-varminwidth=NULL,varminheight=NULL,varlabelloc=NULL,
-showvarinnode=FALSE,shownodelabels=TRUE,sameline=FALSE,
-prune=NULL,
-prunelone=NULL,prunesmaller=NULL,
-keep=NULL,
-text=NULL,ttext=NULL,TopText="",showempty=FALSE,digits=0,cdigits=2,
-showpct=TRUE,
-showcount=TRUE,
-showvarnames=FALSE,
-pruneNA=FALSE,
-splitwidth=Inf,topcolor="black",color="blue",topfillcolor="olivedrab3",fillcolor="olivedrab2",
-vp=TRUE,rounded=FALSE,just="c",showroot=TRUE,verbose=FALSE,sortfill=FALSE) {
+buildCanopy <- function(z,root=TRUE,novars=FALSE,title="",parent=1,last=1,labels=NULL,tlabelnode=NULL,HTMLtext=FALSE,
+  var,
+  check.is.na=FALSE,
+  labelvar=NULL,
+  varminwidth=NULL,varminheight=NULL,varlabelloc=NULL,
+  showvarinnode=FALSE,shownodelabels=TRUE,sameline=FALSE,
+  prune=NULL,
+  tprune=NULL,
+  prunelone=NULL,prunesmaller=NULL,
+  keep=NULL,tkeep=NULL,
+  text=NULL,ttext=NULL,TopText="",showempty=FALSE,digits=0,cdigits=2,
+  showpct=TRUE,
+  showrootcount=FALSE,
+  showcount=TRUE,
+  showvarnames=FALSE,
+  pruneNA=FALSE,
+  splitwidth=Inf,topcolor="black",color="blue",topfillcolor="olivedrab3",
+  fillcolor="olivedrab2",vp=TRUE,rounded=FALSE,just="c",justtext=NULL,thousands="",
+  showroot=TRUE,verbose=FALSE,sortfill=FALSE) {
 #
 # Write DOT code for a single-level {flow}chart of {cat}egories using the
 # DiagrammeR framework.
 #
 # https://en.wikipedia.org/wiki/DOT_(graph_description_language)
 #
-
-    if (HTMLtext) {
+  
+  if (HTMLtext) {
     sepN <- "<BR/>"
   } else {
     sepN <- "\n"
@@ -57,12 +60,11 @@ vp=TRUE,rounded=FALSE,just="c",showroot=TRUE,verbose=FALSE,sortfill=FALSE) {
 
   if (vp & any(names(categoryCounts)=="NA")) { 
     cc <- categoryCounts[-1]
-    #cc <- cc[names(cc)!="NA"]
     if (length(cc)>0) {
       npctString <- rep("",length(cc))
       nString <- cc
       if (showcount) {
-        npctString <- cc
+        npctString <- format(cc,big.mark=thousands)
         #if (showpct) npctString <- paste0(npctString," ")
       }
       pctString <- ifelse(names(cc)=="NA","",around(100*cc/sampleSize,digits))
@@ -79,7 +81,7 @@ vp=TRUE,rounded=FALSE,just="c",showroot=TRUE,verbose=FALSE,sortfill=FALSE) {
     nString <- categoryCounts[-1]
     if (showcount) {
       npctString <- categoryCounts[-1]
-      #if (showpct) npctString <- paste0(npctString," ")
+      npctString <- format(npctString,big.mark=thousands)      
     }
     pctString <- around(100*categoryCounts[-1]/length(z),digits)
     if (showpct) {
@@ -87,7 +89,7 @@ vp=TRUE,rounded=FALSE,just="c",showroot=TRUE,verbose=FALSE,sortfill=FALSE) {
     }
   }
   
-  npctString <- c(length(z),npctString)
+  npctString <- c(format(length(z),big.mark=thousands),npctString)
   nString <- c(length(z),nString)
   pctString <- c("",pctString)
   
@@ -96,55 +98,86 @@ vp=TRUE,rounded=FALSE,just="c",showroot=TRUE,verbose=FALSE,sortfill=FALSE) {
     categoryCounts <- categoryCounts[s]
     npctString <- npctString[s]
   }
+  
 
-  if (!is.null(prune)) {
-    if (is.numeric(prune)) {
-      categoryCounts <- c(categoryCounts[1],categoryCounts[-1][-prune])
-      npctString <- c(npctString[1],npctString[-1][-prune])
-    } else {
-      matching <- names(categoryCounts)[-1] %in% prune
-      removed <- categoryCounts[-1][matching]
-      npctremoved <- npctString[-1][matching]
-      if (any(names(removed)=="NA")) {
-        NAremoved <- names(removed)=="NA"
-        nr <- npctremoved[NAremoved]
-        if (nr>1) description <- "NAs" else description <- "NA"
-        warning(paste0(var,": prune removed ",npctremoved[NAremoved]," ",description),call.=FALSE)
-      }  
-      categoryCounts <- c(categoryCounts[1],categoryCounts[-1][!matching])
-      npctString <- c(npctString[1],npctString[-1][!matching])
-      pctString <- c(pctString[1],pctString[-1][!matching])
-      nString <- c(nString[1],nString[-1][!matching])
+  if (length(tprune)>0) {
+    for (j in seq_len(length(tprune))) {
+      if (length(tprune[[j]])==1 && any(names(tprune[[j]])==var)) {
+        tpruneLevel <- names(categoryCounts[-1]) %in% unlist(tprune[[j]][names(tprune[[j]])==var])
+        categoryCounts <- c(categoryCounts[1],categoryCounts[-1][!tpruneLevel])
+        npctString <- c(npctString[1],npctString[-1][!tpruneLevel])
+        pctString <- c(pctString[1],pctString[-1][!tpruneLevel])
+        nString <- c(nString[1],nString[-1][!tpruneLevel])
+      }
     }
+  }
+  
+  if (length(tkeep)>0) {
+    for (j in seq_len(length(tkeep))) {
+      if (length(tkeep[[j]])==1 && any(names(tkeep[[j]])==var)) {
+        matching <- match(unlist(tkeep[[j]][names(tkeep[[j]])==var]),names(categoryCounts)[-1])
+        matching <- matching[!is.na(matching)]
+        removed <- categoryCounts[-1][-matching]
+        npctremoved <- npctString[-1][-matching]
+        if (!vp) {
+          if (any(names(removed)=="NA")) {
+            NAremoved <- names(removed)=="NA"
+            nr <- npctremoved[NAremoved]
+            #if (nr>1) description <- "NAs" else description <- "NA"
+            #warning(paste0(var,": keep removed ",npctremoved[NAremoved]," ",description),call.=FALSE)
+          }  
+        } else {
+          newkeep <- c(names(categoryCounts[-1])[matching],"NA")
+          matching <- match(newkeep,names(categoryCounts)[-1])
+          matching <- matching[!is.na(matching)]        
+        }
+        #browser()
+        categoryCounts <- c(categoryCounts[1],categoryCounts[-1][matching])
+        npctString <- c(npctString[1],npctString[-1][matching])
+        pctString <- c(pctString[1],pctString[-1][matching])
+        nString <- c(nString[1],nString[-1][matching])
+      }
+    }
+  }  
+  
+  if (!is.null(prune)) {
+    matching <- names(categoryCounts)[-1] %in% prune
+    removed <- categoryCounts[-1][matching]
+    npctremoved <- npctString[-1][matching]
+    if (any(names(removed)=="NA")) {
+      NAremoved <- names(removed)=="NA"
+      nr <- npctremoved[NAremoved]
+      if (nr>1) description <- "NAs" else description <- "NA"
+      warning(paste0(var,": prune removed ",npctremoved[NAremoved]," ",description),call.=FALSE)
+    }  
+    categoryCounts <- c(categoryCounts[1],categoryCounts[-1][!matching])
+    npctString <- c(npctString[1],npctString[-1][!matching])
+    pctString <- c(pctString[1],pctString[-1][!matching])
+    nString <- c(nString[1],nString[-1][!matching])
   }
 
   if (!is.null(keep)) {
-    if (is.numeric(keep)) {
-      categoryCounts <- c(categoryCounts[1],categoryCounts[-1][keep])
-      npctString <- c(npctString[1],npctString[-1][keep])
-    } else {      
-      matching <- match(keep,names(categoryCounts)[-1])
-      matching <- matching[!is.na(matching)]
-      removed <- categoryCounts[-1][-matching]
-      npctremoved <- npctString[-1][-matching]
-      if (!vp) {
-        if (any(names(removed)=="NA")) {
-          NAremoved <- names(removed)=="NA"
-          nr <- npctremoved[NAremoved]
-          #if (nr>1) description <- "NAs" else description <- "NA"
-          #warning(paste0(var,": keep removed ",npctremoved[NAremoved]," ",description),call.=FALSE)
-        }  
-      } else {
-        newkeep <- c(keep,"NA")
-        matching <- match(newkeep,names(categoryCounts)[-1])
-        matching <- matching[!is.na(matching)]        
-      }
-      #browser()
-      categoryCounts <- c(categoryCounts[1],categoryCounts[-1][matching])
-      npctString <- c(npctString[1],npctString[-1][matching])
-      pctString <- c(pctString[1],pctString[-1][matching])
-      nString <- c(nString[1],nString[-1][matching])
+    matching <- match(keep,names(categoryCounts)[-1])
+    matching <- matching[!is.na(matching)]
+    removed <- categoryCounts[-1][-matching]
+    npctremoved <- npctString[-1][-matching]
+    if (!vp) {
+      if (any(names(removed)=="NA")) {
+        NAremoved <- names(removed)=="NA"
+        nr <- npctremoved[NAremoved]
+        #if (nr>1) description <- "NAs" else description <- "NA"
+        #warning(paste0(var,": keep removed ",npctremoved[NAremoved]," ",description),call.=FALSE)
+      }  
+    } else {
+      newkeep <- c(keep,"NA")
+      matching <- match(newkeep,names(categoryCounts)[-1])
+      matching <- matching[!is.na(matching)]        
     }
+    #browser()
+    categoryCounts <- c(categoryCounts[1],categoryCounts[-1][matching])
+    npctString <- c(npctString[1],npctString[-1][matching])
+    pctString <- c(pctString[1],pctString[-1][matching])
+    nString <- c(nString[1],nString[-1][matching])
   }
 
   if (pruneNA) {
@@ -279,8 +312,17 @@ vp=TRUE,rounded=FALSE,just="c",showroot=TRUE,verbose=FALSE,sortfill=FALSE) {
   extra_text <- extraText
 
   if (!HTMLtext) {
+    # Move any linebreaks at the start of extraText to
+    # the end of npctString, so that justification works right
+    for (i in seq_len(length(extraText))) {
+      if (length(grep("^\n",extraText[i]))>0) {
+        npctString[i] <- paste0(npctString[i],"\n")
+        extraText[i] <- sub("^(\n)","",extraText[i])
+      }
+    }
     displayCAT <- convertToHTML(displayCAT,just=just)
-    extraText <- convertToHTML(extraText,just=just)
+    npctString <- convertToHTML(npctString,just=just)
+    extraText <- convertToHTML(extraText,just=justtext)
   }
   
   # Write DOT code for assigning labels (using the DiagrammeR framework)
@@ -293,23 +335,36 @@ vp=TRUE,rounded=FALSE,just="c",showroot=TRUE,verbose=FALSE,sortfill=FALSE) {
   labelassign <- c()
   if (root) {
     if (showroot) {
-      #if (title!="") displayCAT[1] <- paste0(displayCAT[1],"<BR/>")
-      if (title!="") displayCAT[1] <- displayCAT[1]
+      if (!showrootcount) {
+        npctString[1] <- ""
+      }
+      rgb <- grDevices::col2rgb(topfillcolor)
+      red <- rgb["red",]; green <- rgb["green",]; blue <- rgb["blue",]
+      FONTCOLOR <- ifelse((red*0.299 + green*0.587 + blue*0.114) > 186,"#000000","#ffffff")      
       labelassign <- paste(paste0(
-        nodenames[1],'[label=<',displayCAT[1],npctString[1],extraText[1],'> color=',topcolor,styleString,
+        nodenames[1],'[label=<',displayCAT[1],npctString[1],extraText[1],'>  fontcolor=<',FONTCOLOR,'> color=',topcolor,styleString,
         ' fillcolor=<',topfillcolor,'>]'),collapse='\n')
     }
     if (!novars) {
+      rgb <- grDevices::col2rgb(FILLCOLOR)
+      red <- rgb["red",]; green <- rgb["green",]; blue <- rgb["blue",]
+      FONTCOLOR <- ifelse((red*0.299 + green*0.587 + blue*0.114) > 186,"#000000","#ffffff")
       labelassign <- paste0(labelassign,'\n',paste(paste0(
-        nodenames[-1],'[label=<',displayCAT[-1],npctString[-1],extraText[-1],'> color=',color,styleString,
+        nodenames[-1],'[label=<',displayCAT[-1],npctString[-1],extraText[-1],'>  fontcolor=<',FONTCOLOR,'> color=',color,styleString,
         ' fillcolor=<',FILLCOLOR,'>',VARLABELLOC,' ',VARMINWIDTH,' ',VARMINHEIGHT,']')),collapse='\n')
+      #browser()
+       
     }
   } else {
+    rgb <- grDevices::col2rgb(FILLCOLOR)
+    red <- rgb["red",]; green <- rgb["green",]; blue <- rgb["blue",]
+    FONTCOLOR <- ifelse((red*0.299 + green*0.587 + blue*0.114) > 186,"#000000","#ffffff")    
     labelassign <- paste(paste0(
-      nodenames[-1],'[label=<',displayCAT[-1],npctString[-1],extraText[-1],'> color=',color,styleString,
+      nodenames[-1],'[label=<',displayCAT[-1],npctString[-1],extraText[-1],'>  fontcolor=<',FONTCOLOR,'> color=',color,styleString,
       ' fillcolor=<',FILLCOLOR,'>',VARLABELLOC,' ',VARMINWIDTH,' ',VARMINHEIGHT,']'),collapse='\n')
   }
   
+  #browser()
   
   return(list(
     root=root,

@@ -1,7 +1,7 @@
 ---
-title: "Introduction to vtree 5.1.9"
+title: "Introduction to vtree"
 subtitle: "*Exploring subsets of data using variable trees*"
-author: '`r paste("Nick Barrowman",strftime(Sys.time(),format="%d-%b-%Y"))`'
+author: '`r paste0("Nick Barrowman, ",strftime(Sys.time(),format="%d-%b-%Y"),", Version ",packageVersion("vtree"))`'
 output:
   rmarkdown::html_vignette:
     css: vtreeVignette.css
@@ -74,6 +74,14 @@ df <- build.data.frame(
 `r spaces(30)`
 `r vtree(df,"continent population landlocked",showroot=FALSE,pxwidth=800,
   imageheight="3in")`
+  
+By default, vtree uses the colorful display above (to help distinguish variables and values),
+but if you prefer a more sedate version,
+you can specify a single fill color (or simply white):
+
+`r spaces(30)`
+`r vtree(df,"continent population landlocked",showroot=FALSE,fillcolor="aliceblue",
+  pxwidth=800,imageheight="3in")`
 
 Even in simple situations like this,
 it can be a chore to keep track of nested subsets and
@@ -539,9 +547,48 @@ vtree(FakeData,"Severity Sex",prunebelow=list(Severity=c("Mild","Moderate")))
 
 ### The `follow` parameter
  
-The complement of the `prunebelow` function is the `follow` function.
+The complement of `prunebelow` is `follow`.
 Instead of specifying which nodes should be pruned below,
 this allows you to specify which nodes should be "followed" (that is, *not* pruned below).
+
+### Targeted pruning
+
+This section describes a more flexible way to prune variable trees.
+To explain this,
+first note that the `prune`, `keep`, `prunebelow`, and `follow` parameters
+specify pruning across all branches of the tree.
+For example, if you were pruning `Severity` nested within levels of `Sex`,
+the pruning would take place in both the M and F branches.
+
+Sometimes, however, it is preferable to perform pruning only in specified
+branches of the tree.
+This is called *targeted* pruning, and the parameters
+`tprune`, `tkeep`, `tprunebelow`, and `tfollow` provide this functionality.
+However, their arguments have a more complex form than those of the corresponding
+`prune`, `keep`, `prunebelow`, and `follow` parameters
+because they specify the *full path* from the
+root of the tree all the way to the nodes to be pruned.
+For example to remove every `Severity` node except Moderate,
+but only for males, the following command can be used:
+
+```{r,eval=FALSE}
+vtree(FakeData,"Sex Severity",tkeep=list(list(Sex="M",Severity="Moderate")))
+```
+
+`r spaces(40)`
+`r vtree(FakeData,"Sex Severity",tkeep=list(list(Sex="M",Severity="Moderate")),
+  pxwidth=400,imageheight="3in")`
+
+Note that the argument of `tkeep` is a list of lists,
+one for each path through the tree.
+To keep both Moderate and Severe, specify
+`tkeep=list(list(Sex="M",Severity=c("Moderate","Severe")))`.
+Now suppose that, in addition to this,
+within females,you want to keep just Mild.
+Use the following specification to do this:
+```{r, eval=FALSE}
+tkeep=list(list(Sex="M",Severity=c("Moderate","Severe")),list(Sex=F",Severity="Mild"))
+  ```
 
 
 ### The `prunesmaller` parameter
@@ -969,7 +1016,7 @@ Sometimes it is helpful to extract summary information as text.
 For example, we might wish to access the summary information contained in the Mild node.
 This is explained [later on](#extracting), but here's a brief example:
 
-```{r}
+```{r attributes}
 vSeverity <- vtree(FakeData,"Severity",summary="Score",horiz=FALSE)
 info <- attributes(vSeverity)$info
 cat(info$Severity$Mild$.text)
@@ -1018,7 +1065,7 @@ vtree(FakeData,"Severity",summary="Category=single",horiz=FALSE)
 Summaries can be obtained for a collection of variables using pattern-matching,
 for example:
 
-```{r,eval=FALSE}
+```{r summary-pattern,eval=FALSE}
 vtree(FakeData,"Severity",summary="Ind*",sameline=TRUE,horiz=FALSE,just="l")
 ```
 
@@ -1182,7 +1229,24 @@ vtree(FakeData,"Severity",horiz=FALSE,showvarnames=FALSE,splitwidth=Inf,sameline
     "Score \nScore: mean (SD) %meanx% (%SD%)",
     "Pre \nPre: range %range%"),
  pxwidth=1400,imageheight="1.4in")`
-  
+
+### Targetted summaries
+
+Sometimes you only want to show a summary in a particular node.
+Targetted summaries are specified with the `tsummary` parameter
+as a list of character-string vectors.
+The initial elements of each character string vector point to a specific node.
+The final element of each character string vector is a summary string,
+with the same structure as \code{summary}.
+
+```{r,eval=FALSE}
+vtree(FakeData,"Age Sex",tsummary=list(list(Age="5",Sex="M","id \n%list%")),horiz=FALSE)
+```
+
+`r vtree(FakeData,"Age Sex",tsummary=list(list(Age="5",Sex="M","id \n%list%")),horiz=FALSE,
+pxwidth=1400,imageheight="2.3in")`
+
+
 
 ## Pattern trees and pattern tables {#patterns}
 
@@ -1599,12 +1663,13 @@ structured information about the counts and percentages in each node.
 Here is an example:
 
 ```{r,echo=TRUE,message=FALSE,eval=FALSE}
-v <- vtree(FakeData,"Group Viral")
+v <- vtree(FakeData,"Group Viral",horiz=FALSE)
 v
 ```
 
+`r spaces(30)`
 ```{r,echo=FALSE,message=FALSE}
-v <- vtree(FakeData,"Group Viral",pxwidth=300,imageheight="2.5in")
+v <- vtree(FakeData,"Group Viral",pxwidth=800,imageheight="2in",horiz=FALSE)
 v
 ```
 

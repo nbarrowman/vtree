@@ -13,21 +13,21 @@ summaryNodeFunction <- function (u, varname, value, args) {
     }
   }
   
-  fullsummary <- function(w,digits,varname) {
+  fullsummary <- function(w,digits,thousands,varname) {
     nMissing <- sum(is.na(w))
     if (length(w)<=3) {
-      return(paste0(varname,"\n",paste(around(w,digits=digits),collapse=", ")))
+      return(paste0(varname,"\n",paste(around(w,digits=digits,thousands=thousands),collapse=", ")))
     }
     if (nMissing==length(w)) {
       return(paste0(varname,"\n","missing ",nMissing))
     }
-    med <- around(as.numeric(stats::median(w,na.rm=TRUE)), digits = digits)
-    lo <- around(as.numeric(min(w,na.rm=TRUE)), digits = digits)
-    hi <- around(as.numeric(max(w,na.rm=TRUE)), digits = digits)
-    q25 <- around(quantile(w,0.25,na.rm=TRUE), digits = digits)
-    q75 <- around(quantile(w,0.75,na.rm=TRUE), digits = digits)
-    mn <- around(mean(w,na.rm=TRUE), digits = digits)
-    s <- around(stats::sd(w,na.rm=TRUE), digits = digits)
+    med <- around(as.numeric(stats::median(w,na.rm=TRUE)), digits=digits,thousands=thousands)
+    lo <- around(as.numeric(min(w,na.rm=TRUE)), digits=digits,thousands=thousands)
+    hi <- around(as.numeric(max(w,na.rm=TRUE)), digits=digits,thousands=thousands)
+    q25 <- around(quantile(w,0.25,na.rm=TRUE), digits=digits,thousands=thousands)
+    q75 <- around(quantile(w,0.75,na.rm=TRUE), digits=digits,thousands=thousands)
+    mn <- around(mean(w,na.rm=TRUE), digits=digits,thousands=thousands)
+    s <- around(stats::sd(w,na.rm=TRUE), digits=digits,thousands=thousands)
     paste0(
       varname,"\n",
       "missing ",nMissing,"\n",
@@ -36,12 +36,12 @@ summaryNodeFunction <- function (u, varname, value, args) {
       "range ",lo,", ",hi)
   }
   
-  medianfunc <- function(w,digits) {
+  medianfunc <- function(w,digits,thousands) {
     if (!(is.numeric(w) | is.logical(w))) {
       stop("%median% : expected a numeric variable.")
     }      
     nMissing <- sum(is.na(w))
-    m <- around(stats::median(w,na.rm=TRUE), digits = digits)
+    m <- around(stats::median(w,na.rm=TRUE), digits=digits,thousands=thousands)
     if (nMissing>0) {
       paste0(m," mv=",nMissing)
     } else {
@@ -49,12 +49,12 @@ summaryNodeFunction <- function (u, varname, value, args) {
     }
   }
   
-  minfunc <- function(w,digits) {
+  minfunc <- function(w,digits,thousands) {
     if (!(is.numeric(w) | is.logical(w))) {
       stop("%min% : expected a numeric variable.")
     }      
     nMissing <- sum(is.na(w))
-    m <- around(min(w,na.rm=TRUE), digits = digits)
+    m <- around(min(w,na.rm=TRUE), digits=digits,thousands=thousands)
     if (nMissing>0) {
       paste0(m," mv=",nMissing)
     } else {
@@ -62,12 +62,12 @@ summaryNodeFunction <- function (u, varname, value, args) {
     }
   }
   
-  maxfunc <- function(w,digits) {
+  maxfunc <- function(w,digits,thousands) {
     if (!(is.numeric(w) | is.logical(w))) {
       stop("%max% : expected a numeric variable.")
     }      
     nMissing <- sum(is.na(w))
-    m <- around(max(w,na.rm=TRUE), digits = digits)
+    m <- around(max(w,na.rm=TRUE), digits=digits,thousands=thousands)
     if (nMissing>0) {
       paste0(m," mv=",nMissing)
     } else {
@@ -75,14 +75,14 @@ summaryNodeFunction <- function (u, varname, value, args) {
     }
   }  
 
-  IQRfunc <- function(w,digits) {
+  IQRfunc <- function(w,digits,thousands) {
     if (!(is.numeric(w) | is.logical(w))) {
       stop("%IQR% : expected a numeric variable.")
     }      
     nMissing <- sum(is.na(w))
     i <- paste0(
-      around(qntl(w,0.25,na.rm=TRUE), digits = digits),", ",
-      around(qntl(w,0.75,na.rm=TRUE), digits = digits))
+      around(qntl(w,0.25,na.rm=TRUE), digits=digits,thousands=thousands),", ",
+      around(qntl(w,0.75,na.rm=TRUE), digits=digits,thousands=thousands))
     if (nMissing>0) {
       paste0(i," mv=",nMissing)
     } else {
@@ -90,7 +90,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
     }
   }
 
-  rangefunc <- function(w,digits,na.rm=FALSE) {
+  rangefunc <- function(w,digits,thousands,na.rm=FALSE) {
     if (!(is.numeric(w) | is.logical(w))) {
       stop("%range% : expected a numeric variable.")
     }      
@@ -105,8 +105,8 @@ summaryNodeFunction <- function (u, varname, value, args) {
       }
     } else {
       r <- paste0(
-        around(min(w,na.rm=TRUE), digits = digits),", ",
-        around(max(w,na.rm=TRUE), digits = digits))
+        around(min(w,na.rm=TRUE), digits=digits,thousands=thousands),", ",
+        around(max(w,na.rm=TRUE), digits=digits,thousands=thousands))
       if (nMissing>0) {
         paste0(r," mv=",nMissing)
       } else {
@@ -115,12 +115,12 @@ summaryNodeFunction <- function (u, varname, value, args) {
     }
   }
   
-  SDfunc <- function(w,digits) {
+  SDfunc <- function(w,digits,thousands) {
     if (!(is.numeric(w) | is.logical(w))) {
       stop("%SD% : expected a numeric variable.")
     }      
     nMissing <- sum(is.na(w))
-    s <- around(stats::sd(w,na.rm=TRUE), digits = digits)
+    s <- around(stats::sd(w,na.rm=TRUE), digits=digits,thousands=thousands)
     if (nMissing>0) {
       paste0(s," mv=",nMissing)
     } else {
@@ -128,12 +128,12 @@ summaryNodeFunction <- function (u, varname, value, args) {
     }
   }  
 
-  sumfunc <- function(w,digits) {
+  sumfunc <- function(w,digits,thousands) {
     if (!(is.numeric(w) | is.logical(w))) {
       stop("%sum% : expected a numeric variable.")
     }      
     nMissing <- sum(is.na(w))
-    s <- around(sum(w,na.rm=TRUE), digits = digits)
+    s <- around(sum(w,na.rm=TRUE), digits=digits,thousands=thousands)
     if (nMissing>0) {
       paste0(s," mv=",nMissing)
     } else {
@@ -141,12 +141,12 @@ summaryNodeFunction <- function (u, varname, value, args) {
     }
   }
   
-  meanfunc <- function(w,digits) {
+  meanfunc <- function(w,digits,thousands) {
     if (!(is.numeric(w) | is.logical(w))) {
       stop("%mean% : expected a numeric variable.")
     }    
     nMissing <- sum(is.na(w))
-    m <- around(mean(w,na.rm=TRUE), digits = digits)
+    m <- around(mean(w,na.rm=TRUE), digits=digits,thousands=thousands)
     if (nMissing>0) {
       paste0(m," mv=",nMissing)
     } else {
@@ -174,7 +174,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
     pctString
   }
   
-  nAndpct <- function(w,digits=2,vp=TRUE,empty="",varname="") {
+  nAndpct <- function(w,digits=2,thousands,vp=TRUE,empty="",varname="") {
     if (!(is.numeric(w) | is.logical(w))) {
       stop("%npct% : expected a logical or 0-1 variable.")
     }
@@ -185,7 +185,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
       num <- sum(w==1,na.rm=TRUE)
       den <- length(w)
     }
-    npctString <- paste0(num," (",
+    npctString <- paste0(format(num,big.mark=thousands)," (",
       around(100*num/den,digits),"%)")
     if (den==0) {
       npctString <- empty
@@ -197,11 +197,13 @@ summaryNodeFunction <- function (u, varname, value, args) {
   }
   
   
-  freqfunc <- function(w,digits=2,vp=TRUE,empty="",
+  freqfunc <- function(w,digits=2,thousands,vp=TRUE,empty="",
     pcs = "%",  showN = FALSE, shown = TRUE, showp = TRUE, 
     nmiss = FALSE, nmiss0 = FALSE, includemiss = TRUE, showzero = FALSE, 
-    percentfirst = FALSE, sep = ", ",sort=FALSE,varname="") {
+    percentfirst = FALSE, sep = ", ",sort=FALSE,varname="",na.rm = FALSE) {
+    
     x <- w
+    if (na.rm) { x <- x[!is.na(x)] }
  
     nmissString <- ""
     missingNum <- sum(is.na(x))
@@ -237,7 +239,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
             result <- paste0(result, "/", length(x))
     }
     if (showp) {
-        pct <- paste0(around(100 * as.numeric(tab)/sum(tab), digits = digits),pcs)
+        pct <- paste0(around(100 * as.numeric(tab)/sum(tab), digits=digits,thousands=thousands),pcs)
         if (shown) {
           pct <- paste0(" (",pct,")")
         }
@@ -246,7 +248,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
     }
     if (percentfirst & shown & showp) {
         result <- paste(around(100 * as.numeric(tab)/sum(tab), 
-            digits = digits), pcs, sep = "")
+            digits=digits,thousands=thousands), pcs, sep = "")
         result <- paste0(result, " (", tab)
         if (showN) 
             result <- paste0(result, "/", length(x))
@@ -286,7 +288,8 @@ summaryNodeFunction <- function (u, varname, value, args) {
   
   #--- Body of code starts here -----------------------------------------------
   
-
+  thousands <- args$thousands
+  
   sepN <- args$sepN
   
   if (is.null(args$digits))
@@ -331,11 +334,15 @@ summaryNodeFunction <- function (u, varname, value, args) {
     if (length(grep("%listlines%"    ,args$format[i])>0)) ShowSimpleSummary <- FALSE
     if (length(grep("%list_%"        ,args$format[i])>0)) ShowSimpleSummary <- FALSE
     if (length(grep("%freqpct%"      ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%freqpctx%"    ,args$format[i])>0)) ShowSimpleSummary <- FALSE
     if (length(grep("%freq%"         ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%freqx%"        ,args$format[i])>0)) ShowSimpleSummary <- FALSE
     if (length(grep("%freqpctlines%" ,args$format[i])>0)) ShowSimpleSummary <- FALSE
     if (length(grep("%freqpct_%"     ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%freqpctx_%"    ,args$format[i])>0)) ShowSimpleSummary <- FALSE
     if (length(grep("%freqlines%"    ,args$format[i])>0)) ShowSimpleSummary <- FALSE
     if (length(grep("%freq_%"        ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%freqx_%"       ,args$format[i])>0)) ShowSimpleSummary <- FALSE
     if (length(grep("%mv%"           ,args$format[i])>0)) ShowSimpleSummary <- FALSE
     if (length(grep("%nonmv%"        ,args$format[i])>0)) ShowSimpleSummary <- FALSE    
     if (length(grep("%npct%"         ,args$format[i])>0)) ShowSimpleSummary <- FALSE
@@ -365,10 +372,10 @@ summaryNodeFunction <- function (u, varname, value, args) {
     
     if (length(grep("%sort%",args$format[i]))>0) {
       SortIt <- TRUE
-    } 
-    #else {
-    #  SortIt <- FALSE
-    #}    
+    } else
+    if (length(grep("%nosort%",args$format[i]))>0) {
+      SortIt <- FALSE
+    }     
     
     # check if it's a stem
     StemSpecified <- StarSpecified <- HashmarkSpecified <- FALSE
@@ -485,12 +492,12 @@ summaryNodeFunction <- function (u, varname, value, args) {
       }
 
       # Format %list% output
-      tabval <- tableWithoutSort(around(sort(y,na.last=TRUE),digits=digits),exclude=NULL)
+      tabval <- tableWithoutSort(around(sort(y,na.last=TRUE),digits=cdigits,thousands=thousands),exclude=NULL)
       countval <- paste0(" (n=",tabval,")")
       countval[tabval==1] <- ""
       listOutput <- paste0(paste0(names(tabval),countval),collapse=", ")
       listLinesOutput <- paste0(paste0(names(tabval),countval),collapse=sepN)
-
+      
       if (ShowNodeText) {
         if (length(x)==0 || !is.numeric(x)) {
           minx <- maxx <- NA
@@ -501,16 +508,16 @@ summaryNodeFunction <- function (u, varname, value, args) {
         
         if (ShowSimpleSummary) {
           if (is.numeric(y) && length(unique(y))>3) {
-            result <- paste0("\n",fullsummary(y,digits=cdigits,varname=var))
+            result <- paste0("\n",fullsummary(y,digits=cdigits,thousands=thousands,varname=var))
           } else
           if (is.logical(y) || (is.numeric(y) && (all(unique(y) %in% c(NA,0,1))))) {
-            result <- paste0("\n",nAndpct(y,digits=digits,varname=original_var))
+            result <- paste0("\n",nAndpct(y,digits=digits,thousands=thousands,varname=original_var))
           } else {
-            result <- paste0("\n",freqfunc(y,digits=digits,sep="\n",sort=SortIt,varname=original_var,showzero=TRUE))
+            result <- paste0("\n",freqfunc(y,digits=digits,thousands=thousands,sep="\n",sort=SortIt,varname=original_var,showzero=TRUE))
           }
         } else
         if (StemSpecified && !FormatString) {
-          result <- paste0("\n",freqfunc(y,digits=digits,sort=SortIt,sep="\n",showp=FALSE))
+          result <- paste0("\n",freqfunc(y,digits=digits,thousands=thousands,sort=SortIt,sep="\n",showp=FALSE))
         } else {
           result <- gsub("%var=[^%]+%","",result)
           result <- gsub("%node=[^%]+%","",result)
@@ -518,42 +525,47 @@ summaryNodeFunction <- function (u, varname, value, args) {
           result <- gsub("%noroot%","",result)
           result <- gsub("%combo%","",result)
           result <- gsub("%sort%","",result)
+          result <- gsub("%nosort%","",result)
           result <- gsub("%leafonly%","",result)
           result <- gsub("%v%",args$var[i],result)
           result <- gsub("%list%",listOutput,result)
           result <- gsub("%listlines%",listLinesOutput,result)
           result <- gsub("%list_%",listLinesOutput,result)
-          result <- gsub("%freqpct%",freqfunc(y,digits=digits,sort=SortIt),result)
-          result <- gsub("%freq%",freqfunc(y,digits=digits,showp=FALSE,sort=SortIt),result)
-          result <- gsub("%freqpctlines%",freqfunc(y,digits=digits,sep="\n",sort=SortIt),result)
-          result <- gsub("%freqpct_%",freqfunc(y,digits=digits,sep="\n",sort=SortIt),result)
-          result <- gsub("%freqlines%",freqfunc(y,digits=digits,showp=FALSE,sep="\n",sort=SortIt),result)
-          result <- gsub("%freq_%",freqfunc(y,digits=digits,showp=FALSE,sep="\n",sort=SortIt),result)
+          result <- gsub("%freqpct%",freqfunc(y,digits=digits,thousands=thousands,sort=SortIt),result)
+          result <- gsub("%freqpctx%",freqfunc(y,digits=digits,thousands=thousands,sort=SortIt,na.rm=TRUE),result)
+          result <- gsub("%freq%",freqfunc(y,digits=digits,thousands=thousands,showp=FALSE,sort=SortIt),result)
+          result <- gsub("%freqx%",freqfunc(y,digits=digits,thousands=thousands,showp=FALSE,sort=SortIt,na.rm=TRUE),result)
+          result <- gsub("%freqpctlines%",freqfunc(y,digits=digits,thousands=thousands,sep="\n",sort=SortIt),result)
+          result <- gsub("%freqpct_%",freqfunc(y,digits=digits,thousands=thousands,sep="\n",sort=SortIt),result)
+          result <- gsub("%freqpctx_%",freqfunc(y,digits=digits,thousands=thousands,sep="\n",sort=SortIt,na.rm=TRUE),result)
+          result <- gsub("%freqlines%",freqfunc(y,digits=digits,thousands=thousands,showp=FALSE,sep="\n",sort=SortIt),result)
+          result <- gsub("%freq_%",freqfunc(y,digits=digits,thousands=thousands,showp=FALSE,sep="\n",sort=SortIt),result)
+          result <- gsub("%freqx_%",freqfunc(y,digits=digits,thousands=thousands,showp=FALSE,sep="\n",sort=SortIt,na.rm=TRUE),result)
           result <- gsub("%mv%",paste0(missingNum),result)
           result <- gsub("%nonmv%",paste0(nonmissingNum),result)
           
-          result <- condsub("%npct%",nAndpct(y,digits=digits),result)
-          result <- condsub("%pct%",justpct(y,digits=digits),result)
-          result <- condsub("%mean%", meanfunc(y,digits=cdigits),result)
-          result <- condsub("%meanx%", around(mean(x), digits = cdigits),result)
-          result <- condsub("%sum%", sumfunc(y,digits=cdigits),result)
-          result <- condsub("%sumx%", around(sum(x), digits = cdigits),result)
-          result <- condsub("%median%", medianfunc(y,digits=cdigits),result)
-          result <- condsub("%medianx%", around(stats::median(x), digits = cdigits),
+          result <- condsub("%npct%",nAndpct(y,digits=digits,thousands=thousands),result)
+          result <- condsub("%pct%",justpct(y,digits=digits,thousands=thousands),result)
+          result <- condsub("%mean%", meanfunc(y,digits=cdigits,thousands=thousands),result)
+          result <- condsub("%meanx%", around(mean(x), digits = cdigits,thousands=thousands),result)
+          result <- condsub("%sum%", sumfunc(y,digits=cdigits,thousands=thousands),result)
+          result <- condsub("%sumx%", around(sum(x), digits = cdigits,thousands=thousands),result)
+          result <- condsub("%median%", medianfunc(y,digits=cdigits,thousands=thousands),result)
+          result <- condsub("%medianx%", around(stats::median(x), digits = cdigits,thousands=thousands),
             result)          
-          result <- condsub("%SD%", SDfunc(y,digits=cdigits), result)
-          result <- condsub("%SDx%", around(stats::sd(x), digits = cdigits), result)
-          result <- condsub("%min%", minfunc(y, digits = cdigits), result)
-          result <- condsub("%minx%", around(min(x), digits = cdigits), result)
-          result <- condsub("%max%", maxfunc(y, digits = cdigits), result)
-          result <- condsub("%maxx%", around(max(x), digits = cdigits), result)
-          result <- condsub("%range%", rangefunc(y,digits=cdigits), result)
-          result <- condsub("%rangex%", rangefunc(y,digits=cdigits,na.rm=TRUE), result)
-          result <- condsub("%IQR%", IQRfunc(y,digits=cdigits), result)
+          result <- condsub("%SD%", SDfunc(y,digits=cdigits,thousands=thousands), result)
+          result <- condsub("%SDx%", around(stats::sd(x), digits = cdigits,thousands=thousands), result)
+          result <- condsub("%min%", minfunc(y, digits = cdigits,thousands=thousands), result)
+          result <- condsub("%minx%", around(min(x), digits = cdigits,thousands=thousands), result)
+          result <- condsub("%max%", maxfunc(y, digits = cdigits,thousands=thousands), result)
+          result <- condsub("%maxx%", around(max(x), digits = cdigits,thousands=thousands), result)
+          result <- condsub("%range%", rangefunc(y,digits=cdigits,thousands=thousands), result)
+          result <- condsub("%rangex%", rangefunc(y,digits=cdigits,thousands=thousands,na.rm=TRUE), result)
+          result <- condsub("%IQR%", IQRfunc(y,digits=cdigits,thousands=thousands), result)
           result <- condsub("%IQRx%",
               paste0(
-                around(qntl(x,0.25), digits = cdigits),", ",
-                around(qntl(x,0.75), digits = cdigits)),
+                around(qntl(x,0.25), digits = cdigits,thousands=thousands),", ",
+                around(qntl(x,0.75), digits = cdigits,thousands=thousands)),
               result)          
           repeat {
             if (length(grep("%(p)([0-9]+)%", result)) == 0)
@@ -561,7 +573,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
             quant <- sub("(.*)%(p)([0-9]+)%(.*)", "\\3", result)
             if (quant != "") {
                 qq <- around(qntl(x, as.numeric(quant)/100),
-                    digits = digits)
+                    digits=digits,thousands=thousands)
                 result <- sub(paste0("%p", quant,"%"), qq, result)
             }
           }

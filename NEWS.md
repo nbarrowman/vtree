@@ -1,3 +1,43 @@
+# vtree 5.4.6
+
+## Changes
+
+* Small changes to the vignette.
+
+* Added new parameter `thousands` to specify separator (such as ",") between thousands.
+
+* Fixed a small bug where the `%list%` summary option used `digits` rather than `cdigits`.
+
+# vtree 5.4.0
+
+## Changes
+
+* Removed one color palette (`RdYlGn`) which is not colorblind-friendly. Also added a new colorblind-friendly palette (`Greys`). These palettes were pre-calculated using `RColorBrewer`.
+
+* Added a single-line information message when the package is loaded in interactive mode.
+
+* Added automatic text color (black for lighter-colored nodes, white for lighter-colored nodes).
+
+* Added `tsummary` parameter for targeted summaries.
+
+* Added `showuniform` parameter (TRUE by default). When FALSE, variables with no variation are not included.
+
+* Added `words` parameter to allow specification of a tree without any counts.
+
+* Added `showrootcount` parameter to control whether count is shown in the root node.
+
+* Added `the.matrix` dataset based on the 3 Matrix movies.
+
+* Added targetted versions of the pruning parameters, namely: `tprune`, `tkeep`, `tfollow`, and `tprunebelow`.
+
+* When `ImageFileOnly=TRUE`, graphics files are now numbered successively, even when not knitting.
+
+* Addeded `justtext` parameter so that justification of the extra text can be different.
+
+* Added the following options to summary: `%nosort%`, `%freqx%`, `%freqpctx%`, `%freqpctx_%`.
+
+
+
 # vtree 5.1.8
 
 ## Changes

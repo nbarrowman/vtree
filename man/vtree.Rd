@@ -4,25 +4,28 @@
 \alias{vtree}
 \title{Draw a variable tree}
 \usage{
-vtree(data, vars, horiz = TRUE, title = "", sameline = FALSE,
-  vp = TRUE, prune = list(), keep = list(), prunebelow = list(),
-  follow = list(), prunesmaller = NULL, summary = "",
-  shownodelabels = TRUE, showvarnames = TRUE, showpct = TRUE,
-  showlpct = TRUE, showcount = TRUE, showlegend = FALSE,
-  showroot = TRUE, showvarinnode = FALSE, showlegendsum = FALSE,
-  labelvar = NULL, labelnode = list(), tlabelnode = NULL, digits = 0,
-  cdigits = 1, fillcolor = NULL, fillnodes = TRUE,
-  NAfillcolor = "white", rootfillcolor = "#EFF3FF", palette = NULL,
-  gradient = TRUE, revgradient = FALSE, sortfill = FALSE,
-  singlecolor = 2, colorvarlabels = TRUE, color = c("blue",
-  "forestgreen", "red", "orange", "pink"), colornodes = FALSE,
-  plain = FALSE, Venn = FALSE, check.is.na = FALSE, seq = FALSE,
-  pattern = FALSE, ptable = FALSE, text = list(), ttext = list(),
-  varlabelloc = NULL, font = "Arial", varnamepointsize = 24,
-  varnamebold = FALSE, legendpointsize = 14, HTMLtext = FALSE,
-  splitwidth = 20, vsplitwidth = 8, splitspaces = TRUE,
-  getscript = FALSE, mincount = 1, maxcount, showempty = FALSE,
-  choicechecklist = TRUE, just = "c", folder = NULL, format = "",
+vtree(data = NULL, vars, showuniform = TRUE, words = NULL,
+  horiz = TRUE, title = "", sameline = FALSE, vp = TRUE,
+  prune = list(), tprune = list(), keep = list(), tkeep = list(),
+  prunebelow = list(), tprunebelow = list(), follow = list(),
+  tfollow = list(), prunesmaller = NULL, summary = NULL,
+  tsummary = NULL, shownodelabels = TRUE, showvarnames = TRUE,
+  showpct = TRUE, showlpct = TRUE, showcount = TRUE,
+  showrootcount = TRUE, showlegend = FALSE, showroot = TRUE,
+  showvarinnode = FALSE, showlegendsum = FALSE, labelvar = NULL,
+  labelnode = list(), tlabelnode = NULL, digits = 0, cdigits = 1,
+  fillcolor = NULL, fillnodes = TRUE, NAfillcolor = "white",
+  rootfillcolor = "#EFF3FF", palette = NULL, gradient = TRUE,
+  revgradient = FALSE, sortfill = FALSE, singlecolor = 2,
+  colorvarlabels = TRUE, color = c("blue", "forestgreen", "red", "orange",
+  "pink"), colornodes = FALSE, plain = FALSE, Venn = FALSE,
+  check.is.na = FALSE, seq = FALSE, pattern = FALSE, ptable = FALSE,
+  text = list(), ttext = list(), varlabelloc = NULL, font = "Arial",
+  varnamepointsize = 24, varnamebold = FALSE, legendpointsize = 14,
+  HTMLtext = FALSE, splitwidth = 20, vsplitwidth = 8,
+  splitspaces = TRUE, getscript = FALSE, mincount = 1, maxcount,
+  showempty = FALSE, choicechecklist = TRUE, just = "c",
+  justtext = NULL, thousands = "", folder = NULL, format = "",
   imageFileOnly = FALSE, pngknit = TRUE, pxwidth = NULL,
   pxheight = NULL, imagewidth = "", imageheight = "", width = NULL,
   height = NULL, maxNodes = 1000, unchecked = c("0", "FALSE", "No",
@@ -33,7 +36,7 @@ vtree(data, vars, horiz = TRUE, title = "", sameline = FALSE,
   nodeargs = NULL, verbose = FALSE, runsummary = NULL, retain = NULL,
   auto = FALSE, parent = 1, last = 1, root = TRUE,
   subset = 1:nrow(z), as.if.knit = FALSE, prunelone = NULL,
-  pruneNA = FALSE, lsplitwidth = 15, showlevels = TRUE, z)
+  pruneNA = FALSE, lsplitwidth = 15, showlevels = TRUE, z = NULL)
 }
 \arguments{
 \item{data}{Required: Data frame, or a single vector.}
@@ -45,6 +48,13 @@ Variables to use for the tree. Can be
 (3) a formula without a left-hand side,
 e.g. \code{~ Age + Sex},
 but note that extended variable specifications cannot be used in this case.}
+
+\item{showuniform}{Show variable even when it doesn't change?}
+
+\item{words}{A list of named vectors of values.
+Used to build a variable tree 
+representing all permutations of these values.
+No counts will be shown.}
 
 \item{horiz}{Should the tree be drawn horizontally?
 (i.e. root node on the left, with the tree growing to the right)}
@@ -66,10 +76,18 @@ show percentages of the total number of observations.}
 \item{prune, keep, prunebelow, follow}{List of named vectors that specify pruning.
 (see \strong{Pruning} below)}
 
+\item{tprune, tkeep, tprunebelow, tfollow}{List of lists of named vectors that specify "targeted" pruning.
+(see \strong{Pruning} below)}
+
 \item{prunesmaller}{Prune any nodes with count less than specified number.}
 
 \item{summary}{A character string used to specify summary statistics to display in the nodes.
 See \strong{Displaying summary information} below for details.}
+
+\item{tsummary}{A list of character-string vectors.
+The initial elements of each character string vector point to a specific node.
+The final element of each character string vector is a summary string,
+with the same structure as \code{summary}.}
 
 \item{shownodelabels}{Show node labels?
 A single value (with no names) specifies the setting for all variables.
@@ -93,6 +111,8 @@ A single value (with no names) specifies the setting for all variables.
 A logical vector of \code{TRUE} for named variables is interpreted as
 A logical vector of \code{FALSE} for named variables is interpreted as
 \code{FALSE} for those variables and \code{TRUE} for all others.}
+
+\item{showrootcount}{Should count in root node?}
 
 \item{showlegend}{Show legend (including marginal frequencies) for each variable?}
 
@@ -239,6 +259,10 @@ return the DOT script as a character string?}
 automatically extract the names of choices and use them as variable names?}
 
 \item{just}{Text justification ("l"=left, "c"=center, "r"=right).}
+
+\item{justtext}{Like \code{just}, but only for extra text, like summaries.}
+
+\item{thousands}{Thousands separator for big numbers.}
 
 \item{folder, format, imageFileOnly, pngknit}{Control image file generation.
 \code{folder}: a path to a folder where image file will be stored.
@@ -427,6 +451,10 @@ Each vector specifies nodes of a variable.
   \item \code{prunebelow}: which nodes should have their descendants pruned.
   \item \code{follow}: which nodes should \emph{not} have their descendants pruned.
 }
+The \code{tprune} parameter specifies "targeted" pruning.
+Standard pruning removes all nodes with the specified value of the specified variable.
+The \code{tprune} parameter specifies one or more particular paths from the root of the tree
+down to a node to be pruned.
 }
 
 \section{Displaying summary information}{

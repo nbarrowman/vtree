@@ -46,3 +46,30 @@
 #'
 #' }
 "FakeRCT"
+
+
+#' The Matrix trilogy characters
+#'
+#' This data set was abstracted from the three movies.
+#'
+#' @format A tibble with 35 rows and 14 variables:
+#'
+#' \describe{
+#'   \item{name}{Name of character}
+#'   \item{height}{Height (m)}
+#'   \item{sex}{male, female; by appearance}
+#'   \item{nature}{This is the nature of the character, whether plugged into the matrix and took a red pill (coppertop), born free in Zion (born free), or a computer application running in the matrix (app)}
+#'   \item{sunglasses}{yes, no}
+#'   \item{apparel}{Description of clothing worn}
+#'   \item{bodycount1, bodycount2, bodycount3}{A count of the number of onscreen kills, in or out of the matrix, for each of the movies} 
+#'   \item{ship}{List of ships}
+#'   \item{the.matrix, the.matrix.reloaded., the.matrix.revolutions}{Indicates if the character was in the movie}
+#' }
+#' 
+#' @author Franco Momoli
+#' @examples
+#' 
+#' # ship within sunglasses within nature
+#' vtree(the.matrix,"nature sunglasses ship")
+#' 
+"the.matrix"

@@ -48,8 +48,18 @@ NULL
 #'                         e.g. \code{~ Age + Sex},
 #'                         but note that extended variable specifications cannot be used in this case.
 #'                         
+#' @param showuniform      Show variable even when it doesn't change?
+#'
+#' @param words            A list of named vectors of values.
+#'                         Used to build a variable tree 
+#'                         representing all permutations of these values.
+#'                         No counts will be shown.
+#'                                                                           
 #' @param prune,keep,prunebelow,follow
 #'                         List of named vectors that specify pruning.
+#'                          (see \strong{Pruning} below)
+#' @param tprune,tkeep,tprunebelow,tfollow
+#'                         List of lists of named vectors that specify "targeted" pruning.
 #'                          (see \strong{Pruning} below)
 #'                          
 #' @param prunesmaller     Prune any nodes with count less than specified number.
@@ -86,6 +96,10 @@ NULL
 #'                         whether or not each of its values is missing?
 #' @param summary          A character string used to specify summary statistics to display in the nodes.
 #'                         See \strong{Displaying summary information} below for details.
+#' @param tsummary         A list of character-string vectors.
+#'                         The initial elements of each character string vector point to a specific node.
+#'                         The final element of each character string vector is a summary string,
+#'                         with the same structure as \code{summary}.
 #' @param text             A list of vectors containing extra text to add to
 #'                         nodes corresponding to specified values of a specified variable.
 #'                         The name of each element of the list
@@ -184,6 +198,7 @@ NULL
 #`                         \code{TRUE} for those variables and \code{FALSE} for all others.
 #'                         A logical vector of \code{FALSE} for named variables is interpreted as
 #'                         \code{FALSE} for those variables and \code{TRUE} for all others.
+#' @param showrootcount    Should count in root node?
 #' @param showlegend       Show legend (including marginal frequencies) for each variable?
 #' @param showlegendsum    Show summary information in the legend?
 #'                         (Provided \code{summary} has been specified).
@@ -235,6 +250,8 @@ NULL
 #' Vector of character strings interpreted as "unchecked" and "checked" respectively.
 #' 
 #' @param just             Text justification ("l"=left, "c"=center, "r"=right).
+#' @param justtext         Like \code{just}, but only for extra text, like summaries.
+#' @param thousands        Thousands separator for big numbers.
 #' @param folder,format,imageFileOnly,pngknit
 #' Control image file generation.
 #' \code{folder}: a path to a folder where image file will be stored.
@@ -386,6 +403,10 @@ NULL
 #'   \item \code{prunebelow}: which nodes should have their descendants pruned.
 #'   \item \code{follow}: which nodes should \emph{not} have their descendants pruned.
 #' }
+#' The \code{tprune} parameter specifies "targeted" pruning.
+#' Standard pruning removes all nodes with the specified value of the specified variable.
+#' The \code{tprune} parameter specifies one or more particular paths from the root of the tree
+#' down to a node to be pruned.
 #'
 #' @section Displaying summary information:
 #' The \code{summary} parameter allows you to specify information to display
@@ -444,23 +465,31 @@ NULL
 #' @export
 
 vtree <- function (
-  data,
-  vars, 
+  data=NULL,
+  vars,
+  showuniform = TRUE,
+  words = NULL,
   horiz = TRUE, 
   title = "",
   sameline=FALSE,
   vp = TRUE,
   prune=list(),
+  tprune=list(),
   keep=list(),
+  tkeep=list(),
   prunebelow = list(),
+  tprunebelow = list(),
   follow=list(),
+  tfollow=list(),
   prunesmaller=NULL,
-  summary = "",
+  summary =NULL,
+  tsummary=NULL,
   shownodelabels=TRUE,
   showvarnames = TRUE, 
   showpct=TRUE, 
   showlpct=TRUE,
-  showcount=TRUE, 
+  showcount=TRUE,
+  showrootcount=TRUE,
   showlegend=FALSE,
   showroot=TRUE,
   showvarinnode=FALSE,
@@ -505,6 +534,8 @@ vtree <- function (
   showempty = FALSE, 
   choicechecklist = TRUE,
   just="c",
+  justtext=NULL,
+  thousands="",
   folder=NULL,
   format="",
   imageFileOnly=FALSE,
@@ -545,7 +576,7 @@ vtree <- function (
   pruneNA=FALSE,
   lsplitwidth=15,
   showlevels = TRUE,
-  z)
+  z=NULL)
 {
   
   makeHTML <- function(x) {
@@ -556,6 +587,7 @@ vtree <- function (
       convertToHTML(x,just=just)
     }
   }
+  
   makeHTMLnames <- function(x) {
     if (is.list(x)) {
       x <- lapply(x,
@@ -577,7 +609,7 @@ vtree <- function (
   }  
 
   novars <- FALSE
-
+  
   if (missing(z)) z <- data
   
   # *************************************************************************
@@ -585,15 +617,100 @@ vtree <- function (
   # *************************************************************************
   
   if (root) {
+    
+    if (!missing(words)) {
+      showcount <- FALSE
+      showpct <- FALSE
+      showrootcount <- FALSE
+      data <- expand.grid(words)
+      z <- data
+      vars <- names(words)
+    }    
+    
+    # *************************************************************************
+    ## Begin: Check arguments  ----
+    # *************************************************************************
 
+    #if (!is.data.frame(z)) { 
+    #  stop("The argument of data must be a data frame.")
+    #}
+    if (!missing(words) && !is.list(words)) {
+      stop("The argument of words must be a list.")
+    }
+    if (!is.logical(splitspaces)) {
+      stop("The argument of splitspaces must be TRUE or FALSE")
+    }
+    if (!missing(labelnode) && !is.list(labelnode)) {
+      stop("The argument of labelnode must be a list.")
+    }
+    if (!missing(tlabelnode) && !is.list(tlabelnode)) {
+      stop("The argument of tlabelnode must be a list.")
+    }
+    if (length(prune)>0 && (!is.list(prune) || is.null(names(prune)))) {
+      stop("The argument of prune should be a named list.")
+    }
+    if (!missing(tprune) && !is.list(tprune)) {
+      stop("The argument of tprune should be a list of lists.")
+    }
+    if (!missing(tkeep) && !is.list(tkeep)) {
+      stop("The argument of tkeep should be a list of lists.")
+    }  
+    if (!missing(tfollow) && !is.list(tfollow)) {
+      stop("The argument of tfollow should be a list of lists.")
+    }        
+    if (!missing(tprunebelow) && !is.list(tprunebelow)) { 
+        stop("The argument of tprunebelow should be a list of lists.")
+    }
+    if (!missing(tsummary) && (!is.list(tsummary))) {
+      stop("The argument of tsummary should be a list")
+    }
+    if (length(prunebelow)>0 && (!is.list(prunebelow) || is.null(names(prunebelow)))) {
+      stop("The argument of prunebelow should be a named list.")
+    }    
+    if (length(follow)>0 && (!is.list(follow) || is.null(names(follow)))) {
+      stop("The argument of follow should be a named list.")
+    }
+    if (length(keep)>0 && (!is.list(keep) || is.null(names(keep)))) {
+      stop("The argument of keep should be a named list.")
+    }
+    
+    # *************************************************************************
+    # End: Check arguments  ----
+    # *************************************************************************
+    
+ 
     unknowncolor <- "pink"
 
     argname <- sapply(as.list(substitute({data})[-1]), deparse)
-
-    if (!missing(lsplitwidth) & missing(vsplitwidth)) vsplitwidth=lsplitwidth
     
-    # Check some inputs
-    if (!is.logical(splitspaces)) stop("splitspaces must be TRUE or FALSE")
+    #
+    # Start of section: Show messages about deprecated parameters
+    #
+    
+    if (!missing(prunelone)) {
+      message("prunelone is deprecated and will be removed in an upcoming release.")
+    }
+
+    if (!missing(pruneNA)) {
+      message("pruneNA is deprecated and will be removed in an upcoming release.")
+    }
+    
+    if (!missing(showlevels)) {
+      message("showlevels is deprecated and will be removed in an upcoming release. Use showvarnames instead.")
+    }
+    
+    if (!missing(lsplitwidth) & missing(vsplitwidth)) {
+      message("lsplitwidth is deprecated and will be removed in an upcoming release. Use vsplitwidth instead")
+      vsplitwidth=lsplitwidth
+    }
+    
+    #
+    # End of section about deprecated parameters
+    #
+    
+
+    
+    if (is.null(justtext)) justtext <- just
     
     if (ptable & !(pattern | seq | check.is.na)) {
       pattern <- TRUE
@@ -626,7 +743,6 @@ vtree <- function (
               }
           }
     }
-    
     
     if (auto) {
       if (missing(showvarinnode) & !check.is.na) showvarinnode <- TRUE
@@ -671,12 +787,13 @@ vtree <- function (
     # variable specifications and summary arguments.
     #
     
+    regexVarName <- "([a-zA-Z0-9~@#()_|,.]+)"
     regexComplex <- "^((i|r|any|anyx|all|allx|notall|notallx|none|nonex)+:)*([^([:space:]|:)@\\*#]*)([@\\*#]?)(.*)$"
     
     if (!(all(vars==""))) {
  
       # Process != tag in variable names 
-      regex <- "(\\S+)(\\!=)(\\S+)"
+      regex <- paste0("^",regexVarName,"(\\!=)",regexVarName)
       findnotequal <- grep(regex,vars)
       if (length(findnotequal)>0) {
         for (i in seq_len(length(vars))) {    
@@ -699,7 +816,7 @@ vtree <- function (
       }
       
       # Process = tag in variable names 
-      regex <- "(\\S+)(=)(\\S+)"
+      regex <- paste0("^",regexVarName,"(=)",regexVarName)
       findequal <- grep(regex,vars)
       if (length(findequal)>0) {
         for (i in seq_len(length(vars))) {    
@@ -722,15 +839,15 @@ vtree <- function (
       }
       
       # Process > tag in variable names
-      regex <- "(\\S+)(>)(\\S+)"
+      regex <- paste0("^",regexVarName,"(>)",regexVarName)
       findgt <- grep(regex,vars)
       if (length(findgt)>0) {
         for (i in seq_len(length(vars))) {    
           if (i %in% findgt) {
             gtvar <- sub(regex,"\\1",vars[i])
             if (is.null(z[[gtvar]]))
-              stop(paste("Unknown variable:",gtvar))                    
-            gtval <- sub("(\\S+)(>)(\\S+)","\\3",vars[i])
+              stop(paste("Unknown variable:",gtvar))
+            gtval <- sub(regex,"\\3",vars[i])
             # Check to see if any of the values of the specified variable contain spaces
             # If they do, replace underscores in the specified value with spaces.
             if (any(length(grep(" ",names(table(z[[gtvar]]))))>0)) {
@@ -745,7 +862,7 @@ vtree <- function (
       }    
       
       # Process < tag in variable names
-      regex <- "(\\S+)(<)(\\S+)"
+      regex <- paste0("^",regexVarName,"(<)",regexVarName)
       findlt <- grep(regex,vars)
       if (length(findlt)>0) {
         for (i in seq_len(length(vars))) {    
@@ -768,7 +885,7 @@ vtree <- function (
       }        
       
       # Process is.na: tag in variable names to handle individual missing value checks
-      regex <- "^is\\.na:(\\S+)$"
+      regex <- paste0("^is\\.na:",regexVarName,"$")
       findna <- grep(regex,vars)
       if (length(findna)>0) {
         for (i in seq_len(length(vars))) {
@@ -789,7 +906,7 @@ vtree <- function (
       }
       
       # Process stem: tag in variable names to handle REDCap checklists automatically
-      regex <- "^stem:(\\S+)$"
+      regex <- paste0("^stem:",regexVarName,"$")
       findstem <- grep(regex,vars)
       if (length(findstem)>0) {
         expandedvars <- c()
@@ -833,7 +950,7 @@ vtree <- function (
   
       
       #
-      # >> Process complex variable name specification ----
+      # Process complex variable name specification
       # including REDCap variables, intersections, and wildcards
       #
       # Uses the same regular expression as for variable specifications,
@@ -892,10 +1009,16 @@ vtree <- function (
                   if (length(grep(rexp0,lab))>0) {
                     REDCap_var_label <- sub(rexp1,"\\1",lab)
                     choice <- sub(rexp1,"\\2",lab)
+                    if (choice %in% names(z)) {
+                      choice <- paste0(choice,".")
+                    }
                     z[[choice]] <- z[[matching_vars[j]]]
                   } else
                   if (length(grep(rexp2,lab))>0) {
                     choice <- sub(rexp2,"\\2",lab)
+                    if (choice %in% names(z)) {
+                      choice <- paste0(choice,".")
+                    }                    
                     z[[choice]] <- z[[matching_vars[j]]]
                   } else {
                     #stop("Could not find value of REDCap checklist item in variable specification")
@@ -941,7 +1064,7 @@ vtree <- function (
               if (length(matching_vars)==0) {
                 stop("Could not find variables with names matching variable specification")
               }
-              if (verbose) message(paste0(codevar[i]," expands to: ",paste(matching_vars,collapse=", ")))
+              if (verbose) message(paste0(vars[i]," expands to: ",paste(matching_vars,collapse=", ")))
               expandedvars <- c()
               if (choicechecklist) {
                 for (j in seq_len(length(matching_vars))) {
@@ -1068,13 +1191,18 @@ vtree <- function (
                     if (length(grep(rexp0,lab))>0) {
                       REDCap_var_label <- sub(rexp1,"\\1",lab)
                       choice <- sub(rexp1,"\\2",lab)
+                      if (choice %in% names(z)) {
+                        choice <- paste0(choice,".")
+                      }                
                       z[[choice]] <- z[[matching_vars[j]]]
                     } else
                     if (length(grep(rexp2,lab))>0) {
                       choice <- sub(rexp2,"\\2",lab)
+                      if (choice %in% names(z)) {
+                        choice <- paste0(choice,".")
+                      }                      
                       z[[choice]] <- z[[matching_vars[j]]]
                     } else {
-                      #stop("Could not find value of REDCap checklist item in variable specification")
                       choice <- matching_vars[j]
                     }
                     expandedvars <- c(expandedvars,choice)
@@ -1185,499 +1313,57 @@ vtree <- function (
     # Begin: Summaries  ----
     # *************************************************************************
     
-    regex <- "^(\\S+)\\s(.+)$"
-    if (!all(summary=="")) {
-      codevar <- gsub(regex, "\\1", summary)
-      summaryvarlist <- headinglist <- as.list(codevar)
-      
-      summaryformat <- gsub(regex, "\\2", summary)
-      summaryformat[grep(regex,summary,invert=TRUE)] <- ""
-      summaryformatlist <- as.list(summaryformat)
-      
-      extra_variables <- NULL
-
-      # Process != tag in variable names in summary argument
-      # (Note that this comes before the = tag so that it doesn't match first.)
-	    regex <- "^(\\S+)(\\!=)(\\S+)$"
-      findnotequal <- grep(regex,codevar)
-      if (length(findnotequal)>0) {
-        for (i in seq_len(length(codevar))) {    
-          if (i %in% findnotequal) {
-            thevar <- sub(regex,"\\1",codevar[i])
-            if (is.null(z[[thevar]]))
-              stop(paste("Unknown variable in summary:",thevar))                      
-            theval <- sub(regex,"\\3",codevar[i])
-            # Check to see if any of the values of the specified variable contain spaces
-            # If they do, replace underscores in the specified value with spaces.
-            if (any(length(grep(" ",names(table(z[[thevar]]))))>0)) {
-              theval <- gsub("_"," ",equalval)
-            }
-            m <- z[[thevar]]!=theval
-            z[[thevar]] <- m
-            summaryvarlist[[i]] <- thevar
-			      # codevar[i] <- thevar
-          }
-        }
+    summaryvarlist <- summaryvaluelist <- headinglist <- summaryformatlist <- list()
+    
+    if (!is.null(tsummary)) {
+      for (TSUMMARY in tsummary) {
+        lastTSUMMARY <- TSUMMARY[length(TSUMMARY)]
+        result <- parseSummary(z,vars=vars,
+          summary=lastTSUMMARY,verbose=verbose,choicechecklist=choicechecklist,
+          checked=checked,unchecked=unchecked)
+        z <- result$z
+        summaryvarlist <- c(summaryvarlist,result$summaryvar)
+        summaryvaluelist <- c(summaryvaluelist,TSUMMARY[length(TSUMMARY)-1])
+        headingslist <- c(headinglist,result$heading)
+        summaryformatlist <- c(summaryformatlist,result$format)
       }
-      
-      # Process = tag in variable names in summary argument
-      regex <- "^(\\S+)(=)(\\S+)"
-      findequal <- grep(regex,codevar)
-      if (length(findequal)>0) {
-        for (i in seq_len(length(codevar))) {    
-          if ((i %in% findequal) && !(i %in% findnotequal)) {
-            equalvar <- sub(regex,"\\1",codevar[i])
-            if (is.null(z[[equalvar]]))
-              stop(paste("Unknown variable in summary:",equalvar))                      
-            equalval <- sub(regex,"\\3",codevar[i])
-            # Check to see if any of the values of the specified variable contain spaces.
-            # If they do, replace underscores in the specified value with spaces.
-            if (any(length(grep(" ",names(table(z[[equalvar]]))))>0)) {
-              equalval <- gsub("_"," ",equalval)
-            }
-            m <- z[[equalvar]]==equalval
-            z[[equalvar]] <- m
-            summaryvarlist[[i]] <- equalvar
-			      # codevar[i] <- equalvar			
-          }
-        }
-      } 
-      
-      # Process > tag in variable names in summary argument
-      regex <- "(\\S+)(>)(\\S+)"
-      findgt <- grep(regex,codevar)
-      if (length(findgt)>0) {
-        for (i in seq_len(length(codevar))) {    
-          if (i %in% findgt) {
-            gtvar <- sub(regex,"\\1",codevar[i])
-            if (is.null(z[[gtvar]]))
-              stop(paste("Unknown variable in summary:",gtvar))                             
-            gtval <- sub(regex,"\\3",codevar[i])
-            # Check to see if any of the values of the specified variable contain spaces
-            # If they do, replace underscores in the specified value with spaces.
-            if (any(length(grep(" ",names(table(z[[gtvar]]))))>0)) {
-              gtval <- gsub("_"," ",gtval)
-            }
-            m <- z[[gtvar]]>as.numeric(gtval)
-            z[[gtvar]] <- m
-            summaryvarlist[[i]] <- gtvar
-			      # codevar[i] <- gtvar			
-          }
-        }
-      }
-      
-      # Process < tag in variable names in summary argument
-      regex <- "(\\S+)(<)(\\S+)"
-      findlt <- grep(regex,codevar)
-      if (length(findlt)>0) {
-        for (i in seq_len(length(codevar))) {    
-          if (i %in% findlt) {
-            ltvar <- sub(regex,"\\1",codevar[i])
-            if (is.null(z[[ltvar]]))
-              stop(paste("Unknown variable in summary:",ltvar))                             
-            ltval <- sub(regex,"\\3",codevar[i])
-            # Check to see if any of the values of the specified variable contain spaces
-            # If they do, replace underscores in the specified value with spaces.
-            if (any(length(grep(" ",names(table(z[[ltvar]]))))>0)) {
-              ltval <- gsub("_"," ",ltval)
-            }
-            m <- z[[ltvar]]<as.numeric(ltval)
-            z[[ltvar]] <- m
-            summaryvarlist[[i]] <- ltvar
-			      # codevar[i] <- ltvar			
-          }
-        }
-      } 
-      
-      # Process stem: tag in variable names in summary argument
-      regex <- "^stem:(\\S+)$"
-      findstem <- grep(regex,codevar)
-      if (length(findstem)>0) {
-        for (i in seq_len(length(codevar))) {    
-          if (i %in% findstem) {
-            thevar <- sub(regex,"\\1",codevar[i])
-            expanded_stem <- names(z)[grep(paste0("^",thevar,"___[0-9]+$"),names(z))]
-            if (verbose) message(paste0(codevar[i]," expands to: ",paste(expanded_stem,collapse=", ")))
-            if (length(expanded_stem)==0) {
-              stop(paste0("summary: Could not find variables with names matching the specified stem: ",thevar))
-            }
-            rexp0 <- "\\(choice=.+\\)"
-            rexp1 <- "(.+) \\(choice=(.+)\\)"
-            rexp2 <- "(.+): (.+)"
-            expandedvars <- c()
-            if (choicechecklist) {
-              for (j in 1:length(expanded_stem)) {
-                lab <- attributes(z[[expanded_stem[j]]])$label
-                if (length(grep(rexp0,lab))>0) {
-                  REDCap_var_label <- sub(rexp1,"\\1",lab)
-                  choice <- sub(rexp1,"\\2",lab)
-                } else
-                if (length(grep(rexp2,lab))>0) {
-                  choice <- sub(rexp2,"\\2",lab)
-                } else {
-                  stop("Could not find value of checklist item")
-                }
-                if (verbose) message(paste0(expanded_stem[j]," is ",choice))
-                z[[choice]] <- z[[expanded_stem[j]]]
-                expandedvars <- c(expandedvars,choice)
-              }            
-            } else {
-              expandedvars <- c(expandedvars,expanded_stem)
-            }
-            summaryvarlist[[i]] <- expandedvars
-            headinglist[[i]] <- expandedvars            
-            extra_variables <- c(extra_variables,expanded_stem)
-            summaryformatlist[[i]] <- rep(summaryformatlist[[i]],length(expanded_stem))
-          }
-        }
-      }
-      
-      # Process stemc: tag in variable names in summary argument
-      regex <- "^stemc:(\\S+)$"
-      findstem <- grep(regex,codevar)
-      if (length(findstem)>0) {
-        for (i in seq_len(length(codevar))) {    
-          if (i %in% findstem) {
-            y <- rep("",nrow(z))
-            none <- rep(TRUE,nrow(z))
-            thevar <- sub(regex,"\\1",codevar[i])
-            expanded_stem <- names(z)[grep(paste0("^",thevar,"___[0-9]+$"),names(z))]
-            if (verbose) message(paste0(codevar[i]," expands to: ",paste(expanded_stem,collapse=", ")))
-            if (length(expanded_stem)==0) {
-              stop(paste0("summary: Could not find variables with names matching the specified stem: ",thevar))
-            }
-            rexp0 <- "\\(choice=.+\\)"
-            rexp1 <- "(.+) \\(choice=(.+)\\)"
-            rexp2 <- "(.+): (.+)"
-            expandedvars <- c()
-            if (choicechecklist) {
-              for (j in 1:length(expanded_stem)) {
-                lab <- attributes(z[[expanded_stem[j]]])$label
-                if (length(grep(rexp0,lab))>0) {
-                  REDCap_var_label <- sub(rexp1,"\\1",lab)
-                  choice <- sub(rexp1,"\\2",lab)
-                } else
-                if (length(grep(rexp2,lab))>0) {
-                  choice <- sub(rexp2,"\\2",lab)
-                } else {
-                  stop("Could not find value of checklist item")
-                }
-                y <- ifelse(z[[expanded_stem[j]]]==1,
-                  ifelse(y=="",choice,paste0(y,"+",choice)),y)
-                if (verbose) message(paste0(expanded_stem[j]," is ",choice))
-                z[[choice]] <- z[[expanded_stem[j]]]
-                expandedvars <- c(expandedvars,choice)
-              }            
-            } else {
-              expandedvars <- c(expandedvars,expanded_stem)
-            }
-            y[y %in% ""] <- "*None"
-            newvar <- paste0("stem:",thevar)
-            z[[newvar]] <- y
-            summaryvarlist[[i]] <- newvar
-            headinglist[[i]] <- ""            
-            extra_variables <- c(extra_variables,newvar)
-            summaryformatlist[[i]] <- rep(summaryformatlist[[i]],length(expanded_stem))
-          }
-        }
-      }      
-      
-      #
-      # >> Process complex summary specification ----
-      # including REDCap variables, intersections, and wildcards
-      #
-      # Uses the same regular expression as for variable specifications,
-      # namely the string regexComplex
-      
-      match_regex <- grep(regexComplex,codevar)
-      if (length(match_regex)>0) {
-        expandedvars <- c()
-        for (i in seq_len(length(codevar))) {    
-          if (i %in% match_regex) {
-            y <- rep("",nrow(z))
-            none <- rep(TRUE,nrow(z))
-            prefix <- sub(regexComplex,"\\1",codevar[i])
-            text_part <- sub(regexComplex,"\\3",codevar[i])
-            wildcard <- sub(regexComplex,"\\4",codevar[i])
-            tail <- sub(regexComplex,"\\5",codevar[i])
-            if (prefix=="" && wildcard=="") {
-              expandedvars <- c(expandedvars,vars[i]) 
-            } else            
-            if (prefix=="any:"    || prefix=="anyx:"    || 
-                prefix=="none:"   || prefix=="nonex:"   ||
-                prefix=="all:"    || prefix=="allx:"    ||
-                prefix=="notall:" || prefix=="notallx:" ) {
-              if (wildcard=="*") {
-                matching_vars <- names(z)[grep(paste0("^",text_part,".*",tail,"$"),names(z))]
-              } else
-              if (wildcard=="#") {
-                matching_vars <- names(z)[grep(paste0("^",text_part,"[0-9]+",tail,"$"),names(z))]
-              } else {
-                stop("Invalid wildcard in summary specification")
-              }
-              expandedvars <- c()
-              if (length(matching_vars)==0) {
-                stop("Could not find variables matching summary specification")
-              }      
-              if (verbose) message(paste0(vars[i]," expands to: ",paste(matching_vars,collapse=", ")))
-              out <- combineVars(prefix,text_part,matching_vars,checked,unchecked,z)
-              output <- out$output
-              NewVarName <- out$NewVarName   
-                  
-              z[[NewVarName]] <- output
-              expandedvars <- c(expandedvars,NewVarName)          
-                
-              newvarheading <- NewVarName
-              summaryvarlist[[i]] <- NewVarName
-              headinglist[[i]] <- NewVarName          
-              extra_variables <- c(extra_variables,NewVarName)
-              summaryformatlist[[i]] <- rep(summaryformatlist[[i]],length(matching_vars))
-            
-            } else
-            if (prefix=="r:" || prefix=="ir:" || prefix=="ri:" ||
-                prefix=="anyr:" || prefix=="rany:" ||
-                prefix=="allr:" || prefix=="rall:" || 
-                prefix=="noner:" || prefix=="rnone:" ||
-                prefix=="notallr:" || prefix=="rnotall:") {
-              if (wildcard=="@") {
-                matching_vars <- names(z)[grep(paste0("^",text_part,"___[0-9]+$"),names(z))]
-              } else {
-                stop("Invalid wildcard in summary specification")
-              }
-              if (length(matching_vars)==0) {
-                stop("Could not find variables names matching summary specification")
-              }
-              if (verbose) message(paste0(codevar[i]," expands to: ",paste(matching_vars,collapse=", ")))
-              #message(paste0("prefix-->",prefix,"<-- matching_vars=",paste(matching_vars,collapse=", ")))
-              rexp0 <- "\\(choice=.+\\)"
-              rexp1 <- "(.+) \\(choice=(.+)\\)"
-              rexp2 <- "(.+): (.+)"
-              expandedvars <- c()
- 
-              if (prefix=="r:") {
-                if (choicechecklist) {
-                  for (j in seq_len(length(matching_vars))) {
-                    lab <- attributes(z[[matching_vars[j]]])$label
-                    if (length(grep(rexp0,lab))>0) {
-                      REDCap_var_label <- sub(rexp1,"\\1",lab)
-                      choice <- sub(rexp1,"\\2",lab)
-                    } else
-                    if (length(grep(rexp2,lab))>0) {
-                      choice <- sub(rexp2,"\\2",lab)
-                    } else {
-                      stop("Could not find value of checklist item")
-                    }
-                    if (verbose) message(paste0(matching_vars[j]," is ",choice))
-                    z[[choice]] <- z[[matching_vars[j]]]
-                    expandedvars <- c(expandedvars,choice)
-                  }            
-                } else {
-                  expandedvars <- c(expandedvars,matching_vars)
-                }
-                summaryvarlist[[i]] <- expandedvars
-                headinglist[[i]] <- expandedvars            
-                extra_variables <- c(extra_variables,matching_vars)
-                summaryformatlist[[i]] <- rep(summaryformatlist[[i]],length(matching_vars))
-              } else
-              if (prefix=="anyr:" || prefix=="rany:") {
-                lab1 <- attributes(z[[matching_vars[1]]])$label
-                if (length(grep(rexp0,lab1))>0) {
-                  REDCap_var_label <- sub(rexp1,"\\1",lab1)
-                } else {
-                  REDCap_var_label <- sub(rexp2,"\\1",lab1)
-                }
-                if (choicechecklist) {
-                  out <- combineVars(prefix,REDCap_var_label,matching_vars,checked,unchecked,z)
-                }
-                output <- out$output
-                REDCap_var_label_any <- out$NewVarName
-                z[[REDCap_var_label_any]] <- output
-                expandedvars <- c(expandedvars,REDCap_var_label_any)
-                summaryvarlist[[i]] <- expandedvars
-                headinglist[[i]] <- expandedvars            
-                extra_variables <- c(extra_variables,matching_vars)
-                summaryformatlist[[i]] <- rep(summaryformatlist[[i]],length(matching_vars))
-              } else
-              if (prefix=="noner:" || prefix=="rnone:") {
-                lab1 <- attributes(z[[matching_vars[1]]])$label
-                if (length(grep(rexp0,lab1))>0) {
-                  REDCap_var_label <- sub(rexp1,"\\1",lab1)
-                } else {
-                  REDCap_var_label <- sub(rexp2,"\\1",lab1)
-                }
-                if (choicechecklist) {
-                  for (j in 1:length(matching_vars)) {
-                    convertedToLogical <- 
-                      ifelse(!(z[[matching_vars[j]]] %in% checked),TRUE,
-                        ifelse(!(z[[matching_vars[j]]] %in% unchecked),FALSE,NA))
-                    if (j==1) {
-                      output <- convertedToLogical
-                    } else {
-                      output <- output & convertedToLogical
-                    }
-                  }
-                } 
-                REDCap_var_label_none <- paste0("None: ",REDCap_var_label)
-                z[[REDCap_var_label_none]] <- output
-                expandedvars <- c(expandedvars,REDCap_var_label_none)
-                summaryvarlist[[i]] <- expandedvars
-                headinglist[[i]] <- expandedvars            
-                extra_variables <- c(extra_variables,matching_vars)
-                summaryformatlist[[i]] <- rep(summaryformatlist[[i]],length(matching_vars))
-              } else                
-              if (prefix=="allr:" || prefix=="rall:") {
-                lab1 <- attributes(z[[matching_vars[1]]])$label
-                if (length(grep(rexp0,lab1))>0) {
-                  REDCap_var_label <- sub(rexp1,"\\1",lab1)
-                } else {
-                  REDCap_var_label <- sub(rexp2,"\\1",lab1)
-                }
-                if (choicechecklist) {
-                  for (j in 1:length(matching_vars)) {
-                    convertedToLogical <- 
-                      ifelse(z[[matching_vars[j]]] %in% checked,TRUE,
-                        ifelse(z[[matching_vars[j]]] %in% unchecked,FALSE,NA))
-                    if (j==1) {
-                      output <- convertedToLogical
-                    } else {
-                      output <- output & convertedToLogical
-                    }
-                  }
-                } 
-                REDCap_var_label_all <- paste0("All: ",REDCap_var_label)
-                z[[REDCap_var_label_all]] <- output
-                expandedvars <- c(expandedvars,REDCap_var_label_all)
-                summaryvarlist[[i]] <- expandedvars
-                headinglist[[i]] <- expandedvars            
-                extra_variables <- c(extra_variables,matching_vars)
-                summaryformatlist[[i]] <- rep(summaryformatlist[[i]],length(matching_vars))
-              } else
-              if (prefix=="notallr:" || prefix=="rnotall:") {
-                lab1 <- attributes(z[[matching_vars[1]]])$label
-                if (length(grep(rexp0,lab1))>0) {
-                  REDCap_var_label <- sub(rexp1,"\\1",lab1)
-                } else {
-                  REDCap_var_label <- sub(rexp2,"\\1",lab1)
-                }
-                if (choicechecklist) {
-                  for (j in 1:length(matching_vars)) {
-                    convertedToLogical <- 
-                      ifelse(!(z[[matching_vars[j]]] %in% checked),TRUE,
-                        ifelse(!(z[[matching_vars[j]]] %in% unchecked),FALSE,NA))
-                    if (j==1) {
-                      output <- convertedToLogical
-                    } else {
-                      output <- output | convertedToLogical
-                    }
-                  }
-                } 
-                REDCap_var_label_notall <- paste0("Not all: ",REDCap_var_label)
-                z[[REDCap_var_label_notall]] <- output
-                expandedvars <- c(expandedvars,REDCap_var_label_notall)
-                summaryvarlist[[i]] <- expandedvars
-                headinglist[[i]] <- expandedvars            
-                extra_variables <- c(extra_variables,matching_vars)
-                summaryformatlist[[i]] <- rep(summaryformatlist[[i]],length(matching_vars))
-              } else                                                
-              if (prefix=="ri:" | prefix=="ir:") {
-                if (choicechecklist) {
-                  for (j in seq_len(length(matching_vars))) {
-                    lab <- attributes(z[[matching_vars[j]]])$label
-                    if (length(grep(rexp0,lab))>0) {
-                      REDCap_var_label <- sub(rexp1,"\\1",lab)
-                      choice <- sub(rexp1,"\\2",lab)
-                    } else
-                    if (length(grep(rexp2,lab))>0) {
-                      choice <- sub(rexp2,"\\2",lab)
-                    } else {
-                      stop("Could not find value of checklist item")
-                    }
-                    y <- ifelse(z[[matching_vars[j]]]==1,
-                      ifelse(y=="",choice,paste0(y,"+",choice)),y)
-                    if (verbose) message(paste0(matching_vars[j]," is ",choice))
-                    z[[choice]] <- z[[matching_vars[j]]]
-                    expandedvars <- c(matching_vars,choice)
-                  }            
-                } else {
-                  expandedvars <- c(expandedvars,matching_vars)
-                }
-                y[y %in% ""] <- "*None"
-                newvar <- paste0("stem:",text_part)
-                z[[newvar]] <- y
-                summaryvarlist[[i]] <- newvar
-                headinglist[[i]] <- ""            
-                extra_variables <- c(extra_variables,newvar)
-                summaryformatlist[[i]] <- rep(summaryformatlist[[i]],length(matching_vars))                
-              }  
-            } else {
-              if (wildcard=="*") {
-                matching_vars <- names(z)[grep(paste0("^",text_part,".*",tail,"$"),names(z))]
-              } else
-              if (wildcard=="#") {
-                matching_vars <- names(z)[grep(paste0("^",text_part,"[0-9]+",tail,"$"),names(z))]
-              } else {
-                stop("Invalid wildcard in summary specification")
-              }
-              if (length(matching_vars)==0) {
-                stop("summary: Could not find variables with matching names")
-              }
-              if (verbose) message(paste0(codevar[i]," expands to: ",paste(matching_vars,collapse=", ")))
-              #message(paste0("prefix-->",prefix,"<-- matching_vars=",paste(matching_vars,collapse=", ")))
-              if (prefix=="i:") {
-                expandedvars <- c()
-                if (choicechecklist) {
-                  for (j in seq_len(length(matching_vars))) {
-                    y <- ifelse(z[[matching_vars[j]]]==1,
-                      ifelse(y=="",matching_vars[j],paste0(y,"+",matching_vars[j])),y)
-                  }
-                } 
-                y[y %in% ""] <- "*None"
-                newvar <- paste0("combinations_of_",paste(matching_vars,collapse="_"))
-                newvarheading <- paste0("combinations of ",paste(matching_vars,collapse=", "))
-                z[[newvar]] <- y
-                summaryvarlist[[i]] <- newvar
-                headinglist[[i]] <- newvarheading           
-                extra_variables <- c(extra_variables,newvar)
-                summaryformatlist[[i]] <- rep(summaryformatlist[[i]],length(matching_vars))
-              } else 
-              if (prefix=="") {
-                summaryvarlist[[i]] <- matching_vars
-                headinglist[[i]] <- matching_vars          
-                summaryformatlist[[i]] <- rep(summaryformatlist[[i]],length(matching_vars))
-              } else {
-                stop("Unknown prefix")
-              }
-            }
-          }
-        }
-      }     
-      
-      # If an element of codevar is not the name of a variable in z,
-      # perhaps it's an expression that can be evaluated in z
-      for (i in seq_len(length(summaryvarlist))) { 
-        if (length(summaryvarlist[[i]])==1) {
-          if (length(grep("^([oair]+[oair]*:)*(\\S*)([\\*#@])$",summaryvarlist[[i]]))==0) {
-            if (length(grep("^stem:",summaryvarlist[[i]]))==0) {   # except for stems
-              if (length(grep("^stemc:",summaryvarlist[[i]]))==0) {   # except for stems
-                if (length(grep("\\*$",summaryvarlist[[i]]))==0) {   # except for ending in *
-                  if (length(grep("#$",summaryvarlist[[i]]))==0) {   # except for ending in #
-                    if (!(summaryvarlist[[i]] %in% names(z))) {
-                      derivedvar <- with(z,eval(parse(text=summaryvarlist[[i]],keep.source=FALSE))) 
-                      z[[summaryvarlist[[i]]]] <- derivedvar
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }            
       
       summaryvars <- unlist(summaryvarlist)
-      headings <- unlist(headinglist)
+      summaryvalues <- unlist(summaryvaluelist)
+      headings <- unlist(headingslist)
       
       allvars <- c(allvars,summaryvars) 
-
+      
+      if (!is.null(runsummary)) {
+        if (length(runsummary) != length(summary)) {
+          stop("runsummary argument is not the same length as summary argument.")
+        }
+      }
+      
+      nodefunc <- summaryNodeFunction
+      nodeargs <- list(
+        var = summaryvars, value = summaryvalues, format = unlist(summaryformatlist),
+        original_var=headings,
+        sf = runsummary, digits = digits, cdigits = cdigits, sepN=sepN, 
+        thousands = thousands)
+      
+    } else
+    if (!is.null(summary)) {
+      for (SUMMARY in summary) {
+        result <- parseSummary(z,vars=vars,
+          summary=SUMMARY,verbose=verbose,choicechecklist=choicechecklist,
+          checked=checked,unchecked=unchecked)
+        z <- result$z
+        summaryvarlist <- c(summaryvarlist,result$summaryvar)
+        headingslist <- c(headinglist,result$heading)
+        summaryformatlist <- c(summaryformatlist,result$format)
+      }
+      
+      summaryvars <- unlist(summaryvarlist)
+      headings <- unlist(headingslist)
+      
+      allvars <- c(allvars,summaryvars) 
+    
       if (!is.null(runsummary)) {
         if (length(runsummary) != length(summary)) {
           stop("runsummary argument is not the same length as summary argument.")
@@ -1688,11 +1374,13 @@ vtree <- function (
       nodeargs <- list(
         var = summaryvars, format = unlist(summaryformatlist),
         original_var=headings,
-        sf = runsummary, digits = digits, cdigits = cdigits, sepN=sepN)
-    }
+        sf = runsummary, digits = digits, cdigits = cdigits, sepN=sepN,
+        thousands = thousands)
+      
+    }  
     
     # *************************************************************************
-    # End: Summaries  ----
+    # End: Summaries ----
     # *************************************************************************
     
 
@@ -1700,6 +1388,10 @@ vtree <- function (
     allvars <- c(allvars,retain)
 
     numvars <- length(vars)
+    
+    # *************************************************************************
+    # Begin: Color palettes ----
+    # *************************************************************************
     
     # Each element of the following list
     # is a matrix where the rows are the different hues (one for each variable).
@@ -1720,12 +1412,12 @@ vtree <- function (
         c("#1C9099"),
         c("#8856A7"),
         c("#F03B20"),
-        c("#91CF60"),
         c("#43A2CA"),
         c("#2C7FB8"),
         c("#C51B8A"),
         c("#2CA25F"),
-        c("#E34A33")
+        c("#E34A33"),
+        c("#636363")
       ),
       rbind(
         c("#FEE0D2","#DE2D26"),
@@ -1740,12 +1432,12 @@ vtree <- function (
         c("#ECE2F0","#1C9099"),
         c("#E0ECF4","#8856A7"),
         c("#FFEDA0","#F03B20"),
-        c("#FC8D59","#91CF60"),
         c("#E0F3DB","#43A2CA"),
         c("#EDF8B1","#2C7FB8"),
         c("#FDE0DD","#C51B8A"),
         c("#E5F5F9","#2CA25F"),
-        c("#FEE8C8","#E34A33")
+        c("#FEE8C8","#E34A33"),
+        c("#F0F0F0","#636363")
       ),
       rbind(
         c("#FEE0D2","#FC9272","#DE2D26"),
@@ -1760,12 +1452,12 @@ vtree <- function (
         c("#ECE2F0","#A6BDDB","#1C9099"),
         c("#E0ECF4","#9EBCDA","#8856A7"),
         c("#FFEDA0","#FEB24C","#F03B20"),
-        c("#FC8D59","#FFFFBF","#91CF60"),
         c("#E0F3DB","#A8DDB5","#43A2CA"),
         c("#EDF8B1","#7FCDBB","#2C7FB8"),
         c("#FDE0DD","#FA9FB5","#C51B8A"),
         c("#E5F5F9","#99D8C9","#2CA25F"),
-        c("#FEE8C8","#FDBB84","#E34A33")
+        c("#FEE8C8","#FDBB84","#E34A33"),
+        c("#F0F0F0","#BDBDBD","#636363")
       ),
       rbind(
         c("#FEE5D9","#FCAE91","#FB6A4A","#CB181D"),
@@ -1780,12 +1472,12 @@ vtree <- function (
         c("#F6EFF7","#BDC9E1","#67A9CF","#02818A"),
         c("#EDF8FB","#B3CDE3","#8C96C6","#88419D"),
         c("#FFFFB2","#FECC5C","#FD8D3C","#E31A1C"),
-        c("#D7191C","#FDAE61","#A6D96A","#1A9641"),
         c("#F0F9E8","#BAE4BC","#7BCCC4","#2B8CBE"),
         c("#FFFFCC","#A1DAB4","#41B6C4","#225EA8"),
         c("#FEEBE2","#FBB4B9","#F768A1","#AE017E"),
         c("#EDF8FB","#B2E2E2","#66C2A4","#238B45"),
-        c("#FEF0D9","#FDCC8A","#FC8D59","#D7301F")
+        c("#FEF0D9","#FDCC8A","#FC8D59","#D7301F"),
+        c("#F7F7F7","#CCCCCC","#969696","#525252")
       ),
       rbind(
         c("#FEE5D9","#FCAE91","#FB6A4A","#DE2D26","#A50F15"),
@@ -1800,12 +1492,12 @@ vtree <- function (
         c("#F6EFF7","#BDC9E1","#67A9CF","#1C9099","#016C59"),
         c("#EDF8FB","#B3CDE3","#8C96C6","#8856A7","#810F7C"),
         c("#FFFFB2","#FECC5C","#FD8D3C","#F03B20","#BD0026"),
-        c("#D7191C","#FDAE61","#FFFFBF","#A6D96A","#1A9641"),
         c("#F0F9E8","#BAE4BC","#7BCCC4","#43A2CA","#0868AC"),
         c("#FFFFCC","#A1DAB4","#41B6C4","#2C7FB8","#253494"),
         c("#FEEBE2","#FBB4B9","#F768A1","#C51B8A","#7A0177"),
         c("#EDF8FB","#B2E2E2","#66C2A4","#2CA25F","#006D2C"),
-        c("#FEF0D9","#FDCC8A","#FC8D59","#E34A33","#B30000")
+        c("#FEF0D9","#FDCC8A","#FC8D59","#E34A33","#B30000"),
+        c("#F7F7F7","#CCCCCC","#969696","#636363","#252525")
       ),
       rbind(
         c("#FEE5D9","#FCBBA1","#FC9272","#FB6A4A","#DE2D26","#A50F15"),
@@ -1820,12 +1512,12 @@ vtree <- function (
         c("#F6EFF7","#D0D1E6","#A6BDDB","#67A9CF","#1C9099","#016C59"),
         c("#EDF8FB","#BFD3E6","#9EBCDA","#8C96C6","#8856A7","#810F7C"),
         c("#FFFFB2","#FED976","#FEB24C","#FD8D3C","#F03B20","#BD0026"),
-        c("#D73027","#FC8D59","#FEE08B","#D9EF8B","#91CF60","#1A9850"),
         c("#F0F9E8","#CCEBC5","#A8DDB5","#7BCCC4","#43A2CA","#0868AC"),
         c("#FFFFCC","#C7E9B4","#7FCDBB","#41B6C4","#2C7FB8","#253494"),
         c("#FEEBE2","#FCC5C0","#FA9FB5","#F768A1","#C51B8A","#7A0177"),
         c("#EDF8FB","#CCECE6","#99D8C9","#66C2A4","#2CA25F","#006D2C"),
-        c("#FEF0D9","#FDD49E","#FDBB84","#FC8D59","#E34A33","#B30000")
+        c("#FEF0D9","#FDD49E","#FDBB84","#FC8D59","#E34A33","#B30000"),
+        c("#F7F7F7","#D9D9D9","#BDBDBD","#969696","#636363","#252525")
       ),
       rbind(
         c("#FEE5D9","#FCBBA1","#FC9272","#FB6A4A","#EF3B2C","#CB181D","#99000D"),
@@ -1840,12 +1532,12 @@ vtree <- function (
         c("#F6EFF7","#D0D1E6","#A6BDDB","#67A9CF","#3690C0","#02818A","#016450"),
         c("#EDF8FB","#BFD3E6","#9EBCDA","#8C96C6","#8C6BB1","#88419D","#6E016B"),
         c("#FFFFB2","#FED976","#FEB24C","#FD8D3C","#FC4E2A","#E31A1C","#B10026"),
-        c("#D73027","#FC8D59","#FEE08B","#FFFFBF","#D9EF8B","#91CF60","#1A9850"),
         c("#F0F9E8","#CCEBC5","#A8DDB5","#7BCCC4","#4EB3D3","#2B8CBE","#08589E"),
         c("#FFFFCC","#C7E9B4","#7FCDBB","#41B6C4","#1D91C0","#225EA8","#0C2C84"),
         c("#FEEBE2","#FCC5C0","#FA9FB5","#F768A1","#DD3497","#AE017E","#7A0177"),
         c("#EDF8FB","#CCECE6","#99D8C9","#66C2A4","#41AE76","#238B45","#005824"),
-        c("#FEF0D9","#FDD49E","#FDBB84","#FC8D59","#EF6548","#D7301F","#990000")
+        c("#FEF0D9","#FDD49E","#FDBB84","#FC8D59","#EF6548","#D7301F","#990000"),
+        c("#F7F7F7","#D9D9D9","#BDBDBD","#969696","#737373","#525252","#252525")
       ),
       rbind(
         c("#FFF5F0","#FEE0D2","#FCBBA1","#FC9272","#FB6A4A","#EF3B2C","#CB181D","#99000D"),
@@ -1860,12 +1552,12 @@ vtree <- function (
         c("#FFF7FB","#ECE2F0","#D0D1E6","#A6BDDB","#67A9CF","#3690C0","#02818A","#016450"),
         c("#F7FCFD","#E0ECF4","#BFD3E6","#9EBCDA","#8C96C6","#8C6BB1","#88419D","#6E016B"),
         c("#FFFFCC","#FFEDA0","#FED976","#FEB24C","#FD8D3C","#FC4E2A","#E31A1C","#B10026"),
-        c("#D73027","#F46D43","#FDAE61","#FEE08B","#D9EF8B","#A6D96A","#66BD63","#1A9850"),
         c("#F7FCF0","#E0F3DB","#CCEBC5","#A8DDB5","#7BCCC4","#4EB3D3","#2B8CBE","#08589E"),
         c("#FFFFD9","#EDF8B1","#C7E9B4","#7FCDBB","#41B6C4","#1D91C0","#225EA8","#0C2C84"),
         c("#FFF7F3","#FDE0DD","#FCC5C0","#FA9FB5","#F768A1","#DD3497","#AE017E","#7A0177"),
         c("#F7FCFD","#E5F5F9","#CCECE6","#99D8C9","#66C2A4","#41AE76","#238B45","#005824"),
-        c("#FFF7EC","#FEE8C8","#FDD49E","#FDBB84","#FC8D59","#EF6548","#D7301F","#990000")
+        c("#FFF7EC","#FEE8C8","#FDD49E","#FDBB84","#FC8D59","#EF6548","#D7301F","#990000"),
+        c("#FFFFFF","#F0F0F0","#D9D9D9","#BDBDBD","#969696","#737373","#525252","#252525")
       ),
       rbind(
         c("#FFF5F0","#FEE0D2","#FCBBA1","#FC9272","#FB6A4A","#EF3B2C","#CB181D","#A50F15","#67000D"),
@@ -1880,24 +1572,17 @@ vtree <- function (
         c("#FFF7FB","#ECE2F0","#D0D1E6","#A6BDDB","#67A9CF","#3690C0","#02818A","#016C59","#014636"),
         c("#F7FCFD","#E0ECF4","#BFD3E6","#9EBCDA","#8C96C6","#8C6BB1","#88419D","#810F7C","#4D004B"),
         c("#FFFFCC","#FFEDA0","#FED976","#FEB24C","#FD8D3C","#FC4E2A","#E31A1C","#BD0026","#800026"),
-        c("#D73027","#F46D43","#FDAE61","#FEE08B","#FFFFBF","#D9EF8B","#A6D96A","#66BD63","#1A9850"),
         c("#F7FCF0","#E0F3DB","#CCEBC5","#A8DDB5","#7BCCC4","#4EB3D3","#2B8CBE","#0868AC","#084081"),
         c("#FFFFD9","#EDF8B1","#C7E9B4","#7FCDBB","#41B6C4","#1D91C0","#225EA8","#253494","#081D58"),
         c("#FFF7F3","#FDE0DD","#FCC5C0","#FA9FB5","#F768A1","#DD3497","#AE017E","#7A0177","#49006A"),
         c("#F7FCFD","#E5F5F9","#CCECE6","#99D8C9","#66C2A4","#41AE76","#238B45","#006D2C","#00441B"),
-        c("#FFF7EC","#FEE8C8","#FDD49E","#FDBB84","#FC8D59","#EF6548","#D7301F","#B30000","#7F0000")
-    ))
+        c("#FFF7EC","#FEE8C8","#FDD49E","#FDBB84","#FC8D59","#EF6548","#D7301F","#B30000","#7F0000"),
+        c("#FFFFFF","#F0F0F0","#D9D9D9","#BDBDBD","#969696","#737373","#525252","#252525","#000000")
+      ))
     
-    # Now add some single-shade palettes
-    #
-    # for (i in seq_len(length(col))) {
-    #   singles <- c(
-    #     "#FFFFFF","#CCCCCC","#FFCC00","#CC99FF","#6699CC","#33CCFF",
-    #     "#FF9933","#CCFFCC","#FFCCCC","#99CC99","#99CCCC") 
-    #   for (this in singles) {
-    #     col[[i]] <- rbind(col[[i]],rep(this,i))
-    #   }
-    # }
+    # *************************************************************************
+    # End: Color palettes ----
+    # *************************************************************************    
     
     # Duplicate the color gradients 3 times to allow for huge trees.
     for (i in seq_len(length(col))) {
@@ -1924,7 +1609,7 @@ vtree <- function (
       }
     }
     
-    # Check that all of named variables are in the data frame
+    # Check that all of the named variables are in the data frame
     if (novars) ALLVARS <- ALLVARS[ALLVARS!=""]
     findallvars <- ALLVARS %in% names(z)
     if (any(!findallvars)) {
@@ -1953,9 +1638,7 @@ vtree <- function (
         labelvar <- splitlines(labelvar, splitwidth, sp = sepN, at = c(" ", ".", "-", "+", "_", "=", "/"))
         names(labelvar) <- namesvarheaders
     }
-
-    if (!missing(labelnode) && !is.list(labelnode)) stop("labelnode must be a list.")
-
+    
     if (length(labelnode) > 0) {
       for (i in seq_len(length(labelnode))) {
         names(labelnode[[i]]) <- splitlines(names(labelnode[[i]]),splitwidth,sp =sepN, at=" ")
@@ -1977,6 +1660,10 @@ vtree <- function (
       }
       vars <- NEWVARS
     }
+    
+    # *************************************************************************
+    # Begin: Process patterns  ----
+    # *************************************************************************    
     
     if (pattern | seq) {
       if (missing(showroot)) showroot <- FALSE
@@ -2024,6 +1711,26 @@ vtree <- function (
       }
       PATTERN <- factor(PATTERN,levels=PATTERN_levels)
       
+      if (!is.null(prunesmaller)) {
+        tabpattern <- table(PATTERN)
+        if (!showuniform) {
+          sel <- PATTERN %in% names(tabpattern[tabpattern>=prunesmaller])
+          z <- z[sel,]
+          PATTERN <- PATTERN[sel]
+        }
+      }
+      
+      if (!showuniform) {
+        for (var in vars) {
+          #message(var)
+          #print(table(z[[var]]))
+          if (length(unique(z[[var]]))==1) {
+            message(paste0("Not showing ",var,", since the only value is ",z[[var]][1]))
+            vars <- vars[vars!=var]
+          }
+        }
+      }
+      
       if (pattern) {
         z$pattern <- PATTERN
         vars <- c("pattern",vars)
@@ -2049,8 +1756,27 @@ vtree <- function (
       if (arrowhead!="normal") {
         edgeattr <- paste(edgeattr,paste0("arrowhead=",arrowhead))
       }
+      
+      if (!showuniform) {
+        for (var in vars) {
+          #message(var)
+          #print(table(z[[var]]))
+          if (length(unique(z[[var]]))==1) {
+            message(paste0("Not showing ",var,", since the only value is ",z[[var]][1]))
+            vars <- vars[vars!=var]
+          }
+        }
+        if (length(vars)==0) {
+          novars <- TRUE
+          vars <- ""
+        }
+      }
     }
-
+    
+    # *************************************************************************
+    # End: Process patterns  ----
+    # *************************************************************************    
+    
     if (is.null(names(gradient))) {
       gradient <- rep(gradient[1],numvars)
       names(gradient) <- vars
@@ -2239,10 +1965,12 @@ vtree <- function (
       }
     }
 
-    # Assign colors
+    # *************************************************************************
+    # Begin: Assign colors  ----
+    # *************************************************************************    
     if (!plain) {
-      FC <- vector("list",numvars)
-      names(FC) <- vars
+      FILLCOLOR <- vector("list",numvars)
+      names(FILLCOLOR) <- vars
       numPalettes <- nrow(col[[1]])
       for (i in seq_len(numvars)) {
         if (tri.variable[i]) {
@@ -2326,28 +2054,31 @@ vtree <- function (
           }
         }
         names(valuecolors) <- values
-        FC[[vars[i]]] <- valuecolors
+        FILLCOLOR[[vars[i]]] <- valuecolors
       }
-      fillcolor <- FC
+      fillcolor <- FILLCOLOR
       colorIndex <- rep(1:numPalettes,length.out=numvars)
       names(varlabelcolors) <- vars
       if (check.is.na) {
         names(varlabelcolors) <- OLDVARS
       }
     }
+    # *************************************************************************
+    # End: Assign colors  ----
+    # *************************************************************************        
     
     # If fillcolor isn't a list, create a list
     if (!is.list(fillcolor)) {
-      FC <- vector("list",numvars)
-      names(FC) <- vars
+      FILLCOLOR <- vector("list",numvars)
+      names(FILLCOLOR) <- vars
       for (i in seq_len(length(vars))) {
         values <- names(table(z[[vars[i]]],exclude=NULL))
         values[is.na(values)] <- "NA"
         valuecolors <- rep(fillcolor[i],length(values))
         names(valuecolors) <- values
-        FC[[vars[i]]] <- valuecolors
+        FILLCOLOR[[vars[i]]] <- valuecolors
       }
-      fillcolor <- FC
+      fillcolor <- FILLCOLOR
     }
     
     z_names <- names(z)
@@ -2389,31 +2120,13 @@ vtree <- function (
         paste(names(keep)[!findvars], collapse = ", "))
     }
     
-  
-    if (length(prune)>0 && (!is.list(prune) || is.null(names(prune)))) {
-      stop("The argument of prune should be a named list.")
-    }
-    
-    if (length(prunebelow)>0 && (!is.list(prunebelow) || is.null(names(prunebelow)))) {
-      stop("The argument of prunebelow should be a named list.")
-    }    
-    
-    if (length(follow)>0 && (!is.list(follow) || is.null(names(follow)))) {
-      stop("The argument of follow should be a named list.")
-    }
-    
-    if (length(keep)>0 && (!is.list(keep) || is.null(names(keep)))) {
-      stop("The argument of keep should be a named list.")
-    }        
-    
   }
 
-  
   # *************************************************************************
   # End code for root only ----
   # *************************************************************************
   
-  
+
   numvars <- length(vars)
 
   # Node outline colors
@@ -2447,18 +2160,63 @@ vtree <- function (
   }
   
   TopText <- ""
-  if (!is.null(nodefunc)) {
+  
+  tsummaryLen <- sapply(tsummary,length)
+
+  qqq <- z[[vars[1]]]
+  qqq <- as.character(qqq)
+  qqq[is.na(qqq)] <- "NA"
+  categoryCounts <- table(qqq, exclude = NULL)
+  CAT <- names(categoryCounts)
+  
+  ThisLayerText <- rep("",length(CAT))       
+  
+  # Process summaries to include in nodes  ----
+  
+  if (any(tsummaryLen==2)) {
+    #
+    # Prepare targeted summaries
+    #
+    for (i in seq_len(length(tsummary))) {
+      if (tsummaryLen[i]==2) {
+        if (numvars == 1)
+          nodeargs$leaf <- TRUE
+        summarytext <- vector("list",length=length(CAT))
+        names(summarytext) <- CAT
+        for (k in seq_len(length(CAT))) {
+          value <- CAT[k]
+          zselect <- z[qqq == value,,drop=FALSE]
+          for (j in seq_len(ncol(zselect))) {
+            attr(zselect[,j],"label") <- attr(z[,j],"label")
+          }
+          if (tsummary[[i]][1]==value) {
+            choose <- nodeargs$value==value
+            if (any(choose)) {
+              args <- nodeargs
+              args$var <- args$var[choose]
+              args$format <- args$format[choose]
+              args$value <- args$value[choose] # not really necessary
+              summarytext[[value]] <- nodefunc(zselect, vars[1], value, args = args)
+              nodetext <- paste0(summarytext[[value]],collapse="")
+              nodetext <- splitlines(nodetext, width = splitwidth, sp = sepN, at=" ")
+              ThisLayerText[k] <- paste0(ThisLayerText[k], paste0(nodetext,sepN))
+            } 
+          }
+        }
+        names(ThisLayerText) <- CAT
+      }
+    }
+  } else
+  if (is.null(tsummary) & !is.null(nodefunc)) {
+    #
+    # Prepare non-targeted summaries
+    #    
     if (numvars == 1)
         nodeargs$leaf <- TRUE
-    ThisLayerText <- c()
-    qqq <- z[[vars[1]]]
-    qqq <- as.character(qqq)
-    qqq[is.na(qqq)] <- "NA"
-    categoryCounts <- table(qqq, exclude = NULL)
-    CAT <- names(categoryCounts)
     summarytext <- vector("list",length=length(CAT))
     names(summarytext) <- CAT
-    for (value in CAT) {
+    for (k in seq_len(length(CAT))) {
+      value <- CAT[k]
       zselect <- z[qqq == value,,drop=FALSE]
       for (i in seq_len(ncol(zselect))) {
         attr(zselect[,i],"label") <- attr(z[,i],"label")
@@ -2466,7 +2224,7 @@ vtree <- function (
       summarytext[[value]] <- nodefunc(zselect, vars[1], value, args = nodeargs)
       nodetext <- paste0(summarytext[[value]],collapse="")
       nodetext <- splitlines(nodetext, width = splitwidth, sp = sepN, at=" ")
-      ThisLayerText <- c(ThisLayerText, paste0(nodetext,sepN))
+      ThisLayerText[k] <- paste0(ThisLayerText[k], paste0(nodetext,sepN))
     }
     if (root) {
       topnodeargs <- nodeargs
@@ -2496,7 +2254,12 @@ vtree <- function (
     showPCT <- showpct[vars[1]]
   }
   
-  fc <- flowcat(zvalue, root = root, novars=novars, title = title, parent = parent,
+  
+  # *************************************************************************
+  # Build a canopy ----
+  # *************************************************************************
+  
+  tree <- buildCanopy(zvalue, root = root, novars=novars, title = title, parent = parent,
     var=vars[[1]],
     last = last, labels = labelnode[[vars[1]]], tlabelnode=tlabelnode, labelvar = labelvar[vars[1]],
     varminwidth=varminwidth[vars[1]],varminheight=varminheight[vars[1]],varlabelloc=varlabelloc[vars[1]],
@@ -2504,39 +2267,43 @@ vtree <- function (
     sameline=sameline,
     showvarinnode=showvarinnode,shownodelabels=shownodelabels[vars[1]],
     showpct=showPCT,
+    showrootcount=showrootcount,
     showcount=showCOUNT,
     prune=prune[[vars[1]]],
+    tprune=tprune,
     prunelone=prunelone,
     prunesmaller=prunesmaller,
     HTMLtext = HTMLtext, showvarnames = showvarnames,
     keep=keep[[vars[1]]],
+    tkeep=tkeep,
     pruneNA=pruneNA,
     text = ThisLayerText, ttext=ttext,TopText = TopText, digits = digits, cdigits = cdigits,
     splitwidth = splitwidth, showempty = showempty, topcolor = color[1],
     color = color[2], topfillcolor = rootfillcolor, fillcolor = fillcolor[[vars[1]]],
-    vp = vp, rounded = rounded, just=just, showroot=showroot,verbose=verbose,sortfill=sortfill)
+    vp = vp, rounded = rounded, just=just, justtext=justtext, thousands=thousands, showroot=showroot,
+    verbose=verbose,sortfill=sortfill)
 
-  if (root){
-    tree <- list(.n=nrow(z),.pct=100)
+  if (root) {
+    treedata <- list(.n=nrow(z),.pct=100)
   }
   if (vars[[1]]!="") {
     if (root) {
-      tree <- list(.n=nrow(z),.pct=100) # ,.subset=subset)
+      treedata <- list(.n=nrow(z),.pct=100)
     } else {
-      tree <- list()
+      treedata <- list()
     }
     children <- list()
-    for (i in seq_len(length(fc$value))) {
-      if (fc$extraText[i]!="") {
-        children[[fc$value[i]]] <- list(.n=fc$n[i],.pct=fc$pct[i],.text=fc$extraText[i])
+    for (i in seq_len(length(tree$value))) {
+      if (tree$extraText[i]!="") {
+        children[[tree$value[i]]] <- list(.n=tree$n[i],.pct=tree$pct[i],.text=tree$extraText[i])
       } else  {
-         children[[fc$value[i]]] <- list(.n=fc$n[i],.pct=fc$pct[i])
+         children[[tree$value[i]]] <- list(.n=tree$n[i],.pct=tree$pct[i])
       }        
     }
-    tree[[vars[1]]] <- children
+    treedata[[vars[1]]] <- children
   }
 
-  if (length(fc$nodenum)>0 && fc$nodenum[length(fc$nodenum)]>maxNodes) {
+  if (length(tree$nodenum)>0 && tree$nodenum[length(tree$nodenum)]>maxNodes) {
     stop(
       "Too many nodes. ",
       "Specify different variables ",
@@ -2554,8 +2321,8 @@ vtree <- function (
       }
     }
     if (vars[1]=="pattern" | vars[1]=="sequence") {
-      patternTable <- data.frame(n=fc$n,pct=fc$pct,
-        PATTERN_values[seq_len(length(fc$n)),],check.names=FALSE)
+      patternTable <- data.frame(n=tree$n,pct=tree$pct,
+        PATTERN_values[seq_len(length(tree$n)),],check.names=FALSE)
       if (length(summarytext)>0) {
         numsum <- max(sapply(summarytext,length))
         for (j in 1:numsum) {
@@ -2585,8 +2352,55 @@ vtree <- function (
   }
   
   
-  i <- 0
-  for (varlevel in fc$levels) {  # Loop over variable levels
+  tfollow_this_var <- FALSE
+  if (length(tfollow)>0) {
+    for (j in seq_len(length(tfollow))) {
+      if (length(tfollow[[j]])==1 && any(names(tfollow[[j]])==CurrentVar)) {
+        tfollow_this_var <- TRUE
+      }
+    }
+  }
+  
+  tprunebelow_this_var <- FALSE
+  if (length(tprunebelow)>0) {
+    for (j in seq_len(length(tprunebelow))) {
+      if (length(tprunebelow[[j]])==1 && any(names(tprunebelow[[j]])==CurrentVar)) {
+        tprunebelow_this_var <- TRUE
+      }
+    }
+  }  
+  
+  
+  tfollowlevels <- NULL
+  tprunebelowlevels <- NULL
+  
+  
+  # *************************************************************************
+  # Begin: Loop over variable levels  ----
+  # *************************************************************************
+
+  varlevelindex <- 0
+  for (varlevel in tree$levels) { 
+
+    varlevelindex <- varlevelindex + 1
+    
+    if (tfollow_this_var) {
+      for (j in seq_len(length(tfollow))) {
+        tfollowlevels <- c(tfollowlevels,unlist(tfollow[[j]][names(tfollow[[j]])==CurrentVar]))
+      }
+    }    
+
+    if (tprunebelow_this_var) {
+      for (j in seq_len(length(tprunebelow))) {
+        tprunebelowlevels <- c(tprunebelowlevels,unlist(tprunebelow[[j]][names(tprunebelow[[j]])==CurrentVar]))
+      }
+    }
+    
+    
+    # *************************************************************************
+    ## Begin: Tracking of targeted nodes ----
+    # *************************************************************************    
+    
     TTEXT <- ttext
     j <- 1
     while (j <= length(TTEXT)) {
@@ -2604,6 +2418,23 @@ vtree <- function (
       j <-j + 1
     }
 
+    TSUMMARY <- tsummary
+    j <- 1
+    while (j <= length(TSUMMARY)) {
+      if (!any(names(TSUMMARY[[j]])==CurrentVar)) {
+        TSUMMARY[[j]] <- ""
+      } else {
+        if (TSUMMARY[[j]][CurrentVar]==varlevel) {
+          TSUMMARY[[j]] <- TSUMMARY[[j]][names(TSUMMARY[[j]])!=CurrentVar]
+        } else {
+          if (TSUMMARY[[j]][CurrentVar]!=varlevel) {
+            TSUMMARY[[j]] <- ""
+          }
+        }
+      }
+      j <-j + 1
+    }
+   
     TLABELNODE <- tlabelnode
     j <- 1
     while (j <= length(TLABELNODE)) {
@@ -2621,8 +2452,88 @@ vtree <- function (
       j <-j + 1
     }
 
+    TPRUNE <- tprune
+    j <- 1
+    while (j <= length(TPRUNE)) {
+      if (!any(names(TPRUNE[[j]])==CurrentVar)) {
+        TPRUNE[[j]] <- ""
+      } else {
+        if (TPRUNE[[j]][CurrentVar]==varlevel) {
+          TPRUNE[[j]] <- TPRUNE[[j]][names(TPRUNE[[j]])!=CurrentVar]
+        } else {
+          if (TPRUNE[[j]][CurrentVar]!=varlevel) {
+            TPRUNE[[j]] <- ""
+          }
+        }
+      }
+      j <-j + 1
+    } 
 
-    i <- i + 1
+    TKEEP <- tkeep
+    j <- 1
+    while (j <= length(TKEEP)) {
+      if (!any(names(TKEEP[[j]])==CurrentVar)) {
+        TKEEP[[j]] <- ""
+      } else {
+        if (TKEEP[[j]][CurrentVar]==varlevel) {
+          TKEEP[[j]] <- TKEEP[[j]][names(TKEEP[[j]])!=CurrentVar]
+        } else {
+          if (TKEEP[[j]][CurrentVar]!=varlevel) {
+            TKEEP[[j]] <- ""
+          }
+        }
+      }
+      j <-j + 1
+    } 
+    
+    TFOLLOW <- tfollow
+    j <- 1
+    while (j <= length(TFOLLOW)) {
+      if (!any(names(TFOLLOW[[j]])==CurrentVar)) {
+        TFOLLOW[[j]] <- ""
+      } else {
+        if (TFOLLOW[[j]][CurrentVar]==varlevel) {
+          TFOLLOW[[j]] <- TFOLLOW[[j]][names(TFOLLOW[[j]])!=CurrentVar]
+        } else {
+          if (TFOLLOW[[j]][CurrentVar]!=varlevel) {
+            TFOLLOW[[j]] <- ""
+          }
+        }
+      }
+      j <-j + 1
+    }     
+
+    TPRUNEBELOW <- tprunebelow
+    j <- 1
+    while (j <= length(TPRUNEBELOW)) {
+      if (!any(names(TPRUNEBELOW[[j]])==CurrentVar)) {
+        TPRUNEBELOW[[j]] <- ""
+      } else {
+        if (TPRUNEBELOW[[j]][CurrentVar]==varlevel) {
+          TPRUNEBELOW[[j]] <- TPRUNEBELOW[[j]][names(TPRUNEBELOW[[j]])!=CurrentVar]
+        } else {
+          if (TPRUNEBELOW[[j]][CurrentVar]!=varlevel) {
+            TPRUNEBELOW[[j]] <- ""
+          }
+        }
+      }
+      j <-j + 1
+    }     
+    
+    if (tfollow_this_var) {
+      followlevels <- tfollowlevels
+    }
+    
+    if (tprunebelow_this_var) {
+      prunebelowlevels <- tprunebelowlevels
+    }    
+    
+    # *************************************************************************
+    # End: Tracking of targeted nodes ----
+    # *************************************************************************    
+
+
+   
     condition_to_follow <- 
       !(varlevel %in% prunebelowlevels) & 
       (is.null(followlevels) | (varlevel %in% followlevels)) &
@@ -2637,262 +2548,89 @@ vtree <- function (
       }
       if (length(select)>0 & numvars>=1) {
         zselect <- z[select, , drop = FALSE]
-        # subsetselect <- subset[select]
         for (index in seq_len(ncol(zselect))) {
           attr(zselect[[index]],"label") <- attr(z[[index]],"label")
         }
-        fcChild <- vtree(zselect,
-          vars[-1], auto=FALSE,parent = fc$nodenum[i], last = max(fc$nodenum),
+        # *************************************************************************
+        # Recursive call to vtree  ----
+        # *************************************************************************                 
+        fcChild <- vtree(data=zselect,
+          vars=vars[-1], auto=FALSE,parent = tree$nodenum[varlevelindex],
+          last = max(tree$nodenum),
           labelnode = labelnode,
           tlabelnode = TLABELNODE,
           colorvarlabels=colorvarlabels,
           check.is.na=check.is.na,
+          tsummary=TSUMMARY,
           showvarinnode=showvarinnode,shownodelabels=shownodelabels,
           showpct=showpct,
           showcount=showcount,
           sameline=sameline, showempty = showempty,
-          root = FALSE, #subset=subsetselect,
-          prune=prune, prunebelow = prunebelow, prunesmaller=prunesmaller,
+          root = FALSE,
+          prune=prune, prunebelow = prunebelow, tprunebelow=TPRUNEBELOW,
+          prunesmaller=prunesmaller,
+          tprune=TPRUNE,
+          tkeep=TKEEP,
           labelvar = labelvar,
-          varminwidth = varminwidth, varminheight = varminheight, varlabelloc=varlabelloc,
+          varminwidth = varminwidth, varminheight = varminheight,
+          varlabelloc=varlabelloc,
           prunelone=prunelone,
           nodefunc = nodefunc, nodeargs = nodeargs, digits = digits,
           showvarnames = showvarnames,
           keep=keep,
           follow=follow,
+          tfollow=TFOLLOW,
           pruneNA=pruneNA,
           pattern=pattern,seq=seq,
           text = text, ttext=TTEXT,gradient=gradient,sortfill=sortfill,
           maxNodes=maxNodes,
           colornodes = colornodes, color = color[-1], fillnodes = fillnodes,
           fillcolor = fillcolor, splitwidth = splitwidth,
-          vp = vp, rounded = rounded, just=just,verbose=verbose)
-        # tree[[vars[1]]][[varlevel]] <- c(tree[[vars[1]]][[varlevel]],.subset=list(subsetselect))
-        if (!is.null(fcChild$tree)){
-          tree[[vars[1]]][[varlevel]] <- c(tree[[vars[1]]][[varlevel]],fcChild$tree)
+          HTMLtext=HTMLtext,
+          vp = vp, rounded = rounded, just=just, justtext=justtext,thousands=thousands,
+          verbose=verbose)
+        if (!is.null(fcChild$treedata)){
+          treedata[[vars[1]]][[varlevel]] <- 
+            c(treedata[[vars[1]]][[varlevel]],fcChild$treedata)
         }
-        fc <- joinflow(fc,fcChild)
+        tree <- joinflow(tree,fcChild)
       }
     }
-  } # end loop over variable levels
-  fc$tree <- tree
+  }
+  tree$treedata <- treedata
 
-  if (length(fc$nodenum) == 0) {
-      #cat("Setting fc to NULL\n")
-      fc <- NULL
+  # *************************************************************************
+  # End: Loop over variable levels  ----
+  # *************************************************************************
+  
+  
+  if (length(tree$nodenum) == 0) {
+    tree <- NULL
   }
 
-  # If desired, show variable levels and legend
-
+  
+  # *************************************************************************
+  # Begin code for root call only  ----
+  # *************************************************************************  
+  
   if (root) {
-    if (showvarnames) {
-      # Special case for check.is.na
-      if (check.is.na) {
-        VARS <- OLDVARS
-      } else {
-        VARS <- vars
-      }
-      if (!is.null(labelvar)) {
-          for (i in 1:numvars) {
-            if (!is.na(labelvar[vars[i]])) {
-              VARS[i] <- labelvar[vars[i]]
-            }
-          }
-      }
 
-      if (!HTMLtext) {
-        VARS <- splitlines(VARS,width=vsplitwidth,sp='\n',at = c(" ", ".", "-", "+", "_", "=", "/"))
-        VARS <- convertToHTML(VARS,just=just)
-      }
-
-      if (colorvarlabels) {
-        if (varnamebold) {
-          colored_VARS <- paste0('<FONT COLOR="',varlabelcolors,'">',"<B>",VARS,'  </B>','</FONT>')
-        } else {
-          colored_VARS <- paste0('<FONT COLOR="',varlabelcolors,'">',VARS,'</FONT>')
-        }
-      } else {
-        colored_VARS <- VARS
-      }
-      colored_VARS <- paste0('<FONT POINT-SIZE="',varnamepointsize,'">',colored_VARS,'</FONT>')
-      marginalText <- rep("",numvars)
-      
-      #-------------------------------------------------------------------------
-      # Begin: Legend stuff  ----
-      #-V------------------------------V--------------------------------------V-
-      
-      if (showroot) {
-        NL <- "Node_L0_0 [style=invisible]\n"
-      } else {
-        NL <- ""
-      }
-      
-      if (rounded) {
-        styleString <- ' style="rounded,filled"'
-      } else {
-        styleString <- ' style=filled'
-      }
-      
-      for (i in seq_len(numvars)) {
-        thisvarname <- vars[i]
-        thisvar <- z[[thisvarname]]
-        if (is.logical(thisvar)) {
-          thisvar <- factor(thisvar, c("FALSE", "TRUE"))
-        }
-        categoryCounts <- table(thisvar,exclude=NULL)
-
-        if (Venn) {
-          names(categoryCounts)[which(names(categoryCounts)=="1" | names(categoryCounts)=="TRUE")] <- "Yes"
-          names(categoryCounts)[which(names(categoryCounts)=="0" | names(categoryCounts)=="FALSE")] <- "No"
-        }
-
-        names(categoryCounts)[is.na(names(categoryCounts))] <- "NA"
-
-        if (vp & any(is.na(thisvar))) {
-          cc <- categoryCounts
-          cc <- cc[names(cc)!="NA"]
-          if (length(cc)>0) {
-            if (showlpct) {
-              npctString <- paste0(cc," (",
-                around(100*cc/sum(cc),digits),"%)")
-            } else {
-              npctString <- cc
-            }
-          } else {
-            npctString <- NULL
-          }
-          npctString <- c(npctString,categoryCounts["NA"])
-        } else {
-          if (showlpct) {
-            npctString <- paste0(categoryCounts," (",
-              around(100*categoryCounts/length(thisvar),digits),"%)")
-          } else {
-            npctString <- categoryCounts
-          }
-        }
-        
-        CAT <- names(categoryCounts)
-
-        # Relabel the nodes if labels have been specified
-        labels <- labelnode[[thisvarname]]
-        for (label in labels) {
-          if (label %in% CAT) {
-            m <- match(label,CAT)
-            CAT[m] <- names(labels)[labels==label]
-          }
-        }
-        
-        
-        labels <- paste0(
-          'label=<',
-          colored_VARS[i],
-          '>')        
-        
-        nlheading <- paste0("Node_L",i,"_0",
-         '[',
-         labels,
-          ' shape=none margin=0]',collapse = '\n')
-        
-        FILLCOLOR <- fillcolor[[thisvarname]][seq_len(length(categoryCounts))]
-
-        if (HTMLtext) {
-          displayCAT <- splitlines(CAT,width=splitwidth,sp="<BR/>",at=" ")
-        } else {
-          displayCAT <- splitlines(CAT,width=splitwidth,sp="\n",at = c(" ", ".", "-", "+", "_", "=", "/"))
-        }      
-        
-        if (HTMLtext) {
-          displayCAT <- displayCAT
-        } else {
-          displayCAT <- convertToHTML(displayCAT,just=just)
-        }
-        
-        legendlabel <- paste0(displayCAT,", ",npctString)
-       
-        ThisLayerText <- rep("",length(legendlabel)) 
-        
-        if (showlegendsum) {
-          if (!is.null(nodefunc)) {
-            if (numvars == 1)
-              nodeargs$leaf <- TRUE
-            ThisLayerText <- c()
-            current_var <- as.character(thisvar)
-            current_var[is.na(current_var)] <- "NA"
-            summarytext <- vector("list",length=length(CAT))
-            names(summarytext) <- CAT
-            for (value in displayCAT) {
-              df_subset <- z[current_var == value,,drop=FALSE]
-              summarytext[[value]] <- nodefunc(df_subset, vars[i], value, args = nodeargs)
-              nodetext <- paste0(summarytext[[value]],collapse="")
-              nodetext <- splitlines(nodetext, width = splitwidth, sp = sepN, at=" ")
-              ThisLayerText <- c(ThisLayerText, paste0(nodetext,sepN))
-            }
-          }
-        }
-        
-        extendedlegendlabel <- paste0(legendlabel,convertToHTML(ThisLayerText,just=just))
-
-        
-        labels <- paste0(
-          'label=<<FONT POINT-SIZE="',legendpointsize,'">',
-          extendedlegendlabel,
-          '</FONT>>')        
-        
-        if (!horiz) {
-          labels <- rev(labels)
-          FILLCOLOR <- rev(FILLCOLOR)
-        }
-        
-        nl <- paste0("Node_L",i,"_",seq_len(length(categoryCounts)),
-          '[',
-          labels,
-          ' color=',color[i+1],' ',
-          styleString,
-          ' fillcolor=<',FILLCOLOR,'> height=0]',
-          collapse = '\n')
-        
-        nl_allnodes <- paste0("Node_L",i,"_",seq(0,length(categoryCounts)),collapse=" ")
-        
-
-        if (showlegend) {
-          nl <- paste0(
-            "subgraph cluster_",i," {\n",
-            "style=rounded\n",
-            "color=<#bdbdbd>\n",
-            "{rank=same"," ",nl_allnodes,"}\n",
-            nlheading,
-            "\n",
-            nl,
-            "\n}\n",
-            paste0("Node_L",i-1,"_0 -> Node_L",i,"_0 [style=invisible arrowhead=none]\n"))
-          if ((pattern | check.is.na) && i==1) {
-            nl <- "Node_L1_0[style=invisible arrowhead=none]\n"
-          }
-        } else {
-          link <- paste0("Node_L",i-1,"_0 -> Node_L",i,"_0 [style=invisible arrowhead=none]\n")
-          if (i==1 & !showroot) link <- ""
-          nl <- paste0(
-            nlheading,
-            "\n",
-            link)
-        }
-        NL <- paste0(NL,"\n",nl)
-        
-      #-^------------------------------^--------------------------------------^-
-      # End: Legend stuff  ----
-      #-------------------------------------------------------------------------
-          
-      }
-      
-    }
-    else {
-      NL <- ''
-    }
+    NL <- labelsAndLegends(z=z,OLDVARS=OLDVARS,vars=vars,labelvar=labelvar,
+      HTMLtext=HTMLtext,vsplitwidth=vsplitwidth,just=just,
+      colorvarlabels=colorvarlabels,varnamebold=varnamebold,
+      varlabelcolors=varlabelcolors,varnamepointsize=varnamepointsize,
+      showroot=showroot,rounded=rounded,numvars=numvars,Venn=Venn,
+      labelnode=labelnode,fillcolor=fillcolor,showlegendsum=showlegendsum,
+      thousands=thousands,
+      splitwidth=splitwidth,nodefunc=nodefunc,nodeargs=nodeargs,
+      showvarnames=showvarnames,check.is.na=check.is.na,vp=vp,showlpct=showlpct,
+      digits=digits,legendpointsize=legendpointsize,horiz=horiz,color=color,
+      showlegend=showlegend,pattern=pattern,sepN=sepN)
     
     
-    #-^------------------------------^--------------------------------------^-
-    # Outputs  ----
-    #-------------------------------------------------------------------------   
+    # *************************************************************************
+    ## Outputs ----
+    # *************************************************************************   
     
     if (ptable) {
       pt <- patternTable[nrow(patternTable):1,]
@@ -2900,35 +2638,13 @@ vtree <- function (
       pt
     } else {    
       if (novars) NL <- ""
-      flowchart <- showflow(fc, getscript = getscript, font = font, nodesep = nodesep,
+      flowchart <- showflow(tree, getscript = getscript, font = font,
+        nodesep = nodesep,
         ranksep=ranksep, margin=margin, nodelevels = NL, horiz = horiz,
         width=width,height=height,
         graphattr=graphattr,nodeattr=nodeattr,edgeattr=edgeattr)
       
-      attributes(flowchart)$info <- tree
-      
-      #result <- paste(names(knitr::opts_knit$get()),knitr::opts_knit$get(),collapse="\n")
-      #output <- knitr::asis_output(result)
-      #attributes(output)$info <- tree
-      #return(output)          
-      
-      
-      # if (is.null(g)) {
-      #   return("NULL value")
-      # } else {
-      #   return(g)
-      # }
-      
-      #return(knitr::opts_knit$get())
-
-      #thing <- knitr::opts_knit$get('rmarkdown.pandoc.to')
-      
-      #result <- paste("\nTrying to get LaTeX output\n",
-      #  "\nthing =",thing,"\n",
-      #  "\nknitr::is_latex_output() =",knitr::is_latex_output(),"\n")
-      #output <- knitr::asis_output(result)
-      #attributes(output)$info <- tree
-      #return(output)             
+      attributes(flowchart)$info <- treedata
       
       if (!imageFileOnly && 
         (getscript || !pngknit || (!isTRUE(getOption('knitr.in.progress')) && !as.if.knit))) {
@@ -2961,16 +2677,10 @@ vtree <- function (
         }        
       }      
       
-      if (isTRUE(getOption('knitr.in.progress')) || as.if.knit) {
-        options("vtree_count"=getOption("vtree_count")+1)
+      options("vtree_count"=getOption("vtree_count")+1)
+      padCount <- sprintf("%03d",getOption("vtree_count"))
+      filenamestem <- paste0("vtree",padCount)          
       
-        padCount <- sprintf("%03d",getOption("vtree_count"))
-
-        filenamestem <- paste0("vtree",padCount)
-      } else {
-        filenamestem <- "vtree"
-      }
-  
       outfmt <- knitr::opts_knit$get("out.format")
       if (format=="") {
         if (is.null(outfmt)) {
@@ -3011,9 +2721,8 @@ vtree <- function (
         if (imageFileOnly && (!isTRUE(getOption('knitr.in.progress')) && !as.if.knit)) {
           return(invisible(NULL))
         } else {
-          # message("Right here")
           output <- knitr::include_graphics(fullpath)
-          attributes(output)$info <- tree
+          attributes(output)$info <- treedata
           return(output)
         }
       }
@@ -3073,13 +2782,15 @@ vtree <- function (
         return(invisible(NULL))
       } else {
         output <- knitr::asis_output(result)
-        attributes(output)$info <- tree
+        attributes(output)$info <- treedata
         output
       }
     }
   } else {
-      fc
+      tree
   }
+  
+  # The End ----
 }
 
 

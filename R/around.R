@@ -1,4 +1,4 @@
-around <- function (x, digits = 2, tooLong = 10) {
+around <- function (x, digits = 2, thousands = "",tooLong = 12) {
   if (is.character(x)) {
     x
   } else
@@ -20,18 +20,19 @@ around <- function (x, digits = 2, tooLong = 10) {
   } else {
     if (digits == 0) {
       result <- formatC(x, digits = digits, drop0trailing = TRUE,
-        format = "f", flag = "#")
+        big.mark = thousands, format = "f", flag = "#")
       result[nchar(result) > tooLong] <- formatC(x[nchar(result) >
         tooLong], digits = digits, drop0trailing = TRUE,
-        format = "g", flag = "#")
+        big.mark = thousands, format = "g", flag = "#")
     }
     else {
       result <- formatC(x, digits = digits, drop0trailing = FALSE,
-        format = "f", flag = "#")
+        big.mark = thousands, format = "f", flag = "#")
       result[nchar(result) > tooLong] <- formatC(x[nchar(result) >
         tooLong], digits = digits, drop0trailing = FALSE,
-        format = "g", flag = "#")
+        big.mark = thousands, format = "g", flag = "#")
     }
+    #browser()
     result[result == "-0"] <- "0"
     result[result == "-0.0"] <- "0.0"
     result[result == "-0.00"] <- "0.00"
