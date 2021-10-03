@@ -6,12 +6,6 @@
 
 * Added new parameter `thousands` to specify separator (such as ",") between thousands.
 
-* Fixed a small bug where the `%list%` summary option used `digits` rather than `cdigits`.
-
-# vtree 5.4.0
-
-## Changes
-
 * Removed one color palette (`RdYlGn`) which is not colorblind-friendly. Also added a new colorblind-friendly palette (`Greys`). These palettes were pre-calculated using `RColorBrewer`.
 
 * Added a single-line information message when the package is loaded in interactive mode.
@@ -32,10 +26,13 @@
 
 * When `ImageFileOnly=TRUE`, graphics files are now numbered successively, even when not knitting.
 
-* Addeded `justtext` parameter so that justification of the extra text can be different.
+* Added `justtext` parameter so that justification of the extra text can be different.
 
 * Added the following options to summary: `%nosort%`, `%freqx%`, `%freqpctx%`, `%freqpctx_%`.
 
+## Bug fixes
+
+* Fixed a small bug where the `%list%` summary option used `digits` rather than `cdigits`.
 
 
 # vtree 5.1.8
