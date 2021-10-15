@@ -588,7 +588,7 @@ within females,you want to keep just Mild.
 Use the following specification to do this:
 ```{r, eval=FALSE}
 tkeep=list(list(Sex="M",Severity=c("Moderate","Severe")),list(Sex=F",Severity="Mild"))
-  ```
+```
 
 
 ### The `prunesmaller` parameter
