@@ -49,7 +49,10 @@ Variables to use for the tree. Can be
 e.g. \code{~ Age + Sex},
 but note that extended variable specifications cannot be used in this case.}
 
-\item{showuniform}{Show variable even when it doesn't change?}
+\item{showuniform}{Show variable even when it doesn't change?
+If a vector of strings is given,
+unchanging variables are only shown if they are equal to 
+a value in the vector.}
 
 \item{words}{A list of named vectors of values.
 Used to build a variable tree 

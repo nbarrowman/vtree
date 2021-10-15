@@ -49,6 +49,9 @@ NULL
 #'                         but note that extended variable specifications cannot be used in this case.
 #'                         
 #' @param showuniform      Show variable even when it doesn't change?
+#'                         If a vector of strings is given,
+#'                         unchanging variables are only shown if they are equal to 
+#'                         a value in the vector.
 #'
 #' @param words            A list of named vectors of values.
 #'                         Used to build a variable tree 
@@ -1713,13 +1716,24 @@ vtree <- function (
       
       if (!is.null(prunesmaller)) {
         tabpattern <- table(PATTERN)
-        if (!showuniform) {
+        # Uniform variables are defined in terms of the patterns that will be shown
+        if (is.character(showuniform) || !showuniform) {
           sel <- PATTERN %in% names(tabpattern[tabpattern>=prunesmaller])
           z <- z[sel,]
           PATTERN <- PATTERN[sel]
         }
       }
       
+      if (is.character(showuniform)) {
+        for (var in vars) {
+          if (length(unique(z[[var]]))==1) {
+            if (!(unique(z[[var]]) %in% showuniform)) {
+              message(paste0("Not showing ",var,", since the only value is ",z[[var]][1]))
+              vars <- vars[vars!=var]
+            }  
+          }
+        }        
+      } else
       if (!showuniform) {
         for (var in vars) {
           #message(var)
@@ -1757,6 +1771,16 @@ vtree <- function (
         edgeattr <- paste(edgeattr,paste0("arrowhead=",arrowhead))
       }
       
+      if (is.character(showuniform)) {
+        for (var in vars) {
+          if (length(unique(z[[var]]))==1) {
+            if (!(unique(z[[var]]) %in% showuniform)) {
+              message(paste0("Not showing ",var,", since the only value is ",z[[var]][1]))
+              vars <- vars[vars!=var]
+            }  
+          }
+        }        
+      } else      
       if (!showuniform) {
         for (var in vars) {
           #message(var)
