@@ -41,14 +41,40 @@ buildCanopy <- function(z,root=TRUE,novars=FALSE,title="",parent=1,last=1,labels
   
   sampleSize <- sum(categoryCounts[names(categoryCounts)!="NA"])
   
-  if (!is.null(prunesmaller)) {
+  #browser()
+  
+  if (is.null(prunesmaller)) {
+    numsmallernodes <- 0
+    sumsmallernodes <- 0
+  } else {
     if (vp) {
-      selectcount <- categoryCounts>=prunesmaller | names(categoryCounts)=="NA"  
+      selectcount <- categoryCounts>=prunesmaller | names(categoryCounts)=="NA" 
     } else {
       selectcount <- categoryCounts>=prunesmaller
     }
+    #browser()
+    numsmallernodes <- sum(!selectcount & categoryCounts>0)
+    sumsmallernodes <- sum(categoryCounts[!selectcount])
     categoryCounts <- categoryCounts[selectcount]
   }
+  
+  if (length(categoryCounts)==0) {
+    return(list(
+      root=root,
+      value="",
+      n=NULL,
+      pct=NULL,
+      npctString=NULL,
+      extraText="",
+      levels="",
+      nodenum=parent,
+      edges="",
+      labelassign="",
+      lastnode=parent,
+      numsmallernodes=numsmallernodes,
+      sumsmallernodes=sumsmallernodes))    
+  }
+  
   
   # Pre-pend the parent node
   categoryCounts <- c(length(z),categoryCounts)
@@ -364,8 +390,6 @@ buildCanopy <- function(z,root=TRUE,novars=FALSE,title="",parent=1,last=1,labels
       ' fillcolor=<',FILLCOLOR,'>',VARLABELLOC,' ',VARMINWIDTH,' ',VARMINHEIGHT,']'),collapse='\n')
   }
   
-  #browser()
-  
   return(list(
     root=root,
     value=CAT[-1],
@@ -377,5 +401,7 @@ buildCanopy <- function(z,root=TRUE,novars=FALSE,title="",parent=1,last=1,labels
     nodenum=nodenum[-1],
     edges=edges,
     labelassign=labelassign,
-    lastnode=nodenum[length(nodenum)]))
+    lastnode=nodenum[length(nodenum)],
+    numsmallernodes=numsmallernodes,
+    sumsmallernodes=sumsmallernodes))
 }

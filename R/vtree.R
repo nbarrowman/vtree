@@ -574,6 +574,8 @@ vtree <- function (
   last = 1,
   root = TRUE,
   subset = 1:nrow(z),
+  numsmallernodes = 0,
+  sumsmallernodes = 0,
   as.if.knit=FALSE,
   prunelone=NULL,
   pruneNA=FALSE,
@@ -885,7 +887,76 @@ vtree <- function (
             vars[i] <- ltvar
           }
         }
-      }        
+      }  
+      
+      # Process > tag in variable names
+      regex <- paste0("^",regexVarName,"(>)",regexVarName)
+      findgt <- grep(regex,vars)
+      if (length(findgt)>0) {
+        for (i in seq_len(length(vars))) {    
+          if (i %in% findgt) {
+            gtvar <- sub(regex,"\\1",vars[i])
+            if (is.null(z[[gtvar]]))
+              stop(paste("Unknown variable:",gtvar))                    
+            gtval <- sub(regex,"\\3",vars[i])
+            # Check to see if any of the values of the specified variable contain spaces
+            # If they do, replace underscores in the specified value with spaces.
+            if (any(length(grep(" ",names(table(z[[gtvar]]))))>0)) {
+              gtval <- gsub("_"," ",gtval)
+            }
+            m <- z[[gtvar]]>as.numeric(gtval)
+            z[[gtvar]] <- factor(m, levels = c(FALSE, TRUE),
+              c(paste0("<=",gtval),paste0(">",gtval)))
+            vars[i] <- gtvar
+          }
+        }
+      }              
+      
+      # Process >= tag in variable names
+      regex <- paste0("^",regexVarName,"(>=)",regexVarName)
+      findgte <- grep(regex,vars)
+      if (length(findgte)>0) {
+        for (i in seq_len(length(vars))) {    
+          if (i %in% findgte) {
+            gtevar <- sub(regex,"\\1",vars[i])
+            if (is.null(z[[gtevar]]))
+              stop(paste("Unknown variable:",gtevar))                    
+            gteval <- sub(regex,"\\3",vars[i])
+            # Check to see if any of the values of the specified variable contain spaces
+            # If they do, replace underscores in the specified value with spaces.
+            if (any(length(grep(" ",names(table(z[[gtevar]]))))>0)) {
+              gteval <- gsub("_"," ",gteval)
+            }
+            m <- z[[gtevar]]>=as.numeric(gteval)
+            z[[gtevar]] <- factor(m, levels = c(FALSE, TRUE),
+              c(paste0("<",gteval),paste0(">=",gteval)))
+            vars[i] <- gtevar
+          }
+        }
+      }                    
+      
+      # Process <= tag in variable names
+      regex <- paste0("^",regexVarName,"(<=)",regexVarName)
+      findlte <- grep(regex,vars)
+      if (length(findlte)>0) {
+        for (i in seq_len(length(vars))) {    
+          if (i %in% findlte) {
+            ltevar <- sub(regex,"\\1",vars[i])
+            if (is.null(z[[ltevar]]))
+              stop(paste("Unknown variable:",ltevar))                    
+            lteval <- sub(regex,"\\3",vars[i])
+            # Check to see if any of the values of the specified variable contain spaces
+            # If they do, replace underscores in the specified value with spaces.
+            if (any(length(grep(" ",names(table(z[[ltevar]]))))>0)) {
+              lteval <- gsub("_"," ",lteval)
+            }
+            m <- z[[ltevar]]<=as.numeric(lteval)
+            z[[ltevar]] <- factor(m, levels = c(FALSE, TRUE),
+              c(paste0(">",lteval),paste0("<=",lteval)))
+            vars[i] <- ltevar
+          }
+        }
+      }                          
       
       # Process is.na: tag in variable names to handle individual missing value checks
       regex <- paste0("^is\\.na:",regexVarName,"$")
@@ -2306,6 +2377,9 @@ vtree <- function (
     color = color[2], topfillcolor = rootfillcolor, fillcolor = fillcolor[[vars[1]]],
     vp = vp, rounded = rounded, just=just, justtext=justtext, thousands=thousands, showroot=showroot,
     verbose=verbose,sortfill=sortfill)
+  
+  numsmallernodes <- tree$numsmallernodes
+  sumsmallernodes <- tree$sumsmallernodes
 
   if (root) {
     treedata <- list(.n=nrow(z),.pct=100)
@@ -2405,7 +2479,7 @@ vtree <- function (
 
   varlevelindex <- 0
   for (varlevel in tree$levels) { 
-
+    
     varlevelindex <- varlevelindex + 1
     
     if (tfollow_this_var) {
@@ -2562,7 +2636,7 @@ vtree <- function (
       !(varlevel %in% prunebelowlevels) & 
       (is.null(followlevels) | (varlevel %in% followlevels)) &
       !(varlevel=="NA" & length(keep)>0 & (!is.null(keep[[CurrentVar]]) & !("NA" %in% keep[[CurrentVar]])))
-
+    
     if (condition_to_follow) {
       if (varlevel == "NA") {
           select <- is.na(z[[CurrentVar]]) | (!is.na(z[[CurrentVar]]) & z[[CurrentVar]]=="NA")
@@ -2572,12 +2646,14 @@ vtree <- function (
       }
       if (length(select)>0 & numvars>=1) {
         zselect <- z[select, , drop = FALSE]
+        
         for (index in seq_len(ncol(zselect))) {
           attr(zselect[[index]],"label") <- attr(z[[index]],"label")
         }
         # *************************************************************************
-        # Recursive call to vtree  ----
-        # *************************************************************************                 
+        # Call vtree recursively  ----
+        # ************************************************************************* 
+
         fcChild <- vtree(data=zselect,
           vars=vars[-1], auto=FALSE,parent = tree$nodenum[varlevelindex],
           last = max(tree$nodenum),
@@ -2606,6 +2682,7 @@ vtree <- function (
           tfollow=TFOLLOW,
           pruneNA=pruneNA,
           pattern=pattern,seq=seq,
+          numsmallernodes=numsmallernodes,sumsmallernodes=sumsmallernodes,
           text = text, ttext=TTEXT,gradient=gradient,sortfill=sortfill,
           maxNodes=maxNodes,
           colornodes = colornodes, color = color[-1], fillnodes = fillnodes,
@@ -2613,31 +2690,60 @@ vtree <- function (
           HTMLtext=HTMLtext,
           vp = vp, rounded = rounded, just=just, justtext=justtext,thousands=thousands,
           verbose=verbose)
+        
         if (!is.null(fcChild$treedata)){
           treedata[[vars[1]]][[varlevel]] <- 
             c(treedata[[vars[1]]][[varlevel]],fcChild$treedata)
         }
+
         tree <- joinflow(tree,fcChild)
       }
-    }
-  }
+    } 
+  } 
   tree$treedata <- treedata
 
   # *************************************************************************
   # End: Loop over variable levels  ----
   # *************************************************************************
   
-  
-  if (length(tree$nodenum) == 0) {
+  if (length(tree$nodenum)==0) {
     tree <- NULL
   }
-
   
   # *************************************************************************
   # Begin code for root call only  ----
   # *************************************************************************  
   
   if (root) {
+    
+    if (!is.null(prunesmaller)) {
+      if (tree$numsmallernodes==0) {
+        if (pattern) {
+          message("No patterns had fewer than ",prunesmaller," cases")
+        } else {
+          message("No nodes were smaller than ",prunesmaller)
+        }
+      } else {
+        if (pattern) {
+          if (tree$numsmallernodes==1) {
+            description <- " pattern was pruned, "
+          } else {
+            description <- " patterns were pruned, "
+          }
+          description <- paste0(description,
+            "for a total of ",tree$sumsmallernodes," cases",
+          " (",round(100*tree$sumsmallernodes/nrow(z)),"% of total)")
+        } else {
+          if (tree$numsmallernodes==1) {
+            description <- " node was pruned."
+          } else {
+            description <- " nodes were pruned."
+          }         
+        }
+        message("Since prunesmaller=",prunesmaller,", ",
+          tree$numsmallernodes,description)
+      }
+    }
 
     NL <- labelsAndLegends(z=z,OLDVARS=OLDVARS,vars=vars,labelvar=labelvar,
       HTMLtext=HTMLtext,vsplitwidth=vsplitwidth,just=just,

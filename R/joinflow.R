@@ -2,11 +2,17 @@ joinflow <- function(...) {
 #
 # {join} information (from the flowcat function) about two or more {flow}charts
 #
+  
+  numsmallernodes <- 0
+  sumsmallernodes <- 0
 
   edges <- labelassign <- labelshow <- nodenum <- c()
   flows <- list(...)
   for (i in seq_len(length(flows))) {
     if (!is.null(flows[[i]])) {
+      numsmallernodes <- numsmallernodes + flows[[i]]$numsmallernodes
+      sumsmallernodes <- sumsmallernodes + flows[[i]]$sumsmallernodes
+      
       nodenum <- c(nodenum,flows[[i]]$nodenum)
       if (length(edges)==0) {
         edges <- flows[[i]]$edges
@@ -20,5 +26,8 @@ joinflow <- function(...) {
       }
     }
   }
-  return(list(nodenum=nodenum,edges=edges,labelassign=labelassign,labelshow=labelshow))
+  return(
+    list(
+      nodenum=nodenum,edges=edges,labelassign=labelassign,labelshow=labelshow,
+      numsmallernodes=numsmallernodes,sumsmallernodes=sumsmallernodes))
 }
