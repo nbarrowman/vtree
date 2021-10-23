@@ -8,26 +8,32 @@ downloads](https://cranlogs.r-pkg.org/badges/grand-total/vtree)](https://cranlog
 
 *Variable trees are diagrams that display information about nested subsets of a data frame.*
 
-<img src="https://github.com/nbarrowman/vtree/blob/master/cheatsheets/png/v1.png" width="250">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/nbarrowman/vtree/blob/master/cheatsheets/png/t7.png" width="200">&nbsp;&nbsp;&nbsp;<img src="https://github.com/nbarrowman/vtree/blob/master/cheatsheets/png/t1.png" width="300">
+<p align="center">
+<img src="https://github.com/nbarrowman/vtree/blob/master/cheatsheets/png/v1.png" width="260">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="https://github.com/nbarrowman/vtree/blob/master/cheatsheets/png/t7.png" width="180">
+&nbsp;&nbsp;&nbsp;
+<img src="https://github.com/nbarrowman/vtree/blob/master/cheatsheets/png/t1.png" width="260">
+</p>
 
 # Installation
 
-You can install the current version of vtree (version 5.0.0) from CRAN
+You can install the current version of vtree (version 5.1.9) from CRAN
 
 ```
 install.packages("vtree")
 ```
 
-Or install the latest release (v5.0.0) from github
+Or install the latest development release (v5.4.0) from github
 
 ```
-remotes::install_github("nbarrowman/vtree@v5.0.0")
+remotes::install_github("nbarrowman/vtree@v5.4.0")
 ```
 
 To get the vignette as well you need to specify `build_vignettes=TRUE`:
 
 ```
-remotes::install_github("nbarrowman/vtree@v5.0.0",build_vignettes=TRUE)
+remotes::install_github("nbarrowman/vtree@v5.4.0",build_vignettes=TRUE)
 ```
 
 # More information
