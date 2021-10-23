@@ -48,10 +48,8 @@ NULL
 #'                         e.g. \code{~ Age + Sex},
 #'                         but note that extended variable specifications cannot be used in this case.
 #'                         
-#' @param showuniform      Show variable even when it doesn't change?
-#'                         If a vector of strings is given,
-#'                         unchanging variables are only shown if they are equal to 
-#'                         a value in the vector.
+#' @param showuniform      Show a variable even when it only has one value?
+#' @param hideconstant     Hide a variable if its only value is one of the specified strings.
 #'
 #' @param words            A list of named vectors of values.
 #'                         Used to build a variable tree 
@@ -300,6 +298,8 @@ NULL
 #' 
 #' @param root             [Internal use only.] Is this the root node of the tree?
 #' @param subset           [Internal use only.] A vector representing the subset of observations.
+#' @param numsmallernodes  [Internal use only.] Counting nodes that were suppressed by prunesmaller.
+#' @param sumsmallernodes  [Internal use only.] Summing nodes that were suppress by prunesmaller.
 #' @param as.if.knit       (Deprecated) Behave as if called while knitting?
 #' @param prunelone        (Deprecated) A vector of values specifying "lone nodes" (of \emph{any} variable) to prune.
 #'                         A lone node is a node that has no siblings (an "only child").
@@ -471,6 +471,7 @@ vtree <- function (
   data=NULL,
   vars,
   showuniform = TRUE,
+  hideconstant = NULL,
   words = NULL,
   horiz = TRUE, 
   title = "",
@@ -1788,18 +1789,18 @@ vtree <- function (
       if (!is.null(prunesmaller)) {
         tabpattern <- table(PATTERN)
         # Uniform variables are defined in terms of the patterns that will be shown
-        if (is.character(showuniform) || !showuniform) {
+        if (!is.null(hideconstant) || !showuniform) {
           sel <- PATTERN %in% names(tabpattern[tabpattern>=prunesmaller])
           z <- z[sel,]
           PATTERN <- PATTERN[sel]
         }
       }
       
-      if (is.character(showuniform)) {
+      if (!is.null(hideconstant)) {
         for (var in vars) {
           if (length(unique(z[[var]]))==1) {
-            if (!(unique(z[[var]]) %in% showuniform)) {
-              message(paste0("Not showing ",var,", since the only value is ",z[[var]][1]))
+            if ((unique(z[[var]]) %in% hideconstant)) {
+              message(paste0("Not showing ",var,", since its only value is ",z[[var]][1]))
               vars <- vars[vars!=var]
             }  
           }
@@ -1842,10 +1843,10 @@ vtree <- function (
         edgeattr <- paste(edgeattr,paste0("arrowhead=",arrowhead))
       }
       
-      if (is.character(showuniform)) {
+      if (!is.null(hideconstant)) {
         for (var in vars) {
           if (length(unique(z[[var]]))==1) {
-            if (!(unique(z[[var]]) %in% showuniform)) {
+            if ((unique(z[[var]]) %in% hideconstant)) {
               message(paste0("Not showing ",var,", since the only value is ",z[[var]][1]))
               vars <- vars[vars!=var]
             }  
