@@ -4,39 +4,40 @@
 \alias{vtree}
 \title{Draw a variable tree}
 \usage{
-vtree(data = NULL, vars, showuniform = TRUE, words = NULL,
-  horiz = TRUE, title = "", sameline = FALSE, vp = TRUE,
-  prune = list(), tprune = list(), keep = list(), tkeep = list(),
-  prunebelow = list(), tprunebelow = list(), follow = list(),
-  tfollow = list(), prunesmaller = NULL, summary = NULL,
-  tsummary = NULL, shownodelabels = TRUE, showvarnames = TRUE,
-  showpct = TRUE, showlpct = TRUE, showcount = TRUE,
-  showrootcount = TRUE, showlegend = FALSE, showroot = TRUE,
-  showvarinnode = FALSE, showlegendsum = FALSE, labelvar = NULL,
-  labelnode = list(), tlabelnode = NULL, digits = 0, cdigits = 1,
-  fillcolor = NULL, fillnodes = TRUE, NAfillcolor = "white",
-  rootfillcolor = "#EFF3FF", palette = NULL, gradient = TRUE,
-  revgradient = FALSE, sortfill = FALSE, singlecolor = 2,
-  colorvarlabels = TRUE, color = c("blue", "forestgreen", "red", "orange",
-  "pink"), colornodes = FALSE, plain = FALSE, Venn = FALSE,
-  check.is.na = FALSE, seq = FALSE, pattern = FALSE, ptable = FALSE,
-  text = list(), ttext = list(), varlabelloc = NULL, font = "Arial",
-  varnamepointsize = 24, varnamebold = FALSE, legendpointsize = 14,
-  HTMLtext = FALSE, splitwidth = 20, vsplitwidth = 8,
-  splitspaces = TRUE, getscript = FALSE, mincount = 1, maxcount,
-  showempty = FALSE, choicechecklist = TRUE, just = "c",
-  justtext = NULL, thousands = "", folder = NULL, format = "",
-  imageFileOnly = FALSE, pngknit = TRUE, pxwidth = NULL,
-  pxheight = NULL, imagewidth = "", imageheight = "", width = NULL,
-  height = NULL, maxNodes = 1000, unchecked = c("0", "FALSE", "No",
-  "no"), checked = c("1", "TRUE", "Yes", "yes"), trim = NULL,
-  rounded = TRUE, varminwidth = NULL, varminheight = NULL, squeeze = 1,
-  arrowhead = "normal", nodesep = 0.5, ranksep = 0.5, margin = 0.2,
-  graphattr = "", nodeattr = "", edgeattr = "", nodefunc = NULL,
-  nodeargs = NULL, verbose = FALSE, runsummary = NULL, retain = NULL,
-  auto = FALSE, parent = 1, last = 1, root = TRUE,
-  subset = 1:nrow(z), as.if.knit = FALSE, prunelone = NULL,
-  pruneNA = FALSE, lsplitwidth = 15, showlevels = TRUE, z = NULL)
+vtree(data = NULL, vars, showuniform = TRUE, hideconstant = NULL,
+  words = NULL, horiz = TRUE, title = "", sameline = FALSE,
+  vp = TRUE, prune = list(), tprune = list(), keep = list(),
+  tkeep = list(), prunebelow = list(), tprunebelow = list(),
+  follow = list(), tfollow = list(), prunesmaller = NULL,
+  summary = NULL, tsummary = NULL, shownodelabels = TRUE,
+  showvarnames = TRUE, showpct = TRUE, showlpct = TRUE,
+  showcount = TRUE, showrootcount = TRUE, showlegend = FALSE,
+  showroot = TRUE, showvarinnode = FALSE, showlegendsum = FALSE,
+  labelvar = NULL, labelnode = list(), tlabelnode = NULL, digits = 0,
+  cdigits = 1, fillcolor = NULL, fillnodes = TRUE,
+  NAfillcolor = "white", rootfillcolor = "#EFF3FF", palette = NULL,
+  gradient = TRUE, revgradient = FALSE, sortfill = FALSE,
+  singlecolor = 2, colorvarlabels = TRUE, color = c("blue",
+  "forestgreen", "red", "orange", "pink"), colornodes = FALSE,
+  plain = FALSE, Venn = FALSE, check.is.na = FALSE, seq = FALSE,
+  pattern = FALSE, ptable = FALSE, text = list(), ttext = list(),
+  varlabelloc = NULL, font = "Arial", varnamepointsize = 24,
+  varnamebold = FALSE, legendpointsize = 14, HTMLtext = FALSE,
+  splitwidth = 20, vsplitwidth = 8, splitspaces = TRUE,
+  getscript = FALSE, mincount = 1, maxcount, showempty = FALSE,
+  choicechecklist = TRUE, just = "c", justtext = NULL, thousands = "",
+  folder = NULL, format = "", imageFileOnly = FALSE, pngknit = TRUE,
+  pxwidth = NULL, pxheight = NULL, imagewidth = "", imageheight = "",
+  width = NULL, height = NULL, maxNodes = 1000, unchecked = c("0",
+  "FALSE", "No", "no"), checked = c("1", "TRUE", "Yes", "yes"),
+  trim = NULL, rounded = TRUE, varminwidth = NULL, varminheight = NULL,
+  squeeze = 1, arrowhead = "normal", nodesep = 0.5, ranksep = 0.5,
+  margin = 0.2, graphattr = "", nodeattr = "", edgeattr = "",
+  nodefunc = NULL, nodeargs = NULL, verbose = FALSE, runsummary = NULL,
+  retain = NULL, auto = FALSE, parent = 1, last = 1, root = TRUE,
+  subset = 1:nrow(z), numsmallernodes = 0, sumsmallernodes = 0,
+  as.if.knit = FALSE, prunelone = NULL, pruneNA = FALSE,
+  lsplitwidth = 15, showlevels = TRUE, z = NULL)
 }
 \arguments{
 \item{data}{Required: Data frame, or a single vector.}
@@ -49,10 +50,9 @@ Variables to use for the tree. Can be
 e.g. \code{~ Age + Sex},
 but note that extended variable specifications cannot be used in this case.}
 
-\item{showuniform}{Show variable even when it doesn't change?
-If a vector of strings is given,
-unchanging variables are only shown if they are equal to 
-a value in the vector.}
+\item{showuniform}{Show a variable even when it only has one value?}
+
+\item{hideconstant}{Hide a variable if its only value is one of the specified strings.}
 
 \item{words}{A list of named vectors of values.
 Used to build a variable tree 
@@ -335,6 +335,10 @@ available to execute the functions in \code{runsummary}.}
 \item{root}{[Internal use only.] Is this the root node of the tree?}
 
 \item{subset}{[Internal use only.] A vector representing the subset of observations.}
+
+\item{numsmallernodes}{[Internal use only.] Counting nodes that were suppressed by prunesmaller.}
+
+\item{sumsmallernodes}{[Internal use only.] Summing nodes that were suppress by prunesmaller.}
 
 \item{as.if.knit}{(Deprecated) Behave as if called while knitting?}
 
