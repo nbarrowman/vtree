@@ -1,6 +1,8 @@
 convertToHTML <- function(x,just="c") {
   # Convert various text elements to their HTML entities.
   # Note that order matters here!
+  
+  x <- utf8::as_utf8(x)
 
   x <- gsub("&","&amp;",x)
   
