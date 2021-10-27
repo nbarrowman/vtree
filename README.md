@@ -18,22 +18,22 @@ downloads](https://cranlogs.r-pkg.org/badges/grand-total/vtree)](https://cranlog
 
 # Installation
 
-You can install the current version of vtree (version 5.1.9) from CRAN
+You can install the current version of vtree (version 5.4.6) from CRAN
 
 ```
 install.packages("vtree")
 ```
 
-Or install the latest development release (v5.4.0) from github
+Or install the latest development release (v5.5.1) from github
 
 ```
-remotes::install_github("nbarrowman/vtree@v5.4.0")
+remotes::install_github("nbarrowman/vtree@v5.5.1")
 ```
 
 To get the vignette as well you need to specify `build_vignettes=TRUE`:
 
 ```
-remotes::install_github("nbarrowman/vtree@v5.4.0",build_vignettes=TRUE)
+remotes::install_github("nbarrowman/vtree@v5.5.1",build_vignettes=TRUE)
 ```
 
 # More information
