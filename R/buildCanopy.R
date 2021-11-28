@@ -91,7 +91,9 @@ buildCanopy <- function(z,root=TRUE,novars=FALSE,title="",parent=1,last=1,labels
       npctString <- rep("",length(cc))
       nString <- cc
       if (showcount) {
-        npctString <- format(cc,big.mark=thousands)
+        for (i in 1:length(cc)) {
+          npctString[i] <- format(cc[i],big.mark=thousands)
+        }
         npctString <- paste0(prefixcount,npctString)
         #if (showpct) npctString <- paste0(npctString," ")
       }
@@ -108,8 +110,10 @@ buildCanopy <- function(z,root=TRUE,novars=FALSE,title="",parent=1,last=1,labels
     npctString <- rep("",length(categoryCounts[-1]))
     nString <- categoryCounts[-1]
     if (showcount) {
-      npctString <- categoryCounts[-1]
-      npctString <- format(npctString,big.mark=thousands)
+      numbers <- categoryCounts[-1]
+      for (i in 1:length(numbers)) {
+        npctString[i] <- format(numbers[i],big.mark=thousands)
+      }      
       npctString <- paste0(prefixcount,npctString)
     }
     pctString <- around(100*categoryCounts[-1]/length(z),digits)
