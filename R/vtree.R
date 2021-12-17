@@ -199,6 +199,7 @@ NULL
 #`                         \code{TRUE} for those variables and \code{FALSE} for all others.
 #'                         A logical vector of \code{FALSE} for named variables is interpreted as
 #'                         \code{FALSE} for those variables and \code{TRUE} for all others.
+#' @param prefixcount      Text that will precede each count.
 #' @param showrootcount    Should count in root node?
 #' @param showlegend       Show legend (including marginal frequencies) for each variable?
 #' @param showlegendsum    Show summary information in the legend?
@@ -493,6 +494,7 @@ vtree <- function (
   showpct=TRUE, 
   showlpct=TRUE,
   showcount=TRUE,
+  prefixcount="",
   showrootcount=TRUE,
   showlegend=FALSE,
   showroot=TRUE,
@@ -2365,6 +2367,7 @@ vtree <- function (
     showpct=showPCT,
     showrootcount=showrootcount,
     showcount=showCOUNT,
+    prefixcount=prefixcount,
     prune=prune[[vars[1]]],
     tprune=tprune,
     prunelone=prunelone,
@@ -2666,6 +2669,7 @@ vtree <- function (
           showvarinnode=showvarinnode,shownodelabels=shownodelabels,
           showpct=showpct,
           showcount=showcount,
+          prefixcount=prefixcount,
           sameline=sameline, showempty = showempty,
           root = FALSE,
           prune=prune, prunebelow = prunebelow, tprunebelow=TPRUNEBELOW,
