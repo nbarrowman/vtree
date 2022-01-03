@@ -1792,9 +1792,27 @@ vtree <- function (
         tabpattern <- table(PATTERN)
         # Uniform variables are defined in terms of the patterns that will be shown
         if (!is.null(hideconstant) || !showuniform) {
+          #browser()
           sel <- PATTERN %in% names(tabpattern[tabpattern>=prunesmaller])
+          patterns_pruned <- sum(tabpattern[tabpattern>=prunesmaller])
+          cases_pruned <- sum(!sel)
+          cases_pruned_pct <- round(100*cases_pruned/nrow(z))
           z <- z[sel,]
           PATTERN <- PATTERN[sel]
+          if (patterns_pruned==1) {
+            description1 <- " pattern was pruned, for a total of "
+          } else {
+            description1 <- " patterns were pruned, for a total of "
+          }                   
+          if (cases_pruned==1) {
+            description2 <- paste0(
+              " case (",cases_pruned_pct,"% of total).")
+          } else {
+            description2 <- paste0(
+              " cases (",cases_pruned_pct,"% of total).")
+          }         
+          message("Since prunesmaller=",prunesmaller,", ",
+            patterns_pruned,description1,cases_pruned,description2)
         }
       }
       
@@ -2721,7 +2739,7 @@ vtree <- function (
   
   if (root) {
     
-    if (!is.null(prunesmaller)) {
+    if (!is.null(prunesmaller) && is.null(hideconstant)) {
       if (tree$numsmallernodes==0) {
         if (pattern) {
           message("No patterns had fewer than ",prunesmaller," cases")
