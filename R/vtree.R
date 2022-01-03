@@ -93,6 +93,11 @@ NULL
 #' @param varnamebold      Show the variable name in bold?
 #' @param legendpointsize  Font size (in points) to use when displaying legend.
 #' @param sameline         Display node label on the same line as the count and percentage?
+#'                         A single value (with no names) specifies the setting for all variables.
+#'                         A logical vector of \code{TRUE} for named variables is interpreted as
+#`                         \code{TRUE} for those variables and \code{FALSE} for all others.
+#'                         A logical vector of \code{FALSE} for named variables is interpreted as
+#'                         \code{FALSE} for those variables and \code{TRUE} for all others.
 #' @param check.is.na      Replace each variable named in \code{vars} with a logical vector indicating
 #'                         whether or not each of its values is missing?
 #' @param summary          A character string used to specify summary statistics to display in the nodes.
@@ -1991,6 +1996,29 @@ vtree <- function (
       names(sp) <- vars
       showpct <- sp
     }
+    
+    if (is.null(names(sameline))) {
+      sameline <- rep(sameline[1],numvars)
+      names(sameline) <- vars
+    } else {
+      if (all(sameline)) {
+        sl <- rep(FALSE,numvars)
+      } else
+      if (all(!sameline)) {
+        sl <- rep(TRUE,numvars)
+      } else
+      if (length(sameline)!=numvars) {
+        stop("sameline: ambiguous specification.")
+      } else {
+        sl <- rep(NA,numvars)
+      }
+      if (any(names(sameline) %in% vars)) {
+        m <- match(names(sameline),vars)
+        sl[m[!is.na(m)]] <- sameline[!is.na(m)]
+      }
+      names(sl) <- vars
+      sameline <- sl
+    }
 
     if (is.null(names(revgradient))) {
       revgradient <- rep(revgradient[1],numvars)
@@ -2364,10 +2392,12 @@ vtree <- function (
     zvalue <- rep(0,nrow(z))
     showCOUNT <- showcount
     showPCT <- showpct
+    sameLINE <- sameline
   } else {
     zvalue <- z[[vars[1]]]
     showCOUNT <- showcount[[vars[1]]]
     showPCT <- showpct[vars[1]]
+    sameLINE <- sameline[vars[1]]
   }
   
   
@@ -2380,7 +2410,7 @@ vtree <- function (
     last = last, labels = labelnode[[vars[1]]], tlabelnode=tlabelnode, labelvar = labelvar[vars[1]],
     varminwidth=varminwidth[vars[1]],varminheight=varminheight[vars[1]],varlabelloc=varlabelloc[vars[1]],
     check.is.na=check.is.na,
-    sameline=sameline,
+    sameline=sameLINE,
     showvarinnode=showvarinnode,shownodelabels=shownodelabels[vars[1]],
     showpct=showPCT,
     showrootcount=showrootcount,

@@ -65,7 +65,11 @@ No counts will be shown.}
 
 \item{title}{Label for the root node of the tree.}
 
-\item{sameline}{Display node label on the same line as the count and percentage?}
+\item{sameline}{Display node label on the same line as the count and percentage?
+A single value (with no names) specifies the setting for all variables.
+A logical vector of \code{TRUE} for named variables is interpreted as
+A logical vector of \code{FALSE} for named variables is interpreted as
+\code{FALSE} for those variables and \code{TRUE} for all others.}
 
 \item{vp}{Use \emph{valid percentages}?
 Valid percentages are computed by first excluding any missing values,
