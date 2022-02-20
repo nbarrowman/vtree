@@ -545,7 +545,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
           result <- gsub("%nonmv%",paste0(nonmissingNum),result)
           
           result <- condsub("%npct%",nAndpct(y,digits=digits,thousands=thousands),result)
-          result <- condsub("%pct%",justpct(y,digits=digits,thousands=thousands),result)
+          result <- condsub("%pct%",justpct(y,digits=digits),result)
           result <- condsub("%mean%", meanfunc(y,digits=cdigits,thousands=thousands),result)
           result <- condsub("%meanx%", around(mean(x), digits = cdigits,thousands=thousands),result)
           result <- condsub("%sum%", sumfunc(y,digits=cdigits,thousands=thousands),result)
