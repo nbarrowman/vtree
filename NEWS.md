@@ -1,4 +1,19 @@
-# vtree 5.5.1
+# vtree 5.5.7
+
+## Changes
+
+* Vectorized the `sameline` parameter.
+
+* Added new parameter, `prefixcount`.
+
+* New parameter `hideconstant` which is more flexible and intuitive than `showuniform` (also more untuitively named).
+
+## Bug fixes
+
+* Fixed problem when hideconstant is specified with prunesmaller and pattern=TRUE.
+
+
+# vtree 5.4.6
 
 ## Changes
 
@@ -22,7 +37,7 @@
 
 * Added `the.matrix` dataset based on the 3 Matrix movies.
 
-* Added targetted versions of the pruning parameters, namely: `tprune`, `tkeep`, `tfollow`, and `tprunebelow`.
+* Added targeted versions of the pruning parameters, namely: `tprune`, `tkeep`, `tfollow`, and `tprunebelow`.
 
 * When `ImageFileOnly=TRUE`, graphics files are now numbered successively, even when not knitting.
 
@@ -33,6 +48,8 @@
 ## Bug fixes
 
 * Fixed a small bug where the `%list%` summary option used `digits` rather than `cdigits`.
+
+* Fixed problem when hideconstant is specified with `prunesmaller` and `pattern=TRUE`.
 
 
 # vtree 5.1.8
