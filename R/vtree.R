@@ -2846,10 +2846,15 @@ vtree <- function (
         if (is.null(folder)) {
           if (isTRUE(getOption('knitr.in.progress'))) {
             if (is.null(options()$vtree_folder)) {
-              if (knitr::opts_knit$get("out.format") %in% c("latex","sweave")) {
+              if (knitr::opts_knit$get("out.format") %in% c("latex","sweave","markdown")) {
                 knitr.fig.path <- knitr::opts_chunk$get("fig.path")
                 options(vtree_folder=knitr.fig.path)
-                dir.create(file.path(knitr.fig.path), showWarnings = FALSE)
+                if (!dir.exists(knitr.fig.path)){
+                  tf <- tempfile()
+                  cat("```{r}\nplot(0)\n```\n",file=tf)
+                  OUTPUT <- capture.output(knitr::knit_child(tf,
+                    options=list(fig.show='hide')))
+                }
               } else {
                 options(vtree_folder=tempdir())
               }
@@ -2896,8 +2901,6 @@ vtree <- function (
         }
       }
       
-      # fullpath <- normalizePath(fullpath,"/")
-
       if (verbose) message("Image file saved to ",fullpath)
       
       if (imagewidth=="" && imageheight=="") {
