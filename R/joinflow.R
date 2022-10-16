@@ -15,6 +15,9 @@ joinflow <- function(...) {
       numsmallernodes <- numsmallernodes + flows[[i]]$numsmallernodes
       sumsmallernodes <- sumsmallernodes + flows[[i]]$sumsmallernodes
       
+      numbiggernodes <- numbiggernodes + flows[[i]]$numbiggernodes
+      sumbiggernodes <- sumbiggernodes + flows[[i]]$sumbiggernodes      
+      
       nodenum <- c(nodenum,flows[[i]]$nodenum)
       if (length(edges)==0) {
         edges <- flows[[i]]$edges
