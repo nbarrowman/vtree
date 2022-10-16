@@ -5,6 +5,8 @@ joinflow <- function(...) {
   
   numsmallernodes <- 0
   sumsmallernodes <- 0
+  numbiggernodes <- 0
+  sumbiggernodes <- 0  
 
   edges <- labelassign <- labelshow <- nodenum <- c()
   flows <- list(...)
@@ -29,5 +31,6 @@ joinflow <- function(...) {
   return(
     list(
       nodenum=nodenum,edges=edges,labelassign=labelassign,labelshow=labelshow,
-      numsmallernodes=numsmallernodes,sumsmallernodes=sumsmallernodes))
+      numsmallernodes=numsmallernodes,sumsmallernodes=sumsmallernodes,
+      numbiggernodes=numbiggernodes,sumbiggernodes=sumbiggernodes))
 }
