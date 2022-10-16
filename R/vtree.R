@@ -64,6 +64,7 @@ NULL
 #'                          (see \strong{Pruning} below)
 #'                          
 #' @param prunesmaller     Prune any nodes with count less than specified number.
+#' @param prunebigger      Prune any nodes with count greater than specified number.
 #' @param splitspaces      When \code{vars} is a character string,
 #'                         split it by spaces to get variable names?
 #'                         It is only rarely necessary to use this parameter.
@@ -492,6 +493,7 @@ vtree <- function (
   follow=list(),
   tfollow=list(),
   prunesmaller=NULL,
+  prunebigger=NULL,
   summary =NULL,
   tsummary=NULL,
   shownodelabels=TRUE,
@@ -1820,6 +1822,34 @@ vtree <- function (
             patterns_pruned,description1,cases_pruned,description2)
         }
       }
+      
+      if (!is.null(prunebigger)) {
+      tabpattern <- table(PATTERN)
+      # Uniform variables are defined in terms of the patterns that will be shown
+        if (!is.null(hideconstant) || !showuniform) {
+          #browser()
+          sel <- PATTERN %in% names(tabpattern[tabpattern<=prunebigger])
+          patterns_pruned <- sum(tabpattern[tabpattern<=prunebigger])
+          cases_pruned <- sum(!sel)
+          cases_pruned_pct <- round(100*cases_pruned/nrow(z))
+          z <- z[sel,]
+          PATTERN <- PATTERN[sel]
+          if (patterns_pruned==1) {
+            description1 <- " pattern was pruned, for a total of "
+          } else {
+            description1 <- " patterns were pruned, for a total of "
+          }                   
+          if (cases_pruned==1) {
+            description2 <- paste0(
+              " case (",cases_pruned_pct,"% of total).")
+          } else {
+            description2 <- paste0(
+              " cases (",cases_pruned_pct,"% of total).")
+          }         
+          message("Since prunebigger=",prunebigger,", ",
+            patterns_pruned,description1,cases_pruned,description2)
+        }
+      }    
       
       if (!is.null(hideconstant)) {
         for (var in vars) {
