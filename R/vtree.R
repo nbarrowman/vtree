@@ -158,6 +158,7 @@ NULL
 #' @param fillcolor        [Color] A named vector of colors for filling the nodes of each variable.
 #'                         If an unnamed, scalar color is specified,
 #'                         all nodes will have this color.
+#' @param specfill         [Color] A list with specified color values for specified variables.
 #' @param NAfillcolor      [Color] Fill-color for missing-value nodes.
 #'                         If \code{NULL}, fill colors of missing value nodes will be consistent
 #'                         with the fill colors in the rest of the tree.
@@ -510,7 +511,8 @@ vtree <- function (
   tlabelnode=NULL,
   digits = 0,
   cdigits=1,  
-  fillcolor = NULL, 
+  fillcolor = NULL,
+  specfill = NULL,
   fillnodes = TRUE,
   NAfillcolor="white",
   rootfillcolor="#EFF3FF",
@@ -2169,6 +2171,14 @@ vtree <- function (
               if (!holdvarlabelcolors) {
                 varlabelcolors[i] <- fillcolor[names(fillcolor)==vars[i]]
               }
+            } else
+            if (!is.null(specfill)) {
+              if (is.null(NAfillcolor)) {
+                valuecolors[TRUE] <- specfill[[vars[[i]]]]
+              } else {
+                valuecolors[values!="NA"] <- specfill[[vars[[i]]]]
+              }
+              varlabelcolors[i] <- "black"              
             } else
             if (gradient[vars[i]]) {
               if (revgrad) {
