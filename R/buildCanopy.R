@@ -6,7 +6,7 @@ buildCanopy <- function(z,root=TRUE,novars=FALSE,title="",parent=1,last=1,labels
   showvarinnode=FALSE,shownodelabels=TRUE,sameline=FALSE,
   prune=NULL,
   tprune=NULL,
-  prunelone=NULL,prunesmaller=NULL,
+  prunelone=NULL,prunesmaller=NULL,prunebigger=NULL,
   keep=NULL,tkeep=NULL,
   text=NULL,ttext=NULL,TopText="",showempty=FALSE,digits=0,cdigits=2,
   showpct=TRUE,
@@ -59,6 +59,20 @@ buildCanopy <- function(z,root=TRUE,novars=FALSE,title="",parent=1,last=1,labels
     categoryCounts <- categoryCounts[selectcount]
   }
   
+  if (is.null(prunebigger)) {
+    numbiggernodes <- 0
+    sumbiggernodes <- 0
+  } else {
+    if (vp) {
+      selectcount <- categoryCounts<=prunebigger | names(categoryCounts)=="NA" 
+    } else {
+      selectcount <- categoryCounts<=prunebigger
+    }
+    numbiggernodes <- sum(!selectcount & categoryCounts>0)
+    sumbiggernodes <- sum(categoryCounts[!selectcount])
+    categoryCounts <- categoryCounts[selectcount]
+  }  
+  
   if (length(categoryCounts)==0) {
     return(list(
       root=root,
@@ -73,7 +87,9 @@ buildCanopy <- function(z,root=TRUE,novars=FALSE,title="",parent=1,last=1,labels
       labelassign="",
       lastnode=parent,
       numsmallernodes=numsmallernodes,
-      sumsmallernodes=sumsmallernodes))    
+      sumsmallernodes=sumsmallernodes,      
+      numbiggernodes=numbiggernodes,
+      sumbiggernodes=sumbiggernodes))    
   }
   
   
@@ -397,6 +413,8 @@ buildCanopy <- function(z,root=TRUE,novars=FALSE,title="",parent=1,last=1,labels
       ' fillcolor=<',FILLCOLOR,'>',VARLABELLOC,' ',VARMINWIDTH,' ',VARMINHEIGHT,']'),collapse='\n')
   }
   
+  #browser()
+  
   return(list(
     root=root,
     value=CAT[-1],
@@ -410,5 +428,7 @@ buildCanopy <- function(z,root=TRUE,novars=FALSE,title="",parent=1,last=1,labels
     labelassign=labelassign,
     lastnode=nodenum[length(nodenum)],
     numsmallernodes=numsmallernodes,
-    sumsmallernodes=sumsmallernodes))
+    sumsmallernodes=sumsmallernodes,
+    numbiggernodes=numbiggernodes,
+    sumbiggernodes=sumbiggernodes))
 }

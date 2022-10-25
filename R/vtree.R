@@ -64,6 +64,7 @@ NULL
 #'                          (see \strong{Pruning} below)
 #'                          
 #' @param prunesmaller     Prune any nodes with count less than specified number.
+#' @param prunebigger      Prune any nodes with count greater than specified number.
 #' @param splitspaces      When \code{vars} is a character string,
 #'                         split it by spaces to get variable names?
 #'                         It is only rarely necessary to use this parameter.
@@ -307,6 +308,8 @@ NULL
 #' @param subset           [Internal use only.] A vector representing the subset of observations.
 #' @param numsmallernodes  [Internal use only.] Counting nodes that were suppressed by prunesmaller.
 #' @param sumsmallernodes  [Internal use only.] Summing nodes that were suppress by prunesmaller.
+#' @param numbiggernodes   [Internal use only.] Counting nodes that were suppressed by prunebigger.
+#' @param sumbiggernodes   [Internal use only.] Summing nodes that were suppress by prunebigger.
 #' @param as.if.knit       (Deprecated) Behave as if called while knitting?
 #' @param prunelone        (Deprecated) A vector of values specifying "lone nodes" (of \emph{any} variable) to prune.
 #'                         A lone node is a node that has no siblings (an "only child").
@@ -495,6 +498,7 @@ vtree <- function (
   follow=list(),
   tfollow=list(),
   prunesmaller=NULL,
+  prunebigger=NULL,
   summary =NULL,
   tsummary=NULL,
   shownodelabels=TRUE,
@@ -588,6 +592,8 @@ vtree <- function (
   subset = 1:nrow(z),
   numsmallernodes = 0,
   sumsmallernodes = 0,
+  numbiggernodes = 0,
+  sumbiggernodes = 0,  
   as.if.knit=FALSE,
   prunelone=NULL,
   pruneNA=FALSE,
@@ -1824,6 +1830,34 @@ vtree <- function (
             patterns_pruned,description1,cases_pruned,description2)
         }
       }
+
+      if (!is.null(prunebigger)) {
+        tabpattern <- table(PATTERN)
+        # Uniform variables are defined in terms of the patterns that will be shown
+        if (!is.null(hideconstant) || !showuniform) {
+          #browser()
+          sel <- PATTERN %in% names(tabpattern[tabpattern<=prunebigger])
+          patterns_pruned <- sum(tabpattern[tabpattern<=prunebigger])
+          cases_pruned <- sum(!sel)
+          cases_pruned_pct <- round(100*cases_pruned/nrow(z))
+          z <- z[sel,]
+          PATTERN <- PATTERN[sel]
+          if (patterns_pruned==1) {
+            description1 <- " pattern was pruned, for a total of "
+          } else {
+            description1 <- " patterns were pruned, for a total of "
+          }                   
+          if (cases_pruned==1) {
+            description2 <- paste0(
+              " case (",cases_pruned_pct,"% of total).")
+          } else {
+            description2 <- paste0(
+              " cases (",cases_pruned_pct,"% of total).")
+          }         
+          message("Since prunebigger=",prunebigger,", ",
+            patterns_pruned,description1,cases_pruned,description2)
+        }
+      }    
       
       if (!is.null(hideconstant)) {
         for (var in vars) {
@@ -2432,6 +2466,7 @@ vtree <- function (
     tprune=tprune,
     prunelone=prunelone,
     prunesmaller=prunesmaller,
+    prunebigger=prunebigger,
     HTMLtext = HTMLtext, showvarnames = showvarnames,
     keep=keep[[vars[1]]],
     tkeep=tkeep,
@@ -2444,7 +2479,9 @@ vtree <- function (
   
   numsmallernodes <- tree$numsmallernodes
   sumsmallernodes <- tree$sumsmallernodes
-
+  numbiggernodes  <- tree$numbiggernodes
+  sumbiggernodes  <- tree$sumbiggernodes
+  
   if (root) {
     treedata <- list(.n=nrow(z),.pct=100)
   }
@@ -2733,7 +2770,7 @@ vtree <- function (
           sameline=sameline, showempty = showempty,
           root = FALSE,
           prune=prune, prunebelow = prunebelow, tprunebelow=TPRUNEBELOW,
-          prunesmaller=prunesmaller,
+          prunesmaller=prunesmaller,prunebigger=prunebigger,
           tprune=TPRUNE,
           tkeep=TKEEP,
           labelvar = labelvar,
@@ -2748,6 +2785,7 @@ vtree <- function (
           pruneNA=pruneNA,
           pattern=pattern,seq=seq,
           numsmallernodes=numsmallernodes,sumsmallernodes=sumsmallernodes,
+          numbiggernodes=numbiggernodes,sumbiggernodes=sumbiggernodes,
           text = text, ttext=TTEXT,gradient=gradient,sortfill=sortfill,
           maxNodes=maxNodes,
           colornodes = colornodes, color = color[-1], fillnodes = fillnodes,
@@ -2762,6 +2800,7 @@ vtree <- function (
         }
 
         tree <- joinflow(tree,fcChild)
+        #browser()
       }
     } 
   } 
@@ -2781,32 +2820,65 @@ vtree <- function (
   
   if (root) {
     
-    if (!is.null(prunesmaller) && is.null(hideconstant)) {
+    if ((!is.null(prunesmaller) | !is.null(prunebigger)) && is.null(hideconstant)) {
       if (tree$numsmallernodes==0) {
-        if (pattern) {
-          message("No patterns had fewer than ",prunesmaller," cases")
-        } else {
-          message("No nodes were smaller than ",prunesmaller)
+        if (!is.null(prunesmaller)) {
+          if (pattern) {
+            message("No patterns had fewer than ",prunesmaller," cases")
+          } else {
+            message("No nodes were smaller than ",prunesmaller)
+          }
+        }
+      }
+      if (tree$numbiggernodes==0) {
+        if (!is.null(prunebigger)) { 
+          if (pattern) {
+            message("No patterns had more than than ",prunebigger," cases")
+          } else {
+            message("No nodes were larger than ",prunebigger)
+          }        
         }
       } else {
-        if (pattern) {
-          if (tree$numsmallernodes==1) {
-            description <- " pattern was pruned, "
+        if (!is.null(prunesmaller)) {
+          if (pattern) {
+            if (tree$numsmallernodes==1) {
+              description <- " pattern was pruned, "
+            } else {
+              description <- " patterns were pruned, "
+            }
+            description <- paste0(description,
+              "for a total of ",tree$sumsmallernodes," cases",
+            " (",round(100*tree$sumsmallernodes/nrow(z)),"% of total)")
           } else {
-            description <- " patterns were pruned, "
+            if (tree$numsmallernodes==1) {
+              description <- " node was pruned."
+            } else {
+              description <- " nodes were pruned."
+            }         
           }
-          description <- paste0(description,
-            "for a total of ",tree$sumsmallernodes," cases",
-          " (",round(100*tree$sumsmallernodes/nrow(z)),"% of total)")
-        } else {
-          if (tree$numsmallernodes==1) {
-            description <- " node was pruned."
-          } else {
-            description <- " nodes were pruned."
-          }         
+          message("Since prunesmaller=",prunesmaller,", ",
+            tree$numsmallernodes,description)
         }
-        message("Since prunesmaller=",prunesmaller,", ",
-          tree$numsmallernodes,description)
+        if (!is.null(prunebigger)) {
+          if (pattern) {
+            if (tree$numbiggernodes==1) {
+              description <- " pattern was pruned, "
+            } else {
+              description <- " patterns were pruned, "
+            }
+            description <- paste0(description,
+              "for a total of ",tree$sumbiggernodes," cases",
+            " (",round(100*tree$sumbiggernodes/nrow(z)),"% of total)")
+          } else {
+            if (tree$numbiggernodes==1) {
+              description <- " node was pruned."
+            } else {
+              description <- " nodes were pruned."
+            }         
+          }
+          message("Since prunebigger=",prunebigger,", ",
+            tree$numbiggernodes,description)
+        }          
       }
     }
 
