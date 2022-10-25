@@ -472,6 +472,8 @@ NULL
 #'   c(Severity="Severe",Sex="M",text="\nMales with Severe disease"),
 #'   c(Severity="NA",text="\nUnknown severity")))
 #'
+#' @importFrom utils capture.output
+#'
 #' @export
 
 vtree <- function (
@@ -2862,8 +2864,8 @@ vtree <- function (
                 if (!dir.exists(knitr.fig.path)){
                   tf <- tempfile()
                   cat("```{r}\nplot(0)\n```\n",file=tf)
-                  OUTPUT <- capture.output(knitr::knit_child(tf,
-                    options=list(fig.show='hide')))
+                  OUTPUT <- utils::capture.output(suppressMessages(knitr::knit_child(tf,
+                    options=list(fig.show='hide',warning=FALSE,message=FALSE))))
                 }
               } else {
                 options(vtree_folder=tempdir())
