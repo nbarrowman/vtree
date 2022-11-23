@@ -1,16 +1,21 @@
-# vtree 5.5.7
+# vtree 5.6.3
 
 ## Changes
 
-* Vectorized the `sameline` parameter.
+* New parameter, `prunebigger`, prunes nodes bigger than specified size. This is particularly useful with pattern trees when there are a few unusual cases.
 
-* Added new parameter, `prefixcount`.
+* Vectorized the `sameline` parameter, to allow different behavior for different variables.
 
-* New parameter `hideconstant` which is more flexible and intuitive than `showuniform` (also more untuitively named).
+* New parameter, `prefixcount`, to format counts (e.g. N=3).
+
+* New parameter `hideconstant`, is more flexible and intuitive than `showuniform` (also more intuitively named).
+
+* Altered vtree to work properly with Quarto.
+
 
 ## Bug fixes
 
-* Fixed problem when hideconstant is specified with prunesmaller and pattern=TRUE.
+* Fixed problem when `hideconstant` is specified with prunesmaller and pattern=TRUE.
 
 
 # vtree 5.4.6
