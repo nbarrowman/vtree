@@ -71,7 +71,7 @@ df <- build.data.frame(
   list("Africa","Under 30 million","not landlocked",26))
 ```
 
-`r spaces(30)`
+  `r spaces(30)`
 `r vtree(df,"continent population landlocked",showroot=FALSE,pxwidth=800,
   imageheight="3in")`
   
