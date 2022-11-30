@@ -6,12 +6,13 @@ buildCanopy <- function(z,root=TRUE,novars=FALSE,title="",parent=1,last=1,labels
   showvarinnode=FALSE,shownodelabels=TRUE,sameline=FALSE,
   prune=NULL,
   tprune=NULL,
-  prunelone=NULL,prunesmaller=NULL,
+  prunelone=NULL,prunesmaller=NULL,prunebigger=NULL,
   keep=NULL,tkeep=NULL,
   text=NULL,ttext=NULL,TopText="",showempty=FALSE,digits=0,cdigits=2,
   showpct=TRUE,
   showrootcount=FALSE,
   showcount=TRUE,
+  prefixcount="",
   showvarnames=FALSE,
   pruneNA=FALSE,
   splitwidth=Inf,topcolor="black",color="blue",topfillcolor="olivedrab3",
@@ -41,14 +42,56 @@ buildCanopy <- function(z,root=TRUE,novars=FALSE,title="",parent=1,last=1,labels
   
   sampleSize <- sum(categoryCounts[names(categoryCounts)!="NA"])
   
-  if (!is.null(prunesmaller)) {
+  #browser()
+  
+  if (is.null(prunesmaller)) {
+    numsmallernodes <- 0
+    sumsmallernodes <- 0
+  } else {
     if (vp) {
-      selectcount <- categoryCounts>=prunesmaller | names(categoryCounts)=="NA"  
+      selectcount <- categoryCounts>=prunesmaller | names(categoryCounts)=="NA" 
     } else {
       selectcount <- categoryCounts>=prunesmaller
     }
+    #browser()
+    numsmallernodes <- sum(!selectcount & categoryCounts>0)
+    sumsmallernodes <- sum(categoryCounts[!selectcount])
     categoryCounts <- categoryCounts[selectcount]
   }
+  
+  if (is.null(prunebigger)) {
+    numbiggernodes <- 0
+    sumbiggernodes <- 0
+  } else {
+    if (vp) {
+      selectcount <- categoryCounts<=prunebigger | names(categoryCounts)=="NA" 
+    } else {
+      selectcount <- categoryCounts<=prunebigger
+    }
+    numbiggernodes <- sum(!selectcount & categoryCounts>0)
+    sumbiggernodes <- sum(categoryCounts[!selectcount])
+    categoryCounts <- categoryCounts[selectcount]
+  }  
+  
+  if (length(categoryCounts)==0) {
+    return(list(
+      root=root,
+      value="",
+      n=NULL,
+      pct=NULL,
+      npctString=NULL,
+      extraText="",
+      levels="",
+      nodenum=parent,
+      edges="",
+      labelassign="",
+      lastnode=parent,
+      numsmallernodes=numsmallernodes,
+      sumsmallernodes=sumsmallernodes,      
+      numbiggernodes=numbiggernodes,
+      sumbiggernodes=sumbiggernodes))    
+  }
+  
   
   # Pre-pend the parent node
   categoryCounts <- c(length(z),categoryCounts)
@@ -64,7 +107,10 @@ buildCanopy <- function(z,root=TRUE,novars=FALSE,title="",parent=1,last=1,labels
       npctString <- rep("",length(cc))
       nString <- cc
       if (showcount) {
-        npctString <- format(cc,big.mark=thousands)
+        for (i in 1:length(cc)) {
+          npctString[i] <- format(cc[i],big.mark=thousands)
+        }
+        npctString <- paste0(prefixcount,npctString)
         #if (showpct) npctString <- paste0(npctString," ")
       }
       pctString <- ifelse(names(cc)=="NA","",around(100*cc/sampleSize,digits))
@@ -80,8 +126,11 @@ buildCanopy <- function(z,root=TRUE,novars=FALSE,title="",parent=1,last=1,labels
     npctString <- rep("",length(categoryCounts[-1]))
     nString <- categoryCounts[-1]
     if (showcount) {
-      npctString <- categoryCounts[-1]
-      npctString <- format(npctString,big.mark=thousands)      
+      numbers <- categoryCounts[-1]
+      for (i in 1:length(numbers)) {
+        npctString[i] <- format(numbers[i],big.mark=thousands)
+      }      
+      npctString <- paste0(prefixcount,npctString)
     }
     pctString <- around(100*categoryCounts[-1]/length(z),digits)
     if (showpct) {
@@ -377,5 +426,9 @@ buildCanopy <- function(z,root=TRUE,novars=FALSE,title="",parent=1,last=1,labels
     nodenum=nodenum[-1],
     edges=edges,
     labelassign=labelassign,
-    lastnode=nodenum[length(nodenum)]))
+    lastnode=nodenum[length(nodenum)],
+    numsmallernodes=numsmallernodes,
+    sumsmallernodes=sumsmallernodes,
+    numbiggernodes=numbiggernodes,
+    sumbiggernodes=sumbiggernodes))
 }

@@ -71,7 +71,7 @@ df <- build.data.frame(
   list("Africa","Under 30 million","not landlocked",26))
 ```
 
-`r spaces(30)`
+  `r spaces(30)`
 `r vtree(df,"continent population landlocked",showroot=FALSE,pxwidth=800,
   imageheight="3in")`
   
@@ -1230,10 +1230,10 @@ vtree(FakeData,"Severity",horiz=FALSE,showvarnames=FALSE,splitwidth=Inf,sameline
     "Pre \nPre: range %range%"),
  pxwidth=1400,imageheight="1.4in")`
 
-### Targetted summaries
+### Targeted summaries
 
 Sometimes you only want to show a summary in a particular node.
-Targetted summaries are specified with the `tsummary` parameter
+Targeted summaries are specified with the `tsummary` parameter
 as a list of character-string vectors.
 The initial elements of each character string vector point to a specific node.
 The final element of each character string vector is a summary string,

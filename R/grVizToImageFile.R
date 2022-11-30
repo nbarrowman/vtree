@@ -26,6 +26,8 @@
 #' @return
 #'   Returns the full path of the imagefile.
 #'
+#' @importFrom utils capture.output
+#'
 #' @export
 #'
 

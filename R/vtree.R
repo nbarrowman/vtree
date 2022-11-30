@@ -48,7 +48,8 @@ NULL
 #'                         e.g. \code{~ Age + Sex},
 #'                         but note that extended variable specifications cannot be used in this case.
 #'                         
-#' @param showuniform      Show variable even when it doesn't change?
+#' @param showuniform      Show a variable even when it only has one value?
+#' @param hideconstant     Hide a variable if its only value is one of the specified strings.
 #'
 #' @param words            A list of named vectors of values.
 #'                         Used to build a variable tree 
@@ -63,6 +64,7 @@ NULL
 #'                          (see \strong{Pruning} below)
 #'                          
 #' @param prunesmaller     Prune any nodes with count less than specified number.
+#' @param prunebigger      Prune any nodes with count greater than specified number.
 #' @param splitspaces      When \code{vars} is a character string,
 #'                         split it by spaces to get variable names?
 #'                         It is only rarely necessary to use this parameter.
@@ -92,6 +94,11 @@ NULL
 #' @param varnamebold      Show the variable name in bold?
 #' @param legendpointsize  Font size (in points) to use when displaying legend.
 #' @param sameline         Display node label on the same line as the count and percentage?
+#'                         A single value (with no names) specifies the setting for all variables.
+#'                         A logical vector of \code{TRUE} for named variables is interpreted as
+#`                         \code{TRUE} for those variables and \code{FALSE} for all others.
+#'                         A logical vector of \code{FALSE} for named variables is interpreted as
+#'                         \code{FALSE} for those variables and \code{TRUE} for all others.
 #' @param check.is.na      Replace each variable named in \code{vars} with a logical vector indicating
 #'                         whether or not each of its values is missing?
 #' @param summary          A character string used to specify summary statistics to display in the nodes.
@@ -152,6 +159,7 @@ NULL
 #' @param fillcolor        [Color] A named vector of colors for filling the nodes of each variable.
 #'                         If an unnamed, scalar color is specified,
 #'                         all nodes will have this color.
+#' @param specfill         [Color] A list with specified color values for specified variables.
 #' @param NAfillcolor      [Color] Fill-color for missing-value nodes.
 #'                         If \code{NULL}, fill colors of missing value nodes will be consistent
 #'                         with the fill colors in the rest of the tree.
@@ -198,6 +206,7 @@ NULL
 #`                         \code{TRUE} for those variables and \code{FALSE} for all others.
 #'                         A logical vector of \code{FALSE} for named variables is interpreted as
 #'                         \code{FALSE} for those variables and \code{TRUE} for all others.
+#' @param prefixcount      Text that will precede each count.
 #' @param showrootcount    Should count in root node?
 #' @param showlegend       Show legend (including marginal frequencies) for each variable?
 #' @param showlegendsum    Show summary information in the legend?
@@ -297,6 +306,10 @@ NULL
 #' 
 #' @param root             [Internal use only.] Is this the root node of the tree?
 #' @param subset           [Internal use only.] A vector representing the subset of observations.
+#' @param numsmallernodes  [Internal use only.] Counting nodes that were suppressed by prunesmaller.
+#' @param sumsmallernodes  [Internal use only.] Summing nodes that were suppress by prunesmaller.
+#' @param numbiggernodes   [Internal use only.] Counting nodes that were suppressed by prunebigger.
+#' @param sumbiggernodes   [Internal use only.] Summing nodes that were suppress by prunebigger.
 #' @param as.if.knit       (Deprecated) Behave as if called while knitting?
 #' @param prunelone        (Deprecated) A vector of values specifying "lone nodes" (of \emph{any} variable) to prune.
 #'                         A lone node is a node that has no siblings (an "only child").
@@ -462,12 +475,15 @@ NULL
 #'   c(Severity="Severe",Sex="M",text="\nMales with Severe disease"),
 #'   c(Severity="NA",text="\nUnknown severity")))
 #'
+#' @importFrom utils capture.output
+#'
 #' @export
 
 vtree <- function (
   data=NULL,
   vars,
   showuniform = TRUE,
+  hideconstant = NULL,
   words = NULL,
   horiz = TRUE, 
   title = "",
@@ -482,6 +498,7 @@ vtree <- function (
   follow=list(),
   tfollow=list(),
   prunesmaller=NULL,
+  prunebigger=NULL,
   summary =NULL,
   tsummary=NULL,
   shownodelabels=TRUE,
@@ -489,6 +506,7 @@ vtree <- function (
   showpct=TRUE, 
   showlpct=TRUE,
   showcount=TRUE,
+  prefixcount="",
   showrootcount=TRUE,
   showlegend=FALSE,
   showroot=TRUE,
@@ -499,7 +517,8 @@ vtree <- function (
   tlabelnode=NULL,
   digits = 0,
   cdigits=1,  
-  fillcolor = NULL, 
+  fillcolor = NULL,
+  specfill = NULL,
   fillnodes = TRUE,
   NAfillcolor="white",
   rootfillcolor="#EFF3FF",
@@ -571,6 +590,10 @@ vtree <- function (
   last = 1,
   root = TRUE,
   subset = 1:nrow(z),
+  numsmallernodes = 0,
+  sumsmallernodes = 0,
+  numbiggernodes = 0,
+  sumbiggernodes = 0,  
   as.if.knit=FALSE,
   prunelone=NULL,
   pruneNA=FALSE,
@@ -882,7 +905,76 @@ vtree <- function (
             vars[i] <- ltvar
           }
         }
-      }        
+      }  
+      
+      # Process > tag in variable names
+      regex <- paste0("^",regexVarName,"(>)",regexVarName)
+      findgt <- grep(regex,vars)
+      if (length(findgt)>0) {
+        for (i in seq_len(length(vars))) {    
+          if (i %in% findgt) {
+            gtvar <- sub(regex,"\\1",vars[i])
+            if (is.null(z[[gtvar]]))
+              stop(paste("Unknown variable:",gtvar))                    
+            gtval <- sub(regex,"\\3",vars[i])
+            # Check to see if any of the values of the specified variable contain spaces
+            # If they do, replace underscores in the specified value with spaces.
+            if (any(length(grep(" ",names(table(z[[gtvar]]))))>0)) {
+              gtval <- gsub("_"," ",gtval)
+            }
+            m <- z[[gtvar]]>as.numeric(gtval)
+            z[[gtvar]] <- factor(m, levels = c(FALSE, TRUE),
+              c(paste0("<=",gtval),paste0(">",gtval)))
+            vars[i] <- gtvar
+          }
+        }
+      }              
+      
+      # Process >= tag in variable names
+      regex <- paste0("^",regexVarName,"(>=)",regexVarName)
+      findgte <- grep(regex,vars)
+      if (length(findgte)>0) {
+        for (i in seq_len(length(vars))) {    
+          if (i %in% findgte) {
+            gtevar <- sub(regex,"\\1",vars[i])
+            if (is.null(z[[gtevar]]))
+              stop(paste("Unknown variable:",gtevar))                    
+            gteval <- sub(regex,"\\3",vars[i])
+            # Check to see if any of the values of the specified variable contain spaces
+            # If they do, replace underscores in the specified value with spaces.
+            if (any(length(grep(" ",names(table(z[[gtevar]]))))>0)) {
+              gteval <- gsub("_"," ",gteval)
+            }
+            m <- z[[gtevar]]>=as.numeric(gteval)
+            z[[gtevar]] <- factor(m, levels = c(FALSE, TRUE),
+              c(paste0("<",gteval),paste0(">=",gteval)))
+            vars[i] <- gtevar
+          }
+        }
+      }                    
+      
+      # Process <= tag in variable names
+      regex <- paste0("^",regexVarName,"(<=)",regexVarName)
+      findlte <- grep(regex,vars)
+      if (length(findlte)>0) {
+        for (i in seq_len(length(vars))) {    
+          if (i %in% findlte) {
+            ltevar <- sub(regex,"\\1",vars[i])
+            if (is.null(z[[ltevar]]))
+              stop(paste("Unknown variable:",ltevar))                    
+            lteval <- sub(regex,"\\3",vars[i])
+            # Check to see if any of the values of the specified variable contain spaces
+            # If they do, replace underscores in the specified value with spaces.
+            if (any(length(grep(" ",names(table(z[[ltevar]]))))>0)) {
+              lteval <- gsub("_"," ",lteval)
+            }
+            m <- z[[ltevar]]<=as.numeric(lteval)
+            z[[ltevar]] <- factor(m, levels = c(FALSE, TRUE),
+              c(paste0(">",lteval),paste0("<=",lteval)))
+            vars[i] <- ltevar
+          }
+        }
+      }                          
       
       # Process is.na: tag in variable names to handle individual missing value checks
       regex <- paste0("^is\\.na:",regexVarName,"$")
@@ -1713,13 +1805,70 @@ vtree <- function (
       
       if (!is.null(prunesmaller)) {
         tabpattern <- table(PATTERN)
-        if (!showuniform) {
+        # Uniform variables are defined in terms of the patterns that will be shown
+        if (!is.null(hideconstant) || !showuniform) {
+          #browser()
           sel <- PATTERN %in% names(tabpattern[tabpattern>=prunesmaller])
+          patterns_pruned <- sum(tabpattern[tabpattern>=prunesmaller])
+          cases_pruned <- sum(!sel)
+          cases_pruned_pct <- round(100*cases_pruned/nrow(z))
           z <- z[sel,]
           PATTERN <- PATTERN[sel]
+          if (patterns_pruned==1) {
+            description1 <- " pattern was pruned, for a total of "
+          } else {
+            description1 <- " patterns were pruned, for a total of "
+          }                   
+          if (cases_pruned==1) {
+            description2 <- paste0(
+              " case (",cases_pruned_pct,"% of total).")
+          } else {
+            description2 <- paste0(
+              " cases (",cases_pruned_pct,"% of total).")
+          }         
+          message("Since prunesmaller=",prunesmaller,", ",
+            patterns_pruned,description1,cases_pruned,description2)
         }
       }
+
+      if (!is.null(prunebigger)) {
+        tabpattern <- table(PATTERN)
+        # Uniform variables are defined in terms of the patterns that will be shown
+        if (!is.null(hideconstant) || !showuniform) {
+          #browser()
+          sel <- PATTERN %in% names(tabpattern[tabpattern<=prunebigger])
+          patterns_pruned <- sum(tabpattern[tabpattern<=prunebigger])
+          cases_pruned <- sum(!sel)
+          cases_pruned_pct <- round(100*cases_pruned/nrow(z))
+          z <- z[sel,]
+          PATTERN <- PATTERN[sel]
+          if (patterns_pruned==1) {
+            description1 <- " pattern was pruned, for a total of "
+          } else {
+            description1 <- " patterns were pruned, for a total of "
+          }                   
+          if (cases_pruned==1) {
+            description2 <- paste0(
+              " case (",cases_pruned_pct,"% of total).")
+          } else {
+            description2 <- paste0(
+              " cases (",cases_pruned_pct,"% of total).")
+          }         
+          message("Since prunebigger=",prunebigger,", ",
+            patterns_pruned,description1,cases_pruned,description2)
+        }
+      }    
       
+      if (!is.null(hideconstant)) {
+        for (var in vars) {
+          if (length(unique(z[[var]]))==1) {
+            if ((unique(z[[var]]) %in% hideconstant)) {
+              message(paste0("Not showing ",var,", since its only value is ",z[[var]][1]))
+              vars <- vars[vars!=var]
+            }  
+          }
+        }        
+      } else
       if (!showuniform) {
         for (var in vars) {
           #message(var)
@@ -1757,6 +1906,16 @@ vtree <- function (
         edgeattr <- paste(edgeattr,paste0("arrowhead=",arrowhead))
       }
       
+      if (!is.null(hideconstant)) {
+        for (var in vars) {
+          if (length(unique(z[[var]]))==1) {
+            if ((unique(z[[var]]) %in% hideconstant)) {
+              message(paste0("Not showing ",var,", since the only value is ",z[[var]][1]))
+              vars <- vars[vars!=var]
+            }  
+          }
+        }        
+      } else      
       if (!showuniform) {
         for (var in vars) {
           #message(var)
@@ -1874,6 +2033,29 @@ vtree <- function (
       }
       names(sp) <- vars
       showpct <- sp
+    }
+    
+    if (is.null(names(sameline))) {
+      sameline <- rep(sameline[1],numvars)
+      names(sameline) <- vars
+    } else {
+      if (all(sameline)) {
+        sl <- rep(FALSE,numvars)
+      } else
+      if (all(!sameline)) {
+        sl <- rep(TRUE,numvars)
+      } else
+      if (length(sameline)!=numvars) {
+        stop("sameline: ambiguous specification.")
+      } else {
+        sl <- rep(NA,numvars)
+      }
+      if (any(names(sameline) %in% vars)) {
+        m <- match(names(sameline),vars)
+        sl[m[!is.na(m)]] <- sameline[!is.na(m)]
+      }
+      names(sl) <- vars
+      sameline <- sl
     }
 
     if (is.null(names(revgradient))) {
@@ -2025,6 +2207,14 @@ vtree <- function (
               if (!holdvarlabelcolors) {
                 varlabelcolors[i] <- fillcolor[names(fillcolor)==vars[i]]
               }
+            } else
+            if (!is.null(specfill)) {
+              if (is.null(NAfillcolor)) {
+                valuecolors[TRUE] <- specfill[[vars[[i]]]]
+              } else {
+                valuecolors[values!="NA"] <- specfill[[vars[[i]]]]
+              }
+              varlabelcolors[i] <- "black"              
             } else
             if (gradient[vars[i]]) {
               if (revgrad) {
@@ -2248,10 +2438,12 @@ vtree <- function (
     zvalue <- rep(0,nrow(z))
     showCOUNT <- showcount
     showPCT <- showpct
+    sameLINE <- sameline
   } else {
     zvalue <- z[[vars[1]]]
     showCOUNT <- showcount[[vars[1]]]
     showPCT <- showpct[vars[1]]
+    sameLINE <- sameline[vars[1]]
   }
   
   
@@ -2264,15 +2456,17 @@ vtree <- function (
     last = last, labels = labelnode[[vars[1]]], tlabelnode=tlabelnode, labelvar = labelvar[vars[1]],
     varminwidth=varminwidth[vars[1]],varminheight=varminheight[vars[1]],varlabelloc=varlabelloc[vars[1]],
     check.is.na=check.is.na,
-    sameline=sameline,
+    sameline=sameLINE,
     showvarinnode=showvarinnode,shownodelabels=shownodelabels[vars[1]],
     showpct=showPCT,
     showrootcount=showrootcount,
     showcount=showCOUNT,
+    prefixcount=prefixcount,
     prune=prune[[vars[1]]],
     tprune=tprune,
     prunelone=prunelone,
     prunesmaller=prunesmaller,
+    prunebigger=prunebigger,
     HTMLtext = HTMLtext, showvarnames = showvarnames,
     keep=keep[[vars[1]]],
     tkeep=tkeep,
@@ -2282,7 +2476,12 @@ vtree <- function (
     color = color[2], topfillcolor = rootfillcolor, fillcolor = fillcolor[[vars[1]]],
     vp = vp, rounded = rounded, just=just, justtext=justtext, thousands=thousands, showroot=showroot,
     verbose=verbose,sortfill=sortfill)
-
+  
+  numsmallernodes <- tree$numsmallernodes
+  sumsmallernodes <- tree$sumsmallernodes
+  numbiggernodes  <- tree$numbiggernodes
+  sumbiggernodes  <- tree$sumbiggernodes
+  
   if (root) {
     treedata <- list(.n=nrow(z),.pct=100)
   }
@@ -2381,7 +2580,7 @@ vtree <- function (
 
   varlevelindex <- 0
   for (varlevel in tree$levels) { 
-
+    
     varlevelindex <- varlevelindex + 1
     
     if (tfollow_this_var) {
@@ -2538,7 +2737,7 @@ vtree <- function (
       !(varlevel %in% prunebelowlevels) & 
       (is.null(followlevels) | (varlevel %in% followlevels)) &
       !(varlevel=="NA" & length(keep)>0 & (!is.null(keep[[CurrentVar]]) & !("NA" %in% keep[[CurrentVar]])))
-
+    
     if (condition_to_follow) {
       if (varlevel == "NA") {
           select <- is.na(z[[CurrentVar]]) | (!is.na(z[[CurrentVar]]) & z[[CurrentVar]]=="NA")
@@ -2548,12 +2747,14 @@ vtree <- function (
       }
       if (length(select)>0 & numvars>=1) {
         zselect <- z[select, , drop = FALSE]
+        
         for (index in seq_len(ncol(zselect))) {
           attr(zselect[[index]],"label") <- attr(z[[index]],"label")
         }
         # *************************************************************************
-        # Recursive call to vtree  ----
-        # *************************************************************************                 
+        # Call vtree recursively  ----
+        # ************************************************************************* 
+
         fcChild <- vtree(data=zselect,
           vars=vars[-1], auto=FALSE,parent = tree$nodenum[varlevelindex],
           last = max(tree$nodenum),
@@ -2565,10 +2766,11 @@ vtree <- function (
           showvarinnode=showvarinnode,shownodelabels=shownodelabels,
           showpct=showpct,
           showcount=showcount,
+          prefixcount=prefixcount,
           sameline=sameline, showempty = showempty,
           root = FALSE,
           prune=prune, prunebelow = prunebelow, tprunebelow=TPRUNEBELOW,
-          prunesmaller=prunesmaller,
+          prunesmaller=prunesmaller,prunebigger=prunebigger,
           tprune=TPRUNE,
           tkeep=TKEEP,
           labelvar = labelvar,
@@ -2582,6 +2784,8 @@ vtree <- function (
           tfollow=TFOLLOW,
           pruneNA=pruneNA,
           pattern=pattern,seq=seq,
+          numsmallernodes=numsmallernodes,sumsmallernodes=sumsmallernodes,
+          numbiggernodes=numbiggernodes,sumbiggernodes=sumbiggernodes,
           text = text, ttext=TTEXT,gradient=gradient,sortfill=sortfill,
           maxNodes=maxNodes,
           colornodes = colornodes, color = color[-1], fillnodes = fillnodes,
@@ -2589,31 +2793,94 @@ vtree <- function (
           HTMLtext=HTMLtext,
           vp = vp, rounded = rounded, just=just, justtext=justtext,thousands=thousands,
           verbose=verbose)
+        
         if (!is.null(fcChild$treedata)){
           treedata[[vars[1]]][[varlevel]] <- 
             c(treedata[[vars[1]]][[varlevel]],fcChild$treedata)
         }
+
         tree <- joinflow(tree,fcChild)
+        #browser()
       }
-    }
-  }
+    } 
+  } 
   tree$treedata <- treedata
 
   # *************************************************************************
   # End: Loop over variable levels  ----
   # *************************************************************************
   
-  
-  if (length(tree$nodenum) == 0) {
+  if (length(tree$nodenum)==0) {
     tree <- NULL
   }
-
   
   # *************************************************************************
   # Begin code for root call only  ----
   # *************************************************************************  
   
   if (root) {
+    
+    if ((!is.null(prunesmaller) | !is.null(prunebigger)) && is.null(hideconstant)) {
+      if (tree$numsmallernodes==0) {
+        if (!is.null(prunesmaller)) {
+          if (pattern) {
+            message("No patterns had fewer than ",prunesmaller," cases")
+          } else {
+            message("No nodes were smaller than ",prunesmaller)
+          }
+        }
+      }
+      if (tree$numbiggernodes==0) {
+        if (!is.null(prunebigger)) { 
+          if (pattern) {
+            message("No patterns had more than than ",prunebigger," cases")
+          } else {
+            message("No nodes were larger than ",prunebigger)
+          }        
+        }
+      } else {
+        if (!is.null(prunesmaller)) {
+          if (pattern) {
+            if (tree$numsmallernodes==1) {
+              description <- " pattern was pruned, "
+            } else {
+              description <- " patterns were pruned, "
+            }
+            description <- paste0(description,
+              "for a total of ",tree$sumsmallernodes," cases",
+            " (",round(100*tree$sumsmallernodes/nrow(z)),"% of total)")
+          } else {
+            if (tree$numsmallernodes==1) {
+              description <- " node was pruned."
+            } else {
+              description <- " nodes were pruned."
+            }         
+          }
+          message("Since prunesmaller=",prunesmaller,", ",
+            tree$numsmallernodes,description)
+        }
+        if (!is.null(prunebigger)) {
+          if (pattern) {
+            if (tree$numbiggernodes==1) {
+              description <- " pattern was pruned, "
+            } else {
+              description <- " patterns were pruned, "
+            }
+            description <- paste0(description,
+              "for a total of ",tree$sumbiggernodes," cases",
+            " (",round(100*tree$sumbiggernodes/nrow(z)),"% of total)")
+          } else {
+            if (tree$numbiggernodes==1) {
+              description <- " node was pruned."
+            } else {
+              description <- " nodes were pruned."
+            }         
+          }
+          message("Since prunebigger=",prunebigger,", ",
+            tree$numbiggernodes,description)
+        }          
+      }
+    }
 
     NL <- labelsAndLegends(z=z,OLDVARS=OLDVARS,vars=vars,labelvar=labelvar,
       HTMLtext=HTMLtext,vsplitwidth=vsplitwidth,just=just,
@@ -2663,10 +2930,15 @@ vtree <- function (
         if (is.null(folder)) {
           if (isTRUE(getOption('knitr.in.progress'))) {
             if (is.null(options()$vtree_folder)) {
-              if (knitr::opts_knit$get("out.format") %in% c("latex","sweave")) {
+              if (knitr::opts_knit$get("out.format") %in% c("latex","sweave","markdown")) {
                 knitr.fig.path <- knitr::opts_chunk$get("fig.path")
                 options(vtree_folder=knitr.fig.path)
-                dir.create(file.path(knitr.fig.path), showWarnings = FALSE)
+                if (!dir.exists(knitr.fig.path)){
+                  tf <- tempfile()
+                  cat("```{r}\nplot(0)\n```\n",file=tf)
+                  OUTPUT <- utils::capture.output(suppressMessages(knitr::knit_child(tf,
+                    options=list(fig.show='hide',warning=FALSE,message=FALSE))))
+                }
               } else {
                 options(vtree_folder=tempdir())
               }
@@ -2713,8 +2985,6 @@ vtree <- function (
         }
       }
       
-      # fullpath <- normalizePath(fullpath,"/")
-
       if (verbose) message("Image file saved to ",fullpath)
       
       if (imagewidth=="" && imageheight=="") {

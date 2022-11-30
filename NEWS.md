@@ -1,3 +1,23 @@
+# vtree 5.6.3
+
+## Changes
+
+* New parameter, `prunebigger`, prunes nodes bigger than specified size. This is particularly useful with pattern trees when there are a few unusual cases.
+
+* Vectorized the `sameline` parameter, to allow different behavior for different variables.
+
+* New parameter, `prefixcount`, to format counts (e.g. N=3).
+
+* New parameter `hideconstant`, is more flexible and intuitive than `showuniform` (also more intuitively named).
+
+* Altered vtree to work properly with Quarto.
+
+
+## Bug fixes
+
+* Fixed problem when `hideconstant` is specified with prunesmaller and pattern=TRUE.
+
+
 # vtree 5.4.6
 
 ## Changes
@@ -22,7 +42,7 @@
 
 * Added `the.matrix` dataset based on the 3 Matrix movies.
 
-* Added targetted versions of the pruning parameters, namely: `tprune`, `tkeep`, `tfollow`, and `tprunebelow`.
+* Added targeted versions of the pruning parameters, namely: `tprune`, `tkeep`, `tfollow`, and `tprunebelow`.
 
 * When `ImageFileOnly=TRUE`, graphics files are now numbered successively, even when not knitting.
 
@@ -33,6 +53,8 @@
 ## Bug fixes
 
 * Fixed a small bug where the `%list%` summary option used `digits` rather than `cdigits`.
+
+* Fixed problem when hideconstant is specified with `prunesmaller` and `pattern=TRUE`.
 
 
 # vtree 5.1.8
