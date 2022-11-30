@@ -4,39 +4,42 @@
 \alias{vtree}
 \title{Draw a variable tree}
 \usage{
-vtree(data = NULL, vars, showuniform = TRUE, words = NULL,
-  horiz = TRUE, title = "", sameline = FALSE, vp = TRUE,
-  prune = list(), tprune = list(), keep = list(), tkeep = list(),
-  prunebelow = list(), tprunebelow = list(), follow = list(),
-  tfollow = list(), prunesmaller = NULL, summary = NULL,
-  tsummary = NULL, shownodelabels = TRUE, showvarnames = TRUE,
-  showpct = TRUE, showlpct = TRUE, showcount = TRUE,
+vtree(data = NULL, vars, showuniform = TRUE, hideconstant = NULL,
+  words = NULL, horiz = TRUE, title = "", sameline = FALSE,
+  vp = TRUE, prune = list(), tprune = list(), keep = list(),
+  tkeep = list(), prunebelow = list(), tprunebelow = list(),
+  follow = list(), tfollow = list(), prunesmaller = NULL,
+  prunebigger = NULL, summary = NULL, tsummary = NULL,
+  shownodelabels = TRUE, showvarnames = TRUE, showpct = TRUE,
+  showlpct = TRUE, showcount = TRUE, prefixcount = "",
   showrootcount = TRUE, showlegend = FALSE, showroot = TRUE,
   showvarinnode = FALSE, showlegendsum = FALSE, labelvar = NULL,
   labelnode = list(), tlabelnode = NULL, digits = 0, cdigits = 1,
-  fillcolor = NULL, fillnodes = TRUE, NAfillcolor = "white",
-  rootfillcolor = "#EFF3FF", palette = NULL, gradient = TRUE,
-  revgradient = FALSE, sortfill = FALSE, singlecolor = 2,
-  colorvarlabels = TRUE, color = c("blue", "forestgreen", "red", "orange",
-  "pink"), colornodes = FALSE, plain = FALSE, Venn = FALSE,
-  check.is.na = FALSE, seq = FALSE, pattern = FALSE, ptable = FALSE,
-  text = list(), ttext = list(), varlabelloc = NULL, font = "Arial",
-  varnamepointsize = 24, varnamebold = FALSE, legendpointsize = 14,
-  HTMLtext = FALSE, splitwidth = 20, vsplitwidth = 8,
-  splitspaces = TRUE, getscript = FALSE, mincount = 1, maxcount,
-  showempty = FALSE, choicechecklist = TRUE, just = "c",
-  justtext = NULL, thousands = "", folder = NULL, format = "",
-  imageFileOnly = FALSE, pngknit = TRUE, pxwidth = NULL,
-  pxheight = NULL, imagewidth = "", imageheight = "", width = NULL,
-  height = NULL, maxNodes = 1000, unchecked = c("0", "FALSE", "No",
-  "no"), checked = c("1", "TRUE", "Yes", "yes"), trim = NULL,
-  rounded = TRUE, varminwidth = NULL, varminheight = NULL, squeeze = 1,
-  arrowhead = "normal", nodesep = 0.5, ranksep = 0.5, margin = 0.2,
-  graphattr = "", nodeattr = "", edgeattr = "", nodefunc = NULL,
-  nodeargs = NULL, verbose = FALSE, runsummary = NULL, retain = NULL,
-  auto = FALSE, parent = 1, last = 1, root = TRUE,
-  subset = 1:nrow(z), as.if.knit = FALSE, prunelone = NULL,
-  pruneNA = FALSE, lsplitwidth = 15, showlevels = TRUE, z = NULL)
+  fillcolor = NULL, specfill = NULL, fillnodes = TRUE,
+  NAfillcolor = "white", rootfillcolor = "#EFF3FF", palette = NULL,
+  gradient = TRUE, revgradient = FALSE, sortfill = FALSE,
+  singlecolor = 2, colorvarlabels = TRUE, color = c("blue",
+  "forestgreen", "red", "orange", "pink"), colornodes = FALSE,
+  plain = FALSE, Venn = FALSE, check.is.na = FALSE, seq = FALSE,
+  pattern = FALSE, ptable = FALSE, text = list(), ttext = list(),
+  varlabelloc = NULL, font = "Arial", varnamepointsize = 24,
+  varnamebold = FALSE, legendpointsize = 14, HTMLtext = FALSE,
+  splitwidth = 20, vsplitwidth = 8, splitspaces = TRUE,
+  getscript = FALSE, mincount = 1, maxcount, showempty = FALSE,
+  choicechecklist = TRUE, just = "c", justtext = NULL, thousands = "",
+  folder = NULL, format = "", imageFileOnly = FALSE, pngknit = TRUE,
+  pxwidth = NULL, pxheight = NULL, imagewidth = "", imageheight = "",
+  width = NULL, height = NULL, maxNodes = 1000, unchecked = c("0",
+  "FALSE", "No", "no"), checked = c("1", "TRUE", "Yes", "yes"),
+  trim = NULL, rounded = TRUE, varminwidth = NULL, varminheight = NULL,
+  squeeze = 1, arrowhead = "normal", nodesep = 0.5, ranksep = 0.5,
+  margin = 0.2, graphattr = "", nodeattr = "", edgeattr = "",
+  nodefunc = NULL, nodeargs = NULL, verbose = FALSE, runsummary = NULL,
+  retain = NULL, auto = FALSE, parent = 1, last = 1, root = TRUE,
+  subset = 1:nrow(z), numsmallernodes = 0, sumsmallernodes = 0,
+  numbiggernodes = 0, sumbiggernodes = 0, as.if.knit = FALSE,
+  prunelone = NULL, pruneNA = FALSE, lsplitwidth = 15,
+  showlevels = TRUE, z = NULL)
 }
 \arguments{
 \item{data}{Required: Data frame, or a single vector.}
@@ -49,7 +52,9 @@ Variables to use for the tree. Can be
 e.g. \code{~ Age + Sex},
 but note that extended variable specifications cannot be used in this case.}
 
-\item{showuniform}{Show variable even when it doesn't change?}
+\item{showuniform}{Show a variable even when it only has one value?}
+
+\item{hideconstant}{Hide a variable if its only value is one of the specified strings.}
 
 \item{words}{A list of named vectors of values.
 Used to build a variable tree 
@@ -61,7 +66,11 @@ No counts will be shown.}
 
 \item{title}{Label for the root node of the tree.}
 
-\item{sameline}{Display node label on the same line as the count and percentage?}
+\item{sameline}{Display node label on the same line as the count and percentage?
+A single value (with no names) specifies the setting for all variables.
+A logical vector of \code{TRUE} for named variables is interpreted as
+A logical vector of \code{FALSE} for named variables is interpreted as
+\code{FALSE} for those variables and \code{TRUE} for all others.}
 
 \item{vp}{Use \emph{valid percentages}?
 Valid percentages are computed by first excluding any missing values,
@@ -80,6 +89,8 @@ show percentages of the total number of observations.}
 (see \strong{Pruning} below)}
 
 \item{prunesmaller}{Prune any nodes with count less than specified number.}
+
+\item{prunebigger}{Prune any nodes with count greater than specified number.}
 
 \item{summary}{A character string used to specify summary statistics to display in the nodes.
 See \strong{Displaying summary information} below for details.}
@@ -111,6 +122,8 @@ A single value (with no names) specifies the setting for all variables.
 A logical vector of \code{TRUE} for named variables is interpreted as
 A logical vector of \code{FALSE} for named variables is interpreted as
 \code{FALSE} for those variables and \code{TRUE} for all others.}
+
+\item{prefixcount}{Text that will precede each count.}
 
 \item{showrootcount}{Should count in root node?}
 
@@ -144,6 +157,8 @@ and in continuous values displayed via the summary parameter (\code{cdigits}).}
 \item{fillcolor}{[Color] A named vector of colors for filling the nodes of each variable.
 If an unnamed, scalar color is specified,
 all nodes will have this color.}
+
+\item{specfill}{[Color] A list with specified color values for specified variables.}
 
 \item{fillnodes}{[Color] Fill the nodes with color?}
 
@@ -332,6 +347,14 @@ available to execute the functions in \code{runsummary}.}
 \item{root}{[Internal use only.] Is this the root node of the tree?}
 
 \item{subset}{[Internal use only.] A vector representing the subset of observations.}
+
+\item{numsmallernodes}{[Internal use only.] Counting nodes that were suppressed by prunesmaller.}
+
+\item{sumsmallernodes}{[Internal use only.] Summing nodes that were suppress by prunesmaller.}
+
+\item{numbiggernodes}{[Internal use only.] Counting nodes that were suppressed by prunebigger.}
+
+\item{sumbiggernodes}{[Internal use only.] Summing nodes that were suppress by prunebigger.}
 
 \item{as.if.knit}{(Deprecated) Behave as if called while knitting?}
 
