@@ -1,3 +1,13 @@
+# vtree 5.6.5
+
+## Changes
+
+* Made changes to unit tests to make them more robust to changes to `htmlwidgets::sizingPolicy()`
+
+## Bug fixes
+
+* In the vignette, one of the examples (not actually excecuted) had an error. In particular, the example using the `esoph` data frame would not work properly because of the value of the `agegp` variable, `75+`. The example now recodes `75+` to `75plus`.
+
 # vtree 5.6.3
 
 ## Changes
