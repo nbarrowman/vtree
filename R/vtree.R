@@ -1727,7 +1727,7 @@ vtree <- function (
 
     if (length(labelvar) > 0) {
         namesvarheaders <- names(labelvar)
-        labelvar <- splitlines(labelvar, splitwidth, sp = sepN, at = c(" ", ".", "-", "+", "_", "=", "/"))
+        labelvar <- splitlines(labelvar, vsplitwidth, sp = sepN, at = c(" ", ".", "-", "+", "_", "=", "/"))
         names(labelvar) <- namesvarheaders
     }
     
