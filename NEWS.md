@@ -1,3 +1,7 @@
+# vtree 5.6.6
+
+Identified an issue when showlegend=TRUE and there is pruning.
+
 # vtree 5.6.5
 
 ## Changes
