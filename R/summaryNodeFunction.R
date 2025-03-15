@@ -334,6 +334,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
     if (length(grep("%v%"            ,args$format[i])>0)) ShowSimpleSummary <- FALSE
     if (length(grep("%list%"         ,args$format[i])>0)) ShowSimpleSummary <- FALSE
     if (length(grep("%listlines%"    ,args$format[i])>0)) ShowSimpleSummary <- FALSE
+    if (length(grep("%list_rand%"         ,args$format[i])>0)) ShowSimpleSummary <- FALSE
     if (length(grep("%list_%"        ,args$format[i])>0)) ShowSimpleSummary <- FALSE
     if (length(grep("%freqpct%"      ,args$format[i])>0)) ShowSimpleSummary <- FALSE
     if (length(grep("%freqpctx%"    ,args$format[i])>0)) ShowSimpleSummary <- FALSE
@@ -500,6 +501,11 @@ summaryNodeFunction <- function (u, varname, value, args) {
       listOutput <- paste0(paste0(names(tabval),countval),collapse=", ")
       listLinesOutput <- paste0(paste0(names(tabval),countval),collapse=sepN)
       
+      tabval_samp <- tableWithoutSort(around(sample(y),digits=cdigits,thousands=thousands),exclude=NULL)
+      countval_samp <- paste0(" (n=",tabval_samp ,")")
+      countval_samp [tabval_samp ==1] <- ""
+      listOutput_samp <- paste0(paste0(names(tabval_samp ),countval_samp),collapse=", ")
+      
       if (ShowNodeText) {
         if (length(x)==0 || !is.numeric(x)) {
           minx <- maxx <- NA
@@ -531,6 +537,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
           result <- gsub("%leafonly%","",result)
           result <- gsub("%v%",args$var[i],result)
           result <- gsub("%list%",listOutput,result)
+          result <- gsub("%list_rand%",listOutput_samp ,result)
           result <- gsub("%listlines%",listLinesOutput,result)
           result <- gsub("%list_%",listLinesOutput,result)
           result <- gsub("%freqpct%",freqfunc(y,digits=digits,cdigits=cdigits,thousands=thousands,sort=SortIt),result)

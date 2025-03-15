@@ -24,11 +24,8 @@
 #'   \item Report bugs at \url{https://github.com/nbarrowman/vtree/issues}
 #' }
 #' 
-#' @docType package
-#' @name vtree-package
-NULL 
-
-
+"_PACKAGE"
+ 
 
 #'
 #' Draw a variable tree
