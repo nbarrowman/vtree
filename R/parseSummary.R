@@ -519,7 +519,7 @@ parseSummary <- function(z,vars,summary,verbose,choicechecklist,checked,unchecke
   
   # If an element of codevar is not the name of a variable in z,
   # perhaps it's an expression that can be evaluated in z
-  if (length(summaryvar)==1) {
+  if ((length(summaryvar)==1) && (summaryvar!="_")) {
     if (length(grep("^([oair]+[oair]*:)*(\\S*)([\\*#@])$",summaryvar))==0) {
       if (length(grep("^stem:",summaryvar))==0) {   # except for stems
         if (length(grep("^stemc:",summaryvar))==0) {   # except for stems

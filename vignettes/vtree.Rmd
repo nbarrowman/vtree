@@ -97,7 +97,7 @@ and displaying information about them.
 Nested subsets arise in all kinds of situations.
 Consider, for example, flow diagrams for clinical studies,
 such as the following 
-[CONSORT](http://www.consort-statement.org)-style diagram,
+[CONSORT](https://www.consort-spirit.org/)-style diagram,
 produced by vtree.
 
 `r spaces(50)`
@@ -115,7 +115,7 @@ populate diagrams like this, mistakes are likely.
 And although the errors that make it into published articles are often minor,
 they can sometimes be disastrous.
 One motivation for developing vtree was to make flow diagrams
-[reproducible](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3383002/).
+[reproducible](https://pmc.ncbi.nlm.nih.gov/articles/PMC3383002/).
 The ability to reproducibly generate variable trees also means that
 when a data set is updated, a revised tree can be automatically produced.
 
@@ -226,7 +226,7 @@ including a variety of summary statistics;
 [patterns](#patterns) of values, and
 [missingness](#missingValues);
 
-* support for [checkbox variables](#REDCapCheckboxes) from [REDCap](https://www.project-redcap.org) databases;
+* support for [checkbox variables](#REDCapCheckboxes) from [REDCap](https://www.project-redcap.org/) databases;
 
 * features for [dichotomizing variables](#dichotomizing) and [checking for outliers](#detectingOutliers);
 
@@ -244,13 +244,13 @@ prune parts of the tree, etc.
 
 vtree is built on open-source software:
 in particular Richard Iannone's
-[DiagrammeR](http://rich-iannone.github.io/DiagrammeR/) package,
+[DiagrammeR](https://rich-iannone.github.io/DiagrammeR/) package,
 which provides an interface to the
 [Graphviz](https://www.graphviz.org/) software using the
 [htmlwidgets](https://www.htmlwidgets.org/) framework.
 Additionally,
 vtree makes use of the
-[Shiny](https://www.rstudio.com/products/shiny/) package,
+[Shiny](https://posit.co/products/) package,
 and the
 [svg-pan-zoom](https://github.com/bumbu/svg-pan-zoom) JavaScript library.
 
@@ -1833,7 +1833,7 @@ Consider the following fictitious data about a randomized controlled trial (RCT)
 FakeRCT
 ```
 
-The CONSORT diagram (http://www.consort-statement.org/) shows the flow of patients through the study,
+The CONSORT diagram (https://www.consort-spirit.org/) shows the flow of patients through the study,
 starting with those who meet eligibility criteria,
 then those who are randomized, etc.
 It is easy to produce a rudimentary version of a CONSORT diagram in `vtree`.

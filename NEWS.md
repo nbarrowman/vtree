@@ -1,3 +1,7 @@
+# vtree 5.7.0
+
+Added %list_rand% summary option to randomly sort values.
+
 # vtree 5.6.6
 
 Identified an issue when showlegend=TRUE and there is pruning.

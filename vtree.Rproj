@@ -1,4 +1,5 @@
 Version: 1.0
+ProjectId: ca3c0d61-825d-4d46-8f55-dd2b6352bfb1
 
 RestoreWorkspace: Default
 SaveWorkspace: Default
@@ -15,5 +16,5 @@ LaTeX: pdfLaTeX
 BuildType: Package
 PackageUseDevtools: Yes
 PackageInstallArgs: --no-multiarch --with-keep.source
-PackageCheckArgs: --no-manual
+PackageCheckArgs: --as-cran
 PackageRoxygenize: rd,collate,namespace

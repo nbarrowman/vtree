@@ -472,6 +472,9 @@
 #'   c(Severity="Severe",Sex="M",text="\nMales with Severe disease"),
 #'   c(Severity="NA",text="\nUnknown severity")))
 #'
+#' @references
+#' Barrowman N, Webster RJ (2025). “Exploring Data Subsets with vtree.” \emph{Journal of Statistical Software}, \strong{114}(4), 1-28. <doi:10.18637/jss.v114.i04>.
+#'
 #' @importFrom utils capture.output
 #'
 #' @export
@@ -1700,6 +1703,9 @@ vtree <- function (
     
     # Check that all of the named variables are in the data frame
     if (novars) ALLVARS <- ALLVARS[ALLVARS!=""]
+    
+    ALLVARS <- ALLVARS[ALLVARS!="_"]
+    
     findallvars <- ALLVARS %in% names(z)
     if (any(!findallvars)) {
       stop("The following variables were not found in the data frame: ",

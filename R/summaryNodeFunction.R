@@ -331,6 +331,8 @@ summaryNodeFunction <- function (u, varname, value, args) {
     #  ShowSimpleSummary <- FALSE
     # }
     
+    if (var=="_") ShowSimpleSummary <- FALSE
+    
     if (length(grep("%v%"            ,args$format[i])>0)) ShowSimpleSummary <- FALSE
     if (length(grep("%list%"         ,args$format[i])>0)) ShowSimpleSummary <- FALSE
     if (length(grep("%listlines%"    ,args$format[i])>0)) ShowSimpleSummary <- FALSE
@@ -409,7 +411,11 @@ summaryNodeFunction <- function (u, varname, value, args) {
         y[y %in% ""] <- "*None"
       }
     } else {
-      y <- u[[var]]
+      if (var=="_") {
+        y <- u[[1]] # Use the first column for convenience
+      } else {
+        y <- u[[var]]
+      }
     }
 
     show <- TRUE
@@ -481,6 +487,12 @@ summaryNodeFunction <- function (u, varname, value, args) {
           ShowNodeText <- FALSE
         }
       }
+      
+      if (!args$root) {
+        if (length(grep("%rootonly%",result))>0) {
+          ShowNodeText <- FALSE
+        }
+      }      
 
       if (args$root) {
         if (length(grep("%noroot%",result))>0) {
@@ -535,6 +547,7 @@ summaryNodeFunction <- function (u, varname, value, args) {
           result <- gsub("%sort%","",result)
           result <- gsub("%nosort%","",result)
           result <- gsub("%leafonly%","",result)
+          result <- gsub("%rootonly%","",result)
           result <- gsub("%v%",args$var[i],result)
           result <- gsub("%list%",listOutput,result)
           result <- gsub("%list_rand%",listOutput_samp ,result)
